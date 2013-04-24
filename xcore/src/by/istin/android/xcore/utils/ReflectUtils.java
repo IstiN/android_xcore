@@ -1,5 +1,6 @@
 package by.istin.android.xcore.utils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -11,7 +12,8 @@ public class ReflectUtils {
 		Field[] fields = clazz.getFields();
 		List<Field> keys = null;
 		for (Field field : fields) {
-			if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers())) {
+			Annotation[] annotations = field.getAnnotations();
+			if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers()) && annotations != null && annotations.length != 0) {
 				if (keys == null) {
 					keys = new ArrayList<Field>();
 				}

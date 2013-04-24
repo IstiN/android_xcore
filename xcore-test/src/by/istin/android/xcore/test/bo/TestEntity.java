@@ -15,24 +15,24 @@ public class TestEntity extends ContentValuesEntity {
 
 	@dbLong
 	@SerializedName(value="uid")
-	public static String ID = _ID;
+	public static final String ID = _ID;
 	
 	@dbInteger
-	public static String INT_VALUE = "int_value";
+	public static final String INT_VALUE = "int_value";
 	
 	@dbByte
-	public static String BYTE_VALUE = "byte_value";
+	public static final String BYTE_VALUE = "byte_value";
 	
 	@dbDouble
-	public static String DOUBLE_VALUE = "double_value";
+	public static final String DOUBLE_VALUE = "double_value";
 	
 	@dbString
-	public static String STRING_VALUE = "string_value";
+	public static final String STRING_VALUE = "string_value";
 	
 	@dbBoolean
-	public static String BOOLEAN_VALUE = "boolean_value";
+	public static final String BOOLEAN_VALUE = "boolean_value";
 	
 	@dbEntity(clazz=SubEntity.class)
-	public static String SUB_ENTITY_VALUE = "sub_entity_value";
+	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
 	
 }
