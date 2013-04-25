@@ -48,7 +48,7 @@ import by.istin.android.xcore.utils.UriUtils;
  */
 public class HttpDataSource implements IDataSource {
 
-	public static final String SYSTEM_SERVICE_NAME = "framework:httpdatasource";
+	public static final String SYSTEM_SERVICE_NAME = "xcore:httpdatasource";
 
 	private static final String ACCEPT_DEFAULT_VALUE = "*/*";
 
