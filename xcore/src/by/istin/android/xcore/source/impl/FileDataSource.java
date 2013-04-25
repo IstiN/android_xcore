@@ -16,7 +16,7 @@ import by.istin.android.xcore.source.IDataSource;
  * @author Uladzimir_Klyshevich
  * 
  */
-public class HttpDataSource implements IDataSource {
+public class FileDataSource implements IDataSource {
 
 	@Override
 	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
