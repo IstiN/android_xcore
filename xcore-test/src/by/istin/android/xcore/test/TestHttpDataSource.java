@@ -8,7 +8,7 @@ import android.app.Application;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.impl.http.HttpDataSource;
+import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 
 public class TestHttpDataSource extends ApplicationTestCase<Application> {
 
@@ -23,7 +23,7 @@ public class TestHttpDataSource extends ApplicationTestCase<Application> {
 	}
 
 	public void testLoad() throws Exception {
-		InputStream inputStream = new HttpDataSource().getSource(new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/app_bundler.json"));
+		InputStream inputStream = new HttpAndroidDataSource().getSource(new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/app_bundler.json"));
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 8192);
 		StringBuilder sb = new StringBuilder();
 		String line = null;

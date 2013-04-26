@@ -39,6 +39,7 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.UriUtils;
+import by.istin.android.xcore.utils.XLog;
 
 /**
  * Class for load data from web.
@@ -46,7 +47,7 @@ import by.istin.android.xcore.utils.UriUtils;
  * @author Uladzimir_Klyshevich
  * 
  */
-public class HttpDataSource implements IDataSource {
+public class HttpAndroidDataSource implements IDataSource {
 
 	public static final String SYSTEM_SERVICE_NAME = "xcore:httpdatasource";
 
@@ -76,7 +77,7 @@ public class HttpDataSource implements IDataSource {
 	public static final String UTF_8 = "UTF-8";
 
 	/* Constant Tag for logging. */
-	private static final String TAG = HttpDataSource.class.getSimpleName();
+	private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
 
 	private static String sUserAgent;
 
@@ -96,7 +97,7 @@ public class HttpDataSource implements IDataSource {
 			GET, PUT, POST, DELETE
 		}
 
-		public static String getTypedUrl(String url, Type type) {
+		public static String getUrl(String url, Type type) {
 			if (url.indexOf("?") > 0) {
 				return url + "&" + TYPE + "=" + type.name();
 			} else {
@@ -164,7 +165,7 @@ public class HttpDataSource implements IDataSource {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpDataSource dataSource, HttpUriRequest request, HttpResponse response) throws IOStatusException, ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws IOStatusException, ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
@@ -189,12 +190,12 @@ public class HttpDataSource implements IDataSource {
 
 	private IResponseStatusHandler mResponseStatusHandler;
 
-	public HttpDataSource() {
+	public HttpAndroidDataSource() {
 		this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());
 	}
 
 	/* Default constructor. */
-	public HttpDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
+	public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
 		mRequestBuilder = requestBuilder;
 		mResponseStatusHandler = statusHandler;
 		mClient = AndroidHttpClient.newInstance(sUserAgent);
@@ -202,12 +203,12 @@ public class HttpDataSource implements IDataSource {
 	}
 
 	/**
-	 * Gets instance {@link HttpDataSource}.
+	 * Gets instance {@link HttpAndroidDataSource}.
 	 * 
 	 * @return http client
 	 */
-	public static HttpDataSource get(Context ctx) {
-		return (HttpDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_NAME);
+	public static HttpAndroidDataSource get(Context ctx) {
+		return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_NAME);
 	}
 
 	protected HttpRequestBase createRequest(DataSourceRequest request) {
@@ -219,7 +220,9 @@ public class HttpDataSource implements IDataSource {
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		InputStream content = null;
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
+		XLog.xd(this, request);
 		HttpResponse response = mClient.execute(request);
+		XLog.xd(this, request);
 		if (mResponseStatusHandler != null) {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}

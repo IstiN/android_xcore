@@ -17,7 +17,7 @@ public class DataSourceService extends Service {
 	 * @see android.app.Service#onBind(android.content.Intent)
 	 */
 	@Override
-	public IBinder onBind(Intent arg0) {
+	public IBinder onBind(Intent intent) {
 		return new ServiceBinder<DataSourceService>(this);
 	}
 
