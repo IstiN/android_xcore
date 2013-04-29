@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
@@ -49,7 +50,7 @@ import by.istin.android.xcore.utils.XLog;
  */
 public class HttpAndroidDataSource implements IDataSource {
 
-	public static final String SYSTEM_SERVICE_NAME = "xcore:httpdatasource";
+	public static final String SYSTEM_SERVICE_KEY = "xcore:httpdatasource";
 
 	private static final String ACCEPT_DEFAULT_VALUE = "*/*";
 
@@ -208,7 +209,7 @@ public class HttpAndroidDataSource implements IDataSource {
 	 * @return http client
 	 */
 	public static HttpAndroidDataSource get(Context ctx) {
-		return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_NAME);
+		return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_KEY);
 	}
 
 	protected HttpRequestBase createRequest(DataSourceRequest request) {
@@ -222,6 +223,19 @@ public class HttpAndroidDataSource implements IDataSource {
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		XLog.xd(this, request);
 		HttpResponse response = mClient.execute(request);
+		int statusCode = response.getStatusLine().getStatusCode();
+		if (statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY) {
+			Header firstHeader = response.getFirstHeader("Location");
+			if (firstHeader != null) {
+				HttpGet redirectUri = new HttpGet(firstHeader.getValue());
+				/*Header[] allHeaders = response.getAllHeaders();
+				for (Header resHeader : allHeaders) {
+					redirectUri.addHeader(resHeader);	
+				}*/
+				request.abort();
+				return getInputSteam(redirectUri);
+			}
+		}
 		XLog.xd(this, request);
 		if (mResponseStatusHandler != null) {
 			mResponseStatusHandler.statusHandle(this, request, response);

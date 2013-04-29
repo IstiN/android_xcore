@@ -9,6 +9,6 @@ public interface IProcessor<Result> {
 
 	String getKey();
 	
-	Result execute(DataSourceRequest dataSourceRequest, IDataSource dataSource, InputStream inputStream);
+	Result execute(DataSourceRequest dataSourceRequest, IDataSource dataSource, InputStream inputStream) throws Exception;
 	
 }

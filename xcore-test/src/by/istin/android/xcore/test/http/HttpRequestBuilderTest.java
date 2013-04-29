@@ -13,9 +13,9 @@ import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource.DefaultHttp
 
 public class HttpRequestBuilderTest extends ApplicationTestCase<Application> {
 
-	private static final String TEST_URL_POST_PUT = "https://dl.dropbox.com/u/52289508/GP/dummy_data_eventlist.json?some_key=value&some_key1=value1";
+	private static final String TEST_URL_POST_PUT = "https://dl.dropboxusercontent.com/u/16403954/xcore/empty.json?some_key=value&some_key1=value1";
 	
-	private static final String TEST_URL_GET_DELETE = "https://dl.dropbox.com/u/52289508/GP/dummy_data_eventlist.json";
+	private static final String TEST_URL_GET_DELETE = "https://dl.dropboxusercontent.com/u/16403954/xcore/empty.json";
 
 	
 	private DefaultHttpRequestBuilder requestBuilder;
