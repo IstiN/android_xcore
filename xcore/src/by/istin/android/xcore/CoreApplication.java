@@ -20,6 +20,12 @@ public class CoreApplication extends Application {
 		
 	}
 	
+	@Override
+	public void onCreate() {
+		ContextHolder.getInstance().setContext(this);
+		super.onCreate();
+	}
+
 	private Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
 	
 	public void registerAppService(IAppServiceKey appService) {

@@ -22,4 +22,19 @@ public class ReflectUtils {
 		}
 		return keys;
 	}
+	
+	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
+		try {
+			Class<?>[] interfaces = clazz.getInterfaces();
+			for (Class<?> interfaceClazz: interfaces) {
+				if (interfaceClazz.equals(interfaceTargetClazz)) {
+					return (T)clazz.newInstance();
+				}
+			}
+			return null;
+		} catch (Exception e) {
+			return null;
+		}
+	}
+	
 }

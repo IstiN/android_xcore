@@ -52,8 +52,18 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 			if (jsonValue == null) {
 				continue;
 			}
+			String fieldValue = null;
+			try {
+				field.setAccessible(true);
+				fieldValue = (String)field.get(null);
+				field.setAccessible(false);
+			} catch (IllegalArgumentException e) {
+				throw e;
+			} catch (IllegalAccessException e) {
+				//ignored
+			}
 			if (field.isAnnotationPresent(dbLong.class)) {
-				contentValues.put(fieldName, jsonValue.getAsLong());
+				contentValues.put(fieldValue, jsonValue.getAsLong());
 			} else if (field.isAnnotationPresent(dbString.class)) {
 				contentValues.put(fieldName, jsonValue.getAsString());
 			} else if (field.isAnnotationPresent(dbBoolean.class)) {

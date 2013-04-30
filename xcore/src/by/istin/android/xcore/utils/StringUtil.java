@@ -10,6 +10,7 @@ import java.util.Set;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
+import by.istin.android.xcore.ContextHolder;
 
 /**
  * The Class StringUtil. Provides set of common low-level string functions.
@@ -77,7 +78,7 @@ public final class StringUtil {
 		htmlEntities.put("&ouml;", "ö");
 		htmlEntities.put("&Ouml;", "Ö");
 		htmlEntities.put("&oslash;", "ø");
-		htmlEntities.put("&Oslash;", "Ø");
+		htmlEntities.put("&Oslash;", "�?");
 		htmlEntities.put("&szlig;", "ß");
 		htmlEntities.put("&ugrave;", "ù");
 		htmlEntities.put("&Ugrave;", "Ù");
@@ -131,7 +132,7 @@ public final class StringUtil {
 		russianAlternative.put("Е", "E");
 		russianAlternative.put("Ж", "Zh");
 		russianAlternative.put("З", "Z");
-		russianAlternative.put("И", "I");
+		russianAlternative.put("�?", "I");
 		russianAlternative.put("Й", "Y");
 		russianAlternative.put("К", "K");
 		russianAlternative.put("Л", "L");
@@ -346,6 +347,17 @@ public final class StringUtil {
 			return null;
 		}
 		return context.getString(linkCallIdentificator);
+	}
+
+	/**
+	 * Gets string value from resource by key. Required {@link ContextHolder}.
+	 * 
+	 * @param key
+	 *            key of resource
+	 * @return String value
+	 */
+	public static String getStringResource(String key) {
+		return getStringResource(key, ContextHolder.getInstance().getContext());
 	}
 
 	public static String encode(String value, String defaultValue) {

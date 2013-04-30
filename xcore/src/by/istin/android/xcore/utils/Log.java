@@ -14,7 +14,7 @@ import org.apache.http.util.EntityUtils;
 import android.content.Context;
 
 
-public class XLog {
+public class Log {
 
 	private static final String TIME_ACTION = "time_action";
 

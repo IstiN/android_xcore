@@ -1,5 +1,6 @@
 package by.istin.android.xcore.test.bo;
 
+import android.content.ContentValues;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
@@ -8,10 +9,11 @@ import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.db.IMerge;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TestEntity implements BaseColumns {
+public class TestEntity implements BaseColumns, IMerge {
 
 	@dbLong
 	@SerializedName(value="id")
@@ -34,5 +36,10 @@ public class TestEntity implements BaseColumns {
 	
 	@dbEntity(clazz=SubEntity.class)
 	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
+
+	@Override
+	public void merge(ContentValues oldValues, ContentValues newValues) {
+		// test interface
+	}
 	
 }

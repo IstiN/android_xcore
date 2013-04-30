@@ -34,13 +34,12 @@ import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.text.TextUtils;
-import android.util.Log;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.UriUtils;
-import by.istin.android.xcore.utils.XLog;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * Class for load data from web.
@@ -200,7 +199,6 @@ public class HttpAndroidDataSource implements IDataSource {
 		mRequestBuilder = requestBuilder;
 		mResponseStatusHandler = statusHandler;
 		mClient = AndroidHttpClient.newInstance(sUserAgent);
-		mClient.enableCurlLogging(TAG, Log.VERBOSE);
 	}
 
 	/**
@@ -221,7 +219,7 @@ public class HttpAndroidDataSource implements IDataSource {
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		InputStream content = null;
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-		XLog.xd(this, request);
+		Log.xd(this, request);
 		HttpResponse response = mClient.execute(request);
 		int statusCode = response.getStatusLine().getStatusCode();
 		if (statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY) {
@@ -236,7 +234,7 @@ public class HttpAndroidDataSource implements IDataSource {
 				return getInputSteam(redirectUri);
 			}
 		}
-		XLog.xd(this, request);
+		Log.xd(this, request);
 		if (mResponseStatusHandler != null) {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}
