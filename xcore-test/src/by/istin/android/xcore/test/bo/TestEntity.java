@@ -1,5 +1,6 @@
 package by.istin.android.xcore.test.bo;
 
+import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbDouble;
@@ -7,14 +8,13 @@ import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.provider.ContentValuesEntity;
 
 import com.google.gson.annotations.SerializedName;
 
-public class TestEntity extends ContentValuesEntity {
+public class TestEntity implements BaseColumns {
 
 	@dbLong
-	@SerializedName(value="uid")
+	@SerializedName(value="id")
 	public static final String ID = _ID;
 	
 	@dbInteger

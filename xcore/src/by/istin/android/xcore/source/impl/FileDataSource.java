@@ -23,5 +23,11 @@ public class FileDataSource implements IDataSource {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public String getAppServiceKey() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 }

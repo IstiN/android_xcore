@@ -31,7 +31,6 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 		this.contentValuesEntityClazz = contentValuesEntityClazz;
 	}
 	
-	
 	@Override
 	public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
 		if (entityKeys == null) {
@@ -50,6 +49,9 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 				serializaedName = serializedAnnotation.value();
 			}
 			JsonElement jsonValue = jsonObject.get(serializaedName);
+			if (jsonValue == null) {
+				continue;
+			}
 			if (field.isAnnotationPresent(dbLong.class)) {
 				contentValues.put(fieldName, jsonValue.getAsLong());
 			} else if (field.isAnnotationPresent(dbString.class)) {
@@ -64,9 +66,10 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 				contentValues.put(fieldName, jsonValue.getAsInt());
 			} else if (field.isAnnotationPresent(dbEntity.class)) {
 				//TODO convert entity
+				//contentValues.putNull(key)
 			}
 		}
-		return null;
+		return contentValues;
 	}
 
 }

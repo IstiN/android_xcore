@@ -1,10 +1,10 @@
 package by.istin.android.xcore.test.bo;
 
+import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.provider.ContentValuesEntity;
 
-public class SubEntity extends ContentValuesEntity {
+public class SubEntity implements BaseColumns {
 
 	@dbLong
 	public static String ID = _ID;

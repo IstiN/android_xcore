@@ -22,8 +22,6 @@ public class DataSourceRequest {
 	
 	private static final String REQUEST_CACHE_EXPIRATION = "___exp";
 	
-	private static final String REQUEST_DATASOURCE_APP_KEY = "___dsak";
-	
 	private static final String[] KEYS = new String[] {
 		REQUEST_URI, 
 		REQUEST_CACHEABLE, 
@@ -37,20 +35,12 @@ public class DataSourceRequest {
 		
 	}
 	
-	public DataSourceRequest(String requestDataUri, String requestDatasourceAppKey) {
-		if (requestDatasourceAppKey == null) {
-			throw new IllegalArgumentException("please set up request datasource key");
-		}
+	public DataSourceRequest(String requestDataUri) {
 		mBundle.putString(REQUEST_URI, requestDataUri);
-		mBundle.putString(REQUEST_DATASOURCE_APP_KEY, requestDatasourceAppKey);
 	}
 	
 	public String getUrl() {
 		return mBundle.getString(REQUEST_URI);
-	}
-	
-	public String getRequestDatasourceAppKey() {
-		return mBundle.getString(REQUEST_DATASOURCE_APP_KEY);
 	}
 	
 	public void setCacheable(boolean isCacheable) {

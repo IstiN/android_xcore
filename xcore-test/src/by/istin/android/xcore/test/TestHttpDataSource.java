@@ -23,7 +23,7 @@ public class TestHttpDataSource extends ApplicationTestCase<Application> {
 	}
 
 	public void testLoad() throws Exception {
-		InputStream inputStream = new HttpAndroidDataSource().getSource(new DataSourceRequest("http://yandex.ru", HttpAndroidDataSource.SYSTEM_SERVICE_KEY));
+		InputStream inputStream = new HttpAndroidDataSource().getSource(new DataSourceRequest("http://yandex.ru"));
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 8192);
 		StringBuilder sb = new StringBuilder();
 		String line = null;

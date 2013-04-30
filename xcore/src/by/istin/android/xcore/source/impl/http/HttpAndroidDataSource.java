@@ -260,4 +260,9 @@ public class HttpAndroidDataSource implements IDataSource {
 		return getInputSteam(createRequest(dataSourceRequest));
 	}
 
+	@Override
+	public String getAppServiceKey() {
+		return SYSTEM_SERVICE_KEY;
+	}
+
 }

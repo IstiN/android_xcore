@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import android.app.Application;
-import by.istin.android.xcore.source.IDataSource;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -15,10 +14,26 @@ import by.istin.android.xcore.source.IDataSource;
  */
 public class CoreApplication extends Application {
 
-	private Map<String, IDataSource> mDataSources = new HashMap<String, IDataSource>();
-	
-	public void registerDataSource(String dataSourceKey, IDataSource dataSource) {
-		mDataSources.put(dataSourceKey, dataSource);
+	public static interface IAppServiceKey {
+		
+		String getAppServiceKey();
+		
 	}
+	
+	private Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
+	
+	public void registerAppService(IAppServiceKey appService) {
+		mAppService.put(appService.getAppServiceKey(), appService);
+	}
+
+	@Override
+	public Object getSystemService(String name) {
+		if (mAppService.containsKey(name)) {
+			return mAppService.get(name);
+		}
+		return super.getSystemService(name);
+	}
+	
+	
 	
 }
