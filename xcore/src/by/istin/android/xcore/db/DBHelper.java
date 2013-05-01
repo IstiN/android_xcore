@@ -25,8 +25,8 @@ import by.istin.android.xcore.annotations.dbDouble;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.utils.ReflectUtils;
 import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -94,8 +94,8 @@ public class DBHelper extends SQLiteOpenHelper {
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
 				try {
-					String name = field.getName();
-					if (name.equals("id")) {
+					String name = ReflectUtils.getStaticStringValue(field);
+					if (name.equals(BaseColumns._ID)) {
 						continue;
 					}
 					Annotation[] annotations = field.getAnnotations();

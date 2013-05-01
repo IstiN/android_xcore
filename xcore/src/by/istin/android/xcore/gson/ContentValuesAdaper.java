@@ -8,12 +8,15 @@ import android.content.ContentValues;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.ReflectUtils;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -42,41 +45,59 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 		}
 		JsonObject jsonObject = (JsonObject)jsonElement;
 		for (Field field : entityKeys) {
-			String fieldName = field.getName();
-			String serializaedName = fieldName;
+			String fieldValue = ReflectUtils.getStaticStringValue(field);
+			String serializaedName = fieldValue;
 			SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
 			if (serializedAnnotation != null) {
 				serializaedName = serializedAnnotation.value();
 			}
-			JsonElement jsonValue = jsonObject.get(serializaedName);
+			JsonElement jsonValue = null;
+			if (serializaedName.contains(":")) {
+				String[] values = serializaedName.split(":");
+				JsonObject tempElement = jsonObject;
+				for (int i = 0; i < values.length; i++) {
+					if (i == values.length - 1) {
+						jsonValue = tempElement.get(values[i]);
+					} else {
+						tempElement = (JsonObject) tempElement.get(values[i]);
+						if (tempElement == null) {
+							break;
+						}
+					}
+				}
+			} else {
+				jsonValue = jsonObject.get(serializaedName);
+			}
 			if (jsonValue == null) {
 				continue;
 			}
-			String fieldValue = null;
-			try {
-				field.setAccessible(true);
-				fieldValue = (String)field.get(null);
-				field.setAccessible(false);
-			} catch (IllegalArgumentException e) {
-				throw e;
-			} catch (IllegalAccessException e) {
-				//ignored
-			}
+			
 			if (field.isAnnotationPresent(dbLong.class)) {
 				contentValues.put(fieldValue, jsonValue.getAsLong());
 			} else if (field.isAnnotationPresent(dbString.class)) {
-				contentValues.put(fieldName, jsonValue.getAsString());
+				contentValues.put(fieldValue, jsonValue.getAsString());
 			} else if (field.isAnnotationPresent(dbBoolean.class)) {
-				contentValues.put(fieldName, jsonValue.getAsBoolean());
+				contentValues.put(fieldValue, jsonValue.getAsBoolean());
 			} else if (field.isAnnotationPresent(dbByte.class)) {
-				contentValues.put(fieldName, jsonValue.getAsByte());
+				contentValues.put(fieldValue, jsonValue.getAsByte());
 			} else if (field.isAnnotationPresent(dbDouble.class)) {
-				contentValues.put(fieldName, jsonValue.getAsDouble());
+				contentValues.put(fieldValue, jsonValue.getAsDouble());
 			} else if (field.isAnnotationPresent(dbInteger.class)) {
-				contentValues.put(fieldName, jsonValue.getAsInt());
+				contentValues.put(fieldValue, jsonValue.getAsInt());
 			} else if (field.isAnnotationPresent(dbEntity.class)) {
+				//TODO set up entity for database
+				ContentValues values = deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
+				contentValues.put(fieldValue, BytesUtils.toByteArray(values));
 				//TODO convert entity
-				//contentValues.putNull(key)
+			} else if (field.isAnnotationPresent(dbEntities.class)) {
+				JsonArray jsonArray = jsonValue.getAsJsonArray();
+				ContentValues[] values = new ContentValues[jsonArray.size()];
+				for (int i = 0; i < jsonArray.size(); i++) {
+					//TODO set up entity for database
+					values[i] = deserialize(jsonArray.get(i), type, jsonDeserializationContext);	
+				}
+				contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
+				//TODO convert entity
 			}
 		}
 		return contentValues;

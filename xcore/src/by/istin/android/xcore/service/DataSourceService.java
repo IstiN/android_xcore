@@ -80,7 +80,7 @@ public class DataSourceService extends Service {
 				try {
 					Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
 					if (dataSourceRequest.isCacheable()) {
-						//TODO store to DB
+						processor.cache(DataSourceService.this, dataSourceRequest, result);
 					} else {
 						if (result instanceof Parcelable) {
 							bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable)result);

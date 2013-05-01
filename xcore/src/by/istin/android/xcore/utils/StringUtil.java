@@ -78,7 +78,7 @@ public final class StringUtil {
 		htmlEntities.put("&ouml;", "ö");
 		htmlEntities.put("&Ouml;", "Ö");
 		htmlEntities.put("&oslash;", "ø");
-		htmlEntities.put("&Oslash;", "�?");
+		htmlEntities.put("&Oslash;", "�?");
 		htmlEntities.put("&szlig;", "ß");
 		htmlEntities.put("&ugrave;", "ù");
 		htmlEntities.put("&Ugrave;", "Ù");
@@ -132,7 +132,7 @@ public final class StringUtil {
 		russianAlternative.put("Е", "E");
 		russianAlternative.put("Ж", "Zh");
 		russianAlternative.put("З", "Z");
-		russianAlternative.put("�?", "I");
+		russianAlternative.put("И", "I");
 		russianAlternative.put("Й", "Y");
 		russianAlternative.put("К", "K");
 		russianAlternative.put("Л", "L");

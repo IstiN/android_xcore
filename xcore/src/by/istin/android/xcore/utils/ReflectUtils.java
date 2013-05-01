@@ -23,6 +23,20 @@ public class ReflectUtils {
 		return keys;
 	}
 	
+	public static String getStaticStringValue(Field field) {
+		try {
+			field.setAccessible(true);
+			String fieldValue = (String)field.get(null);
+			field.setAccessible(false);
+			return fieldValue;
+		} catch (IllegalArgumentException e) {
+			throw e;
+		} catch (IllegalAccessException e) {
+			//ignored
+			return null;
+		}
+	}
+	
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
 		try {
 			Class<?>[] interfaces = clazz.getInterfaces();
