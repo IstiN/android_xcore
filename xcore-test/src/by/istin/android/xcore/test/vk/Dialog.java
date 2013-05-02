@@ -10,6 +10,7 @@ import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.utils.HashUtils;
 
 public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 
@@ -55,10 +56,10 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	@dbEntity(clazz = Attachment.class)
 	public static final String ATTACHMENT = "attachment";
 	
-	@dbEntities(clazz = Attachment.class)
+	@dbEntities(clazz = Attachment.class, contentValuesKey="entities_attachments")
 	public static final String ATTACHMENTS = "attachments";
 	
-	@dbEntities(clazz = FwdMessage.class)
+	@dbEntities(clazz = FwdMessage.class, contentValuesKey="entities_fwdmessage")
 	public static final String FWD_MESSAGES = "fwd_messages";
 	
 	//local fields
@@ -81,6 +82,7 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	@Override
 	public void onBeforeListUpdate(int position, ContentValues contentValues) {
 		contentValues.put(POSITION, position);
+		contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID)));
 	}
 	
 }

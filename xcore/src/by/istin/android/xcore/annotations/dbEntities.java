@@ -11,4 +11,11 @@ public @interface dbEntities {
 
 	Class<?> clazz();
 	
+	/**
+	 * Returns key for content values for byte[] with entities,
+	 * override if more than one sub entity in the model
+	 * @return key for dbEntity name
+	 */
+	String contentValuesKey() default "dbEntities";
+	
 }

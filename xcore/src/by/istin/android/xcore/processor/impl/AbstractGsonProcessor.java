@@ -28,10 +28,18 @@ public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result
 		super();
 		this.clazz = clazz;
 		this.resultClassName = resultClassName;
-		GsonBuilder gsonBuilder = new GsonBuilder();
 		contentValuesAdaper = new ContentValuesAdaper(clazz);
+		gson = createGsonWithContentValuesAdapter(contentValuesAdaper);
+	}
+	
+	public static Gson createGsonWithContentValuesAdapter(Class<?> clazz) {
+		return createGsonWithContentValuesAdapter(new ContentValuesAdaper(clazz));
+	}
+	
+	public static Gson createGsonWithContentValuesAdapter(ContentValuesAdaper contentValuesAdaper) {
+		GsonBuilder gsonBuilder = new GsonBuilder();
 		gsonBuilder.registerTypeHierarchyAdapter(ContentValues.class, contentValuesAdaper);
-		gson = gsonBuilder.create();
+		return gsonBuilder.create();
 	}
 	
 	@Override

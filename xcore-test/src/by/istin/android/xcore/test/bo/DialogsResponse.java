@@ -7,33 +7,25 @@ import android.content.ContentValues;
 public class DialogsResponse implements Serializable {
 
 	private static final long serialVersionUID = 577009158147303735L;
-	
-	public static class Response implements Serializable {
 
-		private static final long serialVersionUID = 1284320803051083547L;
+	private ContentValues[] dialogs;
 
-		private ContentValues[] dialogs;
-		
-		private ContentValues[] users;
+	private ContentValues[] users;
 
-		public ContentValues[] getDialogs() {
-			return dialogs;
-		}
-
-		public ContentValues[] getUsers() {
-			return users;
-		}
-
-	}
-	
-	private Response response;
-	
-	public Response getResponse() {
-		return response;
+	public ContentValues[] getDialogs() {
+		return dialogs;
 	}
 
-	public void setResponse(Response response) {
-		this.response = response;
+	public ContentValues[] getUsers() {
+		return users;
+	}
+
+	public void setDialogs(ContentValues[] dialogs) {
+		this.dialogs = dialogs;
+	}
+
+	public void setUsers(ContentValues[] users) {
+		this.users = users;
 	}
 
 }

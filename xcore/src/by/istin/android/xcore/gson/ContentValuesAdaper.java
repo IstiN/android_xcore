@@ -14,6 +14,7 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 import com.google.gson.JsonArray;
@@ -109,19 +110,33 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 			} else if (field.isAnnotationPresent(dbInteger.class)) {
 				contentValues.put(fieldValue, jsonValue.getAsInt());
 			} else if (field.isAnnotationPresent(dbEntity.class)) {
-				//TODO set up entity for database
-				ContentValues values = deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
+				dbEntity entity = field.getAnnotation(dbEntity.class);
+				Class<?> clazz = entity.clazz();
+				if (clazz.getCanonicalName().contains("FwdMessage")) {
+					Log.xd("there", "break");
+				}
+				ContentValuesAdaper contentValuesAdaper = new ContentValuesAdaper(clazz);
+				ContentValues values = contentValuesAdaper.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
+				contentValuesAdaper = null;
 				contentValues.put(fieldValue, BytesUtils.toByteArray(values));
-				//TODO convert entity
+				dbEntity annotation = field.getAnnotation(dbEntity.class);
+				contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
 			} else if (field.isAnnotationPresent(dbEntities.class)) {
 				JsonArray jsonArray = jsonValue.getAsJsonArray();
+				dbEntities entity = field.getAnnotation(dbEntities.class);
+				Class<?> clazz = entity.clazz();
+				if (clazz.getCanonicalName().contains("FwdMessage")) {
+					Log.xd("there", "break");
+				}
+				ContentValuesAdaper contentValuesAdaper = new ContentValuesAdaper(clazz);
 				ContentValues[] values = new ContentValues[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {
-					//TODO set up entity for database
-					values[i] = deserialize(jsonArray.get(i), type, jsonDeserializationContext);	
+					values[i] = contentValuesAdaper.deserialize(jsonArray.get(i), type, jsonDeserializationContext);
 				}
+				contentValuesAdaper = null;
 				contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
-				//TODO convert entity
+				dbEntities annotation = field.getAnnotation(dbEntities.class);
+				contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
 			}
 		}
 		return contentValues;

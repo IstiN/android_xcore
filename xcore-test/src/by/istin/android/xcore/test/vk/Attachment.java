@@ -16,7 +16,7 @@ public class Attachment implements BaseColumns, IBeforeUpdate {
 	@dbLong
 	public static final String ID = _ID;
 	
-	@dbLong
+	@dbString
 	public static final String TYPE = "type";
 	
 	@dbLong
