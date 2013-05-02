@@ -18,7 +18,7 @@ public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result
 
 	private Class<?> clazz;
 	
-	private Class<?> resultClassName;
+	private Class<? extends Result> resultClassName;
 	
 	private Gson gson;
 	

@@ -15,8 +15,6 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
 
-	private static final String TAG = ModelContentProvider.class.getSimpleName();
-
 	private UriMatcher mUriMatcher;
 
 	private static final int MODELS = 1;

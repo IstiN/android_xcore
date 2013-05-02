@@ -38,8 +38,8 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
-import by.istin.android.xcore.utils.UriUtils;
 import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.UriUtils;
 
 /**
  * Class for load data from web.
@@ -56,10 +56,6 @@ public class HttpAndroidDataSource implements IDataSource {
 	private static final String USER_AGENT_KEY = "User-Agent";
 
 	private static final String ACCEPT_KEY = "Accept";
-
-	private static final String GZIP = "gzip";
-
-	private static final String CONTENT_ENCODING = "Content-Encoding";
 
 	private static final String USER_AGENT_END = ") AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
 
@@ -217,7 +213,6 @@ public class HttpAndroidDataSource implements IDataSource {
 	public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
 		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
-		InputStream content = null;
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		Log.xd(this, request);
 		HttpResponse response = mClient.execute(request);
