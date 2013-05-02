@@ -29,6 +29,7 @@ import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
@@ -173,6 +174,10 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public int updateOrInsert(Class<?> classOfModel, ContentValues... contentValues) {
+		return updateOrInsert(null, classOfModel, contentValues);
+	}
+	
+	public int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, ContentValues... contentValues) {
 		SQLiteDatabase db = getWritableDatabase();
 		try {
 			db.beginTransaction();
@@ -183,9 +188,9 @@ public class DBHelper extends SQLiteOpenHelper {
 					continue;
 				}
 				if (beforeListUpdate != null) {
-					beforeListUpdate.onBeforeListUpdate(i, contentValue);
+					beforeListUpdate.onBeforeListUpdate(dataSourceRequest, i, contentValue);
 				}
-				updateOrInsert(db, classOfModel, contentValue);
+				updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
 			}
 			db.setTransactionSuccessful();
 			return contentValues.length;
@@ -194,8 +199,11 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 	
-	
 	public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
+		return updateOrInsert(null, db, classOfModel, contentValues);
+	}
+	
+	public long updateOrInsert(DataSourceRequest dataSourceRequest, SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
 		boolean requestWithoutTransaction = false;
 		if (db == null) {
 			db = getWritableDatabase();
@@ -205,7 +213,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		try {
 			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
 			if (beforeUpdate != null) {
-				beforeUpdate.onBeforeUpdate(contentValues);
+				beforeUpdate.onBeforeUpdate(dataSourceRequest, contentValues);
 			}
 			Long id = contentValues.getAsLong(BaseColumns._ID);
 			if (id == null) {
@@ -213,11 +221,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			List<Field> listDbEntity = dbEntityFieldsCache.get(classOfModel);
 			if (listDbEntity != null) {
-				storeSubEntity(id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
+				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
 			List<Field> listDbEntities = dbEntitiesFieldsCache.get(classOfModel);
 			if (listDbEntities != null) {
-				storeSubEntity(id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
+				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}
 			String tableName = getTableName(classOfModel);
 			IMerge merge = ReflectUtils.getInstanceInterface(classOfModel, IMerge.class);
@@ -237,7 +245,7 @@ public class DBHelper extends SQLiteOpenHelper {
 					} else {
 						ContentValues oldContentValues = new ContentValues();
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
-						merge.merge(oldContentValues, contentValues);
+						merge.merge(dataSourceRequest, oldContentValues, contentValues);
 						db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
 						rowId = id;
 					}
@@ -258,7 +266,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	private void storeSubEntity(long id, Class<?> foreignEntity, SQLiteDatabase db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
+	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, SQLiteDatabase db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
 		for (Field field : listDbEntity) {
 			String columnName = ReflectUtils.getStaticStringValue(field);
 			byte[] entityAsByteArray = contentValues.getAsByteArray(columnName);
@@ -282,21 +290,21 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (annotation.annotationType().equals(dbEntity.class)) {
 				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-				putEntity(id, db, contentValuesKey, foreignId, modelClass, entityValues);
+				putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
 				for (ContentValues cv : entitiesValues) {
-					putEntity(id, db, contentValuesKey, foreignId, modelClass, cv);
+					putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
 				}
 			}
 			contentValues.remove(columnName);
 		}
 	}
 
-	private void putEntity(long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
+	private void putEntity(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
 		entityValues.remove(contentValuesKey);
 		entityValues.put(foreignId, id);
-		updateOrInsert(db, modelClass, entityValues);
+		updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 	}
 
 	public Cursor query(Class<?> clazz, String[] projection,

@@ -10,6 +10,7 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.source.DataSourceRequest;
 
 import com.google.gson.annotations.SerializedName;
 
@@ -38,8 +39,8 @@ public class TestEntity implements BaseColumns, IMerge {
 	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
 
 	@Override
-	public void merge(ContentValues oldValues, ContentValues newValues) {
+	public void merge(DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		// test interface
 	}
-	
+
 }

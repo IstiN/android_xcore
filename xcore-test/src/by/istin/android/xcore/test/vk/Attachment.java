@@ -7,6 +7,7 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IBeforeUpdate;
+import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.HashUtils;
 
 import com.google.gson.annotations.SerializedName;
@@ -224,7 +225,7 @@ public class Attachment implements BaseColumns, IBeforeUpdate {
 	
 	
 	@Override
-	public void onBeforeUpdate(ContentValues contentValues) {
+	public void onBeforeUpdate(DataSourceRequest dataSourceRequest, ContentValues contentValues) {
 		String hashValue = contentValues.getAsString(TYPE) 
 				+ contentValues.getAsLong(DOC_ID) 
 				+ contentValues.getAsLong(AUDIO_ID) 

@@ -1,9 +1,10 @@
 package by.istin.android.xcore.db;
 
 import android.content.ContentValues;
+import by.istin.android.xcore.source.DataSourceRequest;
 
 public interface IMerge {
 
-	void merge(ContentValues oldValues, ContentValues newValues);
+	void merge(DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues);
 	
 }

@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.net.Uri;
 import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
+import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
@@ -37,12 +38,20 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public int bulkInsert(Uri uri, ContentValues[] values) {
 		String className = uri.getLastPathSegment();
 		try {
-			int count = dbHelper.updateOrInsert(Class.forName(className), values);
+			int count = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), values);
 			getContext().getContentResolver().notifyChange(uri, null);
 			return count;
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}
+	}
+	
+	public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
+		String parameter = uri.getQueryParameter(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+		if (!StringUtil.isEmpty(parameter)) {
+			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.encode(parameter)));
+		}
+		return null;
 	}
 
 	@Override
@@ -86,7 +95,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 		}
 		String className = uri.getLastPathSegment();
 		try {
-			long rowId = dbHelper.updateOrInsert(null, Class.forName(className), initialValues);
+			long rowId = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), initialValues);
 			if (rowId > 0) {
 				Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
 				getContext().getContentResolver().notifyChange(

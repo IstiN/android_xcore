@@ -18,7 +18,7 @@ public class GsonContentValuesProcessor extends AbstractGsonProcessor<ContentVal
 
 	@Override
 	public void cache(Context context, DataSourceRequest dataSourceRequest, ContentValues result) {
-		context.getContentResolver().insert(ModelContract.getUri(getClazz()), result);
+		context.getContentResolver().insert(ModelContract.getUri(dataSourceRequest, getClazz()), result);
 	}
 
 }

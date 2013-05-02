@@ -4,8 +4,12 @@ import android.content.Context;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.StringUtil;
 
 public class ModelContract {
+
+	public static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
 
 	private static final String AUTHORITY_TEMPLATE = "%s.ModelContentProvider";
 
@@ -61,6 +65,12 @@ public class ModelContract {
 	
 	public static String getContentType(String modelName) {
 		return String.format(CONTENT_TYPE_TEMPLATE, modelName);
+	}
+
+	public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
+		String uriParams = dataSourceRequest.toUriParams();
+		Uri uri = getUri(clazz);
+		return Uri.parse(uri.toString()+"&" + DATA_SOURCE_REQUEST_PARAM + "="+StringUtil.decode(uriParams));
 	}
 
 }

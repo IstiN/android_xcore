@@ -1,9 +1,10 @@
 package by.istin.android.xcore.db;
 
+import by.istin.android.xcore.source.DataSourceRequest;
 import android.content.ContentValues;
 
 public interface IBeforeArrayUpdate {
 
-	void onBeforeListUpdate(int position, ContentValues contentValues);
+	void onBeforeListUpdate(DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
 	
 }

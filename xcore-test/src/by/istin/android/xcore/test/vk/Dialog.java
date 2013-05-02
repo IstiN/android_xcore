@@ -10,6 +10,7 @@ import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.HashUtils;
 
 public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
@@ -73,14 +74,14 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	public static final String POSITION = "position";
 	
 	@Override
-	public void merge(ContentValues oldValues, ContentValues newValues) {
+	public void merge(DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		if (newValues.getAsInteger(POSITION) == null) {
 			newValues.put(POSITION, oldValues.getAsInteger(POSITION));
 		}
 	}
 
 	@Override
-	public void onBeforeListUpdate(int position, ContentValues contentValues) {
+	public void onBeforeListUpdate(DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
 		contentValues.put(POSITION, position);
 		contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID)));
 	}
