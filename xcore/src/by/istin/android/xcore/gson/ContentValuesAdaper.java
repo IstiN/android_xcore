@@ -22,6 +22,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
 public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
@@ -30,6 +31,22 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 	
 	private List<Field> entityKeys;
 	
+	private IJsonPrimitiveHandler jsonPrimitiveHandler;
+	
+	public static interface IJsonPrimitiveHandler {
+		
+		ContentValues convert(JsonPrimitive jsonPrimitive);
+		
+	}
+	
+	public IJsonPrimitiveHandler getJsonPrimitiveHandler() {
+		return jsonPrimitiveHandler;
+	}
+
+	public void setJsonPrimitiveHandler(IJsonPrimitiveHandler jsonPrimitiveHandler) {
+		this.jsonPrimitiveHandler = jsonPrimitiveHandler;
+	}
+
 	public ContentValuesAdaper(Class<?> contentValuesEntityClazz) {
 		this.contentValuesEntityClazz = contentValuesEntityClazz;
 	}
@@ -42,6 +59,13 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 		ContentValues contentValues = new ContentValues();
 		if (entityKeys == null) {
 			return contentValues;
+		}
+		if (jsonElement.isJsonPrimitive()) {
+			if (jsonPrimitiveHandler == null) {
+				return null;
+			} else {
+				return jsonPrimitiveHandler.convert((JsonPrimitive)jsonElement);
+			}
 		}
 		JsonObject jsonObject = (JsonObject)jsonElement;
 		for (Field field : entityKeys) {
