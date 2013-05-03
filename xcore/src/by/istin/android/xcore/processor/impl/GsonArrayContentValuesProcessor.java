@@ -15,9 +15,10 @@ public class GsonArrayContentValuesProcessor extends AbstractGsonProcessor<Conte
 	public String getAppServiceKey() {
 		return "xcore:"+getClazz()+":array:processor";
 	}
-
+	
 	@Override
 	public void cache(Context context, DataSourceRequest dataSourceRequest, ContentValues[] result) {
 		context.getContentResolver().bulkInsert(ModelContract.getUri(dataSourceRequest, getClazz()), result);
 	}
+	
 }

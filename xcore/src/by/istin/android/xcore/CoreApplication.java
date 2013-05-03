@@ -3,10 +3,8 @@
  */
 package by.istin.android.xcore;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import android.app.Application;
+import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -14,28 +12,23 @@ import android.app.Application;
  */
 public class CoreApplication extends Application {
 
-	public static interface IAppServiceKey {
-		
-		String getAppServiceKey();
-		
-	}
+	private XCoreHelper mXCoreHelper;
 	
 	@Override
 	public void onCreate() {
-		ContextHolder.getInstance().setContext(this);
+		mXCoreHelper.onCreate(this);
 		super.onCreate();
 	}
 
-	private Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
-	
 	public void registerAppService(IAppServiceKey appService) {
-		mAppService.put(appService.getAppServiceKey(), appService);
+		mXCoreHelper.registerAppService(appService);
 	}
 
 	@Override
 	public Object getSystemService(String name) {
-		if (mAppService.containsKey(name)) {
-			return mAppService.get(name);
+		Object object = mXCoreHelper.getSystemService(name);
+		if (object != null) {
+			return object;
 		}
 		return super.getSystemService(name);
 	}

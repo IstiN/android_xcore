@@ -3,7 +3,7 @@ package by.istin.android.xcore.processor;
 import java.io.InputStream;
 
 import android.content.Context;
-import by.istin.android.xcore.CoreApplication.IAppServiceKey;
+import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 

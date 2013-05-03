@@ -31,8 +31,12 @@ public abstract class ModelContentProvider extends ContentProvider {
 		mUriMatcher.addURI(authority, "*", MODELS);
 		mUriMatcher.addURI(authority, "*/#", MODELS_ID);
 		dbHelper = new DBHelper(getContext());
+		Class<?>[] dbEntities = getDbEntities();
+		dbHelper.createTablesForModels(dbEntities);
 		return true;
 	}
+	
+	public abstract Class<?>[] getDbEntities();
 	
 	@Override
 	public int bulkInsert(Uri uri, ContentValues[] values) {
