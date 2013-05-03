@@ -39,7 +39,7 @@ public class DataSourceRequest {
 		mBundle.putString(REQUEST_URI, requestDataUri);
 	}
 	
-	public String getUrl() {
+	public String getUri() {
 		return mBundle.getString(REQUEST_URI);
 	}
 	
@@ -117,7 +117,7 @@ public class DataSourceRequest {
 	public void toIntent(Intent intent) {
 		intent.putExtras(mBundle);
 	}
-	
+
 	public void toBundle(Bundle bundle) {
 		bundle.putBundle(REQUEST_URI, mBundle);
 	}
@@ -145,5 +145,5 @@ public class DataSourceRequest {
 		}
 		return requestData;
 	}
-
+	
 }

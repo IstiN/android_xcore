@@ -207,7 +207,7 @@ public class HttpAndroidDataSource implements IDataSource {
 	}
 
 	protected HttpRequestBase createRequest(DataSourceRequest request) {
-		return mRequestBuilder.build(request.getUrl());
+		return mRequestBuilder.build(request.getUri());
 	}
 
 	public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {

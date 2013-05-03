@@ -18,7 +18,7 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 	public static final String RESULT_KEY = "xcore:result_key";
 	
 	public static enum Status {
-		START, ERROR, DONE;
+		START, CACHED, ERROR, DONE;
 	}
 	
 	public StatusResultReceiver(Handler handler) {
@@ -32,6 +32,9 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 		case START:
 			onStart(resultData);
 			break;
+		case CACHED:
+			onCached(resultData);
+			break;
 		case DONE:
 			onDone(resultData);
 			break;
@@ -43,6 +46,10 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 			break;
 		}
 		super.onReceiveResult(resultCode, resultData);
+	}
+
+	protected void onCached(Bundle resultData) {
+		
 	}
 
 	public abstract void onStart(Bundle resultData);

@@ -12,6 +12,7 @@ import android.net.Uri;
 import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
@@ -32,6 +33,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 		mUriMatcher.addURI(authority, "*/#", MODELS_ID);
 		dbHelper = new DBHelper(getContext());
 		Class<?>[] dbEntities = getDbEntities();
+		dbHelper.createTablesForModels(DataSourceRequestEntity.class);
 		dbHelper.createTablesForModels(dbEntities);
 		return true;
 	}
