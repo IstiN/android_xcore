@@ -16,14 +16,26 @@ public class ModelContract {
 	private static final String CONTENT_ID_TEMPLATE = "content://"
 			+ "%s" + "/%s/%d";
 
-	private static final String CONTENT_ALL_TEMPLATE = "content://"
+	private static final String CONTENT_ALL_PAGINATED_TEMPLATE = "content://"
 			+ "%s" + "/%s?offset=%d&size=%d";
+	
+	private static final String CONTENT_ALL_TEMPLATE = "content://"
+			+ "%s" + "/%s";
+	
 	
 	private static final String CONTENT_TYPE_TEMPLATE = "vnd.android.cursor.dir/%s";
 
 	public static final int DEFAULT_OFFSET = 0;
 	
 	public static final int DEFAULT_SIZE = 100;
+
+	public static final String SEGMENT_RAW_QUERY = "___srq";
+
+	public static final String SQL_PARAM = "___sql";
+
+	public static final String OBSERVER_URI_PARAM = "___ouri";
+	
+	public static final String SQL_QUERY_TEMPLATE = SEGMENT_RAW_QUERY+ "?"+SQL_PARAM + "=%s&"+OBSERVER_URI_PARAM + "=%s";
 	
 	private ModelContract() {
 	}
@@ -39,20 +51,28 @@ public class ModelContract {
 		return String.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
 	}
 	
-	public static Uri getUri(Class<?> clazz) {
-		return getUri(clazz, DEFAULT_OFFSET, DEFAULT_SIZE);
+	public static Uri getPaginatedUri(Class<?> clazz) {
+		return getPaginatedUri(clazz, DEFAULT_OFFSET, DEFAULT_SIZE);
 	}
 	
-	public static Uri getUri(Class<?> clazz, int offset, int size) {
-		return getUri(clazz.getCanonicalName(), offset, size);
+	public static Uri getUri(Class<?> clazz) {
+		return getUri(clazz.getCanonicalName());
+	}
+	
+	public static Uri getPaginatedUri(Class<?> clazz, int offset, int size) {
+		return getPaginatedUri(clazz.getCanonicalName(), offset, size);
+	}
+	
+	public static Uri getPaginatedUri(String modelName) {
+		return getPaginatedUri(modelName, DEFAULT_OFFSET, DEFAULT_SIZE);
+	}
+	
+	public static Uri getPaginatedUri(String modelName, int offset, int size) {
+		return Uri.parse(String.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
 	}
 	
 	public static Uri getUri(String modelName) {
-		return getUri(modelName, DEFAULT_OFFSET, DEFAULT_SIZE);
-	}
-	
-	public static Uri getUri(String modelName, int offset, int size) {
-		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
+		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName));
 	}
 	
 	public static Uri getUri(Class<?> clazz, Long id) {
@@ -70,7 +90,17 @@ public class ModelContract {
 	public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
 		String uriParams = dataSourceRequest.toUriParams();
 		Uri uri = getUri(clazz);
-		return Uri.parse(uri.toString()+"&" + DATA_SOURCE_REQUEST_PARAM + "="+StringUtil.decode(uriParams));
+		String uriAsString = uri.toString();
+		if (uriAsString.contains("?")) {
+			uriAsString = uriAsString + "&";
+		} else {
+			uriAsString = uriAsString + "?";
+		}
+		return Uri.parse(uriAsString + DATA_SOURCE_REQUEST_PARAM + "="+StringUtil.encode(uriParams));
+	}
+
+	public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
+		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  String.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri.toString()))));
 	}
 
 }

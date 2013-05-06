@@ -46,7 +46,9 @@ public class DataSourceService extends Service {
 	
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		onHandleIntent(intent);
+		if (intent != null) {
+			onHandleIntent(intent);
+		}
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -90,7 +92,7 @@ public class DataSourceService extends Service {
 					Cursor cursor = getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null, null, null);
 					try {
 						if (cursor == null || !cursor.moveToFirst()) {
-							getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);
+							getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);
 						} else {
 							ContentValues storedRequest = new ContentValues();
 							DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
@@ -100,7 +102,7 @@ public class DataSourceService extends Service {
 								sendStatus(StatusResultReceiver.Status.CACHED, resultReceiver, bundle);
 								return;
 							} else {
-								getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);	
+								getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);	
 							}
 						}
 					} finally {

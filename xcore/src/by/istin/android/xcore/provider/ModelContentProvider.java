@@ -55,7 +55,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
 		String parameter = uri.getQueryParameter(ModelContract.DATA_SOURCE_REQUEST_PARAM);
 		if (!StringUtil.isEmpty(parameter)) {
-			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.encode(parameter)));
+			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(parameter)));
 		}
 		return null;
 	}
@@ -80,6 +80,9 @@ public abstract class ModelContentProvider extends ContentProvider {
 			break;
 		case MODELS_ID:
 			className = pathSegments.get(pathSegments.size()-2);
+			if (where == null) {
+				where = StringUtil.EMPTY;
+			}
 			where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
 			break;
 		default:
@@ -123,25 +126,46 @@ public abstract class ModelContentProvider extends ContentProvider {
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
+		String className = null;
 		switch (mUriMatcher.match(uri)) {
 		case MODELS:
+			className = uri.getLastPathSegment();
 			break;
 		case MODELS_ID:
-			selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();
+			List<String> pathSegments = uri.getPathSegments();
+			className = pathSegments.get(pathSegments.size()-2);
+			if (StringUtil.isEmpty(selection)) {
+				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
+			} else {
+				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();	
+			}
 			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
-		String className = uri.getLastPathSegment();
-		try {
-			Cursor c = dbHelper.query(Class.forName(className), projection, selection, selectionArgs, null,
-					null, sortOrder, String.format("%s,%s",uri.getQueryParameter("offset"), uri.getQueryParameter("size")));
+		if (className.equals(ModelContract.SEGMENT_RAW_QUERY)) {
+			Cursor c = dbHelper.rawQuery(StringUtil.decode(uri.getQueryParameter(ModelContract.SQL_PARAM)), selectionArgs);		
 			if (c != null) {
-				c.setNotificationUri(getContext().getContentResolver(), uri);
+				c.getCount();
 			}
-			return c;	
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e);
+			c.setNotificationUri(getContext().getContentResolver(), Uri.parse(StringUtil.decode(uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM))));
+			return c;
+		} else {
+			try {
+				String offsetParameter = uri.getQueryParameter("offset");
+				String sizeParameter = uri.getQueryParameter("size");
+				String limitParam = null;
+				if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
+					limitParam = String.format("%s,%s",offsetParameter, sizeParameter);
+				}
+				Cursor c = dbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
+				if (c != null) {
+					c.setNotificationUri(getContext().getContentResolver(), uri);
+				}
+				return c;	
+			} catch (ClassNotFoundException e) {
+				throw new IllegalArgumentException(e);
+			}
 		}
 	}
 	

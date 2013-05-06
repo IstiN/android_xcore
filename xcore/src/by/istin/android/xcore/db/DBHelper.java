@@ -330,4 +330,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
+	public Cursor rawQuery(String sql, String[] selectionArgs) {
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor cursor = db.rawQuery(sql, selectionArgs);
+		return cursor;
+	}
+
 }
