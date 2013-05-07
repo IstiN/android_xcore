@@ -120,7 +120,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 	@Override
 	public int update(Uri uri, ContentValues initialValues, String where,
 			String[] whereArgs) {
-		throw new UnsupportedOperationException("unsypported operation, please use insert method");
+		throw new UnsupportedOperationException("unsupported operation, please use insert method");
 	}
 	
 	@Override
