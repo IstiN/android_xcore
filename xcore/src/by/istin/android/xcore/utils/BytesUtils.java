@@ -12,12 +12,22 @@ import java.io.Serializable;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
+import android.text.Spanned;
+import android.text.TextUtils;
 
 public class BytesUtils {
 
 	public static byte[] toByteArray(ContentValues contentValues) {
 		Parcel obtain = Parcel.obtain();
 		contentValues.writeToParcel(obtain, 0);
+		byte[] byteArray = obtain.marshall();
+		obtain.recycle();
+		return byteArray;
+	}
+	
+	public static byte[] toByteArray(Spanned spanned) {
+		Parcel obtain = Parcel.obtain();
+		TextUtils.writeToParcel(spanned, obtain, 0);
 		byte[] byteArray = obtain.marshall();
 		obtain.recycle();
 		return byteArray;
@@ -38,6 +48,16 @@ public class BytesUtils {
 		ContentValues createFromParcel = ContentValues.CREATOR.createFromParcel(obtain);
 		obtain.recycle();
 		return createFromParcel;
+	}
+	
+	public static Spanned spannedFromByteArray(byte[] byteArray) {
+		Parcel obtain = Parcel.obtain();
+		obtain.unmarshall(byteArray, 0, byteArray.length);
+		obtain.setDataPosition(0);
+		Spanned result = (Spanned)TextUtils.CHAR_SEQUENCE_CREATOR.
+        createFromParcel(obtain);
+		obtain.recycle();
+		return result;
 	}
 	
 	public static ContentValues[] arrayContentValuesFromByteArray(byte[] byteArray) {
