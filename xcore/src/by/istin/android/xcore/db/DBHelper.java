@@ -234,6 +234,9 @@ public class DBHelper extends SQLiteOpenHelper {
 				int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
 				if (rowCount == 0) {
 					rowId = db.insert(tableName, null, contentValues);
+					if (rowId == -1l) {
+						throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
+					}
 				} else {
 					rowId = id;
 				}	
@@ -242,6 +245,9 @@ public class DBHelper extends SQLiteOpenHelper {
 				try {
 					if (cursor == null || !cursor.moveToFirst()) {
 						rowId = db.insert(tableName, null, contentValues);
+						if (rowId == -1l) {
+							throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
+						}
 					} else {
 						ContentValues oldContentValues = new ContentValues();
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
@@ -298,6 +304,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				}
 			}
 			contentValues.remove(columnName);
+			contentValues.remove(contentValuesKey);
 		}
 	}
 

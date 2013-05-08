@@ -16,6 +16,7 @@ public class CoreApplication extends Application {
 	
 	@Override
 	public void onCreate() {
+		mXCoreHelper = new XCoreHelper();
 		mXCoreHelper.onCreate(this);
 		super.onCreate();
 	}

@@ -97,7 +97,7 @@ public class TestDatasourceService extends ApplicationTestCase<CoreApplication> 
 		dbHelper.createTablesForModels(FwdMessage.class);
 		dbHelper.createTablesForModels(User.class);
 		dbHelper.updateOrInsert(Dialog.class, dialogs);
-		dbHelper.updateOrInsert(Dialog.class, users);
+		dbHelper.updateOrInsert(User.class, users);
 	}
 	
 
