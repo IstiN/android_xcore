@@ -63,6 +63,15 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		return view;
 	}
 
+	@Override
+	public void onListItemClick(ListView l, View v, int position, long id) {
+		super.onListItemClick(l, v, position, id);
+		Cursor cursor = (Cursor) l.getAdapter().getItem(position);
+		onListItemClick(cursor, v, position, id);
+	}
+
+	public abstract void onListItemClick(Cursor cursor, View v, int position, long id);
+
 	public abstract int getViewLayout();
 	
 	public Integer getSearchEditTextId() {
