@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
 
@@ -115,22 +116,22 @@ public class DataSourceRequest {
 	}
 	
 	public void toIntent(Intent intent) {
-		intent.putExtras(mBundle);
+		intent.putExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
 	}
 
 	public void toBundle(Bundle bundle) {
-		bundle.putBundle(REQUEST_URI, mBundle);
+		bundle.putParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
 	}
 	
 	public static DataSourceRequest fromBundle(Bundle bundle) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = bundle.getBundle(REQUEST_URI);
+		data.mBundle = bundle.getParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM);
 		return data;
 	}
 	
 	public static DataSourceRequest fromIntent(Intent intent) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = intent.getExtras();
+		data.mBundle = intent.getParcelableExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM);
 		return data;
 	}
 	

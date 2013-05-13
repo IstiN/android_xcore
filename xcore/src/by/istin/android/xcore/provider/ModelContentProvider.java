@@ -22,6 +22,8 @@ public abstract class ModelContentProvider extends ContentProvider {
 	private static final int MODELS = 1;
 
 	private static final int MODELS_ID = 2;
+	
+	private static final int MODELS_ID_NEGOTIVE = 3;
 
 	private DBHelper dbHelper;
 	
@@ -31,6 +33,8 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String authority = ModelContract.getAuthority(getContext());
 		mUriMatcher.addURI(authority, "*", MODELS);
 		mUriMatcher.addURI(authority, "*/#", MODELS_ID);
+		//for negotive number
+		mUriMatcher.addURI(authority, "*/*", MODELS_ID_NEGOTIVE);
 		dbHelper = new DBHelper(getContext());
 		Class<?>[] dbEntities = getDbEntities();
 		dbHelper.createTablesForModels(DataSourceRequestEntity.class);
@@ -85,6 +89,13 @@ public abstract class ModelContentProvider extends ContentProvider {
 			}
 			where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
 			break;
+		case MODELS_ID_NEGOTIVE:
+			className = pathSegments.get(pathSegments.size()-2);
+			if (where == null) {
+				where = StringUtil.EMPTY;
+			}
+			where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
+			break;
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
@@ -127,12 +138,22 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {
 		String className = null;
+		List<String> pathSegments = null;
 		switch (mUriMatcher.match(uri)) {
 		case MODELS:
 			className = uri.getLastPathSegment();
 			break;
 		case MODELS_ID:
-			List<String> pathSegments = uri.getPathSegments();
+			pathSegments = uri.getPathSegments();
+			className = pathSegments.get(pathSegments.size()-2);
+			if (StringUtil.isEmpty(selection)) {
+				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
+			} else {
+				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();	
+			}
+			break;
+		case MODELS_ID_NEGOTIVE:
+			pathSegments = uri.getPathSegments();
 			className = pathSegments.get(pathSegments.size()-2);
 			if (StringUtil.isEmpty(selection)) {
 				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
