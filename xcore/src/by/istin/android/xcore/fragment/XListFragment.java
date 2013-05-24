@@ -174,6 +174,7 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		DataSourceRequest dataSourceRequest = new DataSourceRequest(getUrl());
 		dataSourceRequest.setCacheable(isCacheable());
 		dataSourceRequest.setCacheExpiration(getCacheExpiration());
+		dataSourceRequest.setForceUpdateData(isForceUpdateData());
 		DataSourceService.execute(activity, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 			
 			@Override
@@ -190,7 +191,11 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 			
 			@Override
 			public void onDone(Bundle resultData) {
-				Toast.makeText(getActivity(), "done", Toast.LENGTH_SHORT).show();
+				FragmentActivity fragmentActivity = getActivity();
+				if (fragmentActivity == null) {
+					return;
+				}
+				Toast.makeText(fragmentActivity, "done", Toast.LENGTH_SHORT).show();
 				hideProgress();
 			}
 
@@ -202,10 +207,17 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 			
 		});
 	}
+	
+	protected boolean isForceUpdateData() {
+		return false;
+	}
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
-		hideProgress();
+		if (getView() != null) {
+			((CursorAdapter)getListView().getAdapter()).swapCursor(null);
+			hideProgress();
+		}
 	}
 	
 	protected String getDataSourceKey() {
@@ -225,7 +237,10 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		if (view == null) {
 			return;
 		}
-		view.findViewById(android.R.id.progress).setVisibility(View.GONE);
+		View progressView = view.findViewById(android.R.id.progress);
+		if (progressView != null) {
+			progressView.setVisibility(View.GONE);
+		}
 	}
 	
 	protected void showProgress() {
@@ -233,6 +248,9 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		if (view == null) {
 			return;
 		}
-		view.findViewById(android.R.id.progress).setVisibility(View.VISIBLE);
+		View progressView = view.findViewById(android.R.id.progress);
+		if (progressView != null) {
+			progressView.setVisibility(View.VISIBLE);
+		}
 	}
 }

@@ -168,6 +168,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 			Cursor c = dbHelper.rawQuery(StringUtil.decode(uri.getQueryParameter(ModelContract.SQL_PARAM)), selectionArgs);		
 			if (c != null) {
 				c.getCount();
+				c.moveToFirst();
 			}
 			c.setNotificationUri(getContext().getContentResolver(), Uri.parse(StringUtil.decode(uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM))));
 			return c;
@@ -182,6 +183,8 @@ public abstract class ModelContentProvider extends ContentProvider {
 				Cursor c = dbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
 				if (c != null) {
 					c.setNotificationUri(getContext().getContentResolver(), uri);
+					c.getCount();
+					c.moveToFirst();
 				}
 				return c;	
 			} catch (ClassNotFoundException e) {
