@@ -170,7 +170,10 @@ public abstract class ModelContentProvider extends ContentProvider {
 				c.getCount();
 				c.moveToFirst();
 			}
-			c.setNotificationUri(getContext().getContentResolver(), Uri.parse(StringUtil.decode(uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM))));
+			String encodedUri = uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM);
+			if (!StringUtil.isEmpty(encodedUri)) {
+				c.setNotificationUri(getContext().getContentResolver(), Uri.parse(StringUtil.decode(encodedUri)));
+			}
 			return c;
 		} else {
 			try {

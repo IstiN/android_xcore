@@ -100,7 +100,7 @@ public class ModelContract {
 	}
 
 	public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
-		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  String.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri.toString()))));
+		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  String.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY))));
 	}
 
 }

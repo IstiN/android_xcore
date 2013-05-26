@@ -96,12 +96,12 @@ public class DataSourceService extends Service {
 						} else {
 							ContentValues storedRequest = new ContentValues();
 							DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
-							Long expiration = storedRequest.getAsLong(DataSourceRequestEntity.EXPIRATION);
 							Long lastUpdate = storedRequest.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
-							if (System.currentTimeMillis() - expiration < lastUpdate) {
+							if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
 								sendStatus(StatusResultReceiver.Status.CACHED, resultReceiver, bundle);
 								return;
 							} else {
+								contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
 								getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);	
 							}
 						}
