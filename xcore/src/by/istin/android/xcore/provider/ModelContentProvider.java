@@ -49,7 +49,9 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String className = uri.getLastPathSegment();
 		try {
 			int count = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), values);
-			getContext().getContentResolver().notifyChange(uri, null);
+			if (count > 0) {
+				getContext().getContentResolver().notifyChange(uri, null);
+			}
 			return count;
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
@@ -121,8 +123,11 @@ public abstract class ModelContentProvider extends ContentProvider {
 				getContext().getContentResolver().notifyChange(
 						serializableModelUri, null);
 				return serializableModelUri;
+			} else {
+				//TODO if item is not updated, sql exception throws inside helper
+				return null;
 			}
-			throw new SQLException("Failed to insert row into " + uri);
+			//TODO need check throw new SQLException("Failed to insert row into " + uri);
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}

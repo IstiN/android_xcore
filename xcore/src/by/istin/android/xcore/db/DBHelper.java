@@ -7,8 +7,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -182,6 +184,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		try {
 			db.beginTransaction();
 			IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
+			int count = 0;
 			for (int i = 0; i < contentValues.length; i++) {
 				ContentValues contentValue = contentValues[i];
 				if (contentValue == null) {
@@ -190,10 +193,13 @@ public class DBHelper extends SQLiteOpenHelper {
 				if (beforeListUpdate != null) {
 					beforeListUpdate.onBeforeListUpdate(dataSourceRequest, i, contentValue);
 				}
-				updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
+				long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
+				if (id > 0) {
+					count++;
+				}
 			}
 			db.setTransactionSuccessful();
-			return contentValues.length;
+			return count;
 		} finally {
 			db.endTransaction();
 		}
@@ -252,8 +258,12 @@ public class DBHelper extends SQLiteOpenHelper {
 						ContentValues oldContentValues = new ContentValues();
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
 						merge.merge(dataSourceRequest, oldContentValues, contentValues);
-						db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
-						rowId = id;
+						if (!isContentValuesEquals(oldContentValues, contentValues)) {
+							db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
+							rowId = id;
+						} else {
+							rowId = -1l;
+						}
 					}
 				} finally {
 					if (cursor != null) {
@@ -270,6 +280,24 @@ public class DBHelper extends SQLiteOpenHelper {
 				db.endTransaction();
 			}
 		}
+	}
+
+	public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
+		Set<String> keySet = contentValues.keySet();
+		for (Iterator<String> iterator = keySet.iterator(); iterator.hasNext();) {
+			String key = iterator.next();
+			Object newObject = contentValues.get(key);
+			Object oldObject = oldContentValues.get(key);
+			if (newObject == null && oldObject == null) {
+				continue;
+			}
+			if (newObject != null && newObject.equals(oldObject)) {
+				continue;
+			} else {
+				return false;
+			}
+		}
+		return true;
 	}
 
 	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, SQLiteDatabase db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
