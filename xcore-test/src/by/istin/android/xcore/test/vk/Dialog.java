@@ -1,6 +1,7 @@
 package by.istin.android.xcore.test.vk;
 
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbEntities;
@@ -8,6 +9,7 @@ import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.db.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -74,14 +76,14 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	public static final String POSITION = "position";
 	
 	@Override
-	public void merge(DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
+	public void merge(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		if (newValues.getAsInteger(POSITION) == null) {
 			newValues.put(POSITION, oldValues.getAsInteger(POSITION));
 		}
 	}
 
 	@Override
-	public void onBeforeListUpdate(DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
+	public void onBeforeListUpdate(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
 		contentValues.put(POSITION, position);
 		contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID)));
 	}

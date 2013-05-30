@@ -2,9 +2,10 @@ package by.istin.android.xcore.db;
 
 import by.istin.android.xcore.source.DataSourceRequest;
 import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 
 public interface IBeforeArrayUpdate {
 
-	void onBeforeListUpdate(DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
+	void onBeforeListUpdate(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
 	
 }

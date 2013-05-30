@@ -191,7 +191,7 @@ public class DBHelper extends SQLiteOpenHelper {
 					continue;
 				}
 				if (beforeListUpdate != null) {
-					beforeListUpdate.onBeforeListUpdate(dataSourceRequest, i, contentValue);
+					beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
 				}
 				long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
 				if (id > 0) {
@@ -219,7 +219,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		try {
 			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
 			if (beforeUpdate != null) {
-				beforeUpdate.onBeforeUpdate(dataSourceRequest, contentValues);
+				beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
 			}
 			Long id = contentValues.getAsLong(BaseColumns._ID);
 			if (id == null) {
@@ -257,7 +257,7 @@ public class DBHelper extends SQLiteOpenHelper {
 					} else {
 						ContentValues oldContentValues = new ContentValues();
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
-						merge.merge(dataSourceRequest, oldContentValues, contentValues);
+						merge.merge(this, db, dataSourceRequest, oldContentValues, contentValues);
 						if (!isContentValuesEquals(oldContentValues, contentValues)) {
 							db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
 							rowId = id;

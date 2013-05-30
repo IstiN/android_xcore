@@ -20,9 +20,11 @@ import android.text.TextWatcher;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
+import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -38,12 +40,33 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(getViewLayout(), container, false);
+		onViewCreated(view);
 		Integer searchEditTextId = getSearchEditTextId();
 		if (searchEditTextId == null) {
 			return view;
 		}
-		EditText etext=(EditText)view.findViewById(getSearchEditTextId());
+		final EditText etext= (EditText) view.findViewById(getSearchEditTextId());
+		Integer searchHintText = getSearchHintText();
+		if (searchHintText != null) {
+			etext.setHint(searchHintText);
+		}
+		final Integer searchEditTextClearId = getSearchEditTextClearId();
+		if (searchEditTextClearId != null) {
+			View searchClear = view.findViewById(searchEditTextClearId);
+			if (searchClear != null) {
+				searchClear.setOnClickListener(new OnClickListener() {
+					
+					@Override
+					public void onClick(View paramView) {
+						etext.setText(StringUtil.EMPTY);
+					}
+					
+				});
+			}
+		}
 	    etext.addTextChangedListener(new TextWatcher() {
+	    	
+	    	private View searchClear;
 	    	
 	        public void onTextChanged(CharSequence s, int start, int before, int count) {
 	        	
@@ -55,12 +78,39 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 
 	        public void afterTextChanged(Editable s) {
 	            ListView av = (ListView)view.findViewById(android.R.id.list);
-	            SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)av.getAdapter();
-	            filterAdapter.getFilter().filter(s.toString());
+	            ListAdapter adapter = av.getAdapter();
+	            if (adapter instanceof HeaderViewListAdapter) {
+	            	adapter = ((HeaderViewListAdapter)adapter).getWrappedAdapter();
+	            }
+				SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)adapter;
+	            String value = s.toString();
+	            if (searchEditTextClearId != null) {
+	            	if (searchClear == null) {
+	            		searchClear = view.findViewById(searchEditTextClearId);
+	            	}
+		            if (StringUtil.isEmpty(value)) {
+						if (searchClear != null) {
+							searchClear.setVisibility(View.GONE);
+						}
+					} else {
+						if (searchClear != null) {
+							searchClear.setVisibility(View.VISIBLE);
+						}
+					}
+	            }
+				filterAdapter.getFilter().filter(value);
 	        }
 	        
 	    });
 		return view;
+	}
+
+	protected Integer getSearchHintText() {
+		return null;
+	}
+
+	public void onViewCreated(View view) {
+		
 	}
 
 	@Override
@@ -75,6 +125,10 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	public abstract int getViewLayout();
 	
 	public Integer getSearchEditTextId() {
+		return null;
+	}
+	
+	public Integer getSearchEditTextClearId() {
 		return null;
 	}
 	
