@@ -22,6 +22,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.AbsListView.OnScrollListener;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.HeaderViewListAdapter;
@@ -37,10 +39,53 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
 
+	private class EndlessScrollListener implements OnScrollListener {
+
+        private int visibleThreshold = 5;
+        private int currentPage = 0;
+        private int previousTotal = 0;
+        private volatile boolean loading = true;
+
+        public EndlessScrollListener() {
+        }
+        public EndlessScrollListener(int visibleThreshold) {
+            this.visibleThreshold = visibleThreshold;
+        }
+
+        @Override
+        public void onScroll(AbsListView view, int firstVisibleItem,
+                int visibleItemCount, int totalItemCount) {
+            if (loading) {
+                if (totalItemCount > previousTotal) {
+                    loading = false;
+                    previousTotal = totalItemCount;
+                    currentPage++;
+                }
+            }
+            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                // I load the next page of gigs using a background task,
+                // but you can call any function here.
+                //new LoadGigsTask().execute(currentPage + 1);
+            	loading = true;
+            	onPageLoad(currentPage+1, totalItemCount);
+            }
+        }
+
+        @Override
+        public void onScrollStateChanged(AbsListView view, int scrollState) {
+        }
+    }
+	
+	private EndlessScrollListener mEndlessScrollListener;
+	
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(getViewLayout(), container, false);
 		onViewCreated(view);
+		if (isPagingSupport()) {
+			mEndlessScrollListener = new EndlessScrollListener();
+			((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(mEndlessScrollListener);
+		}
 		Integer searchEditTextId = getSearchEditTextId();
 		if (searchEditTextId == null) {
 			return view;
@@ -105,6 +150,14 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		return view;
 	}
 
+	protected void onPageLoad(int newPage, int totalItemCount) {
+		
+	}
+
+	protected boolean isPagingSupport() {
+		return false;
+	}
+	
 	protected Integer getSearchHintText() {
 		return null;
 	}
@@ -169,7 +222,6 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-		hideProgress();
 		ListAdapter adapter = getListAdapter();
 		if (adapter == null || !(adapter instanceof CursorAdapter)) {
 			SimpleCursorAdapter cursorAdapter = createAdapter(cursor);
@@ -190,10 +242,13 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		} else {
 			((CursorAdapter) adapter).swapCursor(cursor);
 		}
+		if (isServiceWork) {
+			hideEmptyView(getView());
+		}
 	}
 
 	protected SimpleCursorAdapter createAdapter(Cursor cursor) {
-		return new SimpleCursorAdapter(getActivity(), getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 0){
+		return new SimpleCursorAdapter(getActivity(), getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
 
 			@Override
 			public void setViewImage(ImageView v, String value) {
@@ -217,6 +272,8 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		return null;
 	}
 	
+	private boolean isServiceWork = false;
+	
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
@@ -225,7 +282,11 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 			LoaderManager lm = ((FragmentActivity) activity).getSupportLoaderManager();
 			lm.restartLoader(getUri().hashCode(), null, this);
 		}
-		DataSourceRequest dataSourceRequest = new DataSourceRequest(getUrl());
+		loadData(activity, getUrl());
+	}
+
+	protected void loadData(Activity activity, String url) {
+		DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
 		dataSourceRequest.setCacheable(isCacheable());
 		dataSourceRequest.setCacheExpiration(getCacheExpiration());
 		dataSourceRequest.setForceUpdateData(isForceUpdateData());
@@ -233,30 +294,42 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 			
 			@Override
 			public void onStart(Bundle resultData) {
+				isServiceWork = true;
 				showProgress();
 			}
 
 			@Override
 			public void onError(Exception exception) {
+				isServiceWork = false;
 				exception.printStackTrace();
 				Toast.makeText(getActivity(), exception.getMessage(), Toast.LENGTH_SHORT).show();
 				hideProgress();
+				if (mEndlessScrollListener != null) {
+					mEndlessScrollListener.loading = false;
+				}
 			}
 			
 			@Override
 			public void onDone(Bundle resultData) {
+				isServiceWork = false;
 				FragmentActivity fragmentActivity = getActivity();
 				if (fragmentActivity == null) {
 					return;
 				}
-				Toast.makeText(fragmentActivity, "done", Toast.LENGTH_SHORT).show();
 				hideProgress();
+				if (mEndlessScrollListener != null) {
+					mEndlessScrollListener.loading = false;
+				}
 			}
 
 			@Override
 			protected void onCached(Bundle resultData) {
+				isServiceWork = false;
 				super.onCached(resultData);
 				hideProgress();
+				if (mEndlessScrollListener != null) {
+					mEndlessScrollListener.loading = false;
+				}
 			}
 			
 		});
@@ -305,6 +378,15 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		View progressView = view.findViewById(android.R.id.progress);
 		if (progressView != null) {
 			progressView.setVisibility(View.VISIBLE);
+		}
+		hideEmptyView(view);
+	}
+
+	public void hideEmptyView(View view) {
+		if (view == null) return;
+		View emptyView = view.findViewById(android.R.id.empty);
+		if (emptyView != null) {
+			emptyView.setVisibility(View.GONE);
 		}
 	}
 }
