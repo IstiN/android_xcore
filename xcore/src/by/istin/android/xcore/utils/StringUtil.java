@@ -365,7 +365,7 @@ public final class StringUtil {
 			return defaultValue;
 		}
 		try {
-			return URLEncoder.encode(value, "utf-8");
+			return URLEncoder.encode(value, "utf-8").replaceAll("\\+", "%20");
 		} catch (UnsupportedEncodingException e) {
 			return value;
 		}

@@ -170,7 +170,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		if (className.equals(ModelContract.SEGMENT_RAW_QUERY)) {
-			Cursor c = dbHelper.rawQuery(StringUtil.decode(uri.getQueryParameter(ModelContract.SQL_PARAM)), selectionArgs);		
+			Cursor c = dbHelper.rawQuery(uri.getQueryParameter(ModelContract.SQL_PARAM), selectionArgs);		
 			if (c != null) {
 				c.getCount();
 				c.moveToFirst();
