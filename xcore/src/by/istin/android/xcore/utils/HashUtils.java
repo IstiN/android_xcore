@@ -5,13 +5,17 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
-	public static long generateId(String value) {
+	public static long generateId(String... value) {
 		//String value to be converted
 		try {
+			StringBuilder builder = new StringBuilder();
+			for (String s : value) {
+				builder.append(s);
+			}
 			MessageDigest md = MessageDigest.getInstance("sha-1");
 		
 			//convert the string value to a byte array and pass it into the hash algorithm
-			md.update(value.getBytes());
+			md.update(builder.toString().getBytes());
 	
 			//retrieve a byte array containing the digest
 			byte[] hashValBytes = md.digest();
