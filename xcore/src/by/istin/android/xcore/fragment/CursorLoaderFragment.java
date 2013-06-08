@@ -10,6 +10,10 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
 
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+		restart(savedInstanceState);
+	}
+
+	public void restart(Bundle savedInstanceState) {
 		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
 	}
 	

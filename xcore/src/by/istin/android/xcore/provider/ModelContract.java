@@ -9,6 +9,10 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public class ModelContract {
 
+	public static final String CLEANER = "cleaner";
+
+	private static final String CLEANER_TRUE = "?" + CLEANER + "=true";
+
 	public static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
 
 	private static final String AUTHORITY_TEMPLATE = "%s.ModelContentProvider";
@@ -56,7 +60,11 @@ public class ModelContract {
 	}
 	
 	public static Uri getUri(Class<?> clazz) {
-		return getUri(clazz.getCanonicalName());
+		return getUri(clazz, false);
+	}
+	
+	public static Uri getUri(Class<?> clazz, boolean withCleaner) {
+		return getUri(clazz.getCanonicalName(), withCleaner);
 	}
 	
 	public static Uri getPaginatedUri(Class<?> clazz, int offset, int size) {
@@ -71,8 +79,8 @@ public class ModelContract {
 		return Uri.parse(String.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
 	}
 	
-	public static Uri getUri(String modelName) {
-		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName));
+	public static Uri getUri(String modelName, boolean withCleaner) {
+		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName)+(withCleaner ? CLEANER_TRUE : StringUtil.EMPTY));
 	}
 	
 	public static Uri getUri(Class<?> clazz, Long id) {

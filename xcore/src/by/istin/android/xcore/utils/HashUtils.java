@@ -5,12 +5,12 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
-	public static long generateId(String... value) {
+	public static long generateId(Object... value) {
 		//String value to be converted
 		try {
 			StringBuilder builder = new StringBuilder();
-			for (String s : value) {
-				builder.append(s);
+			for (Object s : value) {
+				builder.append(String.valueOf(s));
 			}
 			MessageDigest md = MessageDigest.getInstance("sha-1");
 		

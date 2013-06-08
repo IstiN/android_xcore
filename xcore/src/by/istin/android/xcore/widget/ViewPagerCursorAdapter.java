@@ -44,10 +44,15 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 	@Override
 	public Object instantiateItem(View collection, int position) {
 		final View container = View.inflate(context, getResource(position), null);
-		cursor.moveToPosition(position);
+		Cursor cursor = getItemAtPosition(position);
 		init(container, cursor);
 		((ViewPager)collection).addView(container, 0);
 		return container;
+	}
+
+	public Cursor getItemAtPosition(int position) {
+		cursor.moveToPosition(position);
+		return cursor;
 	}
 
 	public int getResource(int position) {
