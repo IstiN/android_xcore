@@ -223,8 +223,12 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		ListAdapter adapter = getListAdapter();
+		FragmentActivity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
 		if (adapter == null || !(adapter instanceof CursorAdapter)) {
-			SimpleCursorAdapter cursorAdapter = createAdapter(cursor);
+			SimpleCursorAdapter cursorAdapter = createAdapter(activity, cursor);
 			ViewBinder adapterViewBinder = getAdapterViewBinder();
 			if (adapterViewBinder != null) {
 				cursorAdapter.setViewBinder(adapterViewBinder);
@@ -247,8 +251,8 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		}
 	}
 
-	protected SimpleCursorAdapter createAdapter(Cursor cursor) {
-		return new SimpleCursorAdapter(getActivity(), getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
+	protected SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
+		return new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
 
 			@Override
 			public void setViewImage(ImageView v, String value) {

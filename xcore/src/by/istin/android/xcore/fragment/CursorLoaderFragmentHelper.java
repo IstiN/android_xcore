@@ -46,8 +46,10 @@ public class CursorLoaderFragmentHelper {
 	public static void onActivityCreated(ICursorLoaderFragmentHelper cursorLoaderFragment, Bundle savedInstanceState) {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity) {
-			LoaderManager lm = ((FragmentActivity) activity).getSupportLoaderManager();
-			lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
+			if (cursorLoaderFragment.getUri() != null) {
+				LoaderManager lm = ((FragmentActivity) activity).getSupportLoaderManager();
+				lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
+			}
 		}
 	}
 	

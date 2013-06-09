@@ -7,7 +7,6 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.UriMatcher;
 import android.database.Cursor;
-import android.database.SQLException;
 import android.net.Uri;
 import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
@@ -48,10 +47,12 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public int bulkInsert(Uri uri, ContentValues[] values) {
 		String className = uri.getLastPathSegment();
 		try {
-			String cleanerParameter = uri.getQueryParameter(ModelContract.CLEANER);
+			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
 			int count = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
 			if (count > 0) {
-				getContext().getContentResolver().notifyChange(uri, null);
+				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+					getContext().getContentResolver().notifyChange(uri, null);
+				}
 			}
 			return count;
 		} catch (ClassNotFoundException e) {
@@ -104,7 +105,9 @@ public abstract class ModelContentProvider extends ContentProvider {
 		}
 		try {
 			int count = dbHelper.delete(Class.forName(className), where, whereArgs);
-			getContext().getContentResolver().notifyChange(uri, null);
+			if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+				getContext().getContentResolver().notifyChange(uri, null);
+			}
 			return count;
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
@@ -118,12 +121,14 @@ public abstract class ModelContentProvider extends ContentProvider {
 		}
 		String className = uri.getLastPathSegment();
 		try {
-			String cleanerParameter = uri.getQueryParameter(ModelContract.CLEANER);
+			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
 			long rowId = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), initialValues);
 			if (rowId > 0) {
 				Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
-				getContext().getContentResolver().notifyChange(
+				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+					getContext().getContentResolver().notifyChange(
 						serializableModelUri, null);
+				}
 				return serializableModelUri;
 			} else {
 				//TODO if item is not updated, sql exception throws inside helper
