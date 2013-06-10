@@ -61,4 +61,8 @@ public class CursorUtils {
 		return cursor.getBlob(columnIndex);
 	}
 
+	public static boolean isEmpty(Cursor cursor) {
+		return cursor == null || cursor.getCount() == 0;
+	}
+
 }

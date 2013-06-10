@@ -151,12 +151,22 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public int delete(Class<?> clazz, String where, String[] whereArgs) {
-		return delete(getTableName(clazz), where, whereArgs);
+		return delete(null, getTableName(clazz), where, whereArgs);
+	}
+	
+	public int delete(SQLiteDatabase db, Class<?> clazz, String where, String[] whereArgs) {
+		return delete(db, getTableName(clazz), where, whereArgs);
 	}
 	
 	public int delete(String tableName, String where, String[] whereArgs) {
+		return delete(null, tableName, where, whereArgs);
+	}
+	
+	public int delete(SQLiteDatabase db, String tableName, String where, String[] whereArgs) {
 		if (isExists(tableName)) {
-			SQLiteDatabase db = getWritableDatabase();
+			if (db == null) {
+				db = getWritableDatabase();
+			}
 			return db.delete(tableName, where, whereArgs);
 		} else {
 			return 0;
@@ -176,13 +186,19 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public int updateOrInsert(Class<?> classOfModel, ContentValues... contentValues) {
-		return updateOrInsert(null, classOfModel, contentValues);
+		return updateOrInsert(null, false, classOfModel, contentValues);
 	}
 	
-	public int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, ContentValues... contentValues) {
+	public int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, ContentValues... contentValues) {
 		SQLiteDatabase db = getWritableDatabase();
 		try {
 			db.beginTransaction();
+			if (withCleaner) {
+				ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
+				if (cleaner != null) {
+					cleaner.clean(this, db, dataSourceRequest, contentValues);
+				}
+			}
 			IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
 			int count = 0;
 			for (int i = 0; i < contentValues.length; i++) {
@@ -215,6 +231,10 @@ public class DBHelper extends SQLiteOpenHelper {
 			db = getWritableDatabase();
 			requestWithoutTransaction = true;
 			db.beginTransaction();
+			ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
+			if (cleaner != null) {
+				cleaner.clean(this, db, dataSourceRequest, contentValues);
+			}
 		} 
 		try {
 			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);

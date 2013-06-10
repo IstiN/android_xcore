@@ -8,9 +8,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -30,14 +27,16 @@ import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
+import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XListFragment extends ListFragment implements LoaderCallbacks<Cursor> {
+public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper {
 
 	private class EndlessScrollListener implements OnScrollListener {
 
@@ -78,6 +77,11 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	
 	private EndlessScrollListener mEndlessScrollListener;
 	
+	@Override
+	public int getLoaderId() {
+		return getUri().hashCode();
+	}
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(getViewLayout(), container, false);
@@ -213,18 +217,18 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		Loader<Cursor> loader = null;
-		if (id == getUri().hashCode()) {
-			loader = new CursorLoader(getActivity(), getUri(), getProjection(), getSelection(), getSelectionArgs(), getOrder());
-		}
-		return loader;
+		return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
 	}
 	
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		ListAdapter adapter = getListAdapter();
+		FragmentActivity activity = getActivity();
+		if (activity == null) {
+			return;
+		}
 		if (adapter == null || !(adapter instanceof CursorAdapter)) {
-			SimpleCursorAdapter cursorAdapter = createAdapter(cursor);
+			SimpleCursorAdapter cursorAdapter = createAdapter(activity, cursor);
 			ViewBinder adapterViewBinder = getAdapterViewBinder();
 			if (adapterViewBinder != null) {
 				cursorAdapter.setViewBinder(adapterViewBinder);
@@ -247,13 +251,19 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		}
 	}
 
-	protected SimpleCursorAdapter createAdapter(Cursor cursor) {
-		return new SimpleCursorAdapter(getActivity(), getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
+	protected SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
+		return new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
 
 			@Override
 			public void setViewImage(ImageView v, String value) {
 				if (!setAdapterViewImage(v, value)) {
 					super.setViewImage(v, value);
+				}
+			}
+			
+			public void setViewText(TextView v, String text) {
+				if (!setAdapterViewText(v, text)) {
+					super.setViewText(v, text);
 				}
 			}
 			
@@ -268,6 +278,10 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 		return false;
 	}
 	
+	protected boolean setAdapterViewText(TextView v, String value) {
+		return false;
+	}
+	
 	protected ViewBinder getAdapterViewBinder() {
 		return null;
 	}
@@ -277,12 +291,11 @@ public abstract class XListFragment extends ListFragment implements LoaderCallba
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		Activity activity = getActivity();
-		if (activity instanceof FragmentActivity) {
-			LoaderManager lm = ((FragmentActivity) activity).getSupportLoaderManager();
-			lm.restartLoader(getUri().hashCode(), null, this);
+		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
+		String url = getUrl();
+		if (!StringUtil.isEmpty(url)) {
+			loadData(getActivity(), url);
 		}
-		loadData(activity, getUrl());
 	}
 
 	protected void loadData(Activity activity, String url) {
