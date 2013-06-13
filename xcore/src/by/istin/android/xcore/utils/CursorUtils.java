@@ -65,4 +65,10 @@ public class CursorUtils {
 		return cursor == null || cursor.getCount() == 0;
 	}
 
+	public static void close(Cursor cursor) {
+		if (cursor != null && !cursor.isClosed()) {
+			cursor.close();
+		}
+	}
+
 }
