@@ -1,10 +1,14 @@
 package by.istin.android.xcore.provider;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
@@ -207,5 +211,15 @@ public abstract class ModelContentProvider extends ContentProvider {
 			}
 		}
 	}
+
+	@Override
+	public ContentProviderResult[] applyBatch(
+			ArrayList<ContentProviderOperation> operations)
+			throws OperationApplicationException {
+		//TODO needs run in one transaction
+		return super.applyBatch(operations);
+	}
+	
+	
 	
 }

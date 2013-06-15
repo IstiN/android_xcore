@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import android.content.ContentValues;
@@ -22,6 +23,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.provider.BaseColumns;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbByteArray;
@@ -31,6 +33,7 @@ import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
@@ -303,11 +306,11 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
-		Set<String> keySet = contentValues.keySet();
-		for (Iterator<String> iterator = keySet.iterator(); iterator.hasNext();) {
-			String key = iterator.next();
-			Object newObject = contentValues.get(key);
-			Object oldObject = oldContentValues.get(key);
+		Set<Entry<String, Object>> keySet = contentValues.valueSet();
+		for (Iterator<Entry<String, Object>> iterator = keySet.iterator(); iterator.hasNext();) {
+			Entry<String, Object> entry = iterator.next();
+			Object newObject = entry.getValue();
+			Object oldObject = oldContentValues.get(entry.getKey());
 			if (newObject == null && oldObject == null) {
 				continue;
 			}
@@ -353,6 +356,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
+			if (dbAnnotation.equals(dbEntities.class)) {
+				if (((dbEntities)annotation).isNotify()) {
+					ContextHolder.getInstance().getContext().getContentResolver().notifyChange(ModelContract.getUri(modelClass), null);
+				}
+			}
 		}
 	}
 
