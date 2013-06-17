@@ -3,6 +3,7 @@
   <component name="FacetManager">
     <facet type="android" name="Android">
       <configuration>
+        <option name="LIBRARY_PROJECT" value="true" />
         <notImportedProperties>
           <property>MANIFEST_FILE_PATH</property>
           <property>RESOURCES_DIR_PATH</property>
@@ -18,18 +19,9 @@
       <sourceFolder url="file://$MODULE_DIR$/gen" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
-    <orderEntry type="inheritedJdk" />
+    <orderEntry type="jdk" jdkName="Android 4.2.2" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="library" name="libs3" level="project" />
-    <orderEntry type="library" name="libs4" level="project" />
-    <orderEntry type="library" name="libs1" level="project" />
-    <orderEntry type="library" name="android-support-v41" level="project" />
-    <orderEntry type="library" name="android-support-v4" level="project" />
-    <orderEntry type="library" name="libs7" level="project" />
-    <orderEntry type="library" name="libs6" level="project" />
-    <orderEntry type="library" name="libs2" level="project" />
-    <orderEntry type="library" name="libs" level="project" />
-    <orderEntry type="library" name="libs5" level="project" />
+    <orderEntry type="library" scope="PROVIDED" name="libs1" level="project" />
   </component>
 </module>
 
