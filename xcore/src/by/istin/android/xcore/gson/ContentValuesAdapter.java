@@ -26,7 +26,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
-public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
+public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 
 	private Class<?> contentValuesEntityClazz;
 	
@@ -48,7 +48,7 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 		this.jsonPrimitiveHandler = jsonPrimitiveHandler;
 	}
 
-	public ContentValuesAdaper(Class<?> contentValuesEntityClazz) {
+	public ContentValuesAdapter(Class<?> contentValuesEntityClazz) {
 		this.contentValuesEntityClazz = contentValuesEntityClazz;
 	}
 	
@@ -115,7 +115,7 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 				if (clazz.getCanonicalName().contains("FwdMessage")) {
 					Log.xd("there", "break");
 				}
-				ContentValuesAdaper contentValuesAdaper = new ContentValuesAdaper(clazz);
+				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
 				ContentValues values = contentValuesAdaper.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
 				contentValuesAdaper = null;
 				contentValues.put(fieldValue, BytesUtils.toByteArray(values));
@@ -128,7 +128,7 @@ public class ContentValuesAdaper implements JsonDeserializer<ContentValues> {
 				if (clazz.getCanonicalName().contains("FwdMessage")) {
 					Log.xd("there", "break");
 				}
-				ContentValuesAdaper contentValuesAdaper = new ContentValuesAdaper(clazz);
+				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
 				ContentValues[] values = new ContentValues[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {
 					values[i] = contentValuesAdaper.deserialize(jsonArray.get(i), type, jsonDeserializationContext);
