@@ -46,7 +46,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         private volatile boolean loading = true;
 
         public EndlessScrollListener() {
+
         }
+
         public EndlessScrollListener(int visibleThreshold) {
             this.visibleThreshold = visibleThreshold;
         }
@@ -72,7 +74,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
         @Override
         public void onScrollStateChanged(AbsListView view, int scrollState) {
+
         }
+
     }
 	
 	private EndlessScrollListener mEndlessScrollListener;
@@ -94,10 +98,10 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		if (searchEditTextId == null) {
 			return view;
 		}
-		final EditText etext= (EditText) view.findViewById(getSearchEditTextId());
+		final EditText searchEditText = (EditText) view.findViewById(getSearchEditTextId());
 		Integer searchHintText = getSearchHintText();
 		if (searchHintText != null) {
-			etext.setHint(searchHintText);
+			searchEditText.setHint(searchHintText);
 		}
 		final Integer searchEditTextClearId = getSearchEditTextClearId();
 		if (searchEditTextClearId != null) {
@@ -107,50 +111,50 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 					
 					@Override
 					public void onClick(View paramView) {
-						etext.setText(StringUtil.EMPTY);
+						searchEditText.setText(StringUtil.EMPTY);
 					}
 					
 				});
 			}
 		}
-	    etext.addTextChangedListener(new TextWatcher() {
-	    	
-	    	private View searchClear;
-	    	
-	        public void onTextChanged(CharSequence s, int start, int before, int count) {
-	        	
-	        }
+	    searchEditText.addTextChangedListener(new TextWatcher() {
 
-	        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-	        	
-	        }
+            private View searchClear;
 
-	        public void afterTextChanged(Editable s) {
-	            ListView av = (ListView)view.findViewById(android.R.id.list);
-	            ListAdapter adapter = av.getAdapter();
-	            if (adapter instanceof HeaderViewListAdapter) {
-	            	adapter = ((HeaderViewListAdapter)adapter).getWrappedAdapter();
-	            }
-				SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter)adapter;
-	            String value = s.toString();
-	            if (searchEditTextClearId != null) {
-	            	if (searchClear == null) {
-	            		searchClear = view.findViewById(searchEditTextClearId);
-	            	}
-		            if (StringUtil.isEmpty(value)) {
-						if (searchClear != null) {
-							searchClear.setVisibility(View.GONE);
-						}
-					} else {
-						if (searchClear != null) {
-							searchClear.setVisibility(View.VISIBLE);
-						}
-					}
-	            }
-				filterAdapter.getFilter().filter(value);
-	        }
-	        
-	    });
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            public void afterTextChanged(Editable s) {
+                ListView av = (ListView) view.findViewById(android.R.id.list);
+                ListAdapter adapter = av.getAdapter();
+                if (adapter instanceof HeaderViewListAdapter) {
+                    adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+                }
+                SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter) adapter;
+                String value = s.toString();
+                if (searchEditTextClearId != null) {
+                    if (searchClear == null) {
+                        searchClear = view.findViewById(searchEditTextClearId);
+                    }
+                    if (StringUtil.isEmpty(value)) {
+                        if (searchClear != null) {
+                            searchClear.setVisibility(View.GONE);
+                        }
+                    } else {
+                        if (searchClear != null) {
+                            searchClear.setVisibility(View.VISIBLE);
+                        }
+                    }
+                }
+                filterAdapter.getFilter().filter(value);
+            }
+
+        });
 		return view;
 	}
 
@@ -271,7 +275,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 	
 	protected abstract String[] getAdapterColumns();
+
 	protected abstract int[] getAdapterControlIds();
+
 	protected abstract int getAdapterLayout();
 
 	protected boolean setAdapterViewImage(ImageView v, String value) {
