@@ -3,16 +3,6 @@
  */
 package by.istin.android.xcore.db;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -23,6 +13,17 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.provider.BaseColumns;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
@@ -193,6 +194,9 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, ContentValues... contentValues) {
+        if (contentValues == null) {
+            return 0;
+        }
 		SQLiteDatabase db = getWritableDatabase();
 		try {
 			db.beginTransaction();
