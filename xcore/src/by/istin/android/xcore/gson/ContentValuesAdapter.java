@@ -1,10 +1,20 @@
 package by.istin.android.xcore.gson;
 
+import android.content.ContentValues;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.annotations.SerializedName;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import android.content.ContentValues;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbDouble;
@@ -16,15 +26,6 @@ import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParseException;
-import com.google.gson.JsonPrimitive;
-import com.google.gson.annotations.SerializedName;
 
 public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 
@@ -84,10 +85,15 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 					if (i == values.length - 1) {
 						jsonValue = tempElement.get(values[i]);
 					} else {
-						tempElement = (JsonObject) tempElement.get(values[i]);
-						if (tempElement == null) {
-							break;
-						}
+                        JsonElement element = tempElement.get(values[i]);
+                        if (element == null) {
+                            break;
+                        }
+                        if (element.isJsonObject()) {
+                            tempElement = (JsonObject) element;
+                        } else {
+                            break;
+                        }
 					}
 				}
 			} else {
@@ -96,20 +102,21 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 			if (jsonValue == null) {
 				continue;
 			}
-			
-			if (field.isAnnotationPresent(dbLong.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsLong());
-			} else if (field.isAnnotationPresent(dbString.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsString());
-			} else if (field.isAnnotationPresent(dbBoolean.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsBoolean());
-			} else if (field.isAnnotationPresent(dbByte.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsByte());
-			} else if (field.isAnnotationPresent(dbDouble.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsDouble());
-			} else if (field.isAnnotationPresent(dbInteger.class)) {
-				contentValues.put(fieldValue, jsonValue.getAsInt());
-			} else if (field.isAnnotationPresent(dbEntity.class)) {
+			if (jsonValue.isJsonPrimitive()) {
+                if (field.isAnnotationPresent(dbLong.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsLong());
+                } else if (field.isAnnotationPresent(dbString.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsString());
+                } else if (field.isAnnotationPresent(dbBoolean.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsBoolean());
+                } else if (field.isAnnotationPresent(dbByte.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsByte());
+                } else if (field.isAnnotationPresent(dbDouble.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsDouble());
+                } else if (field.isAnnotationPresent(dbInteger.class)) {
+                    contentValues.put(fieldValue, jsonValue.getAsInt());
+                }
+            } else if (field.isAnnotationPresent(dbEntity.class)) {
 				dbEntity entity = field.getAnnotation(dbEntity.class);
 				Class<?> clazz = entity.clazz();
 				if (clazz.getCanonicalName().contains("FwdMessage")) {

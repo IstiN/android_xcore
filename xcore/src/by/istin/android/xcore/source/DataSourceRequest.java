@@ -1,12 +1,13 @@
 package by.istin.android.xcore.source;
 
-import java.util.Iterator;
-import java.util.Set;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
+
+import java.util.Iterator;
+import java.util.Set;
+
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
@@ -97,7 +98,12 @@ public class DataSourceRequest {
 	}
 	
 	public String getParam(String key) {
-		return mBundle.getString(key);
+        String value = mBundle.getString(key);
+        if (value == null) {
+            String uri = mBundle.getString(REQUEST_URI);
+            return Uri.parse(uri).getQueryParameter(key);
+        }
+        return value;
 	}
 	
 	public String toUriParams() {

@@ -403,4 +403,31 @@ public class DBHelper extends SQLiteOpenHelper {
 		return cursor;
 	}
 
+    public static void moveFromOldValues(ContentValues oldValues, ContentValues newValues, String ... keys) {
+        for (String key : keys) {
+            Object value = oldValues.get(key);
+            if (value != null) {
+                if (value instanceof Long) {
+                    newValues.put(key, (Long)value);
+                } else if (value instanceof Integer) {
+                    newValues.put(key, (Integer)value);
+                } else if (value instanceof String) {
+                    newValues.put(key, (String)value);
+                } else if (value instanceof Byte) {
+                    newValues.put(key, (Byte)value);
+                } else if (value instanceof byte[]) {
+                    newValues.put(key, (byte[])value);
+                } else if (value instanceof Boolean) {
+                    newValues.put(key, (Boolean)value);
+                } else if (value instanceof Double) {
+                    newValues.put(key, (Double)value);
+                } else if (value instanceof Float) {
+                    newValues.put(key, (Float)value);
+                } else if (value instanceof Short) {
+                    newValues.put(key, (Short)value);
+                }
+            }
+        }
+    }
+
 }
