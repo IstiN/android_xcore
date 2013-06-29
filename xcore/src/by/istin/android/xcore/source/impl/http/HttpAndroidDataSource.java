@@ -3,14 +3,12 @@
  */
 package by.istin.android.xcore.source.impl.http;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Set;
+import android.content.Context;
+import android.net.ParseException;
+import android.net.Uri;
+import android.net.http.AndroidHttpClient;
+import android.os.Build;
+import android.text.TextUtils;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -28,12 +26,15 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 
-import android.content.Context;
-import android.net.ParseException;
-import android.net.Uri;
-import android.net.http.AndroidHttpClient;
-import android.os.Build;
-import android.text.TextUtils;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
@@ -47,7 +48,7 @@ import by.istin.android.xcore.utils.UriUtils;
  * @author Uladzimir_Klyshevich
  * 
  */
-public class HttpAndroidDataSource implements IDataSource {
+public class HttpAndroidDataSource implements IDataSource<InputStream> {
 
 	public static final String SYSTEM_SERVICE_KEY = "xcore:httpdatasource";
 

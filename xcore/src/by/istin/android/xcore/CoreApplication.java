@@ -5,6 +5,7 @@ package by.istin.android.xcore;
 
 import android.app.Application;
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
+import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -25,6 +26,10 @@ public class CoreApplication extends Application {
 		mXCoreHelper.registerAppService(appService);
 	}
 
+    public void addPlugin(IXListFragmentPlugin listFragmentPlugin) {
+        mXCoreHelper.addPlugin(listFragmentPlugin);
+    }
+
 	@Override
 	public Object getSystemService(String name) {
 		Object object = mXCoreHelper.getSystemService(name);
@@ -33,7 +38,5 @@ public class CoreApplication extends Application {
 		}
 		return super.getSystemService(name);
 	}
-	
-	
-	
+
 }

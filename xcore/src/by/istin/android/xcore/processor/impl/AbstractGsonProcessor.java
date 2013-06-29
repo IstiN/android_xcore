@@ -15,7 +15,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
 
-public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result>{
+public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result, InputStream>{
 
 	private Class<?> clazz;
 	

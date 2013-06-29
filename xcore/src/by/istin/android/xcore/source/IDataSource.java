@@ -1,12 +1,11 @@
 package by.istin.android.xcore.source;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 
-public interface IDataSource extends IAppServiceKey {
+public interface IDataSource<T> extends IAppServiceKey {
 
-	InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException;
+	T getSource(DataSourceRequest dataSourceRequest) throws IOException;
 	
 }

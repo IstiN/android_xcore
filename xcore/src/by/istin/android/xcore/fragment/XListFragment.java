@@ -29,7 +29,12 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.List;
+
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
+import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -89,7 +94,16 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(getViewLayout(), container, false);
-		onViewCreated(view);
+        onViewCreated(view);
+
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(view.getContext()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.onCreateView(this, view, inflater, container, savedInstanceState);
+            }
+        }
+
 		if (isPagingSupport()) {
 			mEndlessScrollListener = new EndlessScrollListener();
 			((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(mEndlessScrollListener);
@@ -155,6 +169,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
             }
 
         });
+
 		return view;
 	}
 
@@ -221,7 +236,15 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
+        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.onCreateLoader(this, cursorLoader, id, args);
+            }
+        }
+        return cursorLoader;
 	}
 	
 	@Override
@@ -253,25 +276,41 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		if (isServiceWork) {
 			hideEmptyView(getView());
 		}
+
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.onLoadFinished(this, loader, cursor);
+            }
+        }
 	}
 
-	protected SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
-		return new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2){
+	public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
+        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2) {
 
-			@Override
-			public void setViewImage(ImageView v, String value) {
-				if (!setAdapterViewImage(v, value)) {
-					super.setViewImage(v, value);
-				}
-			}
-			
-			public void setViewText(TextView v, String text) {
-				if (!setAdapterViewText(v, text)) {
-					super.setViewText(v, text);
-				}
-			}
-			
-		};
+            @Override
+            public void setViewImage(ImageView v, String value) {
+                if (!setAdapterViewImage(v, value)) {
+                    super.setViewImage(v, value);
+                }
+            }
+
+            public void setViewText(TextView v, String text) {
+                if (!setAdapterViewText(v, text)) {
+                    super.setViewText(v, text);
+                }
+            }
+
+        };
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.createAdapter(this, simpleCursorAdapter, activity, cursor);
+            }
+        }
+        return simpleCursorAdapter;
 	}
 	
 	protected abstract String[] getAdapterColumns();
@@ -300,21 +339,43 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
 		String url = getUrl();
 		if (!StringUtil.isEmpty(url)) {
-			loadData(getActivity(), url);
+			loadData(getActivity(), url, isForceUpdateData());
 		}
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.onActivityCreated(this, savedInstanceState);
+            }
+        }
 	}
 
-	protected void loadData(Activity activity, String url) {
+    public void refresh() {
+        loadData(getActivity(), getUrl(), true);
+    }
+
+    protected void loadData(Activity activity, String url) {
+        loadData(activity, url, isForceUpdateData());
+    }
+
+	protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
 		DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
 		dataSourceRequest.setCacheable(isCacheable());
 		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdateData());
+		dataSourceRequest.setForceUpdateData(isForceUpdate);
 		DataSourceService.execute(activity, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 			
 			@Override
 			public void onStart(Bundle resultData) {
 				isServiceWork = true;
 				showProgress();
+                //plugins
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                if (listFragmentPlugins != null) {
+                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                        plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
+                    }
+                }
 			}
 
 			@Override
@@ -326,6 +387,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				if (mEndlessScrollListener != null) {
 					mEndlessScrollListener.loading = false;
 				}
+                //plugins
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                if (listFragmentPlugins != null) {
+                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                        plugin.onStatusResultReceiverError(XListFragment.this, exception);
+                    }
+                }
 			}
 			
 			@Override
@@ -339,6 +407,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				if (mEndlessScrollListener != null) {
 					mEndlessScrollListener.loading = false;
 				}
+                //plugins
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                if (listFragmentPlugins != null) {
+                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                        plugin.onStatusResultReceiverDone(XListFragment.this, resultData);
+                    }
+                }
 			}
 
 			@Override
@@ -349,6 +424,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				if (mEndlessScrollListener != null) {
 					mEndlessScrollListener.loading = false;
 				}
+                //plugins
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                if (listFragmentPlugins != null) {
+                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                        plugin.onStatusResultReceiverCached(XListFragment.this, resultData);
+                    }
+                }
 			}
 			
 		});
