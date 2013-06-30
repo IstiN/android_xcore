@@ -29,11 +29,16 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
     @Override
     public void onCreateView(final XListFragment listFragment, View view, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        if (pullToRefresh == null) {
+            return;
+        }
         pullToRefresh.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener() {
 
             @Override
             public void onRefresh(PullToRefreshBase refreshView) {
-                listFragment.refresh();
+                if (listFragment != null) {
+                    listFragment.refresh();
+                }
             }
 
         });
@@ -66,6 +71,9 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
             return;
         }
         PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        if (pullToRefresh == null) {
+            return;
+        }
         pullToRefresh.onRefreshComplete();
     }
 
@@ -76,6 +84,9 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
             return;
         }
         PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        if (pullToRefresh == null) {
+            return;
+        }
         pullToRefresh.onRefreshComplete();
     }
 
@@ -86,6 +97,9 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
             return;
         }
         PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        if (pullToRefresh == null) {
+            return;
+        }
         pullToRefresh.onRefreshComplete();
     }
 

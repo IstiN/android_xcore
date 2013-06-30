@@ -1,8 +1,5 @@
 package by.istin.android.xcore.provider;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -12,10 +9,18 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
+
 import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
@@ -126,8 +131,11 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String className = uri.getLastPathSegment();
 		try {
 			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
-			long rowId = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), initialValues);
-			if (rowId > 0) {
+            DataSourceRequest dataSourceRequestFromUri = getDataSourceRequestFromUri(uri);
+            boolean withCleaner = !StringUtil.isEmpty(cleanerParameter);
+            Class<?> classOfModel = Class.forName(className);
+            long rowId = dbHelper.updateOrInsert(dataSourceRequestFromUri, withCleaner, classOfModel, initialValues);
+			if (rowId != -1l) {
 				Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
 				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
 					getContext().getContentResolver().notifyChange(
@@ -135,8 +143,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 				}
 				return serializableModelUri;
 			} else {
-				//TODO if item is not updated, sql exception throws inside helper
-				return null;
+                throw new IllegalArgumentException(uri + ": " +initialValues.toString());
 			}
 			//TODO need check throw new SQLException("Failed to insert row into " + uri);
 		} catch (ClassNotFoundException e) {
@@ -216,8 +223,31 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public ContentProviderResult[] applyBatch(
 			ArrayList<ContentProviderOperation> operations)
 			throws OperationApplicationException {
-		//TODO needs run in one transaction
-		return super.applyBatch(operations);
+        dbHelper.lockTransaction();
+        ContentProviderResult[] result = new ContentProviderResult[operations.size()];
+        try {
+            Set<Uri> set = new HashSet<Uri>();
+            for(int i = 0; i < operations.size(); i++) {
+                ContentProviderOperation contentProviderOperation = operations.get(i);
+                Uri uri = contentProviderOperation.getUri();
+                Log.xd(this, uri);
+                result[i] = contentProviderOperation.apply(this, result, i);
+                //ContentValues contentValues = contentProviderOperation.resolveValueBackReferences(result, i);
+                set.add(uri);
+            }
+            for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
+                Uri uri = iterator.next();
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            dbHelper.unlockTransaction();
+        } catch (OperationApplicationException e1) {
+            dbHelper.errorUnlockTransaction();
+            throw e1;
+        } catch (Exception e) {
+            dbHelper.errorUnlockTransaction();
+            throw new IllegalArgumentException(e);
+        }
+		return result;
 	}
 	
 	

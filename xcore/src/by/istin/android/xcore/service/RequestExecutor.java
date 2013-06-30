@@ -1,5 +1,9 @@
 package by.istin.android.xcore.service;
 
+import android.os.ResultReceiver;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -10,10 +14,15 @@ public class RequestExecutor {
 	public static abstract class ExecuteRunnable implements Runnable {
 		
 		private String key;
-		
-		public ExecuteRunnable() {
+
+        private List<ResultReceiver> resultReceivers = new ArrayList<ResultReceiver>();
+
+		public ExecuteRunnable(ResultReceiver resultReceiver) {
 			super();
 			key = createKey();
+            if (resultReceiver != null) {
+                resultReceivers.add(resultReceiver);
+            }
 		}
 
 		public abstract String createKey();
@@ -31,7 +40,14 @@ public class RequestExecutor {
 		public int hashCode() {
 			return getKey().hashCode();
 		}
-		
+
+        public List<ResultReceiver> getResultReceivers() {
+            return resultReceivers;
+        }
+
+        protected void addResultReceiver(ResultReceiver resultReceiver) {
+            resultReceivers.add(resultReceiver);
+        }
 	}
 
 	private ThreadPoolExecutor executor;
@@ -43,7 +59,7 @@ public class RequestExecutor {
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
     
 	public RequestExecutor() {
-		executor = new ThreadPoolExecutor(NUMBER_OF_CORES, NUMBER_OF_CORES, 1, TimeUnit.SECONDS, new BlockingLifoQueue<Runnable>());		
+		executor = new ThreadPoolExecutor(Math.max(NUMBER_OF_CORES, 3), Math.max(NUMBER_OF_CORES, 3), 1, TimeUnit.SECONDS, new BlockingLifoQueue<Runnable>());
 	}
 	
 	public synchronized void execute(ExecuteRunnable executeRunnable) {

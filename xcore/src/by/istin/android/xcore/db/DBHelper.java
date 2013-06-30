@@ -199,7 +199,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 		SQLiteDatabase db = getWritableDatabase();
 		try {
-			db.beginTransaction();
+            if (!isLockTransaction) {
+			    db.beginTransaction();
+            }
 			if (withCleaner) {
 				ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
 				if (cleaner != null) {
@@ -217,14 +219,18 @@ public class DBHelper extends SQLiteOpenHelper {
 					beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
 				}
 				long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
-				if (id > 0) {
+				if (id != -1l) {
 					count++;
 				}
 			}
-			db.setTransactionSuccessful();
+            if (!isLockTransaction) {
+			    db.setTransactionSuccessful();
+            }
 			return count;
 		} finally {
-			db.endTransaction();
+            if (!isLockTransaction) {
+			    db.endTransaction();
+            }
 		}
 	}
 	
@@ -237,7 +243,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		if (db == null) {
 			db = getWritableDatabase();
 			requestWithoutTransaction = true;
-			db.beginTransaction();
+            if (!isLockTransaction) {
+			    db.beginTransaction();
+            }
 			ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
 			if (cleaner != null) {
 				cleaner.clean(this, db, dataSourceRequest, contentValues);
@@ -299,12 +307,16 @@ public class DBHelper extends SQLiteOpenHelper {
 				}
 			}
 			if (requestWithoutTransaction) {
-				db.setTransactionSuccessful();
+                if (!isLockTransaction) {
+				    db.setTransactionSuccessful();
+                }
 			}
 			return rowId;
 		} finally {
 			if (requestWithoutTransaction) {
-				db.endTransaction();
+                if (!isLockTransaction) {
+				    db.endTransaction();
+                }
 			}
 		}
 	}
@@ -406,7 +418,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static void moveFromOldValues(ContentValues oldValues, ContentValues newValues, String ... keys) {
         for (String key : keys) {
             Object value = oldValues.get(key);
-            if (value != null) {
+            if (value != null && newValues.get(key) == null) {
                 if (value instanceof Long) {
                     newValues.put(key, (Long)value);
                 } else if (value instanceof Integer) {
@@ -430,4 +442,29 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
+    private volatile Boolean isLockTransaction = false;
+
+    public void lockTransaction() {
+        synchronized (isLockTransaction) {
+            isLockTransaction = true;
+            SQLiteDatabase writableDatabase = getWritableDatabase();
+            writableDatabase.beginTransaction();
+        }
+    }
+
+    public void unlockTransaction() {
+        synchronized (isLockTransaction) {
+            SQLiteDatabase writableDatabase = getWritableDatabase();
+            writableDatabase.setTransactionSuccessful();
+            writableDatabase.endTransaction();
+            isLockTransaction = false;
+        }
+    }
+
+    public void errorUnlockTransaction() {
+        synchronized (isLockTransaction) {
+            getWritableDatabase().endTransaction();
+            isLockTransaction =  false;
+        }
+    }
 }
