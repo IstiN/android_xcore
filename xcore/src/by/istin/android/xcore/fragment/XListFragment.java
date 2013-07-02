@@ -370,7 +370,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				isServiceWork = true;
 				showProgress();
                 //plugins
-                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                FragmentActivity activity = getActivity();
+                if (activity == null) return;
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
                     for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
@@ -382,13 +384,17 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 			public void onError(Exception exception) {
 				isServiceWork = false;
 				exception.printStackTrace();
-				Toast.makeText(getActivity(), exception.getMessage(), Toast.LENGTH_SHORT).show();
+                FragmentActivity activity = getActivity();
+                if (activity == null) {
+                    return;
+                }
+                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
 				hideProgress();
 				if (mEndlessScrollListener != null) {
 					mEndlessScrollListener.loading = false;
 				}
                 //plugins
-                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
                     for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverError(XListFragment.this, exception);
@@ -408,7 +414,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 					mEndlessScrollListener.loading = false;
 				}
                 //plugins
-                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(fragmentActivity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
                     for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverDone(XListFragment.this, resultData);
@@ -425,7 +431,8 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 					mEndlessScrollListener.loading = false;
 				}
                 //plugins
-                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+                FragmentActivity context = getActivity();
+                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(context).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
                     for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverCached(XListFragment.this, resultData);
