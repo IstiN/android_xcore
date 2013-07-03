@@ -290,6 +290,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2) {
 
             @Override
+            public View getView(int position, View convertView, ViewGroup parent) {
+                View view = super.getView(position, convertView, parent);
+                XListFragment.this.onAdapterGetView(this, position, view);
+                return view;
+            }
+
+            @Override
             public void setViewImage(ImageView v, String value) {
                 if (!setAdapterViewImage(v, value)) {
                     super.setViewImage(v, value);
@@ -312,8 +319,12 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         }
         return simpleCursorAdapter;
 	}
-	
-	protected abstract String[] getAdapterColumns();
+
+    protected void onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
+
+    }
+
+    protected abstract String[] getAdapterColumns();
 
 	protected abstract int[] getAdapterControlIds();
 
