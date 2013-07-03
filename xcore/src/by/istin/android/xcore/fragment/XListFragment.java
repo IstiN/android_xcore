@@ -292,7 +292,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
                 View view = super.getView(position, convertView, parent);
-                XListFragment.this.onAdapterGetView(this, position, view);
+                view = XListFragment.this.onAdapterGetView(this, position, view);
                 return view;
             }
 
@@ -320,8 +320,8 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         return simpleCursorAdapter;
 	}
 
-    protected void onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
-
+    protected View onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
+        return view;
     }
 
     protected abstract String[] getAdapterColumns();
