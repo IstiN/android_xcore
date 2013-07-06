@@ -18,6 +18,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
@@ -59,11 +60,26 @@ public class DataSourceService extends Service {
 	}
 	
 	public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
+        if (context == null) {
+            context = ContextHolder.getInstance().getContext();
+            if (context == null) {
+                return;
+            }
+        }
 		Intent intent = createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver);
+        if (intent == null) {
+            return;
+        }
 		context.startService(intent);
 	}
 	
 	public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
+        if (context == null) {
+            context = ContextHolder.getInstance().getContext();
+            if (context == null) {
+                return null;
+            }
+        }
 		Intent intent = new Intent(context, DataSourceService.class);
 		intent.putExtra(DATASOURCE_KEY, datasourceKey);
 		intent.putExtra(PROCESSOR_KEY, processorKey);

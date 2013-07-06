@@ -8,6 +8,7 @@ import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import by.istin.android.xcore.fragment.XListFragment;
 
@@ -34,4 +35,5 @@ public interface IXListFragmentPlugin {
 
     void onStatusResultReceiverCached(XListFragment listFragment, Bundle resultData);
 
+    boolean setAdapterViewImage(XListFragment listFragment, ImageView v, String value);
 }

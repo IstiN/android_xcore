@@ -30,6 +30,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import by.istin.android.xcore.XCoreHelper;
@@ -91,6 +92,12 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		return getUri().hashCode();
 	}
 
+    private List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
+
+    public void setOnScrollListViewListener(OnScrollListener scrollListViewListener) {
+        onScrollListenerList.add(scrollListViewListener);
+    }
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 		final View view = inflater.inflate(getViewLayout(), container, false);
@@ -106,7 +113,22 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
 		if (isPagingSupport()) {
 			mEndlessScrollListener = new EndlessScrollListener();
-			((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(mEndlessScrollListener);
+            setOnScrollListViewListener(mEndlessScrollListener);
+			((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+                @Override
+                public void onScrollStateChanged(AbsListView absListView, int i) {
+                    for (OnScrollListener onScrollListener : onScrollListenerList) {
+                        onScrollListener.onScrollStateChanged(absListView, i);
+                    }
+                }
+
+                @Override
+                public void onScroll(AbsListView absListView, int i, int i2, int i3) {
+                    for (OnScrollListener onScrollListener : onScrollListenerList) {
+                        onScrollListener.onScroll(absListView, i, i2, i3);
+                    }
+                }
+            });
 		}
 		Integer searchEditTextId = getSearchEditTextId();
 		if (searchEditTextId == null) {
@@ -331,6 +353,15 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	protected abstract int getAdapterLayout();
 
 	protected boolean setAdapterViewImage(ImageView v, String value) {
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                if (plugin.setAdapterViewImage(this, v, value)) {
+                    return true;
+                }
+            }
+        }
 		return false;
 	}
 	
@@ -443,6 +474,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				}
                 //plugins
                 FragmentActivity context = getActivity();
+                if (context == null) {
+                    return;
+                }
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(context).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
                     for(IXListFragmentPlugin plugin : listFragmentPlugins) {

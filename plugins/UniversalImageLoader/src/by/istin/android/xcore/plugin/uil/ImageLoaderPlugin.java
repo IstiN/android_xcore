@@ -10,8 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
 
 import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
@@ -19,30 +20,15 @@ import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 /**
  * Created by IstiN on 29.6.13.
  */
-public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
+public class ImageLoaderPlugin implements IXListFragmentPlugin {
 
-    private int pullToRefreshId;
-
-    public PullToRefreshListFragmentPlugin(int pullToRefreshId) {
-        this.pullToRefreshId = pullToRefreshId;
+    public ImageLoaderPlugin(ImageLoaderConfiguration configuration) {
+        ImageLoader.getInstance().init(configuration);
     }
 
     @Override
     public void onCreateView(final XListFragment listFragment, View view, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
-        if (pullToRefresh == null) {
-            return;
-        }
-        pullToRefresh.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener() {
-
-            @Override
-            public void onRefresh(PullToRefreshBase refreshView) {
-                if (listFragment != null) {
-                    listFragment.refresh();
-                }
-            }
-
-        });
+        listFragment.setOnScrollListViewListener(new PauseOnScrollListener(ImageLoader.getInstance(), true, true));
     }
 
     @Override
@@ -71,11 +57,7 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
-        if (pullToRefresh == null) {
-            return;
-        }
-        pullToRefresh.onRefreshComplete();
+
     }
 
     @Override
@@ -84,11 +66,7 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
-        if (pullToRefresh == null) {
-            return;
-        }
-        pullToRefresh.onRefreshComplete();
+
     }
 
     @Override
@@ -97,16 +75,13 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
-        if (pullToRefresh == null) {
-            return;
-        }
-        pullToRefresh.onRefreshComplete();
+
     }
 
     @Override
     public boolean setAdapterViewImage(XListFragment listFragment, ImageView v, String value) {
-        return false;
+        ImageLoader.getInstance().displayImage(value, v);
+        return true;
     }
 
     @Override
