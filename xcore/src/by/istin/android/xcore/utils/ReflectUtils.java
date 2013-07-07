@@ -39,16 +39,23 @@ public class ReflectUtils {
 	
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
 		try {
-			Class<?>[] interfaces = clazz.getInterfaces();
-			for (Class<?> interfaceClazz: interfaces) {
-				if (interfaceClazz.equals(interfaceTargetClazz)) {
-					return (T)clazz.newInstance();
-				}
-			}
+            Class<?> cls = clazz;
+            while (cls != null) {
+                Class<?>[] interfaces = cls.getInterfaces();
+
+                for (Class<?> i : interfaces) {
+                    if (i.equals(interfaceTargetClazz)) {
+                        return (T)clazz.newInstance();
+                    }
+                }
+                cls = cls.getSuperclass();
+            }
 			return null;
 		} catch (Exception e) {
 			return null;
 		}
 	}
-	
+
+
+
 }

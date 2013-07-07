@@ -500,19 +500,23 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		}
 	}
 	
-	protected String getDataSourceKey() {
+	public String getDataSourceKey() {
 		return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
 	}
 
-	protected long getCacheExpiration() {
+	public long getCacheExpiration() {
 		return DateUtils.HOUR_IN_MILLIS;
 	}
 
-	protected boolean isCacheable() {
+	public boolean isCacheable() {
 		return true;
 	}
 	
 	protected void hideProgress() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 		View view = getView();
 		if (view == null) {
 			return;
@@ -524,7 +528,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 	
 	protected void showProgress() {
-		View view = getView();
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        View view = getView();
 		if (view == null) {
 			return;
 		}
@@ -536,6 +544,10 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
 	public void hideEmptyView(View view) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 		if (view == null) return;
 		View emptyView = view.findViewById(android.R.id.empty);
 		if (emptyView != null) {

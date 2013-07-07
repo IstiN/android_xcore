@@ -1,5 +1,13 @@
 package by.istin.android.xcore.utils;
 
+import android.content.ContentValues;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Parcel;
+import android.os.Parcelable;
+import android.text.Spanned;
+import android.text.TextUtils;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -8,13 +16,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutput;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
-
-import android.content.ContentValues;
-import android.os.Bundle;
-import android.os.Parcel;
-import android.os.Parcelable;
-import android.text.Spanned;
-import android.text.TextUtils;
 
 public class BytesUtils {
 
@@ -33,7 +34,15 @@ public class BytesUtils {
 		obtain.recycle();
 		return byteArray;
 	}
-	
+
+	public static byte[] toByteArray(Intent intent) {
+		Parcel obtain = Parcel.obtain();
+		intent.writeToParcel(obtain, 0);
+		byte[] byteArray = obtain.marshall();
+		obtain.recycle();
+		return byteArray;
+	}
+
 	public static byte[] toByteArray(Spanned spanned) {
 		Parcel obtain = Parcel.obtain();
 		TextUtils.writeToParcel(spanned, obtain, 0);
@@ -58,7 +67,16 @@ public class BytesUtils {
 		obtain.recycle();
 		return createFromParcel;
 	}
-	
+
+	public static Intent intentFromByteArray(byte[] byteArray) {
+		Parcel obtain = Parcel.obtain();
+		obtain.unmarshall(byteArray, 0, byteArray.length);
+		obtain.setDataPosition(0);
+		Intent createFromParcel = Intent.CREATOR.createFromParcel(obtain);
+		obtain.recycle();
+		return createFromParcel;
+	}
+
 	public static Spanned spannedFromByteArray(byte[] byteArray) {
 		Parcel obtain = Parcel.obtain();
 		obtain.unmarshall(byteArray, 0, byteArray.length);

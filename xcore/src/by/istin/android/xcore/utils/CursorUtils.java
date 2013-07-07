@@ -1,8 +1,12 @@
 package by.istin.android.xcore.utils;
 
+import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 
-public class CursorUtils {
+import java.util.List;
+
+public final class CursorUtils {
 
 	public static String getString(String columnName, Cursor cursor) {
 		int columnIndex = cursor.getColumnIndex(columnName);
@@ -71,4 +75,34 @@ public class CursorUtils {
 		}
 	}
 
+    public static abstract class Converter {
+
+        public abstract void convert(Cursor cursor, ContentValues contentValues);
+
+        public static Converter get() {
+            return new Converter() {
+                @Override
+                public void convert(Cursor cursor, ContentValues contentValues) {
+                    DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+                }
+            };
+        }
+    }
+
+    public static void convertToContentValuesAndClose(Cursor cursor, List<ContentValues> list) {
+        convertToContentValuesAndClose(cursor, list, Converter.get());
+    }
+
+    public static void convertToContentValuesAndClose(Cursor cursor, List<ContentValues> list, Converter converter) {
+        if (isEmpty(cursor)) {
+            return;
+        }
+        cursor.moveToFirst();
+        do {
+            ContentValues contentValues = new ContentValues();
+            converter.convert(cursor, contentValues);
+            list.add(contentValues);
+        } while (cursor.moveToNext());
+        close(cursor);
+    }
 }
