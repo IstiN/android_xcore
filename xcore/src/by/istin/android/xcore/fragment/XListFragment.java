@@ -40,6 +40,7 @@ import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper {
@@ -89,7 +90,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	
 	@Override
 	public int getLoaderId() {
-		return getUri().hashCode();
+		return (int)HashUtils.generateId(getClass(), getArguments());
 	}
 
     private List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
@@ -266,11 +267,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
+        showProgress();
         return cursorLoader;
 	}
 	
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+        hideProgress();
 		ListAdapter adapter = getListAdapter();
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
