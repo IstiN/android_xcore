@@ -34,7 +34,9 @@ public abstract class ModelContentProvider extends ContentProvider {
 	private static final int MODELS_ID_NEGOTIVE = 3;
 
 	private DBHelper dbHelper;
-	
+
+	private DBHelper dbWithoutLockHelper;
+
 	@Override
 	public boolean onCreate() {
 		mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -49,7 +51,13 @@ public abstract class ModelContentProvider extends ContentProvider {
 		dbHelper.createTablesForModels(dbEntities);
 		return true;
 	}
-	
+
+    public DBHelper getDbWithoutLockHelper() {
+        if (dbWithoutLockHelper == null) {
+            dbWithoutLockHelper = new DBHelper(getContext());
+        }
+        return dbWithoutLockHelper;
+    }
 	public abstract Class<?>[] getDbEntities();
 	
 	@Override
@@ -57,7 +65,13 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String className = uri.getLastPathSegment();
 		try {
 			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
-			int count = dbHelper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
+            DBHelper helper = null;
+            if (!isLock) {
+                helper = dbHelper;
+            } else {
+                helper = getDbWithoutLockHelper();
+            }
+            int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
 			if (count > 0) {
 				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
 					getContext().getContentResolver().notifyChange(uri, null);
@@ -89,69 +103,90 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
-		List<String> pathSegments = uri.getPathSegments();
-		String className = StringUtil.EMPTY;
-		switch (mUriMatcher.match(uri)) {
-		case MODELS:
-			className = pathSegments.get(pathSegments.size()-1);
-			break;
-		case MODELS_ID:
-			className = pathSegments.get(pathSegments.size()-2);
-			if (where == null) {
-				where = StringUtil.EMPTY;
-			}
-			where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
-			break;
-		case MODELS_ID_NEGOTIVE:
-			className = pathSegments.get(pathSegments.size()-2);
-			if (where == null) {
-				where = StringUtil.EMPTY;
-			}
-			where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
-		try {
-			int count = dbHelper.delete(Class.forName(className), where, whereArgs);
-			if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
-				getContext().getContentResolver().notifyChange(uri, null);
-			}
-			return count;
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e);
-		}
+        if (isLock) {
+            synchronized (lock) {
+                return deleteWithoutLockCheck(dbHelper, uri, where, whereArgs);
+            }
+        } else {
+            return deleteWithoutLockCheck(getDbWithoutLockHelper(), uri, where, whereArgs);
+        }
 	}
 
-	@Override
-	public Uri insert(Uri uri, ContentValues initialValues) {
-		if (mUriMatcher.match(uri) != MODELS) {
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
-		String className = uri.getLastPathSegment();
-		try {
-			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
+    @Override
+    public Uri insert(Uri uri, ContentValues initialValues) {
+        if (isLock) {
+            synchronized (lock) {
+                return insertWithoutLockCheck(dbHelper, uri, initialValues);
+            }
+        } else {
+            return insertWithoutLockCheck(getDbWithoutLockHelper(), uri, initialValues);
+        }
+
+    }
+
+    private int deleteWithoutLockCheck(DBHelper helper, Uri uri, String where, String[] whereArgs) {
+        List<String> pathSegments = uri.getPathSegments();
+        String className = StringUtil.EMPTY;
+        switch (mUriMatcher.match(uri)) {
+        case MODELS:
+            className = pathSegments.get(pathSegments.size()-1);
+            break;
+        case MODELS_ID:
+            className = pathSegments.get(pathSegments.size()-2);
+            if (where == null) {
+                where = StringUtil.EMPTY;
+            }
+            where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
+            break;
+        case MODELS_ID_NEGOTIVE:
+            className = pathSegments.get(pathSegments.size()-2);
+            if (where == null) {
+                where = StringUtil.EMPTY;
+            }
+            where = where + ModelColumns._ID + " = " + uri.getLastPathSegment();
+            break;
+        default:
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        try {
+            int count = helper.delete(Class.forName(className), where, whereArgs);
+            if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+            return count;
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    private Uri insertWithoutLockCheck(DBHelper helper, Uri uri, ContentValues initialValues) {
+        if (mUriMatcher.match(uri) != MODELS) {
+            throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        String className = uri.getLastPathSegment();
+        try {
+            String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
             DataSourceRequest dataSourceRequestFromUri = getDataSourceRequestFromUri(uri);
             boolean withCleaner = !StringUtil.isEmpty(cleanerParameter);
             Class<?> classOfModel = Class.forName(className);
-            long rowId = dbHelper.updateOrInsert(dataSourceRequestFromUri, withCleaner, classOfModel, initialValues);
-			if (rowId != -1l) {
-				Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
-				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
-					getContext().getContentResolver().notifyChange(
-						serializableModelUri, null);
-				}
-				return serializableModelUri;
-			} else {
-                throw new IllegalArgumentException(uri + ": " +initialValues.toString());
-			}
-			//TODO need check throw new SQLException("Failed to insert row into " + uri);
-		} catch (ClassNotFoundException e) {
-			throw new IllegalArgumentException(e);
-		}
-	}
+            long rowId = helper.updateOrInsert(dataSourceRequestFromUri, withCleaner, classOfModel, initialValues);
+            if (rowId != -1l) {
+                Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
+                if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+                    getContext().getContentResolver().notifyChange(
+                            serializableModelUri, null);
+                }
+                return serializableModelUri;
+            } else {
+                throw new IllegalArgumentException(uri + ": " + initialValues.toString());
+            }
+            //TODO need check throw new SQLException("Failed to insert row into " + uri);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 
-	@Override
+    @Override
 	public int update(Uri uri, ContentValues initialValues, String where,
 			String[] whereArgs) {
 		throw new UnsupportedOperationException("unsupported operation, please use insert method");
@@ -219,37 +254,70 @@ public abstract class ModelContentProvider extends ContentProvider {
 		}
 	}
 
+    private volatile Boolean isLock = false;
+    private volatile Object lock = new Object();
+
 	@Override
 	public ContentProviderResult[] applyBatch(
 			ArrayList<ContentProviderOperation> operations)
 			throws OperationApplicationException {
-        dbHelper.lockTransaction();
-        ContentProviderResult[] result = new ContentProviderResult[operations.size()];
-        try {
-            Set<Uri> set = new HashSet<Uri>();
-            for(int i = 0; i < operations.size(); i++) {
-                ContentProviderOperation contentProviderOperation = operations.get(i);
-                Uri uri = contentProviderOperation.getUri();
-                Log.xd(this, uri);
-                result[i] = contentProviderOperation.apply(this, result, i);
-                //ContentValues contentValues = contentProviderOperation.resolveValueBackReferences(result, i);
-                set.add(uri);
-            }
-            for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
-                Uri uri = iterator.next();
-                getContext().getContentResolver().notifyChange(uri, null);
-            }
-            dbHelper.unlockTransaction();
-        } catch (OperationApplicationException e1) {
-            dbHelper.errorUnlockTransaction();
-            throw e1;
-        } catch (Exception e) {
-            dbHelper.errorUnlockTransaction();
-            throw new IllegalArgumentException(e);
+        synchronized (isLock) {
+            isLock = true;
         }
-		return result;
-	}
-	
+        try {
+            synchronized (lock) {
+                isLock = true;
+                dbHelper.lockTransaction();
+                ContentProviderResult[] result = new ContentProviderResult[operations.size()];
+                try {
+                    Set<Uri> set = new HashSet<Uri>();
+                    for(int i = 0; i < operations.size(); i++) {
+                        ContentProviderOperation contentProviderOperation = operations.get(i);
+                        Uri uri = contentProviderOperation.getUri();
+                        Log.xd(this, uri);
+                        result[i] = apply(contentProviderOperation, result, i);
+                        //ContentValues contentValues = contentProviderOperation.resolveValueBackReferences(result, i);
+                        set.add(uri);
+                    }
+                    for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
+                        Uri uri = iterator.next();
+                        getContext().getContentResolver().notifyChange(uri, null);
+                    }
+                    dbHelper.unlockTransaction();
+                } catch (OperationApplicationException e1) {
+                    dbHelper.errorUnlockTransaction();
+                    throw e1;
+                } catch (Exception e) {
+                    dbHelper.errorUnlockTransaction();
+                    throw new IllegalArgumentException(e);
+                }
+                return result;
+            }
+        } finally {
+            synchronized (isLock) {
+                isLock = false;
+            }
+        }
+    }
+
+
+    public ContentProviderResult apply(ContentProviderOperation contentProviderOperation, ContentProviderResult[] backRefs,
+                                       int numBackRefs) throws OperationApplicationException {
+        ContentValues values = contentProviderOperation.resolveValueBackReferences(backRefs, numBackRefs);
+        String[] selectionArgs = contentProviderOperation.resolveSelectionArgsBackReferences(backRefs, numBackRefs);
+        Uri mUri = contentProviderOperation.getUri();
+        if (values != null) {
+            Uri newUri = insertWithoutLockCheck(dbHelper, mUri, values);
+            if (newUri == null) {
+                throw new OperationApplicationException("insert failed");
+            }
+            return new ContentProviderResult(newUri);
+        }
+
+        int numRows = deleteWithoutLockCheck(dbHelper, mUri, "?", selectionArgs);
+
+        return new ContentProviderResult(numRows);
+    }
 	
 	
 }

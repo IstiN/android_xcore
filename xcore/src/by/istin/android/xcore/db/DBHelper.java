@@ -12,6 +12,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.os.Build;
 import android.provider.BaseColumns;
 
 import java.lang.annotation.Annotation;
@@ -100,7 +101,25 @@ public class DBHelper extends SQLiteOpenHelper {
 	public static String getTableName(Class<?> clazz) {
 		return clazz.getCanonicalName().replace(".", "_");
 	}
-	
+
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+        SQLiteDatabase writableDatabase = super.getWritableDatabase();
+        if (Build.VERSION.SDK_INT < 16) {
+            writableDatabase.setLockingEnabled(false);
+        }
+        return writableDatabase;
+    }
+
+    @Override
+    public SQLiteDatabase getReadableDatabase() {
+        SQLiteDatabase readableDatabase = super.getReadableDatabase();
+        if (Build.VERSION.SDK_INT < 16) {
+            readableDatabase.setLockingEnabled(false);
+        }
+        return readableDatabase;
+    }
+
 	public synchronized void createTablesForModels(Class<?>... models) {
 		SQLiteDatabase dbWriter = getWritableDatabase();
 		dbWriter.beginTransaction();
