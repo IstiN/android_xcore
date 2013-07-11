@@ -511,7 +511,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
 	public long getCacheExpiration() {
-		return DateUtils.HOUR_IN_MILLIS;
+		return DateUtils.DAY_IN_MILLIS;
 	}
 
 	public boolean isCacheable() {

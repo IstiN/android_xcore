@@ -1,6 +1,8 @@
 package by.istin.android.xcore.processor.impl;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.net.Uri;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -11,6 +13,7 @@ import java.io.InputStreamReader;
 
 import by.istin.android.xcore.gson.ContentValuesAdapter;
 import by.istin.android.xcore.processor.IProcessor;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
@@ -76,6 +79,22 @@ public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result
 	public Gson getGson() {
 		return gson;
 	}
+
+    public static void clearEntity(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz) {
+        clearEntity(context, dataSourceRequest, clazz, null, null);
+    }
+
+    public static void clearEntity(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz, String selection, String[] selectionArgs) {
+        Uri deleteUrl = new ModelContract.UriBuilder(clazz).notNotifyChanges().build();
+        context.getContentResolver().delete(ModelContract.getUri(dataSourceRequest, deleteUrl), selection, selectionArgs);
+    }
+
+    public static void bulkInsert(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz, ContentValues[] result) {
+        int rows = context.getContentResolver().bulkInsert(ModelContract.getUri(dataSourceRequest, clazz), result);
+        if (rows == 0) {
+            context.getContentResolver().notifyChange(ModelContract.getUri(clazz), null);
+        }
+    }
 	
 	
 }

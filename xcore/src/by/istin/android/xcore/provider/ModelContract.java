@@ -98,43 +98,58 @@ public class ModelContract {
 	}
 
 	public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
-		String uriParams = dataSourceRequest.toUriParams();
 		Uri uri = getUri(clazz);
-		String uriAsString = uri.toString();
-		if (uriAsString.contains("?")) {
-			uriAsString = uriAsString + "&";
-		} else {
-			uriAsString = uriAsString + "?";
-		}
-		return Uri.parse(uriAsString + DATA_SOURCE_REQUEST_PARAM + "="+StringUtil.encode(uriParams));
+        return getUri(dataSourceRequest, uri);
 	}
 
-	public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
+    public static Uri getUri(DataSourceRequest dataSourceRequest, Uri uri) {
+        String uriParams = dataSourceRequest.toUriParams();
+        String uriAsString = uri.toString();
+        if (uriAsString.contains("?")) {
+            uriAsString = uriAsString + "&";
+        } else {
+            uriAsString = uriAsString + "?";
+        }
+        return Uri.parse(uriAsString + DATA_SOURCE_REQUEST_PARAM + "="+ StringUtil.encode(uriParams));
+    }
+
+    public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
 		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  String.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY))));
 	}
 
 	public static class UriBuilder {
 		
-		private Uri.Builder builder;
+		private StringBuilder builder;
+
+        private boolean isParamAdded = false;
 
 		public UriBuilder(Class<?> clazz) {
 			super();
-			this.builder = new Uri.Builder();
-			this.builder.appendPath(getUri(clazz).toString());
+            this.builder = new StringBuilder(getUri(clazz).toString());
 		}
 
 		public UriBuilder notNotifyChanges() {
-			this.builder.appendQueryParameter(PARAM_NOT_NOTIFY_CHANGES, "true");
+            checkParams();
+            this.builder.append(PARAM_NOT_NOTIFY_CHANGES+"=true");
 			return this;
 		}
-		
-		public UriBuilder enableCleaner() {
-			this.builder.appendQueryParameter(PARAM_CLEANER, "true");
+
+        private void checkParams() {
+            if (isParamAdded) {
+                this.builder.append("&");
+            } else {
+                this.builder.append("?");
+            }
+        }
+
+        public UriBuilder enableCleaner() {
+            checkParams();
+			this.builder.append(PARAM_CLEANER+"=true");
 			return this;
 		}
 		
 		public Uri build() {
-			return builder.build();
+			return Uri.parse(builder.toString());
 		}
 	}
 }

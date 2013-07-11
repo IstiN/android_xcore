@@ -35,8 +35,6 @@ public abstract class ModelContentProvider extends ContentProvider {
 
 	private DBHelper dbHelper;
 
-	private DBHelper dbWithoutLockHelper;
-
 	@Override
 	public boolean onCreate() {
 		mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
@@ -52,12 +50,6 @@ public abstract class ModelContentProvider extends ContentProvider {
 		return true;
 	}
 
-    public DBHelper getDbWithoutLockHelper() {
-        if (dbWithoutLockHelper == null) {
-            dbWithoutLockHelper = new DBHelper(getContext());
-        }
-        return dbWithoutLockHelper;
-    }
 	public abstract Class<?>[] getDbEntities();
 	
 	@Override
@@ -65,25 +57,25 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String className = uri.getLastPathSegment();
 		try {
 			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
-            DBHelper helper = null;
-            if (!isLock) {
-                helper = dbHelper;
-            } else {
-                helper = getDbWithoutLockHelper();
+            synchronized (lock) {
+                return bulkInsert(uri, values, className, cleanerParameter, dbHelper);
             }
-            int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
-			if (count > 0) {
-				if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
-					getContext().getContentResolver().notifyChange(uri, null);
-				}
-			}
-			return count;
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
-	
-	public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
+
+    private int bulkInsert(Uri uri, ContentValues[] values, String className, String cleanerParameter, DBHelper helper) throws ClassNotFoundException {
+        int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
+        if (count > 0) {
+            if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+                getContext().getContentResolver().notifyChange(uri, null);
+            }
+        }
+        return count;
+    }
+
+    public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
 		String parameter = uri.getQueryParameter(ModelContract.DATA_SOURCE_REQUEST_PARAM);
 		if (!StringUtil.isEmpty(parameter)) {
 			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(parameter)));
@@ -103,25 +95,16 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
-        //if (isLock) {
-            synchronized (lock) {
-                return deleteWithoutLockCheck(dbHelper, uri, where, whereArgs);
-            }
-        /*} else {
-            return deleteWithoutLockCheck(getDbWithoutLockHelper(), uri, where, whereArgs);
-        }*/
+        synchronized (lock) {
+            return deleteWithoutLockCheck(dbHelper, uri, where, whereArgs);
+        }
 	}
 
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
-        //if (isLock) {
-            synchronized (lock) {
-                return insertWithoutLockCheck(dbHelper, uri, initialValues);
-            }
-        /*} else {
-            return insertWithoutLockCheck(getDbWithoutLockHelper(), uri, initialValues);
-        }*/
-
+        synchronized (lock) {
+            return insertWithoutLockCheck(dbHelper, uri, initialValues);
+        }
     }
 
     private int deleteWithoutLockCheck(DBHelper helper, Uri uri, String where, String[] whereArgs) {
@@ -255,6 +238,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 	}
 
     private volatile Boolean isLock = false;
+
     private volatile Object lock = new Object();
 
 	@Override
@@ -276,7 +260,6 @@ public abstract class ModelContentProvider extends ContentProvider {
                         Uri uri = contentProviderOperation.getUri();
                         Log.xd(this, uri);
                         result[i] = apply(contentProviderOperation, result, i);
-                        //ContentValues contentValues = contentProviderOperation.resolveValueBackReferences(result, i);
                         set.add(uri);
                     }
                     for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
@@ -318,6 +301,5 @@ public abstract class ModelContentProvider extends ContentProvider {
 
         return new ContentProviderResult(numRows);
     }
-	
 	
 }

@@ -5,14 +5,16 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.os.Bundle;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.utils.BytesUtils;
 
 public class PreferenceHelper {
-	
-	private static final String SETTINGS = "settings";
-	
-	public static void set(String key, boolean value) {
+
+    private static final String SETTINGS = "settings";
+    public static final String STRING_ARRAY_DELIM = "====DELIM====";
+
+    public static void set(String key, boolean value) {
 		Context ctx = ContextHolder.getInstance().getContext();
 		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
 				.edit();
@@ -144,4 +146,27 @@ public class PreferenceHelper {
 		}
 		return BytesUtils.bundleFromByteArray(value.getBytes());
 	}
+
+    public static String[] getStringArray(String key, String[] defValue) {
+        String value = getString(key, null);
+        if (value == null) {
+            return defValue;
+        }
+        return value.split(STRING_ARRAY_DELIM);
+    }
+
+    public static void set(String key, String[] value) {
+       if (value == null) {
+           set(key, (String)null);
+       } else {
+           StringBuilder stringBuilder = new StringBuilder();
+           for (int i = 0; i < value.length; i++) {
+               stringBuilder.append(value[i]);
+               if (i != value.length-1) {
+                   stringBuilder.append(STRING_ARRAY_DELIM);
+               }
+           }
+       }
+    }
+
 }
