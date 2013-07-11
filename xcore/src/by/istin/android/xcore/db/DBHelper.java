@@ -68,7 +68,8 @@ public class DBHelper extends SQLiteOpenHelper {
 				+ ModelColumns.MODEL_ID
 				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
 				+ ModelColumns.DATA + " BLOB" + ");");
-*/	}
+*/
+    }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -122,8 +123,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public synchronized void createTablesForModels(Class<?>... models) {
 		SQLiteDatabase dbWriter = getWritableDatabase();
-		dbWriter.beginTransaction();
-		for (Class<?> classOfModel : models) {
+        if (Build.VERSION.SDK_INT > 10) {
+            dbWriter.enableWriteAheadLogging();
+        }
+        beginTransaction(dbWriter);
+        for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
 			dbWriter.execSQL(String.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
@@ -169,11 +173,27 @@ public class DBHelper extends SQLiteOpenHelper {
 				}
 			}	
 		}
-		dbWriter.setTransactionSuccessful();
-		dbWriter.endTransaction();
-	}
+        setTransactionSuccessful(dbWriter);
+        endTransaction(dbWriter);
+    }
 
-	public int delete(Class<?> clazz, String where, String[] whereArgs) {
+    private void endTransaction(SQLiteDatabase dbWriter) {
+        dbWriter.endTransaction();
+    }
+
+    private void setTransactionSuccessful(SQLiteDatabase dbWriter) {
+        dbWriter.setTransactionSuccessful();
+    }
+
+    private void beginTransaction(SQLiteDatabase dbWriter) {
+        if (Build.VERSION.SDK_INT > 10) {
+            dbWriter.beginTransactionNonExclusive();
+        } else {
+            dbWriter.beginTransaction();
+        }
+    }
+
+    public int delete(Class<?> clazz, String where, String[] whereArgs) {
 		return delete(null, getTableName(clazz), where, whereArgs);
 	}
 	
@@ -219,7 +239,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		SQLiteDatabase db = getWritableDatabase();
 		try {
             if (!isLockTransaction) {
-			    db.beginTransaction();
+                beginTransaction(db);
             }
 			if (withCleaner) {
 				ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
@@ -243,12 +263,12 @@ public class DBHelper extends SQLiteOpenHelper {
 				}
 			}
             if (!isLockTransaction) {
-			    db.setTransactionSuccessful();
+                setTransactionSuccessful(db);
             }
 			return count;
 		} finally {
             if (!isLockTransaction) {
-			    db.endTransaction();
+                endTransaction(db);
             }
 		}
 	}
@@ -263,7 +283,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			db = getWritableDatabase();
 			requestWithoutTransaction = true;
             if (!isLockTransaction) {
-			    db.beginTransaction();
+                beginTransaction(db);
             }
 			ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
 			if (cleaner != null) {
@@ -327,14 +347,14 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (requestWithoutTransaction) {
                 if (!isLockTransaction) {
-				    db.setTransactionSuccessful();
+                    setTransactionSuccessful(db);
                 }
 			}
 			return rowId;
 		} finally {
 			if (requestWithoutTransaction) {
                 if (!isLockTransaction) {
-				    db.endTransaction();
+                    endTransaction(db);
                 }
 			}
 		}
@@ -467,22 +487,22 @@ public class DBHelper extends SQLiteOpenHelper {
         synchronized (isLockTransaction) {
             isLockTransaction = true;
             SQLiteDatabase writableDatabase = getWritableDatabase();
-            writableDatabase.beginTransaction();
+            beginTransaction(writableDatabase);
         }
     }
 
     public void unlockTransaction() {
         synchronized (isLockTransaction) {
             SQLiteDatabase writableDatabase = getWritableDatabase();
-            writableDatabase.setTransactionSuccessful();
-            writableDatabase.endTransaction();
+            setTransactionSuccessful(writableDatabase);
+            endTransaction(writableDatabase);
             isLockTransaction = false;
         }
     }
 
     public void errorUnlockTransaction() {
         synchronized (isLockTransaction) {
-            getWritableDatabase().endTransaction();
+            endTransaction(getWritableDatabase());
             isLockTransaction =  false;
         }
     }

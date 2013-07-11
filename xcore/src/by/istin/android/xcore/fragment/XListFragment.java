@@ -404,6 +404,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
     }
 
 	protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
+        if (StringUtil.isEmpty(url)) {
+            return;
+        }
 		DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
 		dataSourceRequest.setCacheable(isCacheable());
 		dataSourceRequest.setCacheExpiration(getCacheExpiration());

@@ -103,24 +103,24 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
-        if (isLock) {
+        //if (isLock) {
             synchronized (lock) {
                 return deleteWithoutLockCheck(dbHelper, uri, where, whereArgs);
             }
-        } else {
+        /*} else {
             return deleteWithoutLockCheck(getDbWithoutLockHelper(), uri, where, whereArgs);
-        }
+        }*/
 	}
 
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
-        if (isLock) {
+        //if (isLock) {
             synchronized (lock) {
                 return insertWithoutLockCheck(dbHelper, uri, initialValues);
             }
-        } else {
+        /*} else {
             return insertWithoutLockCheck(getDbWithoutLockHelper(), uri, initialValues);
-        }
+        }*/
 
     }
 
