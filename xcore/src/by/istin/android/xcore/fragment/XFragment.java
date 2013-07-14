@@ -184,8 +184,9 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 	protected boolean isCacheable() {
 		return true;
 	}
-	
-	protected void hideProgress() {
+
+    @Override
+	public void hideProgress() {
 		View view = getView();
 		if (view == null) {
 			return;
@@ -195,8 +196,9 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 			progressView.setVisibility(View.GONE);
 		}
 	}
-	
-	protected void showProgress() {
+
+    @Override
+	public void showProgress() {
 		View view = getView();
 		if (view == null) {
 			return;

@@ -27,6 +27,8 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author IstiN
@@ -87,7 +89,9 @@ public class DataSourceService extends Service {
 		dataSourceRequest.toIntent(intent);
 		return intent;
 	}
-	
+
+    private Object dbLockFlag = new Object();
+
 	protected void onHandleIntent(Intent intent) {
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
 		final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
@@ -106,29 +110,33 @@ public class DataSourceService extends Service {
 				boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
 				ContentValues contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
 				Long requestId = contentValues.getAsLong(DataSourceRequestEntity.ID);
-				if (isCacheble && !isForceUpdateData) {
-					Cursor cursor = getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null, null, null);
-					try {
-						if (cursor == null || !cursor.moveToFirst()) {
-							getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);
-						} else {
-							ContentValues storedRequest = new ContentValues();
-							DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
-							Long lastUpdate = storedRequest.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
-							if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
-								sendStatus(StatusResultReceiver.Status.CACHED, getResultReceivers(), bundle);
-								return;
-							} else {
-								contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
-								getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);	
-							}
-						}
-					} finally {
-						if (cursor != null) {
-							cursor.close();
-						}
-					}
-				}
+                synchronized (dbLockFlag) {
+                    if (isCacheble && !isForceUpdateData) {
+                        Cursor cursor = getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null, null, null);
+                        try {
+                            if (cursor == null || !cursor.moveToFirst()) {
+                                getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);
+                            } else {
+                                ContentValues storedRequest = new ContentValues();
+                                DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
+                                Long lastUpdate = storedRequest.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
+                                if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
+                                    sendStatus(StatusResultReceiver.Status.CACHED, getResultReceivers(), bundle);
+                                    return;
+                                } else {
+                                    contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
+                                    getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);
+                                }
+                            }
+                        } finally {
+                            CursorUtils.close(cursor);
+                        }
+                    }
+                    String requestParentUri = dataSourceRequest.getRequestParentUri();
+                    if (!StringUtil.isEmpty(requestParentUri)) {
+                        getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),DataSourceRequestEntity.PARENT_URI+"=?", new String[]{requestParentUri});
+                    }
+                }
 				try {
 					Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
 					if (isCacheble) {
@@ -146,7 +154,9 @@ public class DataSourceService extends Service {
 					}
 					sendStatus(StatusResultReceiver.Status.DONE, getResultReceivers(), bundle);
 				} catch (Exception e) {
-					getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
+                    synchronized (dbLockFlag) {
+					    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
+                    }
 					bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
 					sendStatus(StatusResultReceiver.Status.ERROR, getResultReceivers(), bundle);
 				}				

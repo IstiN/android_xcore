@@ -17,7 +17,9 @@ public class DataSourceRequest {
 	public static final long CACHE_EXPIRATION_NONE = -1l;
 
 	private static final String REQUEST_URI = "___ruri";
-	
+
+	private static final String REQUEST_PARENT_URI = "___parent_ruri";
+
 	private static final String REQUEST_CACHEABLE = "___c";
 	
 	private static final String REQUEST_FORCE_UPDATE_DATA = "___fud";
@@ -25,7 +27,8 @@ public class DataSourceRequest {
 	private static final String REQUEST_CACHE_EXPIRATION = "___exp";
 	
 	private static final String[] KEYS = new String[] {
-		REQUEST_URI, 
+		REQUEST_URI,
+        REQUEST_PARENT_URI,
 		REQUEST_CACHEABLE, 
 		REQUEST_FORCE_UPDATE_DATA, 
 		REQUEST_CACHE_EXPIRATION
@@ -53,7 +56,15 @@ public class DataSourceRequest {
 		String value = mBundle.getString(REQUEST_CACHEABLE);
 		return Boolean.valueOf(value);
 	}
-	
+
+	public void setParentUri(String parentUri) {
+		mBundle.putString(REQUEST_PARENT_URI, parentUri);
+	}
+
+	public String getRequestParentUri() {
+		return mBundle.getString(REQUEST_PARENT_URI);
+	}
+
 	public void setForceUpdateData(boolean isForceFreshData) {
 		mBundle.putString(REQUEST_FORCE_UPDATE_DATA, String.valueOf(isForceFreshData));
 	}

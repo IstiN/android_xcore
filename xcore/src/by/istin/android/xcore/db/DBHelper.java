@@ -441,7 +441,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			long currentTimeMillis = System.currentTimeMillis();
 			Cursor query = qb.query(db, projection, selection, selectionArgs, groupBy,
 					having, sortOrder, limit);
-			Log.d("db", "request time: " + (System.currentTimeMillis() - currentTimeMillis));
 			return query;
 		} else {
 			return null;

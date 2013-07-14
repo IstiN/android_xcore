@@ -1,6 +1,7 @@
 package by.istin.android.xcore.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -34,23 +35,28 @@ import java.util.ArrayList;
 import java.util.List;
 
 import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.error.IErrorHanler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper {
+public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper {
 
 	private class EndlessScrollListener implements OnScrollListener {
 
         private int visibleThreshold = 5;
+
         private int currentPage = 0;
+
         private int previousTotal = 0;
-        private volatile boolean loading = true;
+
+        private volatile boolean pagingLoading = false;
 
         public EndlessScrollListener() {
 
@@ -63,19 +69,15 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {
-            if (loading) {
-                if (totalItemCount > previousTotal) {
-                    loading = false;
-                    previousTotal = totalItemCount;
-                    currentPage++;
-                }
+            ListAdapter adapter = view.getAdapter();
+            if (adapter == null || adapter.getCount() == 0) {
+                return;
             }
-            if (!loading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
-                // I load the next page of gigs using a background task,
-                // but you can call any function here.
-                //new LoadGigsTask().execute(currentPage + 1);
-            	loading = true;
-            	onPageLoad(currentPage+1, totalItemCount);
+            if (previousTotal != totalItemCount && !pagingLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+                previousTotal = totalItemCount;
+            	pagingLoading = true;
+                currentPage++;
+            	onPageLoad(currentPage, totalItemCount);
             }
         }
 
@@ -85,8 +87,8 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         }
 
     }
-	
-	private EndlessScrollListener mEndlessScrollListener;
+
+    private EndlessScrollListener mEndlessScrollListener;
 	
 	@Override
 	public int getLoaderId() {
@@ -274,6 +276,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         hideProgress();
+        hidePagingProgress();
 		ListAdapter adapter = getListAdapter();
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
@@ -384,7 +387,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
 		String url = getUrl();
 		if (!StringUtil.isEmpty(url)) {
-			loadData(getActivity(), url, isForceUpdateData());
+			loadData(getActivity(), url, isForceUpdateData(), null);
 		}
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -396,105 +399,126 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
     public void refresh() {
-        loadData(getActivity(), getUrl(), true);
+        loadData(getActivity(), getUrl(), true, null);
     }
 
-    protected void loadData(Activity activity, String url) {
-        loadData(activity, url, isForceUpdateData());
+    protected void loadData(Activity activity, String url, String parentRequestUri) {
+        loadData(activity, url, isForceUpdateData(), parentRequestUri);
     }
 
-	protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
+	protected void loadData(Activity activity, String url, Boolean isForceUpdate, String parentRequestUri) {
         if (StringUtil.isEmpty(url)) {
             return;
         }
-		DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
+		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
 		dataSourceRequest.setCacheable(isCacheable());
 		dataSourceRequest.setCacheExpiration(getCacheExpiration());
 		dataSourceRequest.setForceUpdateData(isForceUpdate);
-		DataSourceService.execute(activity, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
-			
-			@Override
-			public void onStart(Bundle resultData) {
-				isServiceWork = true;
-				showProgress();
+        dataSourceRequest.setParentUri(parentRequestUri);
+		dataSourceExecute(getActivity(), dataSourceRequest);
+	}
+
+    @Override
+    public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
+        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
+
+            @Override
+            public void onStart(Bundle resultData) {
+                isServiceWork = true;
+                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+                    showPagingProgress();
+                } else {
+                    showProgress();
+                }
                 //plugins
                 FragmentActivity activity = getActivity();
                 if (activity == null) return;
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
-                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                    for (IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
                     }
                 }
-			}
+            }
 
-			@Override
-			public void onError(Exception exception) {
-				isServiceWork = false;
-				exception.printStackTrace();
+            @Override
+            public void onError(Exception exception) {
+                isServiceWork = false;
+                exception.printStackTrace();
                 FragmentActivity activity = getActivity();
                 if (activity == null) {
                     return;
                 }
-                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-				hideProgress();
-				if (mEndlessScrollListener != null) {
-					mEndlessScrollListener.loading = false;
-				}
+                IErrorHanler errorHanler = (IErrorHanler) AppUtils.get(activity, IErrorHanler.SYSTEM_SERVICE_KEY);
+                if (errorHanler != null) {
+                    errorHanler.onError(activity, XListFragment.this, dataSourceRequest, exception);
+                } else {
+                    Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+                    mEndlessScrollListener.pagingLoading = false;
+                    hidePagingProgress();
+                } else {
+                    hideProgress();
+                }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
-                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                    for (IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverError(XListFragment.this, exception);
                     }
                 }
-			}
-			
-			@Override
-			public void onDone(Bundle resultData) {
-				isServiceWork = false;
-				FragmentActivity fragmentActivity = getActivity();
-				if (fragmentActivity == null) {
-					return;
-				}
-				hideProgress();
-				if (mEndlessScrollListener != null) {
-					mEndlessScrollListener.loading = false;
-				}
+            }
+
+            @Override
+            public void onDone(Bundle resultData) {
+                isServiceWork = false;
+                FragmentActivity fragmentActivity = getActivity();
+                if (fragmentActivity == null) {
+                    return;
+                }
+                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+                    mEndlessScrollListener.pagingLoading = false;
+                    hidePagingProgress();
+                } else {
+                    hideProgress();
+                }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(fragmentActivity).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
-                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                    for (IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverDone(XListFragment.this, resultData);
                     }
                 }
-			}
+            }
 
-			@Override
-			protected void onCached(Bundle resultData) {
-				isServiceWork = false;
-				super.onCached(resultData);
-				hideProgress();
-				if (mEndlessScrollListener != null) {
-					mEndlessScrollListener.loading = false;
-				}
-                //plugins
+            @Override
+            protected void onCached(Bundle resultData) {
+                isServiceWork = false;
+                super.onCached(resultData);
                 FragmentActivity context = getActivity();
                 if (context == null) {
                     return;
                 }
+                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+                    mEndlessScrollListener.pagingLoading = false;
+                    hidePagingProgress();
+                } else {
+                    hideProgress();
+                }
+                //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(context).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
-                    for(IXListFragmentPlugin plugin : listFragmentPlugins) {
+                    for (IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverCached(XListFragment.this, resultData);
                     }
                 }
-			}
-			
-		});
-	}
-	
-	protected boolean isForceUpdateData() {
+            }
+
+        });
+    }
+
+    protected boolean isForceUpdateData() {
 		return false;
 	}
 
@@ -517,8 +541,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	public boolean isCacheable() {
 		return true;
 	}
-	
-	protected void hideProgress() {
+
+    @Override
+	public void hideProgress() {
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
@@ -532,8 +557,43 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 			progressView.setVisibility(View.GONE);
 		}
 	}
-	
-	protected void showProgress() {
+
+    protected void showPagingProgress() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.secondaryProgress);
+        if (progressView != null) {
+            progressView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    protected void hidePagingProgress() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.secondaryProgress);
+        if (progressView != null) {
+            progressView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+	public void showProgress() {
+        ListAdapter listAdapter = getListAdapter();
+        if (listAdapter != null && listAdapter.getCount() > 0) {
+            return;
+        }
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
@@ -542,7 +602,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		if (view == null) {
 			return;
 		}
-		View progressView = view.findViewById(android.R.id.progress);
+        View progressView = view.findViewById(android.R.id.progress);
 		if (progressView != null) {
 			progressView.setVisibility(View.VISIBLE);
 		}

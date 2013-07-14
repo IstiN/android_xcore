@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -27,10 +29,15 @@ public class CursorLoaderFragmentHelper {
 		String getOrder();
 
 		String getSelection();
+
+        void showProgress();
+
+        void hideProgress();
 	}
 	
-	public static Loader<Cursor> onCreateLoader(ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
+	public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
 		Loader<Cursor> loader = null;
+        final Handler handler = new Handler(Looper.getMainLooper());
 		if (id == cursorLoaderFragment.getLoaderId()) {
 			loader = new CursorLoader(
 					cursorLoaderFragment.getActivity(), 
@@ -38,7 +45,26 @@ public class CursorLoaderFragmentHelper {
 					cursorLoaderFragment.getProjection(), 
 					cursorLoaderFragment.getSelection(), 
 					cursorLoaderFragment.getSelectionArgs(), 
-					cursorLoaderFragment.getOrder());
+					cursorLoaderFragment.getOrder()){
+                @Override
+                public Cursor loadInBackground() {
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            cursorLoaderFragment.showProgress();
+                        }
+                    });
+                    Cursor cursor = super.loadInBackground();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            cursorLoaderFragment.hideProgress();
+                        }
+                    });
+                    return cursor;
+                }
+
+            };
 		}
 		return loader;
 	}

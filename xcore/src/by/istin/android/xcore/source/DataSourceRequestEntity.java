@@ -22,7 +22,10 @@ public class DataSourceRequestEntity implements BaseColumns {
 
 	@dbString
 	public static final String URI_PARAM = "uri_param";
-	
+
+	@dbString
+	public static final String PARENT_URI = "parent_uri";
+
 	public static ContentValues prepare(DataSourceRequest dataSourceRequest) {
 		ContentValues contentValues = new ContentValues();
 		contentValues.put(ID, HashUtils.generateId(dataSourceRequest.getUri()));
@@ -30,6 +33,7 @@ public class DataSourceRequestEntity implements BaseColumns {
 		contentValues.put(EXPIRATION, dataSourceRequest.getCacheExpiration());
 		contentValues.put(URI, dataSourceRequest.getUri());
 		contentValues.put(URI_PARAM, dataSourceRequest.toUriParams());
+		contentValues.put(PARENT_URI, dataSourceRequest.getRequestParentUri());
 		return contentValues;
 	}
 	
