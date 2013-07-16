@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sources">
+        <item>HttpDataSource</item>
+        <item>FileDataSource</item>
+    </string-array>
+    <string-array name="processors">
+        <item>pro1</item>
+        <item>pro2</item>
+        <item>pro3</item>
+    </string-array>
+
+</resources>
