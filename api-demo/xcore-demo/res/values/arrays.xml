@@ -6,9 +6,8 @@
         <item>FileDataSource</item>
     </string-array>
     <string-array name="processors">
-        <item>pro1</item>
-        <item>pro2</item>
-        <item>pro3</item>
+        <item>GsonContentValuesProcessor</item>
+        <item>GsonArrayContentValuesProcessor</item>
     </string-array>
 
 </resources>

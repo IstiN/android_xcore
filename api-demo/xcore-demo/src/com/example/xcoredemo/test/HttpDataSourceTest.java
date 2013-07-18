@@ -23,6 +23,7 @@ public class HttpDataSourceTest implements IDemoTest {
 				sb.append(line).append(System.getProperty("line.separator"));
 			}
 			String value = sb.toString();
+			inputStream.close();
 			return value;
 		} catch (IOException e) {
 			return null;
