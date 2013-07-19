@@ -1,12 +1,18 @@
 package com.example.xcoredemo;
 
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.view.Menu;
+import android.widget.Toast;
 
 import com.astuetz.viewpager.extensions.PagerSlidingTabStrip;
 import com.example.xcoredemo.fragment.TestListFragment;
@@ -26,6 +32,20 @@ public class MainActivity extends FragmentActivity {
 		mAdapter = new PagerAdapter(getSupportFragmentManager());
 		mPager.setAdapter(mAdapter);
 		mTabs.setViewPager(mPager);
+//		Toast.makeText(this,
+//				Environment.getExternalStorageDirectory().getAbsolutePath(),
+//				Toast.LENGTH_LONG).show();
+//		try {
+//			FileOutputStream fos = new FileOutputStream(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TestFile");
+//			fos.write("This is text from TestFile".getBytes());
+//			fos.close();
+//		} catch (FileNotFoundException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 	@Override
@@ -37,7 +57,7 @@ public class MainActivity extends FragmentActivity {
 
 	public class PagerAdapter extends FragmentStatePagerAdapter {
 
-		private final String[] TITLES = { "Source", "Processor" };
+		private final String[] TITLES = { "Source", "Processor", "Fragment" };
 
 		public PagerAdapter(FragmentManager fm) {
 			super(fm);
@@ -58,6 +78,9 @@ public class MainActivity extends FragmentActivity {
 				break;
 			case 1:
 				id = R.array.processors;
+				break;
+			case 2:
+				id = R.array.fragments;
 				break;
 			default:
 				id = null;

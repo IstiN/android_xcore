@@ -9,5 +9,8 @@
         <item>GsonContentValuesProcessor</item>
         <item>GsonArrayContentValuesProcessor</item>
     </string-array>
+    <string-array name="fragments">
+        <item>XListFragment</item>
+    </string-array>
 
 </resources>
