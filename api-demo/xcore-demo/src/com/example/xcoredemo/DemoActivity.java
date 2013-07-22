@@ -3,17 +3,19 @@ package com.example.xcoredemo;
 import java.io.IOException;
 import java.io.InputStream;
 
-import android.app.Activity;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.xcoredemo.test.DemoXListFragment;
 import com.example.xcoredemo.test.IDemoTest;
 
-public class DemoActivity extends Activity {
+public class DemoActivity extends FragmentActivity {
 	private static final String NOTHING_TO_RUN = "Nothing to run";
 	public static final String MISTAKE = "This test doesn't exist, probably it was loaded by mistake. Sorry";
 	public static final String EXTRA_TEST_NAME = "EXTRA_TEST_NAME";
@@ -23,6 +25,7 @@ public class DemoActivity extends Activity {
 	public static final String CODE_PATH_POSTFIX = "Code";
 
 	private IDemoTest mDemo;
+	private boolean mIsFragment;
 
 	private TextView mTextViewCode;
 	private TextView mTextViewResult;
@@ -36,13 +39,17 @@ public class DemoActivity extends Activity {
 		mTextViewResult = (TextView) findViewById(R.id.tv_demo_result);
 		mProgressBar = (ProgressBar) findViewById(R.id.pb_demo);
 		String name = getIntent().getStringExtra(EXTRA_TEST_NAME);
-		try {
-			@SuppressWarnings("rawtypes")
-			Class c = Class.forName(CLASS_NAME_TEST_PREFIX + name
-					+ CLASS_NAME_TEST_POSTFIX);
-			mDemo = (IDemoTest) c.newInstance();
-		} catch (Exception e) {
-			mDemo = null;
+		if (name.equals(DemoXListFragment.class.getSimpleName())) {
+			mIsFragment = true;
+		} else {
+			try {
+				@SuppressWarnings("rawtypes")
+				Class c = Class.forName(CLASS_NAME_TEST_PREFIX + name
+						+ CLASS_NAME_TEST_POSTFIX);
+				mDemo = (IDemoTest) c.newInstance();
+			} catch (Exception e) {
+				mDemo = null;
+			}
 		}
 		InputStream is = getClassLoader().getResourceAsStream(
 				CODE_PATH_PREFIX + name + CODE_PATH_POSTFIX);
@@ -68,10 +75,14 @@ public class DemoActivity extends Activity {
 	}
 
 	public void run(View v) {
-		if (mDemo != null) {
-			new DemoTask().execute(mDemo);
+		if (mIsFragment) {
+			startActivity(new Intent(this, FragmentDemoActivity.class));
 		} else {
-			Toast.makeText(this, NOTHING_TO_RUN, Toast.LENGTH_SHORT).show();
+			if (mDemo != null) {
+				new DemoTask().execute(mDemo);
+			} else {
+				Toast.makeText(this, NOTHING_TO_RUN, Toast.LENGTH_SHORT).show();
+			}
 		}
 	}
 

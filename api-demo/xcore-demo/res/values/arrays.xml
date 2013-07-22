@@ -10,7 +10,7 @@
         <item>GsonArrayContentValuesProcessor</item>
     </string-array>
     <string-array name="fragments">
-        <item>XListFragment</item>
+        <item>DemoXListFragment</item>
     </string-array>
 
 </resources>

@@ -3,9 +3,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-    <TextView android:id="@+id/tv_id"
-        android:text="GOVNOBLYA"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"/>
+    
+    <fragment
+        android:id="@+id/fragment1"
+        android:name="com.example.xcoredemo.test.DemoXListFragment"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent" />
 
 </LinearLayout>
