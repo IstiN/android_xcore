@@ -18,7 +18,7 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 	public static final String RESULT_KEY = "xcore:result_key";
 	
 	public static enum Status {
-		START, CACHED, ERROR, DONE;
+		ADD_TO_QUEUE, START, CACHED, ERROR, DONE;
 	}
 	
 	public StatusResultReceiver(Handler handler) {

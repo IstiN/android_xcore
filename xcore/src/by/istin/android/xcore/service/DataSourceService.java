@@ -99,12 +99,13 @@ public class DataSourceService extends Service {
 		final IProcessor processor = (IProcessor) AppUtils.get(this, processorKey);
 		final String datasourceKey = intent.getStringExtra(DATASOURCE_KEY);
 		final IDataSource datasource = (IDataSource) AppUtils.get(this, datasourceKey);
+        final Bundle bundle = new Bundle();
+        dataSourceRequest.toBundle(bundle);
+        sendStatus(Status.ADD_TO_QUEUE, resultReceiver, bundle);
 		requestExecutor.execute(new ExecuteRunnable(resultReceiver) {
 			
 			@Override
 			public void run() {
-				Bundle bundle = new Bundle();
-				dataSourceRequest.toBundle(bundle);
 				sendStatus(StatusResultReceiver.Status.START, getResultReceivers(), bundle);
 				boolean isCacheble = dataSourceRequest.isCacheable();
 				boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
@@ -174,9 +175,13 @@ public class DataSourceService extends Service {
 		if (resultReceivers != null) {
             for (int i = 0; i < resultReceivers.size(); i++) {
                 ResultReceiver resultReceiver = resultReceivers.get(i);
-                resultReceiver.send(status.ordinal(), bundle);
+                sendStatus(status, resultReceiver, bundle);
             }
 		}
 	}
+
+    private void sendStatus(Status status, ResultReceiver resultReceiver, Bundle bundle) {
+        resultReceiver.send(status.ordinal(), bundle);
+    }
 
 }

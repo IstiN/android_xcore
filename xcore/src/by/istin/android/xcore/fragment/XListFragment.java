@@ -410,13 +410,18 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         if (StringUtil.isEmpty(url)) {
             return;
         }
-		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
-		dataSourceRequest.setCacheable(isCacheable());
-		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdate);
-        dataSourceRequest.setParentUri(parentRequestUri);
+        final DataSourceRequest dataSourceRequest = createDataSourceRequest(url, isForceUpdate, parentRequestUri);
 		dataSourceExecute(getActivity(), dataSourceRequest);
 	}
+
+    public DataSourceRequest createDataSourceRequest(String url, Boolean isForceUpdate, String parentRequestUri) {
+        final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
+        dataSourceRequest.setCacheable(isCacheable());
+        dataSourceRequest.setCacheExpiration(getCacheExpiration());
+        dataSourceRequest.setForceUpdateData(isForceUpdate);
+        dataSourceRequest.setParentUri(parentRequestUri);
+        return dataSourceRequest;
+    }
 
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
