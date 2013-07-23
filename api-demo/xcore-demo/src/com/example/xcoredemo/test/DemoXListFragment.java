@@ -14,7 +14,7 @@ public class DemoXListFragment extends XListFragment {
 
 	@Override
 	public void onListItemClick(Cursor cursor, View v, int position, long id) {
-		
+
 	}
 
 	@Override
@@ -29,7 +29,7 @@ public class DemoXListFragment extends XListFragment {
 
 	@Override
 	public String getUrl() {
-		return "https://dl.dropboxusercontent.com/u/16403954/xcore/json_array.json";
+		return "https://dl.dropboxusercontent.com/s/3c0n0ijpjjorqih/jsonarray";
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class DemoXListFragment extends XListFragment {
 
 	@Override
 	protected int[] getAdapterControlIds() {
-		return new int[]{R.id.tv_id};
+		return new int[] { R.id.tv_id };
 	}
 
 	@Override
@@ -53,7 +53,25 @@ public class DemoXListFragment extends XListFragment {
 		return R.layout.adapter_demox;
 	}
 
-	
-	
+	@Override
+	protected void onPageLoad(int newPage, int totalItemCount) {
+		if (newPage == 1) {
+			loadData(
+					getActivity(),
+					"https://dl.dropboxusercontent.com/s/slnep5t0p6yvjr1/jsonarray1",
+					null);
+		}
+		if (newPage == 2) {
+			loadData(
+					getActivity(),
+					"https://dl.dropboxusercontent.com/s/xn8f9rw9034da2u/jsonarray2",
+					null);
+		}
+	}
+
+	@Override
+	protected boolean isPagingSupport() {
+		return true;
+	}
 
 }
