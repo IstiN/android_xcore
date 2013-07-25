@@ -43,6 +43,7 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -303,7 +304,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		}
 		if (isServiceWork) {
 			hideEmptyView(getView());
-		}
+		} else if (CursorUtils.isEmpty(cursor)) {
+            showEmptyView(getView());
+        }
 
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -315,7 +318,10 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
 	public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
-        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2) {
+        int adapterLayout = getAdapterLayout();
+        String[] adapterColumns = getAdapterColumns();
+        int[] adapterControlIds = getAdapterControlIds();
+        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, adapterLayout, cursor, adapterColumns, adapterControlIds, 2) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -428,7 +434,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
-            public void onStart(Bundle resultData) {
+            public void onAddToQueue(Bundle resultData) {
                 isServiceWork = true;
                 if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
                     showPagingProgress();
@@ -444,6 +450,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                         plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
                     }
                 }
+            }
+
+            @Override
+            public void onStart(Bundle resultData) {
+                //TODO maybe for some status
             }
 
             @Override
@@ -623,6 +634,18 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		View emptyView = view.findViewById(android.R.id.empty);
 		if (emptyView != null) {
 			emptyView.setVisibility(View.GONE);
+		}
+	}
+
+	public void showEmptyView(View view) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+		if (view == null) return;
+		View emptyView = view.findViewById(android.R.id.empty);
+		if (emptyView != null) {
+			emptyView.setVisibility(View.VISIBLE);
 		}
 	}
 }

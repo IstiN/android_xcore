@@ -29,6 +29,9 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 	protected void onReceiveResult(int resultCode, Bundle resultData) {
 		Status status = Status.values()[resultCode];
 		switch (status) {
+		case ADD_TO_QUEUE:
+			onAddToQueue(resultData);
+			break;
 		case START:
 			onStart(resultData);
 			break;
@@ -50,6 +53,10 @@ public abstract class StatusResultReceiver extends ResultReceiver {
 
 	protected void onCached(Bundle resultData) {
 		
+	}
+
+	protected void onAddToQueue(Bundle resultData) {
+
 	}
 
 	public abstract void onStart(Bundle resultData);
