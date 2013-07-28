@@ -9,6 +9,7 @@ import java.util.Map;
 
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Log;
 
 public class XCoreHelper {
 
@@ -41,6 +42,7 @@ public class XCoreHelper {
 
 	public void onCreate(Context ctx) {
 		ContextHolder.getInstance().setContext(ctx);
+        Log.init(ctx);
 	}
 	
 	public void registerAppService(IAppServiceKey appService) {

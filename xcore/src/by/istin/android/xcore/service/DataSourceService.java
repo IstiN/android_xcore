@@ -16,13 +16,11 @@ import android.os.ResultReceiver;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.List;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
-import by.istin.android.xcore.service.StatusResultReceiver.Status;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.IDataSource;
@@ -101,12 +99,14 @@ public class DataSourceService extends Service {
 		final IDataSource datasource = (IDataSource) AppUtils.get(this, datasourceKey);
         final Bundle bundle = new Bundle();
         dataSourceRequest.toBundle(bundle);
-        sendStatus(Status.ADD_TO_QUEUE, resultReceiver, bundle);
+        if (resultReceiver != null) {
+            resultReceiver.send(StatusResultReceiver.Status.ADD_TO_QUEUE.ordinal(), bundle);
+        }
 		requestExecutor.execute(new ExecuteRunnable(resultReceiver) {
 			
 			@Override
 			public void run() {
-				sendStatus(StatusResultReceiver.Status.START, getResultReceivers(), bundle);
+				sendStatus(StatusResultReceiver.Status.START, bundle);
 				boolean isCacheble = dataSourceRequest.isCacheable();
 				boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
 				ContentValues contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
@@ -122,7 +122,7 @@ public class DataSourceService extends Service {
                                 DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
                                 Long lastUpdate = storedRequest.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
                                 if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
-                                    sendStatus(StatusResultReceiver.Status.CACHED, getResultReceivers(), bundle);
+                                    sendStatus(StatusResultReceiver.Status.CACHED, bundle);
                                     return;
                                 } else {
                                     contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
@@ -153,13 +153,13 @@ public class DataSourceService extends Service {
 							bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>)result);
 						}
 					}
-					sendStatus(StatusResultReceiver.Status.DONE, getResultReceivers(), bundle);
+					sendStatus(StatusResultReceiver.Status.DONE, bundle);
 				} catch (Exception e) {
                     synchronized (dbLockFlag) {
 					    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
                     }
 					bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
-					sendStatus(StatusResultReceiver.Status.ERROR, getResultReceivers(), bundle);
+					sendStatus(StatusResultReceiver.Status.ERROR, bundle);
 				}				
 			}
 			
@@ -170,18 +170,5 @@ public class DataSourceService extends Service {
 			
 		});
 	}
-
-	private void sendStatus(Status status, List<ResultReceiver> resultReceivers, Bundle bundle) {
-		if (resultReceivers != null) {
-            for (int i = 0; i < resultReceivers.size(); i++) {
-                ResultReceiver resultReceiver = resultReceivers.get(i);
-                sendStatus(status, resultReceiver, bundle);
-            }
-		}
-	}
-
-    private void sendStatus(Status status, ResultReceiver resultReceiver, Bundle bundle) {
-        resultReceiver.send(status.ordinal(), bundle);
-    }
 
 }

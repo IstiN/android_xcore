@@ -106,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
             writableDatabase.setLockingEnabled(false);
         }
         return writableDatabase;
@@ -115,7 +115,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public SQLiteDatabase getReadableDatabase() {
         SQLiteDatabase readableDatabase = super.getReadableDatabase();
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
             readableDatabase.setLockingEnabled(false);
         }
         return readableDatabase;
