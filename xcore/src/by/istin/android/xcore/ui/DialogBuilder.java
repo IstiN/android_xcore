@@ -197,42 +197,51 @@ public class DialogBuilder {
 	}
 	
 	public static void multiChooseOption(final Context context, int titleResource, int optionsResource, final boolean[] defaultOption, final ISuccess<boolean[]> success) {
-		Builder builder = createBuilder(context);
-		builder.setTitle(titleResource);
-		builder.setMultiChoiceItems(optionsResource, defaultOption, new OnMultiChoiceClickListener() {
-			
+        String[] stringArray = context.getResources().getStringArray(optionsResource);
+        multiChooseOption(context, titleResource, stringArray, defaultOption, success);
+		
+	}
+
+    public static void multiChooseOption(Context context, int titleResource, String[] stringArray, final boolean[] defaultOption, final ISuccess<boolean[]> success) {
+        Builder builder = createBuilder(context);
+        builder.setTitle(titleResource);
+        builder.setMultiChoiceItems(stringArray, defaultOption, new OnMultiChoiceClickListener() {
+
 			@Override
 			public void onClick(DialogInterface dialog, int which, boolean isChecked) {
 				defaultOption[which] = isChecked;
 			}
 		});
-		builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-			
-		});
-		builder.setPositiveButton(OK, new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				success.success(defaultOption);
-			}
-			
-		});
-		try {
-			builder.create().show();	
-		} catch (Exception e) {
-			Log.e(TAG, "quick_back", e);
-		}
-		
-	}
-	
-	
-	public static void input(final Activity activity, String title, String hint, String defaultValue, String positiveButton, boolean isNumber, final ISuccess<String> success) {
+        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+
+        });
+        builder.setPositiveButton(OK, new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                success.success(defaultOption);
+            }
+
+        });
+        try {
+            AlertDialog alertDialog = builder.create();
+            if (Build.VERSION.SDK_INT > 10) {
+                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            alertDialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "quick_back", e);
+        }
+    }
+
+
+    public static void input(final Activity activity, String title, String hint, String defaultValue, String positiveButton, boolean isNumber, final ISuccess<String> success) {
 		final EditText input = new EditText(activity);
 		if (!StringUtil.isEmpty(defaultValue)) {
 			input.setText(defaultValue);
