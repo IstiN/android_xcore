@@ -173,30 +173,35 @@ public class DialogBuilder {
 	}
 	
 	public static void singleChooseOption(final Context context, int titleResource, int optionsResource, int defaultOption, final OnClickListener listener) {
-		Builder builder = createBuilder(context);
-		builder.setTitle(titleResource);
-		builder.setSingleChoiceItems(optionsResource, defaultOption, listener);
-		builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
-			
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-			
-		});
-		try {
-			AlertDialog alertDialog = builder.create();
-			if (Build.VERSION.SDK_INT > 10) {
-				alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-			}
-			alertDialog.show();	
-		} catch (Exception e) {
-			Log.e(TAG, "quick_back", e);
-		}
+        String[] stringArray = context.getResources().getStringArray(optionsResource);
+        singleChooseOption(context, titleResource, stringArray, defaultOption, listener);
 
 	}
-	
-	public static void multiChooseOption(final Context context, int titleResource, int optionsResource, final boolean[] defaultOption, final ISuccess<boolean[]> success) {
+
+    public static void singleChooseOption(Context context, int titleResource, String[] stringArray, int defaultOption, OnClickListener listener) {
+        Builder builder = createBuilder(context);
+        builder.setTitle(titleResource);
+        builder.setSingleChoiceItems(stringArray, defaultOption, listener);
+        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+
+        });
+        try {
+            AlertDialog alertDialog = builder.create();
+            if (Build.VERSION.SDK_INT > 10) {
+                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
+            alertDialog.show();
+        } catch (Exception e) {
+            Log.e(TAG, "quick_back", e);
+        }
+    }
+
+    public static void multiChooseOption(final Context context, int titleResource, int optionsResource, final boolean[] defaultOption, final ISuccess<boolean[]> success) {
         String[] stringArray = context.getResources().getStringArray(optionsResource);
         multiChooseOption(context, titleResource, stringArray, defaultOption, success);
 		
