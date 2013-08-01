@@ -545,7 +545,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		if (getView() != null) {
-			((CursorAdapter)getListView().getAdapter()).swapCursor(null);
+            ListAdapter adapter = getListView().getAdapter();
+            if (adapter instanceof HeaderViewListAdapter) {
+                adapter = (HeaderViewListAdapter)((HeaderViewListAdapter) adapter).getWrappedAdapter();
+            }
+            ((CursorAdapter) adapter).swapCursor(null);
 			hideProgress();
 		}
 	}
