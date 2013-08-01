@@ -128,8 +128,10 @@ public class ErrorHandler implements IErrorHanler {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
                             Set<ErrorInfo> infos = mErrorTypeMap.get(finalType);
-                            for (ErrorInfo info : infos) {
-                                info.dataSourceHelper.dataSourceExecute(info.fragmentActivity, info.dataSourceRequest);
+                            if (infos != null) {
+                                for (ErrorInfo info : infos) {
+                                    info.dataSourceHelper.dataSourceExecute(info.fragmentActivity, info.dataSourceRequest);
+                                }
                             }
                             mErrorTypeMap.remove(finalType);
                             mErrorTypeDialog.remove(finalType);

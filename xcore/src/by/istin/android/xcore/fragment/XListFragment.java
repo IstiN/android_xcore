@@ -366,7 +366,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
 	protected boolean setAdapterViewImage(ImageView v, String value) {
         //plugins
-        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return true;
+        }
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
             for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                 if (plugin.setAdapterViewImage(this, v, value)) {
