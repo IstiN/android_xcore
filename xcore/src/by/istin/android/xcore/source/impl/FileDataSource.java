@@ -12,7 +12,7 @@ import by.istin.android.xcore.source.IDataSource;
 
 
 /**
- * Class for load data from web.
+ * Class for load data from file.
  * 
  * @author Uladzimir_Klyshevich
  * 

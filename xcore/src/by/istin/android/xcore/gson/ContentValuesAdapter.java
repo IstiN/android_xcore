@@ -25,6 +25,7 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
@@ -72,19 +73,24 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 		JsonObject jsonObject = (JsonObject)jsonElement;
 		for (Field field : entityKeys) {
 			String fieldValue = ReflectUtils.getStaticStringValue(field);
-			String serializaedName = fieldValue;
-			SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
-			if (serializedAnnotation != null) {
-				serializaedName = serializedAnnotation.value();
-			}
-			JsonElement jsonValue = null;
-            JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
-            String separator = null;
-            if (jsonSubJSONObject != null) {
-                separator = jsonSubJSONObject.separator();
+			String serializedName = fieldValue;
+            if (field.isAnnotationPresent(SerializedName.class)) {
+                SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
+                if (serializedAnnotation != null) {
+                    serializedName = serializedAnnotation.value();
+                }
             }
-			if (separator != null && serializaedName.contains(separator)) {
-				String[] values = serializaedName.split(separator);
+			JsonElement jsonValue = null;
+            String separator = null;
+            if (field.isAnnotationPresent(JsonSubJSONObject.class)) {
+                JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
+                if (jsonSubJSONObject != null) {
+                    separator = jsonSubJSONObject.separator();
+                }
+            }
+			if (separator != null && serializedName.contains(separator)) {
+                Log.xd(this, "separator existis: " + separator);
+                String[] values = serializedName.split(separator);
 				JsonObject tempElement = jsonObject;
 				for (int i = 0; i < values.length; i++) {
 					if (i == values.length - 1) {
@@ -102,7 +108,7 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 					}
 				}
 			} else {
-				jsonValue = jsonObject.get(serializaedName);
+				jsonValue = jsonObject.get(serializedName);
 			}
 			if (jsonValue == null) {
 				continue;
@@ -124,9 +130,9 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
             } else if (field.isAnnotationPresent(dbEntity.class)) {
 				dbEntity entity = field.getAnnotation(dbEntity.class);
 				Class<?> clazz = entity.clazz();
-				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
-				ContentValues values = contentValuesAdaper.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
-				contentValuesAdaper = null;
+				ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
+				ContentValues values = contentValuesAdapter.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
+				contentValuesAdapter = null;
 				contentValues.put(fieldValue, BytesUtils.toByteArray(values));
 				dbEntity annotation = field.getAnnotation(dbEntity.class);
 				contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
