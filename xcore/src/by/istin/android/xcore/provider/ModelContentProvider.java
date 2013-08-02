@@ -189,7 +189,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 			if (StringUtil.isEmpty(selection)) {
 				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
 			} else {
-				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();	
+				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();
 			}
 			break;
 		case MODELS_ID_NEGOTIVE:
@@ -221,7 +221,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 				String sizeParameter = uri.getQueryParameter("size");
 				String limitParam = null;
 				if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
-					limitParam = String.format("%s,%s",offsetParameter, sizeParameter);
+					limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
 				}
 				Cursor c = dbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
 				if (c != null) {

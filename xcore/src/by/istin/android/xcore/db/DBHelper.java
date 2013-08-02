@@ -40,6 +40,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -59,7 +60,7 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public DBHelper(Context context) {
-		super(context, String.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
 	}
 	
 	@Override
@@ -129,7 +130,7 @@ public class DBHelper extends SQLiteOpenHelper {
         beginTransaction(dbWriter);
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
-			dbWriter.execSQL(String.format(CREATE_FILES_TABLE_SQL, table));
+			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
 				try {

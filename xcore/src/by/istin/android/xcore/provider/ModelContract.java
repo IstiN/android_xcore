@@ -3,6 +3,9 @@ package by.istin.android.xcore.provider;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.BaseColumns;
+
+import java.util.Locale;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
@@ -54,7 +57,7 @@ public class ModelContract {
 	}
 
 	public static String getAuthority(Context ctx) {
-		return String.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
+		return StringUtil.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
 	}
 	
 	public static Uri getPaginatedUri(Class<?> clazz) {
@@ -78,23 +81,23 @@ public class ModelContract {
 	}
 	
 	public static Uri getPaginatedUri(String modelName, int offset, int size) {
-		return Uri.parse(String.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
+		return Uri.parse(StringUtil.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
 	}
 	
 	public static Uri getUri(String modelName, boolean withCleaner) {
-		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName)+(withCleaner ? CLEANER_TRUE : StringUtil.EMPTY));
+		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName)+(withCleaner ? CLEANER_TRUE : StringUtil.EMPTY));
 	}
 	
 	public static Uri getUri(Class<?> clazz, Long id) {
-		return Uri.parse(String.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), clazz.getCanonicalName(), id));
+		return Uri.parse(StringUtil.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), clazz.getCanonicalName(), id));
 	}
 	
 	public static String getContentType(Class<?> clazz) {
-		return String.format(CONTENT_TYPE_TEMPLATE, clazz.getCanonicalName());
+		return StringUtil.format(CONTENT_TYPE_TEMPLATE, clazz.getCanonicalName());
 	}
 	
 	public static String getContentType(String modelName) {
-		return String.format(CONTENT_TYPE_TEMPLATE, modelName);
+		return StringUtil.format(CONTENT_TYPE_TEMPLATE, modelName);
 	}
 
 	public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
@@ -114,7 +117,7 @@ public class ModelContract {
     }
 
     public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
-		return Uri.parse(String.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  String.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY))));
+		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  StringUtil.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY))));
 	}
 
 	public static class UriBuilder {
@@ -123,9 +126,13 @@ public class ModelContract {
 
         private boolean isParamAdded = false;
 
+        public UriBuilder(Uri uri) {
+            super();
+            this.builder = new StringBuilder(uri.toString());
+        }
+
 		public UriBuilder(Class<?> clazz) {
-			super();
-            this.builder = new StringBuilder(getUri(clazz).toString());
+			this(getUri(clazz));
 		}
 
 		public UriBuilder notNotifyChanges() {
