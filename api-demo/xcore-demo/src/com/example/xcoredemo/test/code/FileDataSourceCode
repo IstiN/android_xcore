@@ -1,0 +1,18 @@
+public String test() {
+		try {
+			InputStream inputStream = new FileDataSource()
+					.getSource(new DataSourceRequest("/mnt/sdcard/TestFile"));
+			BufferedReader bufferedReader = new BufferedReader(
+					new InputStreamReader(inputStream), 8192);
+			StringBuilder sb = new StringBuilder();
+			String line = null;
+			while ((line = bufferedReader.readLine()) != null) {
+				sb.append(line).append(System.getProperty("line.separator"));
+			}
+			String value = sb.toString();
+			inputStream.close();
+			return value;
+		} catch (IOException e) {
+			return null;
+		}
+	}
