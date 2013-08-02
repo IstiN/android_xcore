@@ -118,19 +118,16 @@ public class BytesUtils {
 			byte[] bytes = bos.toByteArray();
 			return bytes;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new IllegalArgumentException(e);
 		} finally {
 			try {
 				out.close();
 				bos.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//can be ignored;
 			}
 
 		}
-		return null;
 	}
 
 	public static Serializable serializableFromByteArray(byte[] bytes) {
@@ -148,21 +145,17 @@ public class BytesUtils {
 			Log.d("deserializable", System.currentTimeMillis() - currentTimeMillis);
 			return o;
 		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            throw new IllegalArgumentException(e);
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+            throw new IllegalArgumentException(e);
 		} finally {
 			try {
 				bis.close();
 				in.close();
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				//can be ignored
 			}
 		}
-		return null;
 	}
 
 }

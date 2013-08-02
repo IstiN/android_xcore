@@ -35,7 +35,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import by.istin.android.xcore.XCoreHelper;
-import by.istin.android.xcore.error.IErrorHanler;
+import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
@@ -469,9 +469,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                 if (activity == null) {
                     return;
                 }
-                IErrorHanler errorHanler = (IErrorHanler) AppUtils.get(activity, IErrorHanler.SYSTEM_SERVICE_KEY);
-                if (errorHanler != null) {
-                    errorHanler.onError(activity, XListFragment.this, dataSourceRequest, exception);
+                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+                if (errorHandler != null) {
+                    errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
                 } else {
                     Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
                 }

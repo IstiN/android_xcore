@@ -242,27 +242,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (!isLockTransaction) {
                 beginTransaction(db);
             }
-			if (withCleaner) {
-				ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
-				if (cleaner != null) {
-					cleaner.clean(this, db, dataSourceRequest, contentValues);
-				}
-			}
-			IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
-			int count = 0;
-			for (int i = 0; i < contentValues.length; i++) {
-				ContentValues contentValue = contentValues[i];
-				if (contentValue == null) {
-					continue;
-				}
-				if (beforeListUpdate != null) {
-					beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
-				}
-				long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
-				if (id != -1l) {
-					count++;
-				}
-			}
+            int count = updateOrInsert(dataSourceRequest, withCleaner, classOfModel, db, contentValues);
             if (!isLockTransaction) {
                 setTransactionSuccessful(db);
             }
@@ -273,8 +253,33 @@ public class DBHelper extends SQLiteOpenHelper {
             }
 		}
 	}
-	
-	public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
+
+    private int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, SQLiteDatabase db, ContentValues[] contentValues) {
+        if (withCleaner) {
+            ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
+            if (cleaner != null) {
+                cleaner.clean(this, db, dataSourceRequest, contentValues);
+            }
+        }
+        IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
+        int count = 0;
+        for (int i = 0; i < contentValues.length; i++) {
+            ContentValues contentValue = contentValues[i];
+            if (contentValue == null) {
+                continue;
+            }
+            if (beforeListUpdate != null) {
+                beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
+            }
+            long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
+            if (id != -1l) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
 		return updateOrInsert(null, db, classOfModel, contentValues);
 	}
 	
@@ -406,9 +411,7 @@ public class DBHelper extends SQLiteOpenHelper {
 				putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
-				for (ContentValues cv : entitiesValues) {
-					putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
-				}
+                updateOrInsert(dataSourceRequest, false, modelClass, db, entitiesValues);
 			}
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
@@ -439,7 +442,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(tableName);
 			SQLiteDatabase db = getReadableDatabase();
-			long currentTimeMillis = System.currentTimeMillis();
 			Cursor query = qb.query(db, projection, selection, selectionArgs, groupBy,
 					having, sortOrder, limit);
 			return query;

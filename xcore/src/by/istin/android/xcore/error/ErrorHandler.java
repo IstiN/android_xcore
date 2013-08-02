@@ -19,7 +19,7 @@ import by.istin.android.xcore.utils.StringUtil;
 /**
  * Created by IstiN on 14.7.13.
  */
-public class ErrorHandler implements IErrorHanler {
+public class ErrorHandler implements IErrorHandler {
 
     @Override
     public String getAppServiceKey() {

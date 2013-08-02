@@ -104,7 +104,7 @@ public class DialogBuilder {
 				try {
 					dialog.dismiss();					
 				} catch (Exception e) {
-					// TODO: handle exception
+					// quick back issue for old android version
 				}
 			}
 		} : disagreeListener);
@@ -271,7 +271,7 @@ public class DialogBuilder {
 						imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 						dialog.dismiss();
 					} catch (Exception e) {
-						// TODO: handle exception
+						//quick back issue
 					}
 		     		if (!StringUtil.isEmpty(message)) {
 		     			success.success(message);
@@ -287,7 +287,7 @@ public class DialogBuilder {
 									imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 									dialog.dismiss();
 								} catch (Exception e) {
-									// TODO: handle exception
+                                    // quick back issue for old android version
 								}
 		         }
 		         
@@ -302,7 +302,7 @@ public class DialogBuilder {
 			}
 			alertDialog.show();			
 		} catch (Exception e) {
-			// TODO: handle exception
+            // quick back issue for old android version
 		}
 	}
 }
