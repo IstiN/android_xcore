@@ -408,9 +408,13 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (annotation.annotationType().equals(dbEntity.class)) {
 				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-				putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
+				putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
+                updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
+                for (ContentValues cv : entitiesValues) {
+                    putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
+                }
                 updateOrInsert(dataSourceRequest, false, modelClass, db, entitiesValues);
 			}
 			contentValues.remove(columnName);
@@ -423,10 +427,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	private void putEntity(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
+	private void putForeignEntityAndClear(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
 		entityValues.remove(contentValuesKey);
 		entityValues.put(foreignId, id);
-		updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 	}
 
 	public Cursor query(Class<?> clazz, String[] projection,
