@@ -32,7 +32,11 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	private static final int MODELS_ID_NEGOTIVE = 3;
 
-	private DBHelper dbHelper;
+	private DBHelper mDbHelper;
+
+    private volatile Boolean isLock = false;
+
+    private volatile Object mLock = new Object();
 
 	@Override
 	public boolean onCreate() {
@@ -42,10 +46,10 @@ public abstract class ModelContentProvider extends ContentProvider {
 		mUriMatcher.addURI(authority, "*/#", MODELS_ID);
 		//for negotive number
 		mUriMatcher.addURI(authority, "*/*", MODELS_ID_NEGOTIVE);
-		dbHelper = new DBHelper(getContext());
+		mDbHelper = new DBHelper(getContext());
 		Class<?>[] dbEntities = getDbEntities();
-		dbHelper.createTablesForModels(DataSourceRequestEntity.class);
-		dbHelper.createTablesForModels(dbEntities);
+		mDbHelper.createTablesForModels(DataSourceRequestEntity.class);
+		mDbHelper.createTablesForModels(dbEntities);
 		return true;
 	}
 
@@ -56,8 +60,8 @@ public abstract class ModelContentProvider extends ContentProvider {
 		String className = uri.getLastPathSegment();
 		try {
 			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
-            synchronized (lock) {
-                return bulkInsert(uri, values, className, cleanerParameter, dbHelper);
+            synchronized (mLock) {
+                return bulkInsert(uri, values, className, cleanerParameter, mDbHelper);
             }
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
@@ -94,15 +98,15 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	@Override
 	public int delete(Uri uri, String where, String[] whereArgs) {
-        synchronized (lock) {
-            return deleteWithoutLockCheck(dbHelper, uri, where, whereArgs, true);
+        synchronized (mLock) {
+            return deleteWithoutLockCheck(mDbHelper, uri, where, whereArgs, true);
         }
 	}
 
     @Override
     public Uri insert(Uri uri, ContentValues initialValues) {
-        synchronized (lock) {
-            return insertWithoutLockCheck(dbHelper, uri, initialValues, true);
+        synchronized (mLock) {
+            return insertWithoutLockCheck(mDbHelper, uri, initialValues, true);
         }
     }
 
@@ -205,7 +209,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
 		if (className.equals(ModelContract.SEGMENT_RAW_QUERY)) {
-			Cursor c = dbHelper.rawQuery(uri.getQueryParameter(ModelContract.SQL_PARAM), selectionArgs);		
+			Cursor c = mDbHelper.rawQuery(uri.getQueryParameter(ModelContract.SQL_PARAM), selectionArgs);
 			if (c != null) {
 				c.getCount();
 				c.moveToFirst();
@@ -223,7 +227,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 				if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
 					limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
 				}
-				Cursor c = dbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
+				Cursor c = mDbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
 				if (c != null) {
 					c.setNotificationUri(getContext().getContentResolver(), uri);
 					c.getCount();
@@ -236,10 +240,6 @@ public abstract class ModelContentProvider extends ContentProvider {
 		}
 	}
 
-    private volatile Boolean isLock = false;
-
-    private volatile Object lock = new Object();
-
 	@Override
 	public ContentProviderResult[] applyBatch(
 			ArrayList<ContentProviderOperation> operations)
@@ -248,9 +248,9 @@ public abstract class ModelContentProvider extends ContentProvider {
             isLock = true;
         }
         try {
-            synchronized (lock) {
+            synchronized (mLock) {
                 isLock = true;
-                dbHelper.lockTransaction();
+                mDbHelper.lockTransaction();
                 ContentProviderResult[] result = new ContentProviderResult[operations.size()];
                 try {
                     Set<Uri> set = new HashSet<Uri>();
@@ -260,16 +260,16 @@ public abstract class ModelContentProvider extends ContentProvider {
                         result[i] = apply(contentProviderOperation, result, i);
                         set.add(uri);
                     }
-                    dbHelper.unlockTransaction();
+                    mDbHelper.unlockTransaction();
                     for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
                         Uri uri = iterator.next();
                         getContext().getContentResolver().notifyChange(Uri.parse(uri.toString().split("\\?")[0]), null);
                     }
                 } catch (OperationApplicationException e1) {
-                    dbHelper.errorUnlockTransaction();
+                    mDbHelper.errorUnlockTransaction();
                     throw e1;
                 } catch (Exception e) {
-                    dbHelper.errorUnlockTransaction();
+                    mDbHelper.errorUnlockTransaction();
                     throw new IllegalArgumentException(e);
                 }
                 return result;
@@ -288,14 +288,14 @@ public abstract class ModelContentProvider extends ContentProvider {
         String[] selectionArgs = contentProviderOperation.resolveSelectionArgsBackReferences(backRefs, numBackRefs);
         Uri mUri = contentProviderOperation.getUri();
         if (values != null) {
-            Uri newUri = insertWithoutLockCheck(dbHelper, mUri, values, false);
+            Uri newUri = insertWithoutLockCheck(mDbHelper, mUri, values, false);
             if (newUri == null) {
                 throw new OperationApplicationException("insert failed");
             }
             return new ContentProviderResult(newUri);
         }
 
-        int numRows = deleteWithoutLockCheck(dbHelper, mUri, "?", selectionArgs, false);
+        int numRows = deleteWithoutLockCheck(mDbHelper, mUri, "?", selectionArgs, false);
 
         return new ContentProviderResult(numRows);
     }

@@ -30,11 +30,11 @@ import by.istin.android.xcore.utils.ReflectUtils;
 
 public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 
-	private Class<?> contentValuesEntityClazz;
+	private Class<?> mContentValuesEntityClazz;
 	
-	private List<Field> entityKeys;
+	private List<Field> mEntityKeys;
 	
-	private IJsonPrimitiveHandler jsonPrimitiveHandler;
+	private IJsonPrimitiveHandler mJsonPrimitiveHandler;
 	
 	public static interface IJsonPrimitiveHandler {
 		
@@ -43,35 +43,35 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 	}
 	
 	public IJsonPrimitiveHandler getJsonPrimitiveHandler() {
-		return jsonPrimitiveHandler;
+		return mJsonPrimitiveHandler;
 	}
 
-	public void setJsonPrimitiveHandler(IJsonPrimitiveHandler jsonPrimitiveHandler) {
-		this.jsonPrimitiveHandler = jsonPrimitiveHandler;
+	public void setJsonPrimitiveHandler(IJsonPrimitiveHandler mJsonPrimitiveHandler) {
+		this.mJsonPrimitiveHandler = mJsonPrimitiveHandler;
 	}
 
 	public ContentValuesAdapter(Class<?> contentValuesEntityClazz) {
-		this.contentValuesEntityClazz = contentValuesEntityClazz;
+		this.mContentValuesEntityClazz = contentValuesEntityClazz;
 	}
 	
 	@Override
 	public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-		if (entityKeys == null) {
-			entityKeys = ReflectUtils.getEntityKeys(contentValuesEntityClazz); 
+		if (mEntityKeys == null) {
+			mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
 		}
 		ContentValues contentValues = new ContentValues();
-		if (entityKeys == null) {
+		if (mEntityKeys == null) {
 			return contentValues;
 		}
 		if (jsonElement.isJsonPrimitive()) {
-			if (jsonPrimitiveHandler == null) {
+			if (mJsonPrimitiveHandler == null) {
 				return null;
 			} else {
-				return jsonPrimitiveHandler.convert((JsonPrimitive)jsonElement);
+				return mJsonPrimitiveHandler.convert((JsonPrimitive)jsonElement);
 			}
 		}
 		JsonObject jsonObject = (JsonObject)jsonElement;
-		for (Field field : entityKeys) {
+		for (Field field : mEntityKeys) {
 			String fieldValue = ReflectUtils.getStaticStringValue(field);
 			String serializedName = fieldValue;
             if (field.isAnnotationPresent(SerializedName.class)) {

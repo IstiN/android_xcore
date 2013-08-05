@@ -9,10 +9,10 @@ import android.content.Context;
 public final class ContextHolder {
 
 	/** The instance. */
-	private static ContextHolder instance;
+	private static ContextHolder sInstance;
 
 	/** The context. */
-	private Context context;
+	private Context mContext;
 
 	/**
 	 * Instantiates a new context holder.
@@ -27,10 +27,10 @@ public final class ContextHolder {
 	 * @return single instance of ContextHolder
 	 */
 	public static synchronized ContextHolder getInstance() {
-		if (instance == null) {
-			instance = new ContextHolder();
+		if (sInstance == null) {
+            sInstance = new ContextHolder();
 		}
-		return instance;
+		return sInstance;
 	}
 
 	/*
@@ -49,7 +49,7 @@ public final class ContextHolder {
 	 * @return the context
 	 */
 	public Context getContext() {
-		return context;
+		return mContext;
 	}
 
 	/**
@@ -59,7 +59,7 @@ public final class ContextHolder {
 	 *            the new context
 	 */
 	public void setContext(final Context pContext) {
-		this.context = pContext;
+		this.mContext = pContext;
 	}
 
 }

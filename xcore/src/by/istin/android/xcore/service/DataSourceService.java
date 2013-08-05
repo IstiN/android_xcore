@@ -34,12 +34,48 @@ import by.istin.android.xcore.utils.StringUtil;
  */
 public class DataSourceService extends Service {
 
-	private static final String DATASOURCE_KEY = "datasourceKey";
+	private static final String DATA_SOURCE_KEY = "datasourceKey";
 	private static final String PROCESSOR_KEY = "processorKey";
 	private static final String RESULT_RECEIVER = "resultReceiver";
-	private final RequestExecutor requestExecutor = new RequestExecutor();
-	
-	/* (non-Javadoc)
+
+	private final RequestExecutor mRequestExecutor = new RequestExecutor();
+
+    private Object mDbLockFlag = new Object();
+
+    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey) {
+        execute(context, dataSourceRequest, processorKey, datasourceKey, null);
+    }
+
+    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
+        if (context == null) {
+            context = ContextHolder.getInstance().getContext();
+            if (context == null) {
+                return;
+            }
+        }
+        Intent intent = createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver);
+        if (intent == null) {
+            return;
+        }
+        context.startService(intent);
+    }
+
+    public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
+        if (context == null) {
+            context = ContextHolder.getInstance().getContext();
+            if (context == null) {
+                return null;
+            }
+        }
+        Intent intent = new Intent(context, DataSourceService.class);
+        intent.putExtra(DATA_SOURCE_KEY, datasourceKey);
+        intent.putExtra(PROCESSOR_KEY, processorKey);
+        intent.putExtra(RESULT_RECEIVER, resultReceiver);
+        dataSourceRequest.toIntent(intent);
+        return intent;
+    }
+
+    /* (non-Javadoc)
 	 * @see android.app.Service#onBind(android.content.Intent)
 	 */
 	@Override
@@ -55,63 +91,28 @@ public class DataSourceService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey) {
-		execute(context, dataSourceRequest, processorKey, datasourceKey, null);
-	}
-	
-	public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
-        if (context == null) {
-            context = ContextHolder.getInstance().getContext();
-            if (context == null) {
-                return;
-            }
-        }
-		Intent intent = createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver);
-        if (intent == null) {
-            return;
-        }
-		context.startService(intent);
-	}
-	
-	public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
-        if (context == null) {
-            context = ContextHolder.getInstance().getContext();
-            if (context == null) {
-                return null;
-            }
-        }
-		Intent intent = new Intent(context, DataSourceService.class);
-		intent.putExtra(DATASOURCE_KEY, datasourceKey);
-		intent.putExtra(PROCESSOR_KEY, processorKey);
-		intent.putExtra(RESULT_RECEIVER, resultReceiver);
-		dataSourceRequest.toIntent(intent);
-		return intent;
-	}
-
-    private Object dbLockFlag = new Object();
-
 	protected void onHandleIntent(Intent intent) {
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
 		final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
 		final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
 		final IProcessor processor = (IProcessor) AppUtils.get(this, processorKey);
-		final String datasourceKey = intent.getStringExtra(DATASOURCE_KEY);
+		final String datasourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
 		final IDataSource datasource = (IDataSource) AppUtils.get(this, datasourceKey);
         final Bundle bundle = new Bundle();
         dataSourceRequest.toBundle(bundle);
         if (resultReceiver != null) {
             resultReceiver.send(StatusResultReceiver.Status.ADD_TO_QUEUE.ordinal(), bundle);
         }
-		requestExecutor.execute(new ExecuteRunnable(resultReceiver) {
-			
-			@Override
-			public void run() {
-				sendStatus(StatusResultReceiver.Status.START, bundle);
-				boolean isCacheble = dataSourceRequest.isCacheable();
-				boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-				ContentValues contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
-				Long requestId = contentValues.getAsLong(DataSourceRequestEntity.ID);
-                synchronized (dbLockFlag) {
+		mRequestExecutor.execute(new ExecuteRunnable(resultReceiver) {
+
+            @Override
+            public void run() {
+                sendStatus(StatusResultReceiver.Status.START, bundle);
+                boolean isCacheble = dataSourceRequest.isCacheable();
+                boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
+                ContentValues contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
+                Long requestId = contentValues.getAsLong(DataSourceRequestEntity.ID);
+                synchronized (mDbLockFlag) {
                     if (isCacheble && !isForceUpdateData) {
                         Cursor cursor = getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null, null, null);
                         try {
@@ -135,40 +136,40 @@ public class DataSourceService extends Service {
                     }
                     String requestParentUri = dataSourceRequest.getRequestParentUri();
                     if (!StringUtil.isEmpty(requestParentUri)) {
-                        getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),DataSourceRequestEntity.PARENT_URI+"=?", new String[]{requestParentUri});
+                        getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{requestParentUri});
                     }
                 }
-				try {
-					Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
-					if (isCacheble) {
-						processor.cache(DataSourceService.this, dataSourceRequest, result);
-					} else {
-						if (result instanceof Parcelable) {
-							bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable)result);
-						} else if (result instanceof Parcelable[]) {
-							bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[])result);
-						} else if (result instanceof Serializable) {
-							bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable)result);
-						} else if (result instanceof ArrayList<?>) {
-							bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>)result);
-						}
-					}
-					sendStatus(StatusResultReceiver.Status.DONE, bundle);
-				} catch (Exception e) {
-                    synchronized (dbLockFlag) {
-					    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
+                try {
+                    Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
+                    if (isCacheble) {
+                        processor.cache(DataSourceService.this, dataSourceRequest, result);
+                    } else {
+                        if (result instanceof Parcelable) {
+                            bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
+                        } else if (result instanceof Parcelable[]) {
+                            bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
+                        } else if (result instanceof Serializable) {
+                            bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
+                        } else if (result instanceof ArrayList<?>) {
+                            bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
+                        }
                     }
-					bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
-					sendStatus(StatusResultReceiver.Status.ERROR, bundle);
-				}				
-			}
-			
-			@Override
-			public String createKey() {
-				return dataSourceRequest.toUriParams();
-			}
-			
-		});
+                    sendStatus(StatusResultReceiver.Status.DONE, bundle);
+                } catch (Exception e) {
+                    synchronized (mDbLockFlag) {
+                        getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
+                    }
+                    bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
+                    sendStatus(StatusResultReceiver.Status.ERROR, bundle);
+                }
+            }
+
+            @Override
+            public String createKey() {
+                return dataSourceRequest.toUriParams();
+            }
+
+        });
 	}
 
 }

@@ -21,11 +21,6 @@ import by.istin.android.xcore.utils.StringUtil;
  */
 public class ErrorHandler implements IErrorHandler {
 
-    @Override
-    public String getAppServiceKey() {
-        return SYSTEM_SERVICE_KEY;
-    }
-
     public static enum ErrorType {
 
         INTERNET, SERVER_UNAVAILABLE, DEVELOPER_ERROR;
@@ -34,23 +29,23 @@ public class ErrorHandler implements IErrorHandler {
 
     private class ErrorInfo {
 
-        FragmentActivity fragmentActivity;
+        private FragmentActivity mFragmentActivity;
 
-        IDataSourceHelper dataSourceHelper;
+        private IDataSourceHelper mDataSourceHelper;
 
-        DataSourceRequest dataSourceRequest;
+        private DataSourceRequest mDataSourceRequest;
 
         @Override
         public int hashCode() {
-            return dataSourceHelper.hashCode()+dataSourceRequest.hashCode()+fragmentActivity.hashCode();
+            return mDataSourceHelper.hashCode()+ mDataSourceRequest.hashCode()+ mFragmentActivity.hashCode();
         }
 
         @Override
         public boolean equals(Object o) {
             ErrorInfo errorInfo = (ErrorInfo) o;
-            return errorInfo.dataSourceRequest.equals(dataSourceRequest) &&
-                    errorInfo.dataSourceHelper.equals(dataSourceRequest) &&
-                    errorInfo.fragmentActivity.equals(fragmentActivity);
+            return errorInfo.mDataSourceRequest.equals(mDataSourceRequest) &&
+                    errorInfo.mDataSourceHelper.equals(mDataSourceRequest) &&
+                    errorInfo.mFragmentActivity.equals(mFragmentActivity);
         }
     }
 
@@ -63,6 +58,11 @@ public class ErrorHandler implements IErrorHandler {
     private Map<ErrorType, Set<ErrorInfo>> mErrorTypeMap = Collections.synchronizedMap(new HashMap<ErrorType, Set<ErrorInfo>>());
 
     private Map<ErrorType, Boolean> mErrorTypeDialog = Collections.synchronizedMap(new HashMap<ErrorType, Boolean>());
+
+    @Override
+    public String getAppServiceKey() {
+        return SYSTEM_SERVICE_KEY;
+    }
 
     public ErrorHandler(String errorDialogTitle, String internetErrorMessage, String serviceUnavailableMessage) {
         mInternetErrorMessage = internetErrorMessage;
@@ -89,9 +89,9 @@ public class ErrorHandler implements IErrorHandler {
             mErrorTypeMap.put(type, errorInfos);
         }
         ErrorInfo errorInfo = new ErrorInfo();
-        errorInfo.dataSourceHelper = dataSourceHelper;
-        errorInfo.dataSourceRequest = dataSourceRequest;
-        errorInfo.fragmentActivity = activity;
+        errorInfo.mDataSourceHelper = dataSourceHelper;
+        errorInfo.mDataSourceRequest = dataSourceRequest;
+        errorInfo.mFragmentActivity = activity;
         if (!errorInfos.contains(errorInfo)) {
             errorInfos.add(errorInfo);
         }
@@ -130,7 +130,7 @@ public class ErrorHandler implements IErrorHandler {
                             Set<ErrorInfo> infos = mErrorTypeMap.get(finalType);
                             if (infos != null) {
                                 for (ErrorInfo info : infos) {
-                                    info.dataSourceHelper.dataSourceExecute(info.fragmentActivity, info.dataSourceRequest);
+                                    info.mDataSourceHelper.dataSourceExecute(info.mFragmentActivity, info.mDataSourceRequest);
                                 }
                             }
                             mErrorTypeMap.remove(finalType);

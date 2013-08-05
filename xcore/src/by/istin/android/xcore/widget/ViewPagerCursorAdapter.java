@@ -9,28 +9,28 @@ import android.view.ViewGroup;
 
 public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
-	private Cursor cursor;
+	private Cursor mCursor;
 	
-	private Context context;
+	private Context mContext;
 	
-	private int resource;
+	private int mResource;
 	
 	public ViewPagerCursorAdapter(Context ctx, Cursor cursor, int resource) {
 		super();
-		this.cursor = cursor;
-		this.context = ctx;
-		this.resource = resource;
+		this.mCursor = cursor;
+		this.mContext = ctx;
+		this.mResource = resource;
 	}
 
 	@Override
 	public int getCount() {
-		return cursor.getCount();
+		return mCursor.getCount();
 	}
 
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        final View containerItem = View.inflate(context, getResource(position), null);
+        final View containerItem = View.inflate(mContext, getResource(position), null);
         Cursor cursor = getItemAtPosition(position);
         init(containerItem, cursor);
         container.addView(containerItem, 0);
@@ -38,12 +38,12 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
     }
 
     public Cursor getItemAtPosition(int position) {
-		cursor.moveToPosition(position);
-		return cursor;
+		mCursor.moveToPosition(position);
+		return mCursor;
 	}
 
 	public int getResource(int position) {
-	      return resource;
+	      return mResource;
 	};
 	   
 	public abstract void init(View container, Cursor cursor);
@@ -70,7 +70,7 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 	}
 
 	public void swapCursor(Cursor newCursor) {
-		this.cursor = newCursor;
+		this.mCursor = newCursor;
 		notifyDataSetChanged();
 	}
 

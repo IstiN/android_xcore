@@ -103,7 +103,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		}
 
 		@Override
-		public HttpRequestBase build(String url) {
+		public HttpRequestBase build(DataSourceRequest dataSourceRequest) {
+            String url = dataSourceRequest.getUri();
 			HttpRequestBase request = null;
 			Uri uri = Uri.parse(url);
 			String typeParam = uri.getQueryParameter(TYPE);
@@ -113,22 +114,16 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			}
 			switch (type) {
 			case GET:
-				HttpGet httpGet = new HttpGet(url);
-				request = httpGet;
+                request = creteGetRequest(dataSourceRequest, url, uri);
 				break;
 			case POST:
-				HttpPost postRequest = new HttpPost(url.split(Q)[0]);
-				initEntity(uri, postRequest);
-				request = postRequest;
+                request = createPostRequest(dataSourceRequest, url, uri);
 				break;
 			case PUT:
-				HttpPut putRequest = new HttpPut(url.split(Q)[0]);
-				initEntity(uri, putRequest);
-				request = putRequest;
+                request = createPutRequest(dataSourceRequest, url, uri);
 				break;
 			case DELETE:
-				HttpDelete httpDelete = new HttpDelete(url);
-				request = httpDelete;
+                request = createDeleteRequest(dataSourceRequest, url, uri);
 				break;
 
 			default:
@@ -137,7 +132,33 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			return request;
 		}
 
-		private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
+        protected HttpRequestBase createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
+            HttpRequestBase request;HttpDelete httpDelete = new HttpDelete(url);
+            request = httpDelete;
+            return request;
+        }
+
+        protected HttpRequestBase createPutRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
+            HttpRequestBase request;HttpPut putRequest = new HttpPut(url.split(Q)[0]);
+            initEntity(uri, putRequest);
+            request = putRequest;
+            return request;
+        }
+
+        protected HttpRequestBase createPostRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
+            HttpRequestBase request;HttpPost postRequest = new HttpPost(url.split(Q)[0]);
+            initEntity(uri, postRequest);
+            request = postRequest;
+            return request;
+        }
+
+        protected HttpRequestBase creteGetRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
+            HttpRequestBase request;HttpGet httpGet = new HttpGet(url);
+            request = httpGet;
+            return request;
+        }
+
+        private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
 			Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
 			for (Iterator<String> iterator = queryParameterNames.iterator(); iterator.hasNext();) {
@@ -208,7 +229,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	}
 
 	protected HttpRequestBase createRequest(DataSourceRequest request) {
-		return mRequestBuilder.build(request.getUri());
+		return mRequestBuilder.build(request);
 	}
 
 	public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {

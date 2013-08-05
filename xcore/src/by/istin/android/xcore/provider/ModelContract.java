@@ -12,10 +12,12 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public class ModelContract {
 
+    @Deprecated
 	public static final String PARAM_CLEANER = "cleaner";
 
 	public static final String PARAM_NOT_NOTIFY_CHANGES = "notNotifyChanges";
-	
+
+    @Deprecated
 	private static final String CLEANER_TRUE = "?" + PARAM_CLEANER + "=true";
 
 	public static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
@@ -149,6 +151,7 @@ public class ModelContract {
             }
         }
 
+        @Deprecated
         public UriBuilder enableCleaner() {
             checkParams();
 			this.builder.append(PARAM_CLEANER+"=true");

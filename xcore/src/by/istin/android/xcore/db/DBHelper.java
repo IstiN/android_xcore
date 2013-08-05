@@ -53,7 +53,29 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME_TEMPLATE = "%s.main.xcore.db";
 
 	private static final int DATABASE_VERSION = 1;
-	
+
+    /** The Constant CREATE_TABLE_SQL. */
+    public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
+            + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
+
+    final static Map<Class<?>, String> sTypeAssociation = new HashMap<Class<?>, String>();
+
+    static {
+        sTypeAssociation.put(dbString.class, "LONGTEXT");
+        sTypeAssociation.put(dbInteger.class, "INTEGER");
+        sTypeAssociation.put(dbLong.class, "BIGINT");
+        sTypeAssociation.put(dbDouble.class, "DOUBLE");
+        sTypeAssociation.put(dbBoolean.class, "BOOLEAN");
+        sTypeAssociation.put(dbByte.class, "INTEGER");
+        sTypeAssociation.put(dbByteArray.class, "BLOB");
+    }
+
+    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
+
+    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
+
+    private volatile Boolean isLockTransaction = false;
+
 	private DBHelper(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, name, factory, version);
@@ -65,41 +87,14 @@ public class DBHelper extends SQLiteOpenHelper {
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-/*		db.execSQL("CREATE TABLE IF NOT EXISTS " + MODEL_TABLE_NAME + " ("
-				+ ModelColumns.MODEL_ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ ModelColumns.DATA + " BLOB" + ");");
-*/
+
     }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		/*Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
-				+ newVersion + ", which will destroy all old data");
-		db.execSQL("DROP TABLE IF EXISTS " + MODEL_TABLE_NAME);
-		onCreate(db);*/
+
 	}
 
-	/** The Constant CREATE_TABLE_SQL. */
-	public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
-			+ BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
-	
-	final static Map<Class<?>, String> sTypeAssociation = new HashMap<Class<?>, String>();
-	
-	static {
-		sTypeAssociation.put(dbString.class, "LONGTEXT");
-		sTypeAssociation.put(dbInteger.class, "INTEGER");
-		sTypeAssociation.put(dbLong.class, "BIGINT");
-		sTypeAssociation.put(dbDouble.class, "DOUBLE");
-		sTypeAssociation.put(dbBoolean.class, "BOOLEAN");
-		sTypeAssociation.put(dbByte.class, "INTEGER");
-		sTypeAssociation.put(dbByteArray.class, "BLOB");
-	}
-	
-	private Map<Class<?>, List<Field>> dbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
-	
-	private Map<Class<?>, List<Field>> dbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
-	
 	public static String getTableName(Class<?> clazz) {
 		return clazz.getCanonicalName().replace(".", "_");
 	}
@@ -145,19 +140,19 @@ public class DBHelper extends SQLiteOpenHelper {
 						if (sTypeAssociation.containsKey(classOfAnnotation)) {
 							type = sTypeAssociation.get(classOfAnnotation);
 						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<Field> list = dbEntityFieldsCache.get(classOfModel);
+							List<Field> list = mDbEntityFieldsCache.get(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							dbEntityFieldsCache.put(classOfModel, list);
+							mDbEntityFieldsCache.put(classOfModel, list);
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<Field> list = dbEntitiesFieldsCache.get(classOfModel);
+							List<Field> list = mDbEntitiesFieldsCache.get(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							dbEntitiesFieldsCache.put(classOfModel, list);
+							mDbEntitiesFieldsCache.put(classOfModel, list);
 						}
 					}
 					if (type == null) {
@@ -305,11 +300,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			if (id == null) {
 				throw new IllegalArgumentException("content values needs to contains _ID");
 			}
-			List<Field> listDbEntity = dbEntityFieldsCache.get(classOfModel);
+			List<Field> listDbEntity = mDbEntityFieldsCache.get(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
-			List<Field> listDbEntities = dbEntitiesFieldsCache.get(classOfModel);
+			List<Field> listDbEntities = mDbEntitiesFieldsCache.get(classOfModel);
 			if (listDbEntities != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}
@@ -485,8 +480,6 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }
     }
-
-    private volatile Boolean isLockTransaction = false;
 
     public void lockTransaction() {
         synchronized (isLockTransaction) {
