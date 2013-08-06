@@ -31,10 +31,15 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
         final View containerItem = View.inflate(mContext, getResource(position), null);
+        onViewItemCreated(containerItem);
         Cursor cursor = getItemAtPosition(position);
         init(containerItem, cursor);
         container.addView(containerItem, 0);
         return containerItem;
+    }
+
+    protected void onViewItemCreated(View containerItem) {
+
     }
 
     public Cursor getItemAtPosition(int position) {

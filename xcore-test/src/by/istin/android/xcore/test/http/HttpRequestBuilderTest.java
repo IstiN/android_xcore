@@ -1,13 +1,15 @@
 package by.istin.android.xcore.test.http;
 
+import android.app.Application;
+import android.test.ApplicationTestCase;
+
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 
-import android.app.Application;
-import android.test.ApplicationTestCase;
+import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource.DefaultHttpRequestBuilder;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource.DefaultHttpRequestBuilder.Type;
 
@@ -32,25 +34,25 @@ public class HttpRequestBuilderTest extends ApplicationTestCase<Application> {
 	}
 	
 	public void testGet() throws Exception {
-		HttpRequestBase request = requestBuilder.build(TEST_URL_GET_DELETE);
+		HttpRequestBase request = requestBuilder.build(new DataSourceRequest(TEST_URL_GET_DELETE));
 		assertTrue(request instanceof HttpGet);
 	}
 	
 	public void testPost() throws Exception {
 		String typedUrl = DefaultHttpRequestBuilder.getUrl(TEST_URL_POST_PUT, Type.POST);
-		HttpRequestBase request = requestBuilder.build(typedUrl);
+		HttpRequestBase request = requestBuilder.build(new DataSourceRequest(typedUrl));
 		assertTrue(request instanceof HttpPost);
 	}
 	
 	public void testPut() throws Exception {
 		String typedUrl = DefaultHttpRequestBuilder.getUrl(TEST_URL_POST_PUT, Type.PUT);
-		HttpRequestBase request = requestBuilder.build(typedUrl);
+		HttpRequestBase request = requestBuilder.build(new DataSourceRequest(typedUrl));
 		assertTrue(request instanceof HttpPut);
 	}
 	
 	public void testDelete() throws Exception {
 		String typedUrl = DefaultHttpRequestBuilder.getUrl(TEST_URL_GET_DELETE, Type.DELETE);
-		HttpRequestBase request = requestBuilder.build(typedUrl);
+		HttpRequestBase request = requestBuilder.build(new DataSourceRequest(typedUrl));
 		assertTrue(request instanceof HttpDelete);
 	}
 

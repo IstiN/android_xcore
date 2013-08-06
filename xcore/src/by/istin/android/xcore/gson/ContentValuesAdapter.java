@@ -25,7 +25,6 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.BytesUtils;
-import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
@@ -89,7 +88,6 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
                 }
             }
 			if (separator != null && serializedName.contains(separator)) {
-                Log.xd(this, "separator existis: " + separator);
                 String[] values = serializedName.split(separator);
 				JsonObject tempElement = jsonObject;
 				for (int i = 0; i < values.length; i++) {

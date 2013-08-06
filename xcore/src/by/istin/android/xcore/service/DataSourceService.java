@@ -91,13 +91,9 @@ public class DataSourceService extends Service {
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
-	protected void onHandleIntent(Intent intent) {
+	protected void onHandleIntent(final Intent intent) {
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
 		final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
-		final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
-		final IProcessor processor = (IProcessor) AppUtils.get(this, processorKey);
-		final String datasourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
-		final IDataSource datasource = (IDataSource) AppUtils.get(this, datasourceKey);
         final Bundle bundle = new Bundle();
         dataSourceRequest.toBundle(bundle);
         if (resultReceiver != null) {
@@ -140,20 +136,9 @@ public class DataSourceService extends Service {
                     }
                 }
                 try {
-                    Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
-                    if (isCacheble) {
-                        processor.cache(DataSourceService.this, dataSourceRequest, result);
-                    } else {
-                        if (result instanceof Parcelable) {
-                            bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
-                        } else if (result instanceof Parcelable[]) {
-                            bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
-                        } else if (result instanceof Serializable) {
-                            bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-                        } else if (result instanceof ArrayList<?>) {
-                            bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
-                        }
-                    }
+                    final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
+                    final String datasourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
+                    execute(DataSourceService.this, isCacheble, processorKey, datasourceKey, dataSourceRequest, bundle);
                     sendStatus(StatusResultReceiver.Status.DONE, bundle);
                 } catch (Exception e) {
                     synchronized (mDbLockFlag) {
@@ -171,5 +156,24 @@ public class DataSourceService extends Service {
 
         });
 	}
+
+    public static void execute(Context context, boolean cacheble, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+        final IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
+        final IDataSource datasource = (IDataSource) AppUtils.get(context, datasourceKey);
+        Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
+        if (cacheble) {
+            processor.cache(context, dataSourceRequest, result);
+        } else {
+            if (result instanceof Parcelable) {
+                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
+            } else if (result instanceof Parcelable[]) {
+                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
+            } else if (result instanceof Serializable) {
+                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
+            } else if (result instanceof ArrayList<?>) {
+                bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
+            }
+        }
+    }
 
 }
