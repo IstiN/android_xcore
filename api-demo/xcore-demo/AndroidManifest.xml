@@ -9,6 +9,8 @@
         android:minSdkVersion="8"
         android:targetSdkVersion="17" />
 
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name="com.example.xcoredemo.DemoApplication"
         android:allowBackup="true"
@@ -24,6 +26,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.xcoredemo.TestListActivity" />
         <activity android:name="com.example.xcoredemo.DemoActivity" />
         <activity android:name="com.example.xcoredemo.FragmentDemoActivity" />
 
