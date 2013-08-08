@@ -10,6 +10,6 @@ public interface IProcessor<Result, DataSourceResult> extends IAppServiceKey {
 
 	Result execute(DataSourceRequest dataSourceRequest, IDataSource<DataSourceResult> dataSource, DataSourceResult dataSourceResult) throws Exception;
 	
-	void cache(Context context, DataSourceRequest dataSourceRequest, Result result);
+	void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception;
 	
 }

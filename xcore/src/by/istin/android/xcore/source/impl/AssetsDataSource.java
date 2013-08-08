@@ -3,6 +3,8 @@
  */
 package by.istin.android.xcore.source.impl;
 
+import android.content.Context;
+
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,14 +19,19 @@ import by.istin.android.xcore.source.IDataSource;
  * @author Uladzimir_Klyshevich
  * 
  */
-public class FileDataSource implements IDataSource<InputStream> {
+public class AssetsDataSource implements IDataSource<InputStream> {
 
-	public static final String SYSTEM_SERVICE_KEY = "xcore:filedatasource";
+	public static final String SYSTEM_SERVICE_KEY = "xcore:assetsdatasource";
 
+    private Context mContext;
+
+    public AssetsDataSource(Context context) {
+        this.mContext = context;
+    }
 	
 	@Override
 	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
-		return new FileInputStream(dataSourceRequest.getUri());
+		return mContext.getAssets().open(dataSourceRequest.getUri());
 	}
 
 	@Override

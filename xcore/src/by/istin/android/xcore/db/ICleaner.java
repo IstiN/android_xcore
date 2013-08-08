@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import by.istin.android.xcore.source.DataSourceRequest;
 
+@Deprecated
 public interface ICleaner {
 
 	void clean(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, ContentValues... newValues);

@@ -9,7 +9,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 /**
  * Created by IstiN on 14.7.13.
  */
-public interface IErrorHanler extends XCoreHelper.IAppServiceKey {
+public interface IErrorHandler extends XCoreHelper.IAppServiceKey {
 
     public static final String SYSTEM_SERVICE_KEY = "xcore:errorhandler";
 

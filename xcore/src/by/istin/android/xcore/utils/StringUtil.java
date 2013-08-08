@@ -5,6 +5,7 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 
 import android.content.Context;
@@ -250,6 +251,10 @@ public final class StringUtil {
 	public static boolean checkContainSpace(final String x) {
 		return !(x != null && x.contains(SPACE));
 	}
+
+    public static String format(String valueToFormat, Object... args) {
+        return String.format(Locale.ENGLISH, valueToFormat, args);
+    }
 
 	public static String getKeyByName(String name) {
 		StringBuilder builder = new StringBuilder();

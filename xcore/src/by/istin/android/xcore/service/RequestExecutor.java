@@ -1,34 +1,56 @@
 package by.istin.android.xcore.service;
 
+import android.os.Bundle;
 import android.os.ResultReceiver;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import by.istin.android.xcore.utils.Log;
 
 
 public class RequestExecutor {
 
-	public static abstract class ExecuteRunnable implements Runnable {
-		
-		private String key;
+    /*
+     * Gets the number of available cores
+     * (not always the same as the maximum number of cores)
+     */
+    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
-        private List<ResultReceiver> resultReceivers = new ArrayList<ResultReceiver>();
+    private static int POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
+
+	public static abstract class ExecuteRunnable implements Runnable {
+
+        private class StatusBundle {
+            private StatusResultReceiver.Status mStatus;
+            private Bundle mBundle;
+        }
+
+		private String mKey;
+
+        private List<ResultReceiver> mResultReceivers = new ArrayList<ResultReceiver>();
+
+        private boolean isRunning = false;
+
+        private List<StatusBundle> mPrevStatuses = Collections.synchronizedList(new ArrayList<StatusBundle>());
+
+        private volatile Object mPrevStatusLock = new Object();
 
 		public ExecuteRunnable(ResultReceiver resultReceiver) {
 			super();
-			key = createKey();
+			mKey = createKey();
             if (resultReceiver != null) {
-                resultReceivers.add(resultReceiver);
+                mResultReceivers.add(resultReceiver);
             }
 		}
 
 		public abstract String createKey();
 		
 		private String getKey() {
-			return key;
+			return mKey;
 		}
 
 		@Override
@@ -42,34 +64,85 @@ public class RequestExecutor {
 		}
 
         public List<ResultReceiver> getResultReceivers() {
-            return resultReceivers;
+            return mResultReceivers;
         }
 
         protected void addResultReceiver(ResultReceiver resultReceiver) {
-            resultReceivers.add(resultReceiver);
+            mResultReceivers.add(resultReceiver);
+            synchronized (mPrevStatusLock) {
+                for (StatusBundle prevStatus : mPrevStatuses) {
+                    resultReceiver.send(prevStatus.mStatus.ordinal(), prevStatus.mBundle);
+                }
+            }
         }
-	}
 
-	private ThreadPoolExecutor executor;
-	
-	/*
-     * Gets the number of available cores
-     * (not always the same as the maximum number of cores)
-     */
-    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
-    
+        protected void addResultReceiver(List<ResultReceiver> resultReceivers) {
+            for (ResultReceiver resultReceiver : resultReceivers) {
+                addResultReceiver(resultReceiver);
+            }
+        }
+
+
+        public void sendStatus(StatusResultReceiver.Status status, Bundle bundle) {
+            if (mResultReceivers != null) {
+                for (int i = 0; i < mResultReceivers.size(); i++) {
+                    ResultReceiver resultReceiver = mResultReceivers.get(i);
+                    resultReceiver.send(status.ordinal(), bundle);
+                }
+            }
+            synchronized (mPrevStatuses) {
+                StatusBundle statusBundle = new StatusBundle();
+                statusBundle.mBundle = bundle;
+                statusBundle.mStatus = status;
+                mPrevStatuses.add(statusBundle);
+            }
+        }
+    }
+
+    private ExecutorService mExecutor;
+
+    private Object mLock = new Object();
+
+    private List<ExecuteRunnable> queue = Collections.synchronizedList(new ArrayList<ExecuteRunnable>());
+
 	public RequestExecutor() {
-		executor = new ThreadPoolExecutor(Math.max(NUMBER_OF_CORES, 3), Math.max(NUMBER_OF_CORES, 3), 1, TimeUnit.SECONDS, new BlockingLifoQueue<Runnable>());
+		mExecutor = Executors.newFixedThreadPool(POOL_SIZE);
 	}
 	
-	public synchronized void execute(ExecuteRunnable executeRunnable) {
-		BlockingQueue<Runnable> queue = executor.getQueue();
-		if (!queue.contains(executeRunnable)) {
-			executor.execute(executeRunnable);
-		} else {
-			queue.remove(executeRunnable);
-			executor.execute(executeRunnable);
-		}
+	public void execute(ExecuteRunnable executeRunnable) {
+        synchronized (mLock) {
+            if (!queue.contains(executeRunnable)) {
+                queue.add(executeRunnable);
+                Log.xd(this, "queue: add new " + executeRunnable.getKey());
+            } else {
+                int index = queue.indexOf(executeRunnable);
+                ExecuteRunnable oldRunnable = queue.get(index);
+                oldRunnable.addResultReceiver(executeRunnable.getResultReceivers());
+                queue.remove(index);
+                queue.add(oldRunnable);
+                executeRunnable = oldRunnable;
+                Log.xd(this, "queue: up to top old " + executeRunnable.getKey());
+            }
+            Log.xd(this, "queue size: " + queue.size() + " " + executeRunnable.getKey());
+            if (executeRunnable.isRunning) {
+                Log.xd(this, "queue: already running connect " + executeRunnable.getKey());
+                return;
+            }
+            final ExecuteRunnable finalRunnable = executeRunnable;
+            mExecutor.execute(new Runnable() {
+                @Override
+                public void run() {
+                    finalRunnable.isRunning = true;
+                    Log.xd(RequestExecutor.this, "queue: start run " + finalRunnable.getKey());
+                    finalRunnable.run();
+                    synchronized (mLock) {
+                        queue.remove(finalRunnable);
+                        Log.xd(RequestExecutor.this, "queue: finish and remove, size: " + queue.size() + " " + finalRunnable.getKey());
+                    }
+                }
+            });
+        }
+
 	}
 
 }

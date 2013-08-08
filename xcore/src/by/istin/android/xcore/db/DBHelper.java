@@ -40,6 +40,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -52,53 +53,48 @@ public class DBHelper extends SQLiteOpenHelper {
 	private static final String DATABASE_NAME_TEMPLATE = "%s.main.xcore.db";
 
 	private static final int DATABASE_VERSION = 1;
-	
+
+    /** The Constant CREATE_TABLE_SQL. */
+    public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
+            + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
+
+    final static Map<Class<?>, String> sTypeAssociation = new HashMap<Class<?>, String>();
+
+    static {
+        sTypeAssociation.put(dbString.class, "LONGTEXT");
+        sTypeAssociation.put(dbInteger.class, "INTEGER");
+        sTypeAssociation.put(dbLong.class, "BIGINT");
+        sTypeAssociation.put(dbDouble.class, "DOUBLE");
+        sTypeAssociation.put(dbBoolean.class, "BOOLEAN");
+        sTypeAssociation.put(dbByte.class, "INTEGER");
+        sTypeAssociation.put(dbByteArray.class, "BLOB");
+    }
+
+    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
+
+    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
+
+    private volatile Boolean isLockTransaction = false;
+
 	private DBHelper(Context context, String name, CursorFactory factory,
 			int version) {
 		super(context, name, factory, version);
 	}
 
 	public DBHelper(Context context) {
-		super(context, String.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
 	}
 	
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-/*		db.execSQL("CREATE TABLE IF NOT EXISTS " + MODEL_TABLE_NAME + " ("
-				+ ModelColumns.MODEL_ID
-				+ " INTEGER PRIMARY KEY AUTOINCREMENT,"
-				+ ModelColumns.DATA + " BLOB" + ");");
-*/
+
     }
 
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-		/*Log.d(TAG, "Upgrading database from version " + oldVersion + " to "
-				+ newVersion + ", which will destroy all old data");
-		db.execSQL("DROP TABLE IF EXISTS " + MODEL_TABLE_NAME);
-		onCreate(db);*/
+
 	}
 
-	/** The Constant CREATE_TABLE_SQL. */
-	public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
-			+ BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
-	
-	final static Map<Class<?>, String> sTypeAssociation = new HashMap<Class<?>, String>();
-	
-	static {
-		sTypeAssociation.put(dbString.class, "LONGTEXT");
-		sTypeAssociation.put(dbInteger.class, "INTEGER");
-		sTypeAssociation.put(dbLong.class, "BIGINT");
-		sTypeAssociation.put(dbDouble.class, "DOUBLE");
-		sTypeAssociation.put(dbBoolean.class, "BOOLEAN");
-		sTypeAssociation.put(dbByte.class, "INTEGER");
-		sTypeAssociation.put(dbByteArray.class, "BLOB");
-	}
-	
-	private Map<Class<?>, List<Field>> dbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
-	
-	private Map<Class<?>, List<Field>> dbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
-	
 	public static String getTableName(Class<?> clazz) {
 		return clazz.getCanonicalName().replace(".", "_");
 	}
@@ -106,7 +102,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
             writableDatabase.setLockingEnabled(false);
         }
         return writableDatabase;
@@ -115,7 +111,7 @@ public class DBHelper extends SQLiteOpenHelper {
     @Override
     public SQLiteDatabase getReadableDatabase() {
         SQLiteDatabase readableDatabase = super.getReadableDatabase();
-        if (Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
             readableDatabase.setLockingEnabled(false);
         }
         return readableDatabase;
@@ -129,7 +125,7 @@ public class DBHelper extends SQLiteOpenHelper {
         beginTransaction(dbWriter);
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
-			dbWriter.execSQL(String.format(CREATE_FILES_TABLE_SQL, table));
+			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
 				try {
@@ -144,19 +140,19 @@ public class DBHelper extends SQLiteOpenHelper {
 						if (sTypeAssociation.containsKey(classOfAnnotation)) {
 							type = sTypeAssociation.get(classOfAnnotation);
 						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<Field> list = dbEntityFieldsCache.get(classOfModel);
+							List<Field> list = mDbEntityFieldsCache.get(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							dbEntityFieldsCache.put(classOfModel, list);
+							mDbEntityFieldsCache.put(classOfModel, list);
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<Field> list = dbEntitiesFieldsCache.get(classOfModel);
+							List<Field> list = mDbEntitiesFieldsCache.get(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							dbEntitiesFieldsCache.put(classOfModel, list);
+							mDbEntitiesFieldsCache.put(classOfModel, list);
 						}
 					}
 					if (type == null) {
@@ -241,27 +237,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (!isLockTransaction) {
                 beginTransaction(db);
             }
-			if (withCleaner) {
-				ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
-				if (cleaner != null) {
-					cleaner.clean(this, db, dataSourceRequest, contentValues);
-				}
-			}
-			IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
-			int count = 0;
-			for (int i = 0; i < contentValues.length; i++) {
-				ContentValues contentValue = contentValues[i];
-				if (contentValue == null) {
-					continue;
-				}
-				if (beforeListUpdate != null) {
-					beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
-				}
-				long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
-				if (id != -1l) {
-					count++;
-				}
-			}
+            int count = updateOrInsert(dataSourceRequest, withCleaner, classOfModel, db, contentValues);
             if (!isLockTransaction) {
                 setTransactionSuccessful(db);
             }
@@ -272,8 +248,33 @@ public class DBHelper extends SQLiteOpenHelper {
             }
 		}
 	}
-	
-	public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
+
+    private int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, SQLiteDatabase db, ContentValues[] contentValues) {
+        if (withCleaner) {
+            ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
+            if (cleaner != null) {
+                cleaner.clean(this, db, dataSourceRequest, contentValues);
+            }
+        }
+        IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
+        int count = 0;
+        for (int i = 0; i < contentValues.length; i++) {
+            ContentValues contentValue = contentValues[i];
+            if (contentValue == null) {
+                continue;
+            }
+            if (beforeListUpdate != null) {
+                beforeListUpdate.onBeforeListUpdate(this, db, dataSourceRequest, i, contentValue);
+            }
+            long id = updateOrInsert(dataSourceRequest, db, classOfModel, contentValue);
+            if (id != -1l) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
 		return updateOrInsert(null, db, classOfModel, contentValues);
 	}
 	
@@ -299,11 +300,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			if (id == null) {
 				throw new IllegalArgumentException("content values needs to contains _ID");
 			}
-			List<Field> listDbEntity = dbEntityFieldsCache.get(classOfModel);
+			List<Field> listDbEntity = mDbEntityFieldsCache.get(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
-			List<Field> listDbEntities = dbEntitiesFieldsCache.get(classOfModel);
+			List<Field> listDbEntities = mDbEntitiesFieldsCache.get(classOfModel);
 			if (listDbEntities != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}
@@ -402,12 +403,14 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (annotation.annotationType().equals(dbEntity.class)) {
 				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-				putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
+				putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
+                updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
-				for (ContentValues cv : entitiesValues) {
-					putEntity(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
-				}
+                for (ContentValues cv : entitiesValues) {
+                    putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
+                }
+                updateOrInsert(dataSourceRequest, false, modelClass, db, entitiesValues);
 			}
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
@@ -419,10 +422,9 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	private void putEntity(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
+	private void putForeignEntityAndClear(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
 		entityValues.remove(contentValuesKey);
 		entityValues.put(foreignId, id);
-		updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 	}
 
 	public Cursor query(Class<?> clazz, String[] projection,
@@ -438,7 +440,6 @@ public class DBHelper extends SQLiteOpenHelper {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(tableName);
 			SQLiteDatabase db = getReadableDatabase();
-			long currentTimeMillis = System.currentTimeMillis();
 			Cursor query = qb.query(db, projection, selection, selectionArgs, groupBy,
 					having, sortOrder, limit);
 			return query;
@@ -479,8 +480,6 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         }
     }
-
-    private volatile Boolean isLockTransaction = false;
 
     public void lockTransaction() {
         synchronized (isLockTransaction) {

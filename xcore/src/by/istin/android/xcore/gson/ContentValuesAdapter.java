@@ -15,6 +15,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
+import by.istin.android.xcore.annotations.JsonSubJSONObject;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbDouble;
@@ -24,16 +25,15 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.BytesUtils;
-import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 
-	private Class<?> contentValuesEntityClazz;
+	private Class<?> mContentValuesEntityClazz;
 	
-	private List<Field> entityKeys;
+	private List<Field> mEntityKeys;
 	
-	private IJsonPrimitiveHandler jsonPrimitiveHandler;
+	private IJsonPrimitiveHandler mJsonPrimitiveHandler;
 	
 	public static interface IJsonPrimitiveHandler {
 		
@@ -42,44 +42,53 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 	}
 	
 	public IJsonPrimitiveHandler getJsonPrimitiveHandler() {
-		return jsonPrimitiveHandler;
+		return mJsonPrimitiveHandler;
 	}
 
-	public void setJsonPrimitiveHandler(IJsonPrimitiveHandler jsonPrimitiveHandler) {
-		this.jsonPrimitiveHandler = jsonPrimitiveHandler;
+	public void setJsonPrimitiveHandler(IJsonPrimitiveHandler mJsonPrimitiveHandler) {
+		this.mJsonPrimitiveHandler = mJsonPrimitiveHandler;
 	}
 
 	public ContentValuesAdapter(Class<?> contentValuesEntityClazz) {
-		this.contentValuesEntityClazz = contentValuesEntityClazz;
+		this.mContentValuesEntityClazz = contentValuesEntityClazz;
 	}
 	
 	@Override
 	public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-		if (entityKeys == null) {
-			entityKeys = ReflectUtils.getEntityKeys(contentValuesEntityClazz); 
+		if (mEntityKeys == null) {
+			mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
 		}
 		ContentValues contentValues = new ContentValues();
-		if (entityKeys == null) {
+		if (mEntityKeys == null) {
 			return contentValues;
 		}
 		if (jsonElement.isJsonPrimitive()) {
-			if (jsonPrimitiveHandler == null) {
+			if (mJsonPrimitiveHandler == null) {
 				return null;
 			} else {
-				return jsonPrimitiveHandler.convert((JsonPrimitive)jsonElement);
+				return mJsonPrimitiveHandler.convert((JsonPrimitive)jsonElement);
 			}
 		}
 		JsonObject jsonObject = (JsonObject)jsonElement;
-		for (Field field : entityKeys) {
+		for (Field field : mEntityKeys) {
 			String fieldValue = ReflectUtils.getStaticStringValue(field);
-			String serializaedName = fieldValue;
-			SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
-			if (serializedAnnotation != null) {
-				serializaedName = serializedAnnotation.value();
-			}
+			String serializedName = fieldValue;
+            if (field.isAnnotationPresent(SerializedName.class)) {
+                SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
+                if (serializedAnnotation != null) {
+                    serializedName = serializedAnnotation.value();
+                }
+            }
 			JsonElement jsonValue = null;
-			if (serializaedName.contains(":")) {
-				String[] values = serializaedName.split(":");
+            String separator = null;
+            if (field.isAnnotationPresent(JsonSubJSONObject.class)) {
+                JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
+                if (jsonSubJSONObject != null) {
+                    separator = jsonSubJSONObject.separator();
+                }
+            }
+			if (separator != null && serializedName.contains(separator)) {
+                String[] values = serializedName.split(separator);
 				JsonObject tempElement = jsonObject;
 				for (int i = 0; i < values.length; i++) {
 					if (i == values.length - 1) {
@@ -97,7 +106,7 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 					}
 				}
 			} else {
-				jsonValue = jsonObject.get(serializaedName);
+				jsonValue = jsonObject.get(serializedName);
 			}
 			if (jsonValue == null) {
 				continue;
@@ -119,12 +128,9 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
             } else if (field.isAnnotationPresent(dbEntity.class)) {
 				dbEntity entity = field.getAnnotation(dbEntity.class);
 				Class<?> clazz = entity.clazz();
-				if (clazz.getCanonicalName().contains("FwdMessage")) {
-					Log.xd("there", "break");
-				}
-				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
-				ContentValues values = contentValuesAdaper.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
-				contentValuesAdaper = null;
+				ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
+				ContentValues values = contentValuesAdapter.deserialize(jsonValue.getAsJsonObject(), type, jsonDeserializationContext);
+				contentValuesAdapter = null;
 				contentValues.put(fieldValue, BytesUtils.toByteArray(values));
 				dbEntity annotation = field.getAnnotation(dbEntity.class);
 				contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
@@ -132,9 +138,6 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 				JsonArray jsonArray = jsonValue.getAsJsonArray();
 				dbEntities entity = field.getAnnotation(dbEntities.class);
 				Class<?> clazz = entity.clazz();
-				if (clazz.getCanonicalName().contains("FwdMessage")) {
-					Log.xd("there", "break");
-				}
 				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
 				ContentValues[] values = new ContentValues[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {

@@ -13,24 +13,24 @@ public class IOStatusException extends IOException {
 	 */
 	private static final long serialVersionUID = 5390007874342523153L;
 
-	private int statusCode;
+	private int mStatusCode;
 	
-	private String entityValue;
+	private String mEntityValue;
 	
 	
 	public int getStatusCode() {
-		return statusCode;
+		return mStatusCode;
 	}
 
 	
 	public String getEntityValue() {
-		return entityValue;
+		return mEntityValue;
 	}
 
 
 
 	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
+		this.mStatusCode = statusCode;
 	}
 
 
@@ -48,7 +48,7 @@ public class IOStatusException extends IOException {
 	 */
 	public IOStatusException(String detailMessage, int statusCode) {
 		super(detailMessage);
-		this.statusCode = statusCode;
+		this.mStatusCode = statusCode;
 	}
 
 
@@ -56,7 +56,7 @@ public class IOStatusException extends IOException {
 	public IOStatusException(String reasonPhrase, int statusCode,
 			String entityValue) {
 		this(reasonPhrase, statusCode);
-		this.entityValue = entityValue;
+		this.mEntityValue = entityValue;
 	}
 
 }

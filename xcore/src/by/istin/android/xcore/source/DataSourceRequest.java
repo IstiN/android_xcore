@@ -41,9 +41,13 @@ public class DataSourceRequest {
 	}
 	
 	public DataSourceRequest(String requestDataUri) {
-		mBundle.putString(REQUEST_URI, requestDataUri);
+		setUri(requestDataUri);
 	}
-	
+
+    public void setUri(String uri) {
+        mBundle.putString(REQUEST_URI, uri);
+    }
+
 	public String getUri() {
 		return mBundle.getString(REQUEST_URI);
 	}

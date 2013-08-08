@@ -34,7 +34,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 import by.istin.android.xcore.XCoreHelper;
-import by.istin.android.xcore.error.IErrorHanler;
+import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
@@ -42,6 +42,7 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -302,7 +303,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		}
 		if (isServiceWork) {
 			hideEmptyView(getView());
-		}
+		} else if (CursorUtils.isEmpty(cursor)) {
+            showEmptyView(getView());
+        }
 
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -314,7 +317,10 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
 	public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
-        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, getAdapterLayout(), cursor, getAdapterColumns(), getAdapterControlIds(), 2) {
+        int adapterLayout = getAdapterLayout();
+        String[] adapterColumns = getAdapterColumns();
+        int[] adapterControlIds = getAdapterControlIds();
+        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, adapterLayout, cursor, adapterColumns, adapterControlIds, 2) {
 
             @Override
             public View getView(int position, View convertView, ViewGroup parent) {
@@ -359,7 +365,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
 	protected boolean setAdapterViewImage(ImageView v, String value) {
         //plugins
-        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return true;
+        }
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
             for(IXListFragmentPlugin plugin : listFragmentPlugins) {
                 if (plugin.setAdapterViewImage(this, v, value)) {
@@ -409,20 +419,25 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         if (StringUtil.isEmpty(url)) {
             return;
         }
-		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
-		dataSourceRequest.setCacheable(isCacheable());
-		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdate);
-        dataSourceRequest.setParentUri(parentRequestUri);
+        final DataSourceRequest dataSourceRequest = createDataSourceRequest(url, isForceUpdate, parentRequestUri);
 		dataSourceExecute(getActivity(), dataSourceRequest);
 	}
+
+    public DataSourceRequest createDataSourceRequest(String url, Boolean isForceUpdate, String parentRequestUri) {
+        final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
+        dataSourceRequest.setCacheable(isCacheable());
+        dataSourceRequest.setCacheExpiration(getCacheExpiration());
+        dataSourceRequest.setForceUpdateData(isForceUpdate);
+        dataSourceRequest.setParentUri(parentRequestUri);
+        return dataSourceRequest;
+    }
 
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
-            public void onStart(Bundle resultData) {
+            public void onAddToQueue(Bundle resultData) {
                 isServiceWork = true;
                 if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
                     showPagingProgress();
@@ -441,6 +456,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
             }
 
             @Override
+            public void onStart(Bundle resultData) {
+                //TODO maybe for some status
+            }
+
+            @Override
             public void onError(Exception exception) {
                 isServiceWork = false;
                 exception.printStackTrace();
@@ -448,9 +468,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                 if (activity == null) {
                     return;
                 }
-                IErrorHanler errorHanler = (IErrorHanler) AppUtils.get(activity, IErrorHanler.SYSTEM_SERVICE_KEY);
-                if (errorHanler != null) {
-                    errorHanler.onError(activity, XListFragment.this, dataSourceRequest, exception);
+                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+                if (errorHandler != null) {
+                    errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
                 } else {
                     Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
                 }
@@ -524,7 +544,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		if (getView() != null) {
-			((CursorAdapter)getListView().getAdapter()).swapCursor(null);
+            ListAdapter adapter = getListView().getAdapter();
+            if (adapter instanceof HeaderViewListAdapter) {
+                adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+            }
+            ((CursorAdapter) adapter).swapCursor(null);
 			hideProgress();
 		}
 	}
@@ -617,6 +641,18 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 		View emptyView = view.findViewById(android.R.id.empty);
 		if (emptyView != null) {
 			emptyView.setVisibility(View.GONE);
+		}
+	}
+
+	public void showEmptyView(View view) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+		if (view == null) return;
+		View emptyView = view.findViewById(android.R.id.empty);
+		if (emptyView != null) {
+			emptyView.setVisibility(View.VISIBLE);
 		}
 	}
 }
