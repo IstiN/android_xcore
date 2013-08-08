@@ -1,7 +1,7 @@
 /**
  * 
  */
-package by.istin.android.xcore.test;
+package by.istin.android.xcore.test.utils;
 
 import java.lang.reflect.Field;
 import java.util.List;
