@@ -1,7 +1,10 @@
 package by.istin.android.xcore.test.utils;
 
 import android.test.ApplicationTestCase;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 import by.istin.android.xcore.utils.AppUtils;
 
 public class TestAppUtils extends ApplicationTestCase<CoreApplication>{
@@ -27,11 +30,35 @@ public class TestAppUtils extends ApplicationTestCase<CoreApplication>{
 	
 	public void testNameNull(){
 		try{
-			AppUtils.get(getApplication(), "test");
+			AppUtils.get(ContextHolder.getInstance().getContext(), null);
 		}
 		catch(Exception e){
 			assertTrue(e instanceof IllegalArgumentException);
 		}
+	}
+	
+	public void testWrongKey(){
+		try{
+			AppUtils.get(ContextHolder.getInstance().getContext(), "notExistingAppKeyUIUIUIUIUIIUIUIUI");
+		}
+		catch(Exception e){
+			assertTrue(e instanceof IllegalStateException);
+		}
+	}
+	
+	public void testRightKey(){
+		XCoreHelper.get(ContextHolder.getInstance().getContext()).registerAppService(new TestAppService());
+		Object service = AppUtils.get(ContextHolder.getInstance().getContext(), "TestAppService");
+		assertTrue(service instanceof TestAppService);
+	}
+	
+	private class TestAppService implements IAppServiceKey{
+
+		@Override
+		public String getAppServiceKey() {
+			return "TestAppService";
+		}
+		
 	}
 
 }
