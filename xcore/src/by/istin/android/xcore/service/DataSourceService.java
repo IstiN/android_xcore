@@ -157,13 +157,16 @@ public class DataSourceService extends Service {
         });
 	}
 
-    public static void execute(Context context, boolean cacheble, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+    public static Object execute(Context context, boolean cacheble, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
         final IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
         final IDataSource datasource = (IDataSource) AppUtils.get(context, datasourceKey);
         Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
         if (cacheble) {
             processor.cache(context, dataSourceRequest, result);
         } else {
+            if (bundle == null) {
+                return result;
+            }
             if (result instanceof Parcelable) {
                 bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
             } else if (result instanceof Parcelable[]) {
@@ -174,6 +177,7 @@ public class DataSourceService extends Service {
                 bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
             }
         }
+        return result;
     }
 
 }

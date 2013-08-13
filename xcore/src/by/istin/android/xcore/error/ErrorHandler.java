@@ -1,9 +1,11 @@
 package by.istin.android.xcore.error;
 
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v4.app.FragmentActivity;
+import android.widget.Toast;
 
 import java.io.File;
 import java.io.IOException;
@@ -151,7 +153,11 @@ public class ErrorHandler implements IErrorHandler {
                             mErrorTypeDialog.remove(finalType);
                             if (finalIsDeveloperError) {
                                 Intent sendEmailIntent = getSendEmailIntent(mDeveloperEmail, null, activity.getPackageName() + ":error", joinStackTrace(exception), null);
-                                activity.startActivity(sendEmailIntent);
+                                try {
+                                    activity.startActivity(sendEmailIntent);
+                                } catch (ActivityNotFoundException e) {
+                                    Toast.makeText(activity, "Please, install mail client", Toast.LENGTH_SHORT).show();
+                                }
                             }
                         }
                     });
