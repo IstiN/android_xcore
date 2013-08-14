@@ -43,6 +43,7 @@ public class XCoreHelper {
 	public void onCreate(Context ctx) {
 		ContextHolder.getInstance().setContext(ctx);
         Log.init(ctx);
+        registerAppService(new Core(ctx));
 	}
 	
 	public void registerAppService(IAppServiceKey appService) {
