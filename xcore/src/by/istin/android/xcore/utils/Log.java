@@ -1,7 +1,6 @@
 package by.istin.android.xcore.utils;
 
-import java.io.IOException;
-import java.util.HashMap;
+import android.content.Context;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -11,7 +10,8 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
-import android.content.Context;
+import java.io.IOException;
+import java.util.HashMap;
 
 
 public class Log {
@@ -28,7 +28,7 @@ public class Log {
 	
 	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
 	
-	private static boolean isOff = false;
+	public static boolean isOff = false;
 	
 	public static synchronized void init(Context context) {
 		String logLevel = ManifestMetadataUtils.getString(context, MANIFEST_METADATA_LOG_KEY);
