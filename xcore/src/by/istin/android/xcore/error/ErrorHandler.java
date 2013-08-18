@@ -86,7 +86,7 @@ public class ErrorHandler implements IErrorHandler {
     @Override
     public void onError(final FragmentActivity activity,
                         IDataSourceHelper dataSourceHelper,
-                        DataSourceRequest dataSourceRequest,
+                        final DataSourceRequest dataSourceRequest,
                         final Exception exception) {
         ErrorType type;
         if (exception instanceof IOStatusException) {
@@ -152,7 +152,17 @@ public class ErrorHandler implements IErrorHandler {
                             mErrorTypeMap.remove(finalType);
                             mErrorTypeDialog.remove(finalType);
                             if (finalIsDeveloperError) {
-                                Intent sendEmailIntent = getSendEmailIntent(mDeveloperEmail, null, activity.getPackageName() + ":error", joinStackTrace(exception), null);
+                                String body = joinStackTrace(exception);
+                                StringBuilder builder = new StringBuilder();
+                                builder.append(body);
+                                builder.append("\n================================");
+                                if (dataSourceRequest != null) {
+                                    builder.append("\nUri:"+ dataSourceRequest.getUri());
+                                    builder.append("\nCacheExpiration:"+ dataSourceRequest.getCacheExpiration());
+                                    builder.append("\nRequestParentUri:"+ dataSourceRequest.getRequestParentUri());
+                                    builder.append("\nUriParams:"+ dataSourceRequest.toUriParams());
+                                }
+                                Intent sendEmailIntent = getSendEmailIntent(mDeveloperEmail, null, activity.getPackageName() + ":error", builder.toString(), null);
                                 try {
                                     activity.startActivity(sendEmailIntent);
                                 } catch (ActivityNotFoundException e) {

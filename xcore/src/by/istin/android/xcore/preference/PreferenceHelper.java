@@ -166,6 +166,7 @@ public class PreferenceHelper {
                    stringBuilder.append(STRING_ARRAY_DELIM);
                }
            }
+           set(key, stringBuilder.toString());
        }
     }
 
