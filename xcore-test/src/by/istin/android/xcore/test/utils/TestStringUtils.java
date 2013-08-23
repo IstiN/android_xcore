@@ -1,4 +1,4 @@
-package by.istin.android.xcore.test;
+package by.istin.android.xcore.test.utils;
 
 import by.istin.android.xcore.utils.StringUtil;
 import android.test.AndroidTestCase;
