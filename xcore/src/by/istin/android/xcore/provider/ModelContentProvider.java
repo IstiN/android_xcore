@@ -20,6 +20,7 @@ import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
+import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
@@ -49,6 +50,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 		mDbHelper = new DBHelper(getContext());
 		Class<?>[] dbEntities = getDbEntities();
 		mDbHelper.createTablesForModels(DataSourceRequestEntity.class);
+        mDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);
 		mDbHelper.createTablesForModels(dbEntities);
 		return true;
 	}

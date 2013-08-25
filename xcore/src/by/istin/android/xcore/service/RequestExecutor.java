@@ -6,8 +6,10 @@ import android.os.ResultReceiver;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import by.istin.android.xcore.utils.Log;
 
@@ -20,7 +22,7 @@ public class RequestExecutor {
      */
     private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
-    private static int POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
+    public static int DEFAULT_POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
 
 	public static abstract class ExecuteRunnable implements Runnable {
 
@@ -105,8 +107,9 @@ public class RequestExecutor {
 
     private List<ExecuteRunnable> queue = Collections.synchronizedList(new ArrayList<ExecuteRunnable>());
 
-	public RequestExecutor() {
-		mExecutor = Executors.newFixedThreadPool(POOL_SIZE);
+	public RequestExecutor(int threadPoolSize, BlockingQueue<Runnable> workQueue) {
+		mExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
+                0L, TimeUnit.MILLISECONDS,workQueue);
 	}
 	
 	public void execute(ExecuteRunnable executeRunnable) {
@@ -118,8 +121,6 @@ public class RequestExecutor {
                 int index = queue.indexOf(executeRunnable);
                 ExecuteRunnable oldRunnable = queue.get(index);
                 oldRunnable.addResultReceiver(executeRunnable.getResultReceivers());
-                queue.remove(index);
-                queue.add(oldRunnable);
                 executeRunnable = oldRunnable;
                 Log.xd(this, "queue: up to top old " + executeRunnable.getKey());
             }

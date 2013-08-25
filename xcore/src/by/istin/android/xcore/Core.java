@@ -183,6 +183,12 @@ public class Core implements XCoreHelper.IAppServiceKey {
             }
 
             @Override
+            protected void onCached(Bundle resultData) {
+                super.onCached(resultData);
+                onDone(resultData);
+            }
+
+            @Override
             public void onError(Exception exception) {
                 exception.printStackTrace();
                 IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(mContext, IErrorHandler.SYSTEM_SERVICE_KEY);

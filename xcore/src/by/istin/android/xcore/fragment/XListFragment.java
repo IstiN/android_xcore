@@ -1,8 +1,5 @@
 package by.istin.android.xcore.fragment;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -33,6 +30,10 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
@@ -92,7 +93,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	
 	@Override
 	public int getLoaderId() {
-		return (int)HashUtils.generateId(getClass(), getArguments());
+		return (int)HashUtils.generateId(((Object) this).getClass(), getArguments());
 	}
 
     private List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
