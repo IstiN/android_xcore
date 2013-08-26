@@ -37,6 +37,9 @@ public class SyncDataSourceRequestEntity implements BaseColumns {
 	@dbBoolean
 	public static final String IS_ERROR = "is_error";
 
+	@dbBoolean
+	public static final String CACHEABLE = "cacheble";
+
 	@dbLong
 	public static final String LAST_CHANGED = "last_changed";
 
@@ -45,6 +48,7 @@ public class SyncDataSourceRequestEntity implements BaseColumns {
 		contentValues.put(ID, HashUtils.generateId(dataSourceRequest.getUri()));
 		contentValues.put(LAST_UPDATE, System.currentTimeMillis());
 		contentValues.put(EXPIRATION, dataSourceRequest.getCacheExpiration());
+		contentValues.put(CACHEABLE, dataSourceRequest.isCacheable());
 		contentValues.put(URI, dataSourceRequest.getUri());
 		contentValues.put(URI_PARAM, dataSourceRequest.toUriParams());
 		contentValues.put(PARENT_URI, dataSourceRequest.getRequestParentUri());
