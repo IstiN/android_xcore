@@ -37,7 +37,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         Uri getResultQueryUri();
 
-        String getRequestUri();
+        String[] getSelectionArgs();
 
         Activity getActivity();
 
@@ -60,6 +60,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
         private Activity mActivity;
 
         private ISuccess<Result> mSuccess;
+
+        private String[] mSelectionArgs;
 
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
@@ -96,6 +98,11 @@ public class Core implements XCoreHelper.IAppServiceKey {
             return this;
         }
 
+        public ExecuteOperationBuilder setSelectionArgs(String[] selectionArgs) {
+            this.mSelectionArgs = selectionArgs;
+            return this;
+        }
+
         public IExecuteOperation<Result> build() {
 
             return new IExecuteOperation<Result>() {
@@ -120,8 +127,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 }
 
                 @Override
-                public String getRequestUri() {
-                    return mRequestUri;
+                public String[] getSelectionArgs() {
+                    return mSelectionArgs;
                 }
 
                 @Override
@@ -135,6 +142,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 }
             };
         }
+
     }
 
     private Context mContext;
@@ -171,7 +179,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        final Cursor cursor = mContext.getContentResolver().query(uri, null, null, null, null);
+                        final Cursor cursor = mContext.getContentResolver().query(uri, null, null, executeOperation.getSelectionArgs(), null);
                         if (cursor != null) {
                             cursor.getCount();
                         }

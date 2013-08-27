@@ -5,7 +5,6 @@ import android.accounts.AccountManager;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.utils.AppUtils;
@@ -22,14 +21,17 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 
     private Context mContext;
 
+    private String mModelContentProviderAuthority;
+
     public static SyncHelper get(Context context) {
         return (SyncHelper) AppUtils.get(context, APP_SERVICE_KEY);
     }
 
-    public SyncHelper(Context context, String accountName, long period) {
+    public SyncHelper(Context context, String accountName, long period, String modelContentProviderAuthority) {
         mAccountName = accountName;
         mPeriod = period;
         mContext = context;
+        mModelContentProviderAuthority = modelContentProviderAuthority;
     }
 
 	public void addSyncAccount(){
@@ -41,10 +43,10 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
 		ContentResolver.setSyncAutomatically(account,
-				ContactsContract.AUTHORITY, true);
-		ContentResolver.addPeriodicSync(account, ContactsContract.AUTHORITY,
+                mModelContentProviderAuthority, true);
+		ContentResolver.addPeriodicSync(account, mModelContentProviderAuthority,
 				params, mPeriod);
-		ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 1);
+		ContentResolver.setIsSyncable(account, mModelContentProviderAuthority, 1);
 		am.addAccountExplicitly(account, null, null);
 	}
 	
@@ -57,9 +59,9 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_MANUAL, false);
-		ContentResolver.removePeriodicSync(account, ContactsContract.AUTHORITY,
+		ContentResolver.removePeriodicSync(account, mModelContentProviderAuthority,
 				params);
-		ContentResolver.setIsSyncable(account, ContactsContract.AUTHORITY, 0);
+		ContentResolver.setIsSyncable(account, mModelContentProviderAuthority, 0);
 		am.addAccountExplicitly(account, null, null);
 
 	}

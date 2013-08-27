@@ -88,14 +88,7 @@ public class ErrorHandler implements IErrorHandler {
                         IDataSourceHelper dataSourceHelper,
                         final DataSourceRequest dataSourceRequest,
                         final Exception exception) {
-        ErrorType type;
-        if (exception instanceof IOStatusException) {
-            type = ErrorType.SERVER_UNAVAILABLE;
-        } else if (exception instanceof IOException) {
-            type = ErrorType.INTERNET;
-        } else {
-            type = ErrorType.DEVELOPER_ERROR;
-        }
+        ErrorType type = getErrorType(exception);
         Set<ErrorInfo> errorInfos = mErrorTypeMap.get(type);
         if (errorInfos == null) {
             errorInfos = Collections.synchronizedSet(new HashSet<ErrorInfo>());
@@ -172,6 +165,18 @@ public class ErrorHandler implements IErrorHandler {
                         }
                     });
         }
+    }
+
+    public static ErrorType getErrorType(Exception exception) {
+        ErrorType type;
+        if (exception instanceof IOStatusException) {
+            type = ErrorType.SERVER_UNAVAILABLE;
+        } else if (exception instanceof IOException) {
+            type = ErrorType.INTERNET;
+        } else {
+            type = ErrorType.DEVELOPER_ERROR;
+        }
+        return type;
     }
 
     public static String joinStackTrace(Throwable e) {

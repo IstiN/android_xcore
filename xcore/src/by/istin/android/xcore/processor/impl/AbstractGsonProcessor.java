@@ -6,8 +6,10 @@ import android.net.Uri;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
@@ -52,7 +54,9 @@ public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
 		try {
 			return process(getGson(), bufferedReader);	
-		} finally {
+		} catch (JsonIOException exception){
+            throw new IOException(exception);
+        } finally {
 			IOUtils.close(inputStream);
 			IOUtils.close(inputStreamReader);
 			IOUtils.close(bufferedReader);

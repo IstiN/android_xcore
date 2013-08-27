@@ -25,7 +25,6 @@ import android.content.SyncResult;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Log;
 
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.SyncDataSourceService;

@@ -15,10 +15,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import by.istin.android.xcore.error.ErrorHandler;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
 import by.istin.android.xcore.source.sync.helper.SyncHelper;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * @author IstiN
@@ -76,7 +78,12 @@ public class SyncDataSourceService extends DataSourceService {
                 if (resultReceiver != null) {
                     ((StatusResultReceiver)resultReceiver).onError(exception);
                 }
-                markSyncEntityAsError(context, dataSourceRequest, datasourceKey, processorKey, exception);
+                if (ErrorHandler.getErrorType(exception) != ErrorHandler.ErrorType.DEVELOPER_ERROR) {
+                    Log.xe(context, "developer error", exception);
+                    markSyncEntityAsError(context, dataSourceRequest, datasourceKey, processorKey, exception);
+                } else {
+                    removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
+                }
             }
         };
     }

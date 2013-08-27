@@ -133,29 +133,25 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		}
 
         protected HttpRequestBase createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpRequestBase request;HttpDelete httpDelete = new HttpDelete(url);
-            request = httpDelete;
-            return request;
+            HttpDelete httpDelete = new HttpDelete(url);
+            return httpDelete;
         }
 
         protected HttpRequestBase createPutRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpRequestBase request;HttpPut putRequest = new HttpPut(url.split(Q)[0]);
+            HttpPut putRequest = new HttpPut(url.split(Q)[0]);
             initEntity(uri, putRequest);
-            request = putRequest;
-            return request;
+            return putRequest;
         }
 
         protected HttpRequestBase createPostRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpRequestBase request;HttpPost postRequest = new HttpPost(url.split(Q)[0]);
+            HttpPost postRequest = new HttpPost(url.split(Q)[0]);
             initEntity(uri, postRequest);
-            request = postRequest;
-            return request;
+            return postRequest;
         }
 
         protected HttpRequestBase creteGetRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpRequestBase request;HttpGet httpGet = new HttpGet(url);
-            request = httpGet;
-            return request;
+            HttpGet httpGet = new HttpGet(url);
+            return httpGet;
         }
 
         private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
@@ -163,7 +159,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
 			for (Iterator<String> iterator = queryParameterNames.iterator(); iterator.hasNext();) {
 				String paramName = (String) iterator.next();
-				if (paramName.equals(POST))
+				if (paramName.equals(TYPE))
 					continue;
 				String queryParameter = uri.getQueryParameter(paramName);
 				if (Build.VERSION.SDK_INT < 16 && queryParameter != null) {
