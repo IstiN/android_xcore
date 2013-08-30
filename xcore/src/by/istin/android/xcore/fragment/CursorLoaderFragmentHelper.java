@@ -9,8 +9,10 @@ import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
-import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+
+import by.istin.android.xcore.model.CursorModel;
+import by.istin.android.xcore.model.CursorModelLoader;
 
 public class CursorLoaderFragmentHelper {
 
@@ -33,14 +35,17 @@ public class CursorLoaderFragmentHelper {
         void showProgress();
 
         void hideProgress();
+
+        CursorModel.CursorModelCreator getCursorModelCreator();
 	}
 	
 	public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
 		Loader<Cursor> loader = null;
         final Handler handler = new Handler(Looper.getMainLooper());
 		if (id == cursorLoaderFragment.getLoaderId()) {
-			loader = new CursorLoader(
-					cursorLoaderFragment.getActivity(), 
+			loader = new CursorModelLoader(
+					cursorLoaderFragment.getActivity(),
+                    cursorLoaderFragment.getCursorModelCreator(),
 					cursorLoaderFragment.getUri(), 
 					cursorLoaderFragment.getProjection(), 
 					cursorLoaderFragment.getSelection(), 

@@ -16,6 +16,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -217,4 +218,9 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 			emptyView.setVisibility(View.GONE);
 		}
 	}
+
+    @Override
+    public CursorModel.CursorModelCreator getCursorModelCreator() {
+        return CursorModel.CursorModelCreator.DEFAULT;
+    }
 }

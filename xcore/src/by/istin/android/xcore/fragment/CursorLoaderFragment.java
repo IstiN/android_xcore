@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.Loader;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
+import by.istin.android.xcore.model.CursorModel;
 
 public abstract class CursorLoaderFragment extends Fragment implements ICursorLoaderFragmentHelper {
 
@@ -42,4 +43,8 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
 		return null;
 	}
 
+    @Override
+    public CursorModel.CursorModelCreator getCursorModelCreator() {
+        return CursorModel.CursorModelCreator.DEFAULT;
+    }
 }

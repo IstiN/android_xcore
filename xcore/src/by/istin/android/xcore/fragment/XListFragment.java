@@ -37,6 +37,7 @@ import java.util.List;
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
@@ -656,4 +657,9 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 			emptyView.setVisibility(View.VISIBLE);
 		}
 	}
+
+    @Override
+    public CursorModel.CursorModelCreator getCursorModelCreator() {
+        return CursorModel.CursorModelCreator.DEFAULT;
+    }
 }
