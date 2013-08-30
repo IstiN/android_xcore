@@ -43,6 +43,9 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
     }
 
     public Cursor getItemAtPosition(int position) {
+        if (mCursor.isClosed()) {
+            return null;
+        }
 		mCursor.moveToPosition(position);
 		return mCursor;
 	}

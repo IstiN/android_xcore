@@ -413,16 +413,16 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
         loadData(getActivity(), getUrl(), true, null);
     }
 
-    protected void loadData(Activity activity, String url, String parentRequestUri) {
+    public void loadData(Activity activity, String url, String parentRequestUri) {
         loadData(activity, url, isForceUpdateData(), parentRequestUri);
     }
 
-	protected void loadData(Activity activity, String url, Boolean isForceUpdate, String parentRequestUri) {
+	public void loadData(Activity activity, String url, Boolean isForceUpdate, String parentRequestUri) {
         if (StringUtil.isEmpty(url)) {
             return;
         }
         final DataSourceRequest dataSourceRequest = createDataSourceRequest(url, isForceUpdate, parentRequestUri);
-		dataSourceExecute(getActivity(), dataSourceRequest);
+		dataSourceExecute(activity, dataSourceRequest);
 	}
 
     public DataSourceRequest createDataSourceRequest(String url, Boolean isForceUpdate, String parentRequestUri) {
