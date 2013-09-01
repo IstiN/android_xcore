@@ -112,20 +112,20 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 				continue;
 			}
 			if (jsonValue.isJsonPrimitive()) {
-                if (field.isAnnotationPresent(dbLong.class)) {
+                if (ReflectUtils.isAnnotationPresent(field, dbLong.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsLong());
-                } else if (field.isAnnotationPresent(dbString.class)) {
+                } else if (ReflectUtils.isAnnotationPresent(field, dbString.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsString());
-                } else if (field.isAnnotationPresent(dbBoolean.class)) {
+                } else if (ReflectUtils.isAnnotationPresent(field, dbBoolean.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsBoolean());
-                } else if (field.isAnnotationPresent(dbByte.class)) {
+                } else if (ReflectUtils.isAnnotationPresent(field, dbByte.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsByte());
-                } else if (field.isAnnotationPresent(dbDouble.class)) {
+                } else if (ReflectUtils.isAnnotationPresent(field, dbDouble.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsDouble());
-                } else if (field.isAnnotationPresent(dbInteger.class)) {
+                } else if (ReflectUtils.isAnnotationPresent(field, dbInteger.class)) {
                     contentValues.put(fieldValue, jsonValue.getAsInt());
                 }
-            } else if (field.isAnnotationPresent(dbEntity.class)) {
+            } else if (ReflectUtils.isAnnotationPresent(field, dbEntity.class)) {
 				dbEntity entity = field.getAnnotation(dbEntity.class);
 				Class<?> clazz = entity.clazz();
 				ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);

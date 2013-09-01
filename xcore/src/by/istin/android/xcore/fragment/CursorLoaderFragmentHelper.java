@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
@@ -13,6 +14,7 @@ import android.support.v4.content.Loader;
 
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.model.CursorModelLoader;
+import by.istin.android.xcore.utils.Log;
 
 public class CursorLoaderFragmentHelper {
 
@@ -78,8 +80,14 @@ public class CursorLoaderFragmentHelper {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity) {
 			if (cursorLoaderFragment.getUri() != null) {
-				LoaderManager lm = ((FragmentActivity) activity).getSupportLoaderManager();
-				lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
+                LoaderManager lm;
+                if (cursorLoaderFragment instanceof Fragment) {
+                    lm = ((Fragment) cursorLoaderFragment).getLoaderManager();
+                } else {
+				    lm = ((FragmentActivity) activity).getSupportLoaderManager();
+                }
+                Log.xd("lm", lm);
+                lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
 			}
 		}
 	}

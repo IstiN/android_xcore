@@ -147,6 +147,7 @@ public abstract class ModelContentProvider extends ContentProvider {
         }
     }
 
+
     private Uri insertWithoutLockCheck(DBHelper helper, Uri uri, ContentValues initialValues, boolean isNotify) {
         if (mUriMatcher.match(uri) != MODELS) {
             throw new IllegalArgumentException("Unknown URI " + uri);
@@ -179,7 +180,8 @@ public abstract class ModelContentProvider extends ContentProvider {
 			String[] whereArgs) {
 		throw new UnsupportedOperationException("unsupported operation, please use insert method");
 	}
-	
+
+    //TODO refactoring query parameters to path segments
 	@Override
 	public Cursor query(Uri uri, String[] projection, String selection,
 			String[] selectionArgs, String sortOrder) {

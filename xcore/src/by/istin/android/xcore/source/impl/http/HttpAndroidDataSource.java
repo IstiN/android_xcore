@@ -215,6 +215,9 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		mClient = AndroidHttpClient.newInstance(sUserAgent);
 	}
 
+    public IHttpRequestBuilder getRequestBuilder(){
+        return mRequestBuilder;
+    }
 	/**
 	 * Gets instance {@link HttpAndroidDataSource}.
 	 * 

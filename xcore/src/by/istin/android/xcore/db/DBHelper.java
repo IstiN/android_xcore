@@ -32,6 +32,7 @@ import by.istin.android.xcore.annotations.dbByteArray;
 import by.istin.android.xcore.annotations.dbDouble;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbIndex;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
@@ -48,7 +49,7 @@ import by.istin.android.xcore.utils.StringUtil;
  */
 public class DBHelper extends SQLiteOpenHelper {
 
-	private static final String TAG = DBHelper.class.getSimpleName();
+    private static final String TAG = DBHelper.class.getSimpleName();
 	
 	private static final String DATABASE_NAME_TEMPLATE = "%s.main.xcore.db";
 
@@ -69,6 +70,10 @@ public class DBHelper extends SQLiteOpenHelper {
         sTypeAssociation.put(dbByte.class, "INTEGER");
         sTypeAssociation.put(dbByteArray.class, "BLOB");
     }
+
+    public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
+            " FOREIGN KEY (%3$s_id) " +
+            " REFERENCES %2$s(id);";
 
     private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
 
@@ -123,6 +128,8 @@ public class DBHelper extends SQLiteOpenHelper {
             dbWriter.enableWriteAheadLogging();
         }
         beginTransaction(dbWriter);
+        StringBuilder builder = new StringBuilder();
+        List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
 			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
@@ -135,6 +142,7 @@ public class DBHelper extends SQLiteOpenHelper {
 					}
 					Annotation[] annotations = field.getAnnotations();
 					String type = null;
+                    boolean isForeign = false;
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
 						if (sTypeAssociation.containsKey(classOfAnnotation)) {
@@ -146,31 +154,73 @@ public class DBHelper extends SQLiteOpenHelper {
 							}
 							list.add(field);
 							mDbEntityFieldsCache.put(classOfModel, list);
+                            addForeignKey(foreignKeys, classOfModel, (dbEntity) annotation);
+                            isForeign = true;
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
 							List<Field> list = mDbEntitiesFieldsCache.get(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							mDbEntitiesFieldsCache.put(classOfModel, list);
-						}
+                            addForeignKey(foreignKeys, classOfModel, (dbEntities) annotation);
+                            mDbEntitiesFieldsCache.put(classOfModel, list);
+                            isForeign = true;
+						} else if (classOfAnnotation.equals(dbIndex.class)) {
+                            builder.append("CREATE INDEX "
+                                    + "fk_" + table + "_" + name
+                                    + " ON "
+                                    + table
+                                    + " "
+                                    + "(" + name + " ASC);");
+                        }
 					}
 					if (type == null) {
 						continue;
 					}
-					dbWriter.execSQL("ALTER TABLE "
+                    if (!isForeign) {
+					    dbWriter.execSQL("ALTER TABLE "
 							+ table
 							+ " ADD "
 							+ name
 							+ " "
-							+ type);				
+							+ type);
+                    }
 				} catch (SQLException e) {
 					Log.e(TAG, e);
 				}
-			}	
+			}
+            String sql = builder.toString();
+            Log.xd(this, sql);
+            if (!StringUtil.isEmpty(sql)) {
+                try {
+                    dbWriter.execSQL(sql);
+                } catch (SQLException e) {
+                    Log.e(TAG, e);
+                }
+            }
+            builder.setLength(0);
 		}
+        for (String foreignKey : foreignKeys) {
+            try {
+                //TODO needs solution for foreign keys dbWriter.execSQL(foreignKey);
+            } catch (SQLException e) {
+                Log.e(TAG, e);
+            }
+        }
         setTransactionSuccessful(dbWriter);
         endTransaction(dbWriter);
+    }
+
+    private void addForeignKey(List<String> foreignKeys, Class<?> classOfModel, Annotation annotation) {
+        Class<?> childClazz;
+        if (annotation instanceof dbEntities) {
+            childClazz = ((dbEntities) annotation).clazz();
+        } else {
+            childClazz = ((dbEntity) annotation).clazz();
+        }
+        String tableName = DBHelper.getTableName(childClazz);
+        String foreignKey = StringUtil.format(FOREIGN_KEY_TEMPLATE, tableName, DBHelper.getTableName(classOfModel), classOfModel.getSimpleName().toLowerCase());
+        foreignKeys.add(foreignKey);
     }
 
     private void endTransaction(SQLiteDatabase dbWriter) {

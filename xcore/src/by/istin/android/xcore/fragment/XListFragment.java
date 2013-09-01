@@ -1,5 +1,6 @@
 package by.istin.android.xcore.fragment;
 
+import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -90,6 +91,49 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
     }
 
+    private TextWatcher watcher = new TextWatcher() {
+
+        private View searchClear;
+
+        public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+        }
+
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+        }
+
+        public void afterTextChanged(Editable s) {
+            View view = getView();
+            if (view == null) {
+                return;
+            }
+            ListView av = (ListView) view.findViewById(R.id.list);
+            ListAdapter adapter = av.getAdapter();
+            if (adapter instanceof HeaderViewListAdapter) {
+                adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+            }
+            SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter) adapter;
+            String value = s.toString();
+            if (getSearchEditTextClearId() != null) {
+                if (searchClear == null) {
+                    searchClear = view.findViewById(getSearchEditTextClearId());
+                }
+                if (StringUtil.isEmpty(value)) {
+                    if (searchClear != null) {
+                        searchClear.setVisibility(View.GONE);
+                    }
+                } else {
+                    if (searchClear != null) {
+                        searchClear.setVisibility(View.VISIBLE);
+                    }
+                }
+            }
+            filterAdapter.getFilter().filter(value);
+        }
+
+    };
+
     private EndlessScrollListener mEndlessScrollListener;
 	
 	@Override
@@ -158,45 +202,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				});
 			}
 		}
-	    searchEditText.addTextChangedListener(new TextWatcher() {
-
-            private View searchClear;
-
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            public void afterTextChanged(Editable s) {
-                ListView av = (ListView) view.findViewById(android.R.id.list);
-                ListAdapter adapter = av.getAdapter();
-                if (adapter instanceof HeaderViewListAdapter) {
-                    adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
-                }
-                SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter) adapter;
-                String value = s.toString();
-                if (searchEditTextClearId != null) {
-                    if (searchClear == null) {
-                        searchClear = view.findViewById(searchEditTextClearId);
-                    }
-                    if (StringUtil.isEmpty(value)) {
-                        if (searchClear != null) {
-                            searchClear.setVisibility(View.GONE);
-                        }
-                    } else {
-                        if (searchClear != null) {
-                            searchClear.setVisibility(View.VISIBLE);
-                        }
-                    }
-                }
-                filterAdapter.getFilter().filter(value);
-            }
-
-        });
-
+        searchEditText.addTextChangedListener(watcher);
 		return view;
 	}
 
@@ -480,7 +486,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                     mEndlessScrollListener.pagingLoading = false;
                     hidePagingProgress();
                 } else {
-                    hideProgress();
+                    hideProgressIfLoaderNotStarted();
                 }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
@@ -502,7 +508,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                     mEndlessScrollListener.pagingLoading = false;
                     hidePagingProgress();
                 } else {
-                    hideProgress();
+                    hideProgressIfLoaderNotStarted();
                 }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(fragmentActivity).getListFragmentPlugins();
@@ -510,6 +516,13 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                     for (IXListFragmentPlugin plugin : listFragmentPlugins) {
                         plugin.onStatusResultReceiverDone(XListFragment.this, resultData);
                     }
+                }
+            }
+
+            private void hideProgressIfLoaderNotStarted() {
+                Loader<Object> loader = getLoaderManager().getLoader(getLoaderId());
+                if (loader == null || !loader.isStarted()) {
+                    hideProgress();
                 }
             }
 
@@ -525,7 +538,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                     mEndlessScrollListener.pagingLoading = false;
                     hidePagingProgress();
                 } else {
-                    hideProgress();
+                    hideProgressIfLoaderNotStarted();
                 }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(context).getListFragmentPlugins();
