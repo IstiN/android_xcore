@@ -24,7 +24,7 @@ public class RequestExecutor {
 
     public static int DEFAULT_POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
 
-	public static abstract class ExecuteRunnable implements Runnable {
+    public static abstract class ExecuteRunnable implements Runnable {
 
         private class StatusBundle {
             private StatusResultReceiver.Status mStatus;
@@ -145,5 +145,9 @@ public class RequestExecutor {
         }
 
 	}
+
+    public boolean isEmpty() {
+        return queue.isEmpty();
+    }
 
 }

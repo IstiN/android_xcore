@@ -21,6 +21,7 @@ import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * @author IstiN
@@ -80,6 +81,12 @@ public abstract class AbstractExecutorService extends Service {
 		if (intent != null) {
 			onHandleIntent(intent);
 		}
+
+        //TODO stop service
+        if (getRequestExecutor().isEmpty()) {
+            stopService(new Intent(getApplicationContext(), getClass()));
+            Log.xd(this, "stop from on start command");
+        }
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -97,6 +104,11 @@ public abstract class AbstractExecutorService extends Service {
             @Override
             public void run() {
                 AbstractExecutorService.this.run(this, intent, dataSourceRequest, bundle, resultReceiver);
+                //TODO stop service
+                if (getRequestExecutor().isEmpty()) {
+                    stopService(new Intent(getApplicationContext(), getClass()));
+                    Log.xd(AbstractExecutorService.this, "stop from run");
+                }
             }
 
             @Override
