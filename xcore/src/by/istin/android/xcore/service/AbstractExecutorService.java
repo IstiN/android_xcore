@@ -81,12 +81,6 @@ public abstract class AbstractExecutorService extends Service {
 		if (intent != null) {
 			onHandleIntent(intent);
 		}
-
-        //TODO stop service
-        if (getRequestExecutor().isEmpty()) {
-            stopService(new Intent(getApplicationContext(), getClass()));
-            Log.xd(this, "stop from on start command");
-        }
 		return super.onStartCommand(intent, flags, startId);
 	}
 	
@@ -99,21 +93,25 @@ public abstract class AbstractExecutorService extends Service {
             resultReceiver.send(StatusResultReceiver.Status.ADD_TO_QUEUE.ordinal(), bundle);
         }
         onBeforeExecute(intent, dataSourceRequest, resultReceiver, bundle);
-		getRequestExecutor().execute(new ExecuteRunnable(resultReceiver) {
+        final RequestExecutor requestExecutor = getRequestExecutor();
+        requestExecutor.execute(new ExecuteRunnable(resultReceiver) {
 
             @Override
             public void run() {
                 AbstractExecutorService.this.run(this, intent, dataSourceRequest, bundle, resultReceiver);
-                //TODO stop service
-                if (getRequestExecutor().isEmpty()) {
-                    stopService(new Intent(getApplicationContext(), getClass()));
-                    Log.xd(AbstractExecutorService.this, "stop from run");
-                }
             }
 
             @Override
             public String createKey() {
                 return dataSourceRequest.toUriParams();
+            }
+
+            @Override
+            protected void onDone() {
+                if (requestExecutor.isEmpty()) {
+                    stopSelf();
+                    Log.xd(AbstractExecutorService.this, "stop from run");
+                }
             }
 
         });
@@ -128,6 +126,12 @@ public abstract class AbstractExecutorService extends Service {
         return mRequestExecutor;
     }
 
+    @Override
+    public void onDestroy() {
+        mRequestExecutor = null;
+        super.onDestroy();
+    }
+
     protected RequestExecutor createExecutorService() {
         return new RequestExecutor(RequestExecutor.DEFAULT_POOL_SIZE, new LinkedBlockingQueue<Runnable>());
     }
@@ -136,11 +140,12 @@ public abstract class AbstractExecutorService extends Service {
 
     }
 
-    public static Object execute(Context context, boolean cacheble, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+    @SuppressWarnings("unchecked")
+    public static Object execute(Context context, boolean cacheable, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
         final IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
         final IDataSource datasource = (IDataSource) AppUtils.get(context, datasourceKey);
         Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
-        if (cacheble) {
+        if (cacheable) {
             processor.cache(context, dataSourceRequest, result);
         } else {
             if (bundle == null) {

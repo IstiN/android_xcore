@@ -91,7 +91,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
     }
 
-    private TextWatcher watcher = new TextWatcher() {
+    private TextWatcher mWatcher = new TextWatcher() {
 
         private View searchClear;
 
@@ -202,7 +202,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 				});
 			}
 		}
-        searchEditText.addTextChangedListener(watcher);
+        searchEditText.addTextChangedListener(mWatcher);
 		return view;
 	}
 
@@ -674,5 +674,12 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
     @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
+    }
+
+    @Override
+    public void onDestroy() {
+        mEndlessScrollListener = null;
+        mWatcher = null;
+        super.onDestroy();
     }
 }

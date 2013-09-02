@@ -99,6 +99,8 @@ public class RequestExecutor {
                 mPrevStatuses.add(statusBundle);
             }
         }
+
+        protected abstract void onDone();
     }
 
     private ExecutorService mExecutor;
@@ -139,6 +141,7 @@ public class RequestExecutor {
                     synchronized (mLock) {
                         queue.remove(finalRunnable);
                         Log.xd(RequestExecutor.this, "queue: finish and remove, size: " + queue.size() + " " + finalRunnable.getKey());
+                        finalRunnable.onDone();
                     }
                 }
             });
