@@ -1,6 +1,5 @@
 package by.istin.android.xcore.fragment;
 
-import android.R;
 import android.app.Activity;
 import android.content.Context;
 import android.database.Cursor;
@@ -49,7 +48,7 @@ import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper {
+public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
 
 	private class EndlessScrollListener implements OnScrollListener {
 
@@ -108,7 +107,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
             if (view == null) {
                 return;
             }
-            ListView av = (ListView) view.findViewById(R.id.list);
+            ListView av = (ListView) view.findViewById(android.R.id.list);
             ListAdapter adapter = av.getAdapter();
             if (adapter instanceof HeaderViewListAdapter) {
                 adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
@@ -391,8 +390,42 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	protected boolean setAdapterViewText(TextView v, String value) {
 		return false;
 	}
-	
-	protected ViewBinder getAdapterViewBinder() {
+
+    @Override
+    public void setServiceWork(boolean isWork) {
+        isServiceWork = isWork;
+    }
+
+    @Override
+    public void onError(Exception exception, DataSourceRequest dataSourceRequest) {
+        isServiceWork = false;
+        exception.printStackTrace();
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+        if (errorHandler != null) {
+            errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
+        } else {
+            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+        if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+            mEndlessScrollListener.pagingLoading = false;
+            hidePagingProgress();
+        } else {
+            hideProgressIfLoaderNotStarted();
+        }
+        //plugins
+        List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
+        if (listFragmentPlugins != null) {
+            for (IXListFragmentPlugin plugin : listFragmentPlugins) {
+                plugin.onStatusResultReceiverError(XListFragment.this, exception);
+            }
+        }
+    }
+
+    protected ViewBinder getAdapterViewBinder() {
 		return null;
 	}
 	
@@ -470,31 +503,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
             @Override
             public void onError(Exception exception) {
-                isServiceWork = false;
-                exception.printStackTrace();
-                FragmentActivity activity = getActivity();
-                if (activity == null) {
-                    return;
-                }
-                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
-                if (errorHandler != null) {
-                    errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
-                } else {
-                    Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-                }
-                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
-                    mEndlessScrollListener.pagingLoading = false;
-                    hidePagingProgress();
-                } else {
-                    hideProgressIfLoaderNotStarted();
-                }
-                //plugins
-                List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
-                if (listFragmentPlugins != null) {
-                    for (IXListFragmentPlugin plugin : listFragmentPlugins) {
-                        plugin.onStatusResultReceiverError(XListFragment.this, exception);
-                    }
-                }
+                XListFragment.this.onError(exception, dataSourceRequest);
             }
 
             @Override
@@ -517,13 +526,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                         plugin.onStatusResultReceiverDone(XListFragment.this, resultData);
                     }
                 }
-            }
-
-            private void hideProgressIfLoaderNotStarted() {
-                Loader<Object> loader = getLoaderManager().getLoader(getLoaderId());
-                if (loader == null || !loader.isStarted()) {
-                    hideProgress();
-                }
+                onReceiverOnDone(resultData);
             }
 
             @Override
@@ -547,9 +550,25 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
                         plugin.onStatusResultReceiverCached(XListFragment.this, resultData);
                     }
                 }
+                onReceiverOnCached(resultData);
             }
 
         });
+    }
+
+    private void hideProgressIfLoaderNotStarted() {
+        Loader<Object> loader = getLoaderManager().getLoader(getLoaderId());
+        if (loader == null || !loader.isStarted()) {
+            hideProgress();
+        }
+    }
+
+    public void onReceiverOnCached(Bundle resultData) {
+
+    }
+
+    public void onReceiverOnDone(Bundle resultData) {
+
     }
 
     protected boolean isForceUpdateData() {

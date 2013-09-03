@@ -29,11 +29,19 @@ import by.istin.android.xcore.utils.Log;
  */
 public abstract class AbstractExecutorService extends Service {
 
+    private static final String ACTION_STOP = "stop";
 	protected static final String DATA_SOURCE_KEY = "datasourceKey";
     protected static final String PROCESSOR_KEY = "processorKey";
     protected static final String RESULT_RECEIVER = "resultReceiver";
 
     private RequestExecutor mRequestExecutor;
+
+    public static void stop(Context context, ResultReceiver receiver, Class<? extends AbstractExecutorService> serviceClass) {
+        Intent intent = new Intent(context, serviceClass);
+        intent.putExtra(ACTION_STOP, true);
+        intent.putExtra(RESULT_RECEIVER, receiver);
+        context.startService(intent);
+    }
 
     protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, Class<?> serviceClass) {
         execute(context, dataSourceRequest, processorKey, datasourceKey, null, serviceClass);
@@ -85,8 +93,13 @@ public abstract class AbstractExecutorService extends Service {
 	}
 	
 	protected void onHandleIntent(final Intent intent) {
+        final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
+        if (intent.getBooleanExtra(ACTION_STOP, false)) {
+            mRequestExecutor.stop(resultReceiver);
+            stopSelf();
+            return;
+        }
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
-		final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
         final Bundle bundle = new Bundle();
         dataSourceRequest.toBundle(bundle);
         if (resultReceiver != null) {

@@ -15,6 +15,7 @@ import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.HttpStatus;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
@@ -76,13 +77,13 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	/* Constant Tag for logging. */
 	private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
 
-	private static String sUserAgent;
+	protected static String sUserAgent;
 
 	public static class DefaultHttpRequestBuilder implements IHttpRequestBuilder {
 
 		public static final String TYPE = "_httptype";
 
-		private static final String Q = "\\?";
+		protected static final String Q = "\\?";
 
 		private static final String SPACE = " ";
 
@@ -198,7 +199,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	}
 
 	/* Apache client. */
-	private AndroidHttpClient mClient;
+	private HttpClient mClient;
 
 	private IHttpRequestBuilder mRequestBuilder;
 
@@ -212,8 +213,12 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
 		mRequestBuilder = requestBuilder;
 		mResponseStatusHandler = statusHandler;
-		mClient = AndroidHttpClient.newInstance(sUserAgent);
+		mClient = createHttpClient();
 	}
+
+    public HttpClient createHttpClient() {
+        return AndroidHttpClient.newInstance(sUserAgent);
+    }
 
     public IHttpRequestBuilder getRequestBuilder(){
         return mRequestBuilder;

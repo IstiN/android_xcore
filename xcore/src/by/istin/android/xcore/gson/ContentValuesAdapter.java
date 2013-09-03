@@ -8,6 +8,7 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
@@ -141,7 +142,12 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
 				ContentValuesAdapter contentValuesAdaper = new ContentValuesAdapter(clazz);
 				ContentValues[] values = new ContentValues[jsonArray.size()];
 				for (int i = 0; i < jsonArray.size(); i++) {
-					values[i] = contentValuesAdaper.deserialize(jsonArray.get(i), type, jsonDeserializationContext);
+                    JsonElement item = jsonArray.get(i);
+                    if (item.isJsonPrimitive()) {
+                        JsonParser parser = new JsonParser();
+                        item = parser.parse("{\"value\": \""+item.getAsString()+"\"}");
+                    }
+					values[i] = contentValuesAdaper.deserialize(item, type, jsonDeserializationContext);
 				}
 				contentValuesAdaper = null;
 				contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));

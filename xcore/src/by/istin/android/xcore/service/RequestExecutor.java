@@ -109,12 +109,21 @@ public class RequestExecutor {
 
     private List<ExecuteRunnable> queue = Collections.synchronizedList(new ArrayList<ExecuteRunnable>());
 
+    private int mThreadPoolSize;
+
+    private BlockingQueue<Runnable> mWorkQueue;
+
 	public RequestExecutor(int threadPoolSize, BlockingQueue<Runnable> workQueue) {
-		mExecutor = new ThreadPoolExecutor(threadPoolSize, threadPoolSize,
-                0L, TimeUnit.MILLISECONDS,workQueue);
-	}
-	
-	public void execute(ExecuteRunnable executeRunnable) {
+        mThreadPoolSize = threadPoolSize;
+        mWorkQueue = workQueue;
+        recreateExecutor();
+    }
+
+    private void recreateExecutor() {
+        mExecutor = new ThreadPoolExecutor(mThreadPoolSize, mThreadPoolSize, 0L, TimeUnit.MILLISECONDS, mWorkQueue);
+    }
+
+    public void execute(ExecuteRunnable executeRunnable) {
         synchronized (mLock) {
             if (!queue.contains(executeRunnable)) {
                 queue.add(executeRunnable);
@@ -153,4 +162,9 @@ public class RequestExecutor {
         return queue.isEmpty();
     }
 
+    public void stop(ResultReceiver resultReceiver) {
+        mExecutor.shutdownNow();
+        resultReceiver.send(0, null);
+        recreateExecutor();
+    }
 }

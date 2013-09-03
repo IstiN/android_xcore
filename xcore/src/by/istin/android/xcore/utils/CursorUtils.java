@@ -94,6 +94,11 @@ public final class CursorUtils {
     }
 
     public static void convertToContentValuesAndClose(Cursor cursor, List<ContentValues> list, Converter converter) {
+        convertToContentValues(cursor, list, converter);
+        close(cursor);
+    }
+
+    private static void convertToContentValues(Cursor cursor, List<ContentValues> list, Converter converter) {
         if (isEmpty(cursor)) {
             return;
         }
@@ -103,6 +108,5 @@ public final class CursorUtils {
             converter.convert(cursor, contentValues);
             list.add(contentValues);
         } while (cursor.moveToNext());
-        close(cursor);
     }
 }
