@@ -86,6 +86,14 @@ public final class CursorUtils {
         return cursor.getCount();
     }
 
+    public static boolean getBoolean(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return false;
+        }
+        return cursor.getInt(columnIndex) == 1;
+    }
+
     public static abstract class Converter {
 
         public abstract void convert(Cursor cursor, ContentValues contentValues);
