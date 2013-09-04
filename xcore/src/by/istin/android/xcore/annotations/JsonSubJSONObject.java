@@ -11,4 +11,6 @@ public @interface JsonSubJSONObject {
 
     String separator() default ":";
 
+    boolean isFirstObjectForJsonArray() default true;
+
 }

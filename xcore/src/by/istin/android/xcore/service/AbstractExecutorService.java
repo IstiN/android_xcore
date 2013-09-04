@@ -18,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
+import by.istin.android.xcore.service.assist.LIFOLinkedBlockingDeque;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
@@ -95,7 +96,9 @@ public abstract class AbstractExecutorService extends Service {
 	protected void onHandleIntent(final Intent intent) {
         final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
         if (intent.getBooleanExtra(ACTION_STOP, false)) {
-            mRequestExecutor.stop(resultReceiver);
+            if (mRequestExecutor != null) {
+                mRequestExecutor.stop(resultReceiver);
+            }
             stopSelf();
             return;
         }
@@ -146,7 +149,7 @@ public abstract class AbstractExecutorService extends Service {
     }
 
     protected RequestExecutor createExecutorService() {
-        return new RequestExecutor(RequestExecutor.DEFAULT_POOL_SIZE, new LinkedBlockingQueue<Runnable>());
+        return new RequestExecutor(RequestExecutor.DEFAULT_POOL_SIZE, new LIFOLinkedBlockingDeque<Runnable>());
     }
 
     protected void onBeforeExecute(Intent intent, DataSourceRequest dataSourceRequest, ResultReceiver resultReceiver, Bundle bundle) {

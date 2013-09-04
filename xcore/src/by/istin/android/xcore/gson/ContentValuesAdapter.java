@@ -82,10 +82,12 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
             }
 			JsonElement jsonValue = null;
             String separator = null;
+            boolean isFirstObjectForJsonArray = false;
             if (field.isAnnotationPresent(JsonSubJSONObject.class)) {
                 JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
                 if (jsonSubJSONObject != null) {
                     separator = jsonSubJSONObject.separator();
+                    isFirstObjectForJsonArray = jsonSubJSONObject.isFirstObjectForJsonArray();
                 }
             }
 			if (separator != null && serializedName.contains(separator)) {
@@ -102,7 +104,11 @@ public class ContentValuesAdapter implements JsonDeserializer<ContentValues> {
                         if (element.isJsonObject()) {
                             tempElement = (JsonObject) element;
                         } else {
-                            break;
+                            if (isFirstObjectForJsonArray && element.isJsonArray()) {
+                                tempElement = (JsonObject) ((JsonArray) element).get(0);
+                            } else {
+                                break;
+                            }
                         }
 					}
 				}
