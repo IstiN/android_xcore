@@ -75,6 +75,13 @@ public final class CursorUtils {
 		}
 	}
 
+    public static int getSize(Cursor cursor) {
+        if (cursor == null || cursor.isClosed()) {
+            return 0;
+        }
+        return cursor.getCount();
+    }
+
     public static abstract class Converter {
 
         public abstract void convert(Cursor cursor, ContentValues contentValues);
@@ -98,7 +105,7 @@ public final class CursorUtils {
         close(cursor);
     }
 
-    private static void convertToContentValues(Cursor cursor, List<ContentValues> list, Converter converter) {
+    public static void convertToContentValues(Cursor cursor, List<ContentValues> list, Converter converter) {
         if (isEmpty(cursor)) {
             return;
         }
