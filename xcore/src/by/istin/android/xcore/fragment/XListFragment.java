@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.ListFragment;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -22,6 +21,8 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Adapter;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.FilterQueryProvider;
 import android.widget.HeaderViewListAdapter;
@@ -48,7 +49,7 @@ import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XListFragment extends ListFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
+public abstract class XListFragment extends AdapterViewFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
 
 	private class EndlessScrollListener implements OnScrollListener {
 
@@ -222,8 +223,8 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	}
 
 	@Override
-	public void onListItemClick(ListView l, View v, int position, long id) {
-		super.onListItemClick(l, v, position, id);
+    public void onAdapterViewItemClick(AdapterView<?> l, View v, int position, long id) {
+		super.onAdapterViewItemClick(l, v, position, id);
 		Cursor cursor = (Cursor) l.getAdapter().getItem(position);
 		onListItemClick(cursor, v, position, id);
 	}
@@ -362,6 +363,11 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 
     protected View onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
         return view;
+    }
+
+    @Override
+    public DataSourceExecuteHelper.IDataSourceListener getDataSourceListener() {
+        return this;
     }
 
     protected abstract String[] getAdapterColumns();
@@ -578,7 +584,7 @@ public abstract class XListFragment extends ListFragment implements ICursorLoade
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
 		if (getView() != null) {
-            ListAdapter adapter = getListView().getAdapter();
+            Adapter adapter = getListView().getAdapter();
             if (adapter instanceof HeaderViewListAdapter) {
                 adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
             }

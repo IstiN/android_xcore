@@ -75,6 +75,10 @@ public final class CursorUtils {
 		}
 	}
 
+    public static boolean isClosed(Cursor cursor) {
+        return cursor == null || cursor.isClosed();
+    }
+
     public static abstract class Converter {
 
         public abstract void convert(Cursor cursor, ContentValues contentValues);

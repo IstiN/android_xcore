@@ -123,25 +123,25 @@ public class Log {
 	}
 	
 	public static void e(String tag, Object message) {
-		if (need(Level.ERROR)) {
+		if (need(Level.ERROR)|| !isOff) {
 			android.util.Log.e(tag, String.valueOf(message));
 		}
 	}
 	
 	public static void xe(Object tag, Object message) {
-		if (need(Level.ERROR)) {
+		if (need(Level.ERROR) || !isOff) {
 			android.util.Log.e(tag.getClass().getSimpleName(), String.valueOf(message));
 		}
 	}
 	
 	public static void e(String tag, String message, Throwable e) {
-		if (need(Level.ERROR)) {
+		if (need(Level.ERROR) || !isOff) {
 			android.util.Log.e(tag, String.valueOf(message), e);
 		}
 	}
 	
 	public static void xe(Object tag, String message, Throwable e) {
-		if (need(Level.ERROR)) {
+		if (need(Level.ERROR) || !isOff) {
 			android.util.Log.e(tag.getClass().getSimpleName(), String.valueOf(message), e);
 		}
 	}
