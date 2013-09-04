@@ -75,6 +75,10 @@ public final class CursorUtils {
 		}
 	}
 
+    public static boolean isClosed(Cursor cursor) {
+        return cursor == null || cursor.isClosed();
+    }
+
     public static int getSize(Cursor cursor) {
         if (cursor == null || cursor.isClosed()) {
             return 0;
