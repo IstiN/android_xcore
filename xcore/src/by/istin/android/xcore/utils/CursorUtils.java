@@ -79,6 +79,21 @@ public final class CursorUtils {
         return cursor == null || cursor.isClosed();
     }
 
+    public static int getSize(Cursor cursor) {
+        if (cursor == null || cursor.isClosed()) {
+            return 0;
+        }
+        return cursor.getCount();
+    }
+
+    public static boolean getBoolean(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return false;
+        }
+        return cursor.getInt(columnIndex) == 1;
+    }
+
     public static abstract class Converter {
 
         public abstract void convert(Cursor cursor, ContentValues contentValues);
@@ -102,7 +117,7 @@ public final class CursorUtils {
         close(cursor);
     }
 
-    private static void convertToContentValues(Cursor cursor, List<ContentValues> list, Converter converter) {
+    public static void convertToContentValues(Cursor cursor, List<ContentValues> list, Converter converter) {
         if (isEmpty(cursor)) {
             return;
         }

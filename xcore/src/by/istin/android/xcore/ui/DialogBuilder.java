@@ -69,10 +69,8 @@ public class DialogBuilder {
 		builder.setMessage(message);
 		builder.setPositiveButton(btn == null ? OK : btn, listener);
 		AlertDialog alertDialog = builder.create();
-		if (Build.VERSION.SDK_INT > 10) {
-			alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-		}
-		alertDialog.setCancelable(false);
+        applyBackground(alertDialog);
+        alertDialog.setCancelable(false);
 		try {
 			alertDialog.show();
 			return alertDialog;
@@ -109,10 +107,8 @@ public class DialogBuilder {
 			}
 		} : disagreeListener);
 		AlertDialog alertDialog = builder.create();
-		if (Build.VERSION.SDK_INT > 10) {
-			alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-		}
-		alertDialog.setCancelable(false);
+        applyBackground(alertDialog);
+        alertDialog.setCancelable(false);
 		try {
 			alertDialog.show();	
 		} catch (Exception e) {
@@ -120,7 +116,13 @@ public class DialogBuilder {
 		}
 	}
 
-	public static void options(final Context context, Integer titleResource, int optionsResource, final OnClickListener listener) {
+    public static void applyBackground(AlertDialog alertDialog) {
+        if (Build.VERSION.SDK_INT > 10) {
+            alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+    }
+
+    public static void options(final Context context, Integer titleResource, int optionsResource, final OnClickListener listener) {
 		Builder builder = createBuilder(context);
 		if (titleResource != null) {
 			builder.setTitle(titleResource);
@@ -138,10 +140,8 @@ public class DialogBuilder {
 		});
 		try {
 			AlertDialog alertDialog = builder.create();
-			if (Build.VERSION.SDK_INT > 10) {
-				alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-			}
-			alertDialog.show();	
+            applyBackground(alertDialog);
+            alertDialog.show();
 		} catch (Exception e) {
 			Log.e(TAG, "quick_back", e);
 		}
@@ -162,10 +162,8 @@ public class DialogBuilder {
 		});
 		try {
 			AlertDialog alertDialog = builder.create();
-			if (Build.VERSION.SDK_INT > 10) {
-				alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-			}
-			alertDialog.show();	
+            applyBackground(alertDialog);
+            alertDialog.show();
 		} catch (Exception e) {
 			Log.e(TAG, "quick_back", e);
 		}
@@ -192,9 +190,7 @@ public class DialogBuilder {
         });
         try {
             AlertDialog alertDialog = builder.create();
-            if (Build.VERSION.SDK_INT > 10) {
-                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            }
+            applyBackground(alertDialog);
             alertDialog.show();
         } catch (Exception e) {
             Log.e(TAG, "quick_back", e);
@@ -236,9 +232,7 @@ public class DialogBuilder {
         });
         try {
             AlertDialog alertDialog = builder.create();
-            if (Build.VERSION.SDK_INT > 10) {
-                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-            }
+            applyBackground(alertDialog);
             alertDialog.show();
         } catch (Exception e) {
             Log.e(TAG, "quick_back", e);
@@ -297,10 +291,8 @@ public class DialogBuilder {
 		int padding = UiUtil.getDp(activity, 10);
 		alertDialog.setView(input, padding, padding, padding, padding);
 		try {
-			if (Build.VERSION.SDK_INT > 10) {
-				alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
-			}
-			alertDialog.show();			
+            applyBackground(alertDialog);
+            alertDialog.show();
 		} catch (Exception e) {
             // quick back issue for old android version
 		}

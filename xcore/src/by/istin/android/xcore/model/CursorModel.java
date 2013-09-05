@@ -2,6 +2,7 @@ package by.istin.android.xcore.model;
 
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.CharArrayBuffer;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -10,12 +11,18 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.List;
+import java.util.ListIterator;
+
 import by.istin.android.xcore.utils.CursorUtils;
 
 /**
  * Created by Uladzimir_Klyshevich on 8/30/13.
  */
-public class CursorModel implements Cursor {
+public class CursorModel implements Cursor, List<Cursor> {
 
     public static interface CursorModelCreator {
         CursorModel create(Cursor cursor);
@@ -32,6 +39,7 @@ public class CursorModel implements Cursor {
 
     public CursorModel(Cursor cursor) {
         this.mCursor = cursor;
+        this.mCursor.moveToFirst();
     }
 
     @Override
@@ -262,4 +270,196 @@ public class CursorModel implements Cursor {
         return CursorUtils.getString(key, mCursor);
     }
 
+    @Override
+    public boolean add(Cursor object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean addAll(Collection<? extends Cursor> collection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void clear() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean contains(Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean containsAll(Collection<?> collection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return CursorUtils.isEmpty(mCursor);
+    }
+
+    @Override
+    public Iterator<Cursor> iterator() {
+        return new Iterator<Cursor>() {
+            @Override
+            public boolean hasNext() {
+                return !CursorUtils.isEmpty(mCursor) && !mCursor.isLast();
+            }
+
+            @Override
+            public Cursor next() {
+                mCursor.moveToNext();
+                return mCursor;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException();
+            }
+        };
+    }
+
+    @Override
+    public boolean remove(Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean removeAll(Collection<?> collection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean retainAll(Collection<?> collection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int size() {
+        return CursorUtils.getSize(mCursor);
+    }
+
+    @Override
+    public ContentValues[] toArray() {
+        List<ContentValues> list = new ArrayList<ContentValues>();
+        CursorUtils.convertToContentValues(mCursor, list, CursorUtils.Converter.get());
+        return list.toArray(new ContentValues[list.size()]);
+    }
+
+    @Override
+    public <T> T[] toArray(T[] array) {
+        throw new UnsupportedOperationException("use toArray method instead of");
+    }
+
+    @Override
+    public void add(int location, Cursor object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean addAll(int location, Collection<? extends Cursor> collection) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Cursor get(int location) {
+        mCursor.moveToPosition(location);
+        return mCursor;
+    }
+
+    @Override
+    public int indexOf(Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public int lastIndexOf(Object object) {
+        throw new UnsupportedOperationException();
+    }
+
+    private class CursorListIterator implements ListIterator<Cursor> {
+
+        private int currentPostion = 0;
+
+        private CursorListIterator(int intialPostion) {
+            this.currentPostion = intialPostion;
+            mCursor.moveToPosition(currentPostion);
+        }
+
+        @Override
+        public void add(Cursor object) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean hasNext() {
+            return currentPostion < CursorUtils.getSize(mCursor);
+        }
+
+        @Override
+        public boolean hasPrevious() {
+            return currentPostion != 0;
+        }
+
+        @Override
+        public Cursor next() {
+            currentPostion = nextIndex();
+            mCursor.moveToPosition(currentPostion);
+            return mCursor;
+        }
+
+        @Override
+        public int nextIndex() {
+            return currentPostion+1;
+        }
+
+        @Override
+        public Cursor previous() {
+            currentPostion = previousIndex();
+            mCursor.moveToPosition(currentPostion);
+            return mCursor;
+        }
+
+        @Override
+        public int previousIndex() {
+            return currentPostion -1;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public void set(Cursor object) {
+            throw new UnsupportedOperationException();
+        }
+    }
+
+    @Override
+    public ListIterator<Cursor> listIterator() {
+        return new CursorListIterator(0);
+    }
+
+    @Override
+    public ListIterator<Cursor> listIterator(int location) {
+        return new CursorListIterator(location);
+    }
+
+    @Override
+    public Cursor remove(int location) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Cursor set(int location, Cursor object) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public List<Cursor> subList(int start, int end) {
+        throw new UnsupportedOperationException();
+    }
 }

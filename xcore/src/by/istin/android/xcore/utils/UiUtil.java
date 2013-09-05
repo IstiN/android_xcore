@@ -3,6 +3,8 @@ package by.istin.android.xcore.utils;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.view.Display;
@@ -34,6 +36,12 @@ public class UiUtil {
 		}
 		return sDisplayWidth;
 	}
+
+    public static boolean isWiFi(Context context) {
+        ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        return  mWifi.isConnected();
+    }
 
 	private static void initDisplayDimensions() {
 		Context ctx = ContextHolder.getInstance().getContext();
