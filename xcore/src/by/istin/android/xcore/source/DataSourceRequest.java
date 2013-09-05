@@ -137,22 +137,22 @@ public class DataSourceRequest {
 	}
 	
 	public void toIntent(Intent intent) {
-		intent.putExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
+        ModelContract.dataSourceRequestToIntent(intent, mBundle);
 	}
 
 	public void toBundle(Bundle bundle) {
-		bundle.putParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
+        ModelContract.dataSourceRequestToBundle(bundle, mBundle);
 	}
 	
 	public static DataSourceRequest fromBundle(Bundle bundle) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = bundle.getParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+		data.mBundle = ModelContract.getDataSourceFromBundle(bundle);
 		return data;
 	}
 	
 	public static DataSourceRequest fromIntent(Intent intent) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = intent.getParcelableExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+		data.mBundle = ModelContract.getDataSourceFromIntent(intent);
 		return data;
 	}
 	

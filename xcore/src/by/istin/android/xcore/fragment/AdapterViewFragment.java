@@ -243,7 +243,7 @@ public class AdapterViewFragment extends Fragment {
         }
         mStandardEmptyView.setText(text);
         if (mEmptyText == null) {
-            mAdapterView.setEmptyView(mStandardEmptyView);
+            //TODO mAdapterView.setEmptyView(mStandardEmptyView);
         }
         mEmptyText = text;
     }
@@ -359,10 +359,10 @@ public class AdapterViewFragment extends Fragment {
             }
             mAdapterView = (AdapterView)rawListView;
             if (mEmptyView != null) {
-                mAdapterView.setEmptyView(mEmptyView);
+                //TODO mAdapterView.setEmptyView(mEmptyView);
             } else if (mEmptyText != null) {
                 mStandardEmptyView.setText(mEmptyText);
-                mAdapterView.setEmptyView(mStandardEmptyView);
+                //TODO mAdapterView.setEmptyView(mStandardEmptyView);
             }
         }
         mListShown = true;

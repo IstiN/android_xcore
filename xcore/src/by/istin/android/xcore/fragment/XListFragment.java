@@ -312,7 +312,12 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 		if (isServiceWork) {
 			hideEmptyView(getView());
 		} else if (CursorUtils.isEmpty(cursor)) {
-            showEmptyView(getView());
+            //TODO get correct condition
+            if (!loader.isAbandoned() /*&&!loader.isStarted()*/) {
+                showEmptyView(getView());
+            } else {
+                showProgress();
+            }
         }
 
         //plugins

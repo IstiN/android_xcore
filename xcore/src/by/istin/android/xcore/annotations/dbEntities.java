@@ -18,11 +18,4 @@ public @interface dbEntities {
 	 */
 	String contentValuesKey() default "dbEntities";
 	
-	
-	/**
-	 * Return true if you want notify content resolver about db changes. 
-	 * @return flag for notidy content resolver about changes, default false
-	 */
-	boolean isNotify() default false;
-	
 }

@@ -61,20 +61,18 @@ public abstract class ModelContentProvider extends ContentProvider {
 	public int bulkInsert(Uri uri, ContentValues[] values) {
 		String className = uri.getLastPathSegment();
 		try {
-			String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
             synchronized (mLock) {
-                return bulkInsert(uri, values, className, cleanerParameter, mDbHelper);
+                return bulkInsert(uri, values, className, mDbHelper);
             }
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
 
-    private int bulkInsert(Uri uri, ContentValues[] values, String className, String cleanerParameter, DBHelper helper) throws ClassNotFoundException {
-        int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
+    private int bulkInsert(Uri uri, ContentValues[] values, String className, DBHelper helper) throws ClassNotFoundException {
+        int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), values);
         if (count > 0) {
-            String paramNotNotify = uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES);
-            if (StringUtil.isEmpty(paramNotNotify) || !Boolean.valueOf(paramNotNotify)) {
+            if (ModelContract.isNotify(uri)) {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
         }
@@ -82,9 +80,9 @@ public abstract class ModelContentProvider extends ContentProvider {
     }
 
     public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
-		String parameter = uri.getQueryParameter(ModelContract.DATA_SOURCE_REQUEST_PARAM);
-		if (!StringUtil.isEmpty(parameter)) {
-			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(parameter)));
+		String dataSourceRequest = ModelContract.getDataSourceRequest(uri);;
+		if (!StringUtil.isEmpty(dataSourceRequest)) {
+			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(dataSourceRequest)));
 		}
 		return null;
 	}
@@ -139,7 +137,7 @@ public abstract class ModelContentProvider extends ContentProvider {
         }
         try {
             int count = helper.delete(Class.forName(className), where, whereArgs);
-            if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES)) && isNotify) {
+            if (ModelContract.isNotify(uri) && isNotify) {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
             return count;
@@ -155,14 +153,12 @@ public abstract class ModelContentProvider extends ContentProvider {
         }
         String className = uri.getLastPathSegment();
         try {
-            String cleanerParameter = uri.getQueryParameter(ModelContract.PARAM_CLEANER);
             DataSourceRequest dataSourceRequestFromUri = getDataSourceRequestFromUri(uri);
-            boolean withCleaner = !StringUtil.isEmpty(cleanerParameter);
             Class<?> classOfModel = Class.forName(className);
-            long rowId = helper.updateOrInsert(dataSourceRequestFromUri, withCleaner, classOfModel, initialValues);
+            long rowId = helper.updateOrInsert(dataSourceRequestFromUri, classOfModel, initialValues);
             if (rowId != -1l) {
                 Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
-                if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES)) && isNotify) {
+                if (ModelContract.isNotify(uri) && isNotify) {
                     getContext().getContentResolver().notifyChange(
                             serializableModelUri, null);
                 }
@@ -213,15 +209,15 @@ public abstract class ModelContentProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI " + uri);
 		}
-		if (className.equals(ModelContract.SEGMENT_RAW_QUERY)) {
-			Cursor c = mDbHelper.rawQuery(uri.getQueryParameter(ModelContract.SQL_PARAM), selectionArgs);
+		if (ModelContract.isSqlUri(className)) {
+			Cursor c = mDbHelper.rawQuery(ModelContract.getSqlParam(uri), selectionArgs);
 			if (c != null) {
 				c.getCount();
 				c.moveToFirst();
 			}
-			String encodedUri = uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM);
-			if (!StringUtil.isEmpty(encodedUri)) {
-				c.setNotificationUri(getContext().getContentResolver(), Uri.parse(StringUtil.decode(encodedUri)));
+            Uri observerUri = ModelContract.getObserverUri(uri);
+			if (observerUri != null) {
+				c.setNotificationUri(getContext().getContentResolver(), observerUri);
 			}
 			return c;
 		} else {

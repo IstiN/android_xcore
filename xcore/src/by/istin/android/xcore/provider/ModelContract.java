@@ -1,10 +1,10 @@
 package by.istin.android.xcore.provider;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Bundle;
 import android.provider.BaseColumns;
-
-import java.util.Locale;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -12,15 +12,9 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public class ModelContract {
 
-    @Deprecated
-	public static final String PARAM_CLEANER = "cleaner";
+	private static final String PARAM_NOT_NOTIFY_CHANGES = "notNotifyChanges";
 
-	public static final String PARAM_NOT_NOTIFY_CHANGES = "notNotifyChanges";
-
-    @Deprecated
-	private static final String CLEANER_TRUE = "?" + PARAM_CLEANER + "=true";
-
-	public static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
+	private static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
 
 	private static final String AUTHORITY_TEMPLATE = "%s.ModelContentProvider";
 
@@ -36,22 +30,58 @@ public class ModelContract {
 	
 	private static final String CONTENT_TYPE_TEMPLATE = "vnd.android.cursor.dir/%s";
 
-	public static final int DEFAULT_OFFSET = 0;
-	
-	public static final int DEFAULT_SIZE = 100;
+    private static final int DEFAULT_OFFSET = 0;
 
-	public static final String SEGMENT_RAW_QUERY = "___srq";
+    private static final int DEFAULT_SIZE = 100;
 
-	public static final String SQL_PARAM = "___sql";
+    private static final String SEGMENT_RAW_QUERY = "___srq";
 
-	public static final String OBSERVER_URI_PARAM = "___ouri";
-	
-	public static final String SQL_QUERY_TEMPLATE = SEGMENT_RAW_QUERY+ "?"+SQL_PARAM + "=%s&"+OBSERVER_URI_PARAM + "=%s";
+    private static final String SQL_PARAM = "___sql";
+
+    private static final String OBSERVER_URI_PARAM = "___ouri";
+
+    private static final String SQL_QUERY_TEMPLATE = SEGMENT_RAW_QUERY+ "?"+SQL_PARAM + "=%s&"+OBSERVER_URI_PARAM + "=%s";
 	
 	private ModelContract() {
 	}
 
-	public static final class ModelColumns implements BaseColumns {
+    public static String getSqlParam(Uri uri) {
+        return uri.getQueryParameter(ModelContract.SQL_PARAM);
+    }
+
+    public static boolean isSqlUri(String className) {
+        return className.equals(ModelContract.SEGMENT_RAW_QUERY);
+    }
+
+    public static Uri getObserverUri(Uri uri) {
+        String encodedUri = uri.getQueryParameter(ModelContract.OBSERVER_URI_PARAM);
+        if (StringUtil.isEmpty(encodedUri)) {
+            return null;
+        }
+        return Uri.parse(StringUtil.decode(encodedUri));
+    }
+
+    public static String getDataSourceRequest(Uri uri) {
+        return uri.getQueryParameter(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+    }
+
+    public static void dataSourceRequestToIntent(Intent intent, Bundle mBundle) {
+        intent.putExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
+    }
+
+    public static void dataSourceRequestToBundle(Bundle bundle, Bundle mBundle) {
+        bundle.putParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
+    }
+
+    public static Bundle getDataSourceFromBundle(Bundle bundle) {
+        return bundle.getParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+    }
+
+    public static Bundle getDataSourceFromIntent(Intent intent) {
+        return intent.getParcelableExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+    }
+
+    public static final class ModelColumns implements BaseColumns {
 		
 		private ModelColumns() {
 		}
@@ -67,11 +97,7 @@ public class ModelContract {
 	}
 	
 	public static Uri getUri(Class<?> clazz) {
-		return getUri(clazz, false);
-	}
-	
-	public static Uri getUri(Class<?> clazz, boolean withCleaner) {
-		return getUri(clazz.getCanonicalName(), withCleaner);
+		return getUri(clazz.getCanonicalName());
 	}
 	
 	public static Uri getPaginatedUri(Class<?> clazz, int offset, int size) {
@@ -86,8 +112,8 @@ public class ModelContract {
 		return Uri.parse(StringUtil.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
 	}
 	
-	public static Uri getUri(String modelName, boolean withCleaner) {
-		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName)+(withCleaner ? CLEANER_TRUE : StringUtil.EMPTY));
+	public static Uri getUri(String modelName) {
+		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName));
 	}
 	
 	public static Uri getUri(Class<?> clazz, Long id) {
@@ -119,7 +145,10 @@ public class ModelContract {
     }
 
     public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
-		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()),  StringUtil.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY))));
+        String authority = getAuthority(ContextHolder.getInstance().getContext());
+        String refreshUriAsString = StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY);
+        String sqlParameter = StringUtil.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), refreshUriAsString);
+        return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, authority, sqlParameter));
 	}
 
 	public static class UriBuilder {
@@ -151,15 +180,12 @@ public class ModelContract {
             }
         }
 
-        @Deprecated
-        public UriBuilder enableCleaner() {
-            checkParams();
-			this.builder.append(PARAM_CLEANER+"=true");
-			return this;
-		}
-		
 		public Uri build() {
 			return Uri.parse(builder.toString());
 		}
 	}
+
+    public static boolean isNotify(Uri uri) {
+        return StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES));
+    }
 }

@@ -9,7 +9,6 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.os.Build;
@@ -25,7 +24,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbByteArray;
@@ -36,7 +34,6 @@ import by.istin.android.xcore.annotations.dbIndex;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.Log;
@@ -81,12 +78,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     private volatile Boolean isLockTransaction = false;
 
-	private DBHelper(Context context, String name, CursorFactory factory,
-			int version) {
-		super(context, name, factory, version);
-	}
-
-	public DBHelper(Context context) {
+    public DBHelper(Context context) {
 		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
 	}
 	
@@ -108,7 +100,9 @@ public class DBHelper extends SQLiteOpenHelper {
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
         if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
-            writableDatabase.setLockingEnabled(false);
+            if (writableDatabase != null) {
+                writableDatabase.setLockingEnabled(false);
+            }
         }
         return writableDatabase;
     }
@@ -154,7 +148,7 @@ public class DBHelper extends SQLiteOpenHelper {
 							}
 							list.add(field);
 							mDbEntityFieldsCache.put(classOfModel, list);
-                            addForeignKey(foreignKeys, classOfModel, (dbEntity) annotation);
+                            addForeignKey(foreignKeys, classOfModel, annotation);
                             isForeign = true;
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
 							List<Field> list = mDbEntitiesFieldsCache.get(classOfModel);
@@ -162,7 +156,7 @@ public class DBHelper extends SQLiteOpenHelper {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-                            addForeignKey(foreignKeys, classOfModel, (dbEntities) annotation);
+                            addForeignKey(foreignKeys, classOfModel, annotation);
                             mDbEntitiesFieldsCache.put(classOfModel, list);
                             isForeign = true;
 						} else if (classOfAnnotation.equals(dbIndex.class)) {
@@ -256,7 +250,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			if (db == null) {
 				db = getWritableDatabase();
 			}
-			return db.delete(tableName, where, whereArgs);
+            return db.delete(tableName, where, whereArgs);
 		} else {
 			return 0;
 		}
@@ -275,10 +269,10 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 	
 	public int updateOrInsert(Class<?> classOfModel, ContentValues... contentValues) {
-		return updateOrInsert(null, false, classOfModel, contentValues);
+		return updateOrInsert(null, classOfModel, contentValues);
 	}
 	
-	public int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, ContentValues... contentValues) {
+	public int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, ContentValues... contentValues) {
         if (contentValues == null) {
             return 0;
         }
@@ -287,7 +281,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (!isLockTransaction) {
                 beginTransaction(db);
             }
-            int count = updateOrInsert(dataSourceRequest, withCleaner, classOfModel, db, contentValues);
+            int count = updateOrInsert(dataSourceRequest, classOfModel, db, contentValues);
             if (!isLockTransaction) {
                 setTransactionSuccessful(db);
             }
@@ -299,13 +293,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-    private int updateOrInsert(DataSourceRequest dataSourceRequest, boolean withCleaner, Class<?> classOfModel, SQLiteDatabase db, ContentValues[] contentValues) {
-        if (withCleaner) {
-            ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
-            if (cleaner != null) {
-                cleaner.clean(this, db, dataSourceRequest, contentValues);
-            }
-        }
+    private int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, SQLiteDatabase db, ContentValues[] contentValues) {
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
         int count = 0;
         for (int i = 0; i < contentValues.length; i++) {
@@ -453,26 +441,21 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (annotation.annotationType().equals(dbEntity.class)) {
 				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-				putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, entityValues);
+				putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
                 updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
                 for (ContentValues cv : entitiesValues) {
-                    putForeignEntityAndClear(dataSourceRequest, id, db, contentValuesKey, foreignId, modelClass, cv);
+                    putForeignIdAndClear(id, contentValuesKey, foreignId, cv);
                 }
-                updateOrInsert(dataSourceRequest, false, modelClass, db, entitiesValues);
+                updateOrInsert(dataSourceRequest, modelClass, db, entitiesValues);
 			}
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
-			if (dbAnnotation.equals(dbEntities.class)) {
-				if (((dbEntities)annotation).isNotify()) {
-					ContextHolder.getInstance().getContext().getContentResolver().notifyChange(ModelContract.getUri(modelClass), null);
-				}
-			}
 		}
 	}
 
-	private void putForeignEntityAndClear(DataSourceRequest dataSourceRequest, long id, SQLiteDatabase db, String contentValuesKey, String foreignId, Class<?> modelClass, ContentValues entityValues) {
+	private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {
 		entityValues.remove(contentValuesKey);
 		entityValues.put(foreignId, id);
 	}
@@ -490,9 +473,8 @@ public class DBHelper extends SQLiteOpenHelper {
 			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
 			qb.setTables(tableName);
 			SQLiteDatabase db = getReadableDatabase();
-			Cursor query = qb.query(db, projection, selection, selectionArgs, groupBy,
-					having, sortOrder, limit);
-			return query;
+            return qb.query(db, projection, selection, selectionArgs, groupBy,
+                    having, sortOrder, limit);
 		} else {
 			return null;
 		}
@@ -500,8 +482,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
 	public Cursor rawQuery(String sql, String[] selectionArgs) {
 		SQLiteDatabase db = getReadableDatabase();
-		Cursor cursor = db.rawQuery(sql, selectionArgs);
-		return cursor;
+        return db.rawQuery(sql, selectionArgs);
 	}
 
     public static void moveFromOldValues(ContentValues oldValues, ContentValues newValues, String ... keys) {
