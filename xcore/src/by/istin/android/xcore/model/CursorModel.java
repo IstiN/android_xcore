@@ -364,9 +364,9 @@ public class CursorModel implements Cursor, List<Cursor> {
     }
 
     @Override
-    public Cursor get(int location) {
+    public CursorModel get(int location) {
         mCursor.moveToPosition(location);
-        return mCursor;
+        return this;
     }
 
     @Override

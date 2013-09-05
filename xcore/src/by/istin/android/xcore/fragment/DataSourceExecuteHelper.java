@@ -31,6 +31,8 @@ import by.istin.android.xcore.utils.StringUtil;
  */
 public class DataSourceExecuteHelper {
 
+    public static final Handler HANDLER = new Handler(Looper.getMainLooper());
+
     public static interface IDataSourceListener {
 
         String getUrl();
@@ -71,7 +73,7 @@ public class DataSourceExecuteHelper {
         dataSourceRequest.setCacheable(dataSourceListener.isCacheable());
         dataSourceRequest.setCacheExpiration(dataSourceListener.getCacheExpiration());
         dataSourceRequest.setForceUpdateData(isForceUpdate);
-        DataSourceService.execute(activity, dataSourceRequest, dataSourceListener.getProcessorKey(), dataSourceListener.getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
+        DataSourceService.execute(activity, dataSourceRequest, dataSourceListener.getProcessorKey(), dataSourceListener.getDataSourceKey(), new StatusResultReceiver(HANDLER) {
 
             @Override
             public void onStart(Bundle resultData) {

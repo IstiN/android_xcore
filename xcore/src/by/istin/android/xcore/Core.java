@@ -7,13 +7,11 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import by.istin.android.xcore.callable.ISuccess;
-import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
@@ -28,6 +26,24 @@ import by.istin.android.xcore.utils.CursorUtils;
 public class Core implements XCoreHelper.IAppServiceKey {
 
     public static final String APP_SERVICE_KEY = "xcore:common:core";
+
+    public static abstract class SimpleDataSourceServiceListener {
+
+        public void onStart(Bundle resultData) {
+
+        };
+
+        public abstract void onDone(Bundle resultData);
+
+        public void onError(Exception exception) {
+
+        };
+
+        public void onCached(Bundle resultData) {
+
+        };
+
+    }
 
     public static interface IExecuteOperation<Result> {
 
@@ -46,6 +62,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
         ISuccess<Result> getSuccess();
 
         CursorModel.CursorModelCreator getCursorModelCreator();
+
+        SimpleDataSourceServiceListener getDataSourceListener();
 
     }
 
@@ -66,6 +84,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
         private String[] mSelectionArgs;
 
         private CursorModel.CursorModelCreator mCursorModelCreator;
+
+        private Core.SimpleDataSourceServiceListener mDataSourceServiceListener;
 
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
@@ -144,6 +164,11 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 public CursorModel.CursorModelCreator getCursorModelCreator() {
                     return mCursorModelCreator;
                 }
+
+                @Override
+                public SimpleDataSourceServiceListener getDataSourceListener() {
+                    return mDataSourceServiceListener;
+                }
             };
         }
 
@@ -156,8 +181,12 @@ public class Core implements XCoreHelper.IAppServiceKey {
             setSelectionArgs(args);
         }
 
-        public void setmCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
+        public void setCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
             this.mCursorModelCreator = cursorModelCreator;
+        }
+
+        public void setDataSourceServiceListener(SimpleDataSourceServiceListener dataSourceServiceListener) {
+            this.mDataSourceServiceListener = dataSourceServiceListener;
         }
     }
 
@@ -178,18 +207,24 @@ public class Core implements XCoreHelper.IAppServiceKey {
     public void execute(final IExecuteOperation<?> executeOperation) {
         String processorKey = executeOperation.getProcessorKey();
         final DataSourceRequest dataSourceRequest = executeOperation.getDataSourceRequest();
+        final SimpleDataSourceServiceListener dataSourceListener = executeOperation.getDataSourceListener();
         DataSourceService.execute(mContext, dataSourceRequest, processorKey, executeOperation.getDataSourceKey(), new StatusResultReceiver(mHandler) {
 
             @Override
             public void onStart(Bundle resultData) {
-
+                if (dataSourceListener != null) {
+                    dataSourceListener.onStart(resultData);
+                }
             }
 
             @Override
-            public void onDone(Bundle resultData) {
+            public void onDone(final Bundle resultData) {
                 final Uri uri = executeOperation.getResultQueryUri();
                 if (uri == null) {
-                    sendResult(resultData, executeOperation);
+                    if (dataSourceListener != null) {
+                        dataSourceListener.onDone(resultData);
+                    }
+                    sendResult(resultData, resultData, executeOperation);
                     return;
                 }
                 mExecutor.execute(new Runnable() {
@@ -199,7 +234,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                         if (cursor != null) {
                             cursor.getCount();
                         }
-                        if (!sendResult(cursor, executeOperation)) {
+                        if (!sendResult(resultData, cursor, executeOperation)) {
                             CursorUtils.close(cursor);
                         }
                     }
@@ -209,24 +244,23 @@ public class Core implements XCoreHelper.IAppServiceKey {
             @Override
             protected void onCached(Bundle resultData) {
                 super.onCached(resultData);
+                if (dataSourceListener != null) {
+                    dataSourceListener.onCached(resultData);
+                }
                 onDone(resultData);
             }
 
             @Override
             public void onError(Exception exception) {
                 exception.printStackTrace();
-                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(mContext, IErrorHandler.SYSTEM_SERVICE_KEY);
-                Activity activity = executeOperation.getActivity();
-                if (errorHandler != null && activity != null) {
-                    //TODO errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
-                } else {
-                    Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                if (dataSourceListener != null) {
+                    dataSourceListener.onError(exception);
                 }
             }
         });
     }
 
-    private boolean sendResult(final Object result, final IExecuteOperation<?> executeOperation) {
+    private boolean sendResult(final Bundle resultData, final Object result, final IExecuteOperation<?> executeOperation) {
         final ISuccess success = executeOperation.getSuccess();
         if (success != null) {
             mHandler.post(new Runnable() {
@@ -237,6 +271,10 @@ public class Core implements XCoreHelper.IAppServiceKey {
                         success.success(cursorModelCreator.create((Cursor)result));
                     } else {
                         success.success(result);
+                    }
+                    SimpleDataSourceServiceListener dataSourceListener = executeOperation.getDataSourceListener();
+                    if (dataSourceListener != null) {
+                        dataSourceListener.onDone(resultData);
                     }
                 }
             });

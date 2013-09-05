@@ -73,7 +73,8 @@ public abstract class ModelContentProvider extends ContentProvider {
     private int bulkInsert(Uri uri, ContentValues[] values, String className, String cleanerParameter, DBHelper helper) throws ClassNotFoundException {
         int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), !StringUtil.isEmpty(cleanerParameter), Class.forName(className), values);
         if (count > 0) {
-            if (StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES))) {
+            String paramNotNotify = uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES);
+            if (StringUtil.isEmpty(paramNotNotify) || !Boolean.valueOf(paramNotNotify)) {
                 getContext().getContentResolver().notifyChange(uri, null);
             }
         }
