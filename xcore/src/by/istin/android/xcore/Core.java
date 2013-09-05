@@ -14,6 +14,8 @@ import java.util.concurrent.Executors;
 
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.error.IErrorHandler;
+import by.istin.android.xcore.model.CursorModel;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -43,6 +45,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         ISuccess<Result> getSuccess();
 
+        CursorModel.CursorModelCreator getCursorModelCreator();
+
     }
 
     public static class ExecuteOperationBuilder<Result> {
@@ -55,13 +59,13 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         private Uri mResultQueryUri;
 
-        private String mRequestUri;
-
         private Activity mActivity;
 
         private ISuccess<Result> mSuccess;
 
         private String[] mSelectionArgs;
+
+        private CursorModel.CursorModelCreator mCursorModelCreator;
 
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
@@ -80,11 +84,6 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         public ExecuteOperationBuilder setResultQueryUri(Uri pResultQueryUri) {
             this.mResultQueryUri = pResultQueryUri;
-            return this;
-        }
-
-        public ExecuteOperationBuilder setRequestUri(String pRequestUri) {
-            this.mRequestUri = pRequestUri;
             return this;
         }
 
@@ -140,9 +139,26 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 public ISuccess<Result> getSuccess() {
                     return mSuccess;
                 }
+
+                @Override
+                public CursorModel.CursorModelCreator getCursorModelCreator() {
+                    return mCursorModelCreator;
+                }
             };
         }
 
+        public void setResultSqlQuery(String resultSqlQuery) {
+            setResultQueryUri(ModelContract.getSQLQueryUri(resultSqlQuery, null));
+        }
+
+        public void setResultSqlQuery(String resultSqlQuery, String[] args) {
+            setResultSqlQuery(resultSqlQuery);
+            setSelectionArgs(args);
+        }
+
+        public void setmCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
+            this.mCursorModelCreator = cursorModelCreator;
+        }
     }
 
     private Context mContext;
@@ -159,7 +175,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
         return (Core) AppUtils.get(context, APP_SERVICE_KEY);
     }
 
-    public void execute(final IExecuteOperation executeOperation) {
+    public void execute(final IExecuteOperation<?> executeOperation) {
         String processorKey = executeOperation.getProcessorKey();
         final DataSourceRequest dataSourceRequest = executeOperation.getDataSourceRequest();
         DataSourceService.execute(mContext, dataSourceRequest, processorKey, executeOperation.getDataSourceKey(), new StatusResultReceiver(mHandler) {
@@ -210,13 +226,18 @@ public class Core implements XCoreHelper.IAppServiceKey {
         });
     }
 
-    private boolean sendResult(final Object result, IExecuteOperation executeOperation) {
+    private boolean sendResult(final Object result, final IExecuteOperation<?> executeOperation) {
         final ISuccess success = executeOperation.getSuccess();
         if (success != null) {
             mHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    success.success(result);
+                    CursorModel.CursorModelCreator cursorModelCreator = executeOperation.getCursorModelCreator();
+                    if (cursorModelCreator != null && result instanceof Cursor) {
+                        success.success(cursorModelCreator.create((Cursor)result));
+                    } else {
+                        success.success(result);
+                    }
                 }
             });
             return true;
