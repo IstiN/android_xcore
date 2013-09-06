@@ -5,7 +5,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import by.istin.android.xcore.provider.ModelContract;
@@ -124,8 +127,11 @@ public class DataSourceRequest {
 	public String toUriParams() {
 		StringBuffer buffer = new StringBuffer();
 		Set<String> keySet = mBundle.keySet();
-		for (Iterator<String> iterator = keySet.iterator(); iterator.hasNext();) {
-			String key = (String) iterator.next();
+        List<String> sortedKeys = new ArrayList<String>();
+        sortedKeys.addAll(keySet);
+        Collections.sort(sortedKeys);
+		for (Iterator<String> iterator = sortedKeys.iterator(); iterator.hasNext();) {
+			String key = iterator.next();
 			buffer.append(key);
 			buffer.append("=");
 			buffer.append(StringUtil.encode(mBundle.getString(key)));

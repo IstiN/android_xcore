@@ -2,6 +2,8 @@ package by.istin.android.xcore.source;
 
 import android.content.ContentValues;
 import android.provider.BaseColumns;
+
+import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.HashUtils;

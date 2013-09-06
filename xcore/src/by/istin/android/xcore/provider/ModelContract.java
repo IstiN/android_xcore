@@ -159,7 +159,9 @@ public class ModelContract {
 
         public UriBuilder(Uri uri) {
             super();
-            this.builder = new StringBuilder(uri.toString());
+            String uriAsString = uri.toString();
+            this.isParamAdded = uriAsString.contains("?");
+			this.builder = new StringBuilder(uriAsString);
         }
 
 		public UriBuilder(Class<?> clazz) {
@@ -186,6 +188,7 @@ public class ModelContract {
 	}
 
     public static boolean isNotify(Uri uri) {
-        return StringUtil.isEmpty(uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES));
+        String queryParameter = uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES);
+		return StringUtil.isEmpty(queryParameter);
     }
 }

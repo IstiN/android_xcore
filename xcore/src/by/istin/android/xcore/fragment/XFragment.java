@@ -125,7 +125,6 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 			@Override
 			public void onStart(Bundle resultData) {
 				isServiceWork = true;
-				showProgress();
 			}
 
 			@Override

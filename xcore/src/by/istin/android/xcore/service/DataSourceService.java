@@ -11,10 +11,15 @@ import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -36,7 +41,6 @@ public class DataSourceService extends AbstractExecutorService {
     public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
         return createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver, DataSourceService.class);
     }
-
 
     @Override
     protected void run(RequestExecutor.ExecuteRunnable runnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {

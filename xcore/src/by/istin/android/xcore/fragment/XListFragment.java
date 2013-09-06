@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -47,6 +48,7 @@ import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XListFragment extends AdapterViewFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
@@ -73,9 +75,11 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         public void onScroll(AbsListView view, int firstVisibleItem,
                 int visibleItemCount, int totalItemCount) {
             ListAdapter adapter = view.getAdapter();
-            if (adapter == null || adapter.getCount() == 0) {
+            int count = getRealAdapterCount(adapter);
+            if (count == 0) {
                 return;
             }
+            Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
             if (previousTotal != totalItemCount && !pagingLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = totalItemCount;
             	pagingLoading = true;
@@ -89,6 +93,18 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 
         }
 
+    }
+
+    public static int getRealAdapterCount(ListAdapter adapter) {
+        if (adapter == null) {
+            return 0;
+        }
+        int count = adapter.getCount();
+        if (adapter instanceof HeaderViewListAdapter) {
+            HeaderViewListAdapter headerViewListAdapter = (HeaderViewListAdapter) adapter;
+            count = count - headerViewListAdapter.getFootersCount() - headerViewListAdapter.getHeadersCount();
+        }
+        return count;
     }
 
     private TextWatcher mWatcher = new TextWatcher() {
@@ -269,6 +285,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        isLoaderWork = true;
         Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -277,14 +294,11 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
-        showProgress();
         return cursorLoader;
 	}
 	
 	@Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        hideProgress();
-        hidePagingProgress();
         ListAdapter adapter = getListAdapter();
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
@@ -309,17 +323,6 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 		} else {
 			((CursorAdapter) adapter).swapCursor(cursor);
 		}
-		if (isServiceWork) {
-			hideEmptyView(getView());
-		} else if (CursorUtils.isEmpty(cursor)) {
-            //TODO get correct condition
-            if (!loader.isAbandoned() /*&&!loader.isStarted()*/) {
-                showEmptyView(getView());
-            } else {
-                showProgress();
-            }
-        }
-
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -327,6 +330,8 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 plugin.onLoadFinished(this, loader, cursor);
             }
         }
+        isLoaderWork = false;
+        checkStatus("onLoadFinished");
 	}
 
 	public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
@@ -421,12 +426,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         } else {
             Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
         }
-        if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
-            mEndlessScrollListener.pagingLoading = false;
-            hidePagingProgress();
-        } else {
-            hideProgressIfLoaderNotStarted();
-        }
+        checkStatus("onError");
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -441,15 +441,17 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	}
 	
 	private boolean isServiceWork = false;
-	
+
+	private boolean isLoaderWork = false;
+
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
+		if (CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState)) {
+            isLoaderWork = true;
+        }
 		String url = getUrl();
-		if (!StringUtil.isEmpty(url)) {
-			loadData(getActivity(), url, isForceUpdateData(), null);
-		}
+        loadData(getActivity(), url, isForceUpdateData(), null);
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -457,9 +459,12 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 plugin.onActivityCreated(this, savedInstanceState);
             }
         }
+        Log.d("fragment_status", getClass().getSimpleName() + " onActivityCreated ");
+        checkStatus("onActivityCreated");
 	}
 
     public void refresh() {
+        Log.d("fragment_status", getClass().getSimpleName() + " refresh ");
         loadData(getActivity(), getUrl(), true, null);
     }
 
@@ -486,16 +491,13 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
+        isServiceWork = true;
+        Log.d("fragment_status", getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
             public void onAddToQueue(Bundle resultData) {
                 isServiceWork = true;
-                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
-                    showPagingProgress();
-                } else {
-                    showProgress();
-                }
                 //plugins
                 FragmentActivity activity = getActivity();
                 if (activity == null) return;
@@ -505,6 +507,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                         plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
                     }
                 }
+                checkStatus("onAddToQueue");
             }
 
             @Override
@@ -520,15 +523,10 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             @Override
             public void onDone(Bundle resultData) {
                 isServiceWork = false;
+                isLoaderWork = true;
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
                     return;
-                }
-                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
-                    mEndlessScrollListener.pagingLoading = false;
-                    hidePagingProgress();
-                } else {
-                    hideProgressIfLoaderNotStarted();
                 }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(fragmentActivity).getListFragmentPlugins();
@@ -538,6 +536,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                     }
                 }
                 onReceiverOnDone(resultData);
+                checkStatus("onDone");
             }
 
             @Override
@@ -548,12 +547,6 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 if (context == null) {
                     return;
                 }
-                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
-                    mEndlessScrollListener.pagingLoading = false;
-                    hidePagingProgress();
-                } else {
-                    hideProgressIfLoaderNotStarted();
-                }
                 //plugins
                 List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(context).getListFragmentPlugins();
                 if (listFragmentPlugins != null) {
@@ -562,16 +555,10 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                     }
                 }
                 onReceiverOnCached(resultData);
+                checkStatus("onCached");
             }
 
         });
-    }
-
-    private void hideProgressIfLoaderNotStarted() {
-        Loader<Object> loader = getLoaderManager().getLoader(getLoaderId());
-        if (loader == null || !loader.isStarted()) {
-            hideProgress();
-        }
     }
 
     public void onReceiverOnCached(Bundle resultData) {
@@ -588,14 +575,16 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 
 	@Override
 	public void onLoaderReset(Loader<Cursor> loader) {
+        //isLoaderWork = false;
 		if (getView() != null) {
+            Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
             Adapter adapter = getListView().getAdapter();
             if (adapter instanceof HeaderViewListAdapter) {
                 adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
             }
             ((CursorAdapter) adapter).swapCursor(null);
-			hideProgress();
 		}
+        checkStatus("onLoaderReset");
 	}
 	
 	public String getDataSourceKey() {
@@ -611,20 +600,51 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	}
 
     @Override
-	public void hideProgress() {
+    public CursorModel.CursorModelCreator getCursorModelCreator() {
+        return CursorModel.CursorModelCreator.DEFAULT;
+    }
+
+    @Override
+    public void onDestroy() {
+        mEndlessScrollListener = null;
+        mWatcher = null;
+        isLoaderWork = false;
+        isServiceWork = false;
+        checkStatus("onDestroy");
+        super.onDestroy();
+    }
+
+    @Override
+    public void hideProgress() {
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
         }
-		View view = getView();
-		if (view == null) {
-			return;
-		}
-		View progressView = view.findViewById(android.R.id.progress);
-		if (progressView != null) {
-			progressView.setVisibility(View.GONE);
-		}
-	}
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.progress);
+        if (progressView != null) {
+            progressView.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void showProgress() {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.progress);
+        if (progressView != null) {
+            progressView.setVisibility(View.VISIBLE);
+        }
+    }
 
     protected void showPagingProgress() {
         FragmentActivity activity = getActivity();
@@ -656,60 +676,76 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         }
     }
 
-    @Override
-	public void showProgress() {
-        ListAdapter listAdapter = getListAdapter();
-        if (listAdapter != null && listAdapter.getCount() > 0) {
-            return;
-        }
+    private void checkStatus(String reason) {
+        Log.d("fragment_status", getClass().getSimpleName() + " reason:" + reason);
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
         }
         View view = getView();
-		if (view == null) {
-			return;
-		}
-        View progressView = view.findViewById(android.R.id.progress);
-		if (progressView != null) {
-			progressView.setVisibility(View.VISIBLE);
-		}
-		hideEmptyView(view);
-	}
-
-	public void hideEmptyView(View view) {
-        FragmentActivity activity = getActivity();
-        if (activity == null) {
+        if (view == null) {
             return;
         }
-		if (view == null) return;
-		View emptyView = view.findViewById(android.R.id.empty);
-		if (emptyView != null) {
-			emptyView.setVisibility(View.GONE);
-		}
-	}
-
-	public void showEmptyView(View view) {
-        FragmentActivity activity = getActivity();
-        if (activity == null) {
+        ListAdapter listAdapter = getListAdapter();
+        int size = getRealAdapterCount(listAdapter);
+        boolean isPaging = mEndlessScrollListener != null;
+        if (isLoaderWork) {
+            if (size == 0) {
+                showProgress();
+                hideEmptyView(view);
+                if (isPaging) {
+                    hidePagingProgress();
+                }
+            }
             return;
         }
-		if (view == null) return;
-		View emptyView = view.findViewById(android.R.id.empty);
-		if (emptyView != null) {
-			emptyView.setVisibility(View.VISIBLE);
-		}
-	}
-
-    @Override
-    public CursorModel.CursorModelCreator getCursorModelCreator() {
-        return CursorModel.CursorModelCreator.DEFAULT;
+        if (isServiceWork) {
+            if (size == 0) {
+                showProgress();
+                hideEmptyView(view);
+                hidePagingProgress();
+            } else {
+                if (isPaging) {
+                    showPagingProgress();
+                }
+            }
+            return;
+        }
+        if (size == 0) {
+            if (isPaging) {
+                hidePagingProgress();
+            }
+            hideProgress();
+            showEmptyView(view);
+        } else {
+            hideProgress();
+            if (isPaging) {
+                hidePagingProgress();
+            }
+        }
     }
 
-    @Override
-    public void onDestroy() {
-        mEndlessScrollListener = null;
-        mWatcher = null;
-        super.onDestroy();
+    public void hideEmptyView(View view) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        if (view == null) return;
+        View emptyView = view.findViewById(android.R.id.empty);
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
+        }
+    }
+
+    public void showEmptyView(View view) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        if (view == null) return;
+        View emptyView = view.findViewById(android.R.id.empty);
+        if (emptyView != null) {
+            emptyView.setVisibility(View.VISIBLE);
+        }
     }
 }

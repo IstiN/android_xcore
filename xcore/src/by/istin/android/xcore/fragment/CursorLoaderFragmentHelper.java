@@ -43,7 +43,6 @@ public class CursorLoaderFragmentHelper {
 	
 	public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
 		Loader<Cursor> loader = null;
-        final Handler handler = new Handler(Looper.getMainLooper());
 		if (id == cursorLoaderFragment.getLoaderId()) {
 			loader = new CursorModelLoader(
 					cursorLoaderFragment.getActivity(),
@@ -52,31 +51,12 @@ public class CursorLoaderFragmentHelper {
 					cursorLoaderFragment.getProjection(), 
 					cursorLoaderFragment.getSelection(), 
 					cursorLoaderFragment.getSelectionArgs(), 
-					cursorLoaderFragment.getOrder()){
-                @Override
-                public Cursor loadInBackground() {
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            cursorLoaderFragment.showProgress();
-                        }
-                    });
-                    Cursor cursor = super.loadInBackground();
-                    handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            cursorLoaderFragment.hideProgress();
-                        }
-                    });
-                    return cursor;
-                }
-
-            };
+					cursorLoaderFragment.getOrder());
 		}
 		return loader;
 	}
 	
-	public static void onActivityCreated(ICursorLoaderFragmentHelper cursorLoaderFragment, Bundle savedInstanceState) {
+	public static boolean onActivityCreated(ICursorLoaderFragmentHelper cursorLoaderFragment, Bundle savedInstanceState) {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity) {
 			if (cursorLoaderFragment.getUri() != null) {
@@ -88,8 +68,10 @@ public class CursorLoaderFragmentHelper {
                 }
                 Log.xd("lm", lm);
                 lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
+                return true;
 			}
 		}
+        return false;
 	}
 	
 }

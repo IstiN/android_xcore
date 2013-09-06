@@ -78,7 +78,6 @@ public class DataSourceExecuteHelper {
             @Override
             public void onStart(Bundle resultData) {
                 dataSourceListener.setServiceWork(true);
-                dataSourceListener.showProgress();
             }
 
             @Override
@@ -97,7 +96,6 @@ public class DataSourceExecuteHelper {
                 if (activity == null) {
                     return;
                 }
-                dataSourceListener.hideProgress();
                 dataSourceListener.onReceiverOnDone(resultData);
             }
 
@@ -105,7 +103,6 @@ public class DataSourceExecuteHelper {
             protected void onCached(Bundle resultData) {
                 dataSourceListener.setServiceWork(false);
                 super.onCached(resultData);
-                dataSourceListener.hideProgress();
                 dataSourceListener.onReceiverOnCached(resultData);
             }
 
