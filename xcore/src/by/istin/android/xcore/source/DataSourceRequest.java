@@ -134,7 +134,8 @@ public class DataSourceRequest {
 			String key = iterator.next();
 			buffer.append(key);
 			buffer.append("=");
-			buffer.append(StringUtil.encode(mBundle.getString(key)));
+            //double encoding for correct decoding pagings uris
+			buffer.append(StringUtil.encode(StringUtil.encode(mBundle.getString(key))));
 			if (iterator.hasNext()) {
 				buffer.append("&");	
 			}

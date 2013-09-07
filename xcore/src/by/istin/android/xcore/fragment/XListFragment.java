@@ -79,7 +79,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             if (count == 0) {
                 return;
             }
-            Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
+            //Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
             if (previousTotal != totalItemCount && !pagingLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = totalItemCount;
             	pagingLoading = true;
@@ -465,7 +465,12 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 
     public void refresh() {
         Log.d("fragment_status", getClass().getSimpleName() + " refresh ");
-        loadData(getActivity(), getUrl(), true, null);
+        refresh(getActivity());
+    }
+
+    public void refresh(Activity activity) {
+        Log.d("fragment_status", getClass().getSimpleName() + " refresh ");
+        loadData(activity, getUrl(), true, null);
     }
 
     public void loadData(Activity activity, String url, String parentRequestUri) {
@@ -693,9 +698,10 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             if (size == 0) {
                 showProgress();
                 hideEmptyView(view);
-                if (isPaging) {
-                    hidePagingProgress();
-                }
+                hidePagingProgress();
+            } else {
+                hidePagingProgress();
+                hideProgress();
             }
             return;
         }
@@ -710,6 +716,9 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 }
             }
             return;
+        }
+        if (mEndlessScrollListener != null) {
+            mEndlessScrollListener.pagingLoading = false;
         }
         if (size == 0) {
             if (isPaging) {
