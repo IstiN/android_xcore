@@ -389,7 +389,9 @@ public final class StringUtil {
 			return URLDecoder.decode(value, "utf-8");
 		} catch (UnsupportedEncodingException e) {
 			return value;
-		}
+		} catch (IllegalArgumentException e) {
+            return value;
+        }
 		
 	}
 

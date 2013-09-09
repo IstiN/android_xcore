@@ -21,11 +21,12 @@ import by.istin.android.xcore.provider.ModelContract.ModelColumns;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
 
-	private UriMatcher mUriMatcher;
+	private static UriMatcher sUriMatcher;
 
 	private static final int MODELS = 1;
 
@@ -33,41 +34,147 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	private static final int MODELS_ID_NEGOTIVE = 3;
 
-	private DBHelper mDbHelper;
+	private static DBHelper sDbHelper;
 
     private volatile Boolean isLock = false;
 
     private volatile Object mLock = new Object();
 
-	@Override
+    @Override
 	public boolean onCreate() {
-		mUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-		String authority = ModelContract.getAuthority(getContext());
-		mUriMatcher.addURI(authority, "*", MODELS);
-		mUriMatcher.addURI(authority, "*/#", MODELS_ID);
-		//for negotive number
-		mUriMatcher.addURI(authority, "*/*", MODELS_ID_NEGOTIVE);
-		mDbHelper = new DBHelper(getContext());
-		Class<?>[] dbEntities = getDbEntities();
-		mDbHelper.createTablesForModels(DataSourceRequestEntity.class);
-        mDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);
-		mDbHelper.createTablesForModels(dbEntities);
-		return true;
+        initUriMatcher();
+        if (sDbHelper != null) {
+            //check for only one instance of helper
+            //2.3 android issue, we can have 2 calls of this method
+            return true;
+        }
+        synchronized (mLock) {
+            sDbHelper = new DBHelper(getContext());
+            Class<?>[] dbEntities = getDbEntities();
+            sDbHelper.createTablesForModels(DataSourceRequestEntity.class);
+            sDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);
+            sDbHelper.createTablesForModels(dbEntities);
+            return true;
+        }
 	}
 
-	public abstract Class<?>[] getDbEntities();
-	
+    private void initUriMatcher() {
+        if (sUriMatcher == null) {
+            sUriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
+            String authority = ModelContract.getAuthority(getContext());
+            sUriMatcher.addURI(authority, "*", MODELS);
+            sUriMatcher.addURI(authority, "*/#", MODELS_ID);
+            //for negotive number
+            sUriMatcher.addURI(authority, "*/*", MODELS_ID_NEGOTIVE);
+        }
+    }
+
+    public abstract Class<?>[] getDbEntities();
+
+    @Override
+    public String getType(Uri uri) {
+        switch (sUriMatcher.match(uri)) {
+            case MODELS:
+                return ModelContract.getContentType(uri.getLastPathSegment());
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+    }
+
+    @Override
+    public int delete(Uri uri, String where, String[] whereArgs) {
+        synchronized (mLock) {
+            Log.xd(this, " contentprovider " + this);
+            return deleteWithoutLockCheck(sDbHelper, uri, where, whereArgs, true);
+        }
+    }
+
+    @Override
+    public Uri insert(Uri uri, ContentValues initialValues) {
+        synchronized (mLock) {
+            return insertWithoutLockCheck(sDbHelper, uri, initialValues, true);
+        }
+    }
+
 	@Override
 	public int bulkInsert(Uri uri, ContentValues[] values) {
 		String className = uri.getLastPathSegment();
 		try {
             synchronized (mLock) {
-                return bulkInsert(uri, values, className, mDbHelper);
+                return bulkInsert(uri, values, className, sDbHelper);
             }
 		} catch (ClassNotFoundException e) {
 			throw new IllegalArgumentException(e);
 		}
 	}
+
+    @Override
+    public Cursor query(Uri uri, String[] projection, String selection,
+                        String[] selectionArgs, String sortOrder) {
+        return queryWithoutLock(uri, projection, selection, selectionArgs, sortOrder);
+    }
+
+    //TODO refactoring query parameters to path segments
+    private Cursor queryWithoutLock(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+        String className = null;
+        List<String> pathSegments = null;
+        switch (sUriMatcher.match(uri)) {
+            case MODELS:
+                className = uri.getLastPathSegment();
+                break;
+            case MODELS_ID:
+                pathSegments = uri.getPathSegments();
+                className = pathSegments.get(pathSegments.size()-2);
+                if (StringUtil.isEmpty(selection)) {
+                    selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
+                } else {
+                    selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();
+                }
+                break;
+            case MODELS_ID_NEGOTIVE:
+                pathSegments = uri.getPathSegments();
+                className = pathSegments.get(pathSegments.size()-2);
+                if (StringUtil.isEmpty(selection)) {
+                    selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
+                } else {
+                    selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("Unknown URI " + uri);
+        }
+        if (ModelContract.isSqlUri(className)) {
+            Cursor c = sDbHelper.rawQuery(ModelContract.getSqlParam(uri), selectionArgs);
+            if (c != null) {
+                c.getCount();
+                c.moveToFirst();
+            }
+            Uri observerUri = ModelContract.getObserverUri(uri);
+            if (observerUri != null) {
+                c.setNotificationUri(getContext().getContentResolver(), observerUri);
+            }
+            return c;
+        } else {
+            try {
+                String offsetParameter = uri.getQueryParameter("offset");
+                String sizeParameter = uri.getQueryParameter("size");
+                String limitParam = null;
+                if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
+                    limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
+                }
+                Cursor c = sDbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
+                if (c != null) {
+                    c.setNotificationUri(getContext().getContentResolver(), uri);
+                    c.getCount();
+                    c.moveToFirst();
+                }
+                return c;
+            } catch (ClassNotFoundException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+    }
+
 
     private int bulkInsert(Uri uri, ContentValues[] values, String className, DBHelper helper) throws ClassNotFoundException {
         int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), values);
@@ -87,34 +194,10 @@ public abstract class ModelContentProvider extends ContentProvider {
 		return null;
 	}
 
-	@Override
-	public String getType(Uri uri) {
-		switch (mUriMatcher.match(uri)) {
-		case MODELS:
-			return ModelContract.getContentType(uri.getLastPathSegment());
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
-	}
-	
-	@Override
-	public int delete(Uri uri, String where, String[] whereArgs) {
-        synchronized (mLock) {
-            return deleteWithoutLockCheck(mDbHelper, uri, where, whereArgs, true);
-        }
-	}
-
-    @Override
-    public Uri insert(Uri uri, ContentValues initialValues) {
-        synchronized (mLock) {
-            return insertWithoutLockCheck(mDbHelper, uri, initialValues, true);
-        }
-    }
-
     private int deleteWithoutLockCheck(DBHelper helper, Uri uri, String where, String[] whereArgs, boolean isNotify) {
         List<String> pathSegments = uri.getPathSegments();
         String className = StringUtil.EMPTY;
-        switch (mUriMatcher.match(uri)) {
+        switch (sUriMatcher.match(uri)) {
         case MODELS:
             className = pathSegments.get(pathSegments.size()-1);
             break;
@@ -148,7 +231,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 
 
     private Uri insertWithoutLockCheck(DBHelper helper, Uri uri, ContentValues initialValues, boolean isNotify) {
-        if (mUriMatcher.match(uri) != MODELS) {
+        if (sUriMatcher.match(uri) != MODELS) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         String className = uri.getLastPathSegment();
@@ -178,68 +261,6 @@ public abstract class ModelContentProvider extends ContentProvider {
 		throw new UnsupportedOperationException("unsupported operation, please use insert method");
 	}
 
-    //TODO refactoring query parameters to path segments
-	@Override
-	public Cursor query(Uri uri, String[] projection, String selection,
-			String[] selectionArgs, String sortOrder) {
-		String className = null;
-		List<String> pathSegments = null;
-		switch (mUriMatcher.match(uri)) {
-		case MODELS:
-			className = uri.getLastPathSegment();
-			break;
-		case MODELS_ID:
-			pathSegments = uri.getPathSegments();
-			className = pathSegments.get(pathSegments.size()-2);
-			if (StringUtil.isEmpty(selection)) {
-				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
-			} else {
-				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();
-			}
-			break;
-		case MODELS_ID_NEGOTIVE:
-			pathSegments = uri.getPathSegments();
-			className = pathSegments.get(pathSegments.size()-2);
-			if (StringUtil.isEmpty(selection)) {
-				selection = ModelColumns._ID + " = " + uri.getLastPathSegment();
-			} else {
-				selection = selection + ModelColumns._ID + " = " + uri.getLastPathSegment();	
-			}
-			break;
-		default:
-			throw new IllegalArgumentException("Unknown URI " + uri);
-		}
-		if (ModelContract.isSqlUri(className)) {
-			Cursor c = mDbHelper.rawQuery(ModelContract.getSqlParam(uri), selectionArgs);
-			if (c != null) {
-				c.getCount();
-				c.moveToFirst();
-			}
-            Uri observerUri = ModelContract.getObserverUri(uri);
-			if (observerUri != null) {
-				c.setNotificationUri(getContext().getContentResolver(), observerUri);
-			}
-			return c;
-		} else {
-			try {
-				String offsetParameter = uri.getQueryParameter("offset");
-				String sizeParameter = uri.getQueryParameter("size");
-				String limitParam = null;
-				if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
-					limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
-				}
-				Cursor c = mDbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
-				if (c != null) {
-					c.setNotificationUri(getContext().getContentResolver(), uri);
-					c.getCount();
-					c.moveToFirst();
-				}
-				return c;	
-			} catch (ClassNotFoundException e) {
-				throw new IllegalArgumentException(e);
-			}
-		}
-	}
 
 	@Override
 	public ContentProviderResult[] applyBatch(
@@ -251,7 +272,7 @@ public abstract class ModelContentProvider extends ContentProvider {
         try {
             synchronized (mLock) {
                 isLock = true;
-                mDbHelper.lockTransaction();
+                sDbHelper.lockTransaction();
                 ContentProviderResult[] result = new ContentProviderResult[operations.size()];
                 try {
                     Set<Uri> set = new HashSet<Uri>();
@@ -261,16 +282,16 @@ public abstract class ModelContentProvider extends ContentProvider {
                         result[i] = apply(contentProviderOperation, result, i);
                         set.add(uri);
                     }
-                    mDbHelper.unlockTransaction();
+                    sDbHelper.unlockTransaction();
                     for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
                         Uri uri = iterator.next();
                         getContext().getContentResolver().notifyChange(Uri.parse(uri.toString().split("\\?")[0]), null);
                     }
                 } catch (OperationApplicationException e1) {
-                    mDbHelper.errorUnlockTransaction();
+                    sDbHelper.errorUnlockTransaction();
                     throw e1;
                 } catch (Exception e) {
-                    mDbHelper.errorUnlockTransaction();
+                    sDbHelper.errorUnlockTransaction();
                     throw new IllegalArgumentException(e);
                 }
                 return result;
@@ -289,14 +310,14 @@ public abstract class ModelContentProvider extends ContentProvider {
         String[] selectionArgs = contentProviderOperation.resolveSelectionArgsBackReferences(backRefs, numBackRefs);
         Uri mUri = contentProviderOperation.getUri();
         if (values != null) {
-            Uri newUri = insertWithoutLockCheck(mDbHelper, mUri, values, false);
+            Uri newUri = insertWithoutLockCheck(sDbHelper, mUri, values, false);
             if (newUri == null) {
                 throw new OperationApplicationException("insert failed");
             }
             return new ContentProviderResult(newUri);
         }
 
-        int numRows = deleteWithoutLockCheck(mDbHelper, mUri, "?", selectionArgs, false);
+        int numRows = deleteWithoutLockCheck(sDbHelper, mUri, "?", selectionArgs, false);
 
         return new ContentProviderResult(numRows);
     }

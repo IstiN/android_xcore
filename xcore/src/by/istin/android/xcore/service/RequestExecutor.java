@@ -89,13 +89,13 @@ public class RequestExecutor {
 
 
         public void sendStatus(StatusResultReceiver.Status status, Bundle bundle) {
-            if (mResultReceivers != null) {
-                for (int i = 0; i < mResultReceivers.size(); i++) {
-                    ResultReceiver resultReceiver = mResultReceivers.get(i);
-                    resultReceiver.send(status.ordinal(), bundle);
+            synchronized (mPrevStatusLock) {
+                if (mResultReceivers != null) {
+                    for (int i = 0; i < mResultReceivers.size(); i++) {
+                        ResultReceiver resultReceiver = mResultReceivers.get(i);
+                        resultReceiver.send(status.ordinal(), bundle);
+                    }
                 }
-            }
-            synchronized (mPrevStatuses) {
                 StatusBundle statusBundle = new StatusBundle();
                 statusBundle.mBundle = bundle;
                 statusBundle.mStatus = status;
