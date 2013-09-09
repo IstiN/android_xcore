@@ -35,9 +35,10 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
     }
 
 	public void addSyncAccount(){
-		AccountManager am = AccountManager
-				.get(mContext);
-		Account account = new Account(mAccountName, mContext.getPackageName()+ACCOUNT_TYPE);
+        Context applicationContext = mContext.getApplicationContext();
+        AccountManager am = AccountManager
+				.get(applicationContext);
+		Account account = new Account(mAccountName, applicationContext.getPackageName()+ACCOUNT_TYPE);
 		Bundle params = new Bundle();
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
@@ -47,14 +48,19 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 		ContentResolver.addPeriodicSync(account, mModelContentProviderAuthority,
 				params, mPeriod);
 		ContentResolver.setIsSyncable(account, mModelContentProviderAuthority, 1);
-		am.addAccountExplicitly(account, null, null);
+        try {
+		    am.addAccountExplicitly(account, null, null);
+        } catch (SecurityException ex) {
+            //TODO handle
+        }
 	}
 	
 	public void removeSyncAccount(){
-		AccountManager am = AccountManager
-				.get(mContext);
+        Context applicationContext = mContext.getApplicationContext();
+        AccountManager am = AccountManager
+				.get(applicationContext);
 		Account account = new Account(mAccountName,
-                mContext.getPackageName()+ACCOUNT_TYPE);
+                applicationContext.getPackageName()+ACCOUNT_TYPE);
 		Bundle params = new Bundle();
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
@@ -62,7 +68,11 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 		ContentResolver.removePeriodicSync(account, mModelContentProviderAuthority,
 				params);
 		ContentResolver.setIsSyncable(account, mModelContentProviderAuthority, 0);
-		am.addAccountExplicitly(account, null, null);
+        try {
+		    am.addAccountExplicitly(account, null, null);
+        } catch (SecurityException ex) {
+            //TODO handle
+        }
 
 	}
 	
