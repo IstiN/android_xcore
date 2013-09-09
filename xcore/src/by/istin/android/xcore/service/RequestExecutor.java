@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,7 @@ public class RequestExecutor {
 
 		private String mKey;
 
-        private List<ResultReceiver> mResultReceivers = new ArrayList<ResultReceiver>();
+        private List<ResultReceiver> mResultReceivers = new CopyOnWriteArrayList<ResultReceiver>();
 
         private boolean isRunning = false;
 
@@ -45,7 +46,9 @@ public class RequestExecutor {
 			super();
 			mKey = createKey();
             if (resultReceiver != null) {
-                mResultReceivers.add(resultReceiver);
+                synchronized (mPrevStatusLock) {
+                    mResultReceivers.add(resultReceiver);
+                }
             }
 		}
 
@@ -70,8 +73,8 @@ public class RequestExecutor {
         }
 
         protected void addResultReceiver(ResultReceiver resultReceiver) {
-            mResultReceivers.add(resultReceiver);
             synchronized (mPrevStatusLock) {
+                mResultReceivers.add(resultReceiver);
                 for (StatusBundle prevStatus : mPrevStatuses) {
                     resultReceiver.send(prevStatus.mStatus.ordinal(), prevStatus.mBundle);
                 }
