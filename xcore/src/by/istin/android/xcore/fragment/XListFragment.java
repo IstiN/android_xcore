@@ -294,6 +294,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
+        checkStatus("onCreateLoader");
         return cursorLoader;
 	}
 	
@@ -528,6 +529,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             @Override
             public void onDone(Bundle resultData) {
                 isServiceWork = false;
+                //TODO needs check if loader not was launched and finished before
                 isLoaderWork = true;
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
@@ -681,7 +683,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         }
     }
 
-    private void checkStatus(String reason) {
+    protected void checkStatus(String reason) {
         Log.d("fragment_status", getClass().getSimpleName() + " reason:" + reason);
         FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -694,6 +696,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         ListAdapter listAdapter = getListAdapter();
         int size = getRealAdapterCount(listAdapter);
         boolean isPaging = mEndlessScrollListener != null;
+        Log.d("fragment_status", getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
         if (isLoaderWork) {
             if (size == 0) {
                 showProgress();

@@ -11,15 +11,12 @@ import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.os.ResultReceiver;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.Serializable;
 
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.CursorUtils;
-import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -85,8 +82,17 @@ public class DataSourceService extends AbstractExecutorService {
             synchronized (mDbLockFlag) {
                 getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
             }
-            bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
-            runnable.sendStatus(StatusResultReceiver.Status.ERROR, bundle);
+            try {
+                if (e instanceof Serializable) {
+                    bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
+                } else {
+                    bundle.putSerializable(StatusResultReceiver.ERROR_KEY, new Exception(e.getMessage()));
+                }
+                runnable.sendStatus(StatusResultReceiver.Status.ERROR, bundle);
+            } catch (RuntimeException e1) {
+                bundle.remove(StatusResultReceiver.ERROR_KEY);
+                runnable.sendStatus(StatusResultReceiver.Status.ERROR, bundle);
+            }
         }
     }
 }
