@@ -76,6 +76,12 @@ public class DataSourceExecuteHelper {
         DataSourceService.execute(activity, dataSourceRequest, dataSourceListener.getProcessorKey(), dataSourceListener.getDataSourceKey(), new StatusResultReceiver(HANDLER) {
 
             @Override
+            protected void onAddToQueue(Bundle resultData) {
+                super.onAddToQueue(resultData);
+                dataSourceListener.setServiceWork(true);
+            }
+
+            @Override
             public void onStart(Bundle resultData) {
                 dataSourceListener.setServiceWork(true);
             }

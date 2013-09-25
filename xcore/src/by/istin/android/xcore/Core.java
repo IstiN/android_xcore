@@ -172,21 +172,25 @@ public class Core implements XCoreHelper.IAppServiceKey {
             };
         }
 
-        public void setResultSqlQuery(String resultSqlQuery) {
+        public ExecuteOperationBuilder setResultSqlQuery(String resultSqlQuery) {
             setResultQueryUri(ModelContract.getSQLQueryUri(resultSqlQuery, null));
+            return this;
         }
 
-        public void setResultSqlQuery(String resultSqlQuery, String[] args) {
+        public ExecuteOperationBuilder setResultSqlQuery(String resultSqlQuery, String[] args) {
             setResultSqlQuery(resultSqlQuery);
             setSelectionArgs(args);
+            return this;
         }
 
-        public void setCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
+        public ExecuteOperationBuilder setCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
             this.mCursorModelCreator = cursorModelCreator;
+            return this;
         }
 
-        public void setDataSourceServiceListener(SimpleDataSourceServiceListener dataSourceServiceListener) {
+        public ExecuteOperationBuilder setDataSourceServiceListener(SimpleDataSourceServiceListener dataSourceServiceListener) {
             this.mDataSourceServiceListener = dataSourceServiceListener;
+            return this;
         }
     }
 
