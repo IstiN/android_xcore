@@ -166,8 +166,19 @@ public class RequestExecutor {
     }
 
     public void stop(ResultReceiver resultReceiver) {
-        mExecutor.shutdownNow();
+        try {
+            mExecutor.shutdownNow();
+        } catch (RuntimeException e) {
+            Log.xd(this, "stop error during shutdown");
+            e.printStackTrace();
+        } catch (Exception e) {
+            Log.xd(this, "stop error during shutdown");
+            e.printStackTrace();
+        }
+        Log.xd(this, "stop send info to receiver");
         resultReceiver.send(0, null);
+        Log.xd(this, "stop start recreation");
         recreateExecutor();
+        Log.xd(this, "stop done");
     }
 }
