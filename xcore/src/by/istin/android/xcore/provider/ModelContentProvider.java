@@ -1,12 +1,8 @@
 package by.istin.android.xcore.provider;
 
-import android.content.ContentProvider;
-import android.content.ContentProviderOperation;
-import android.content.ContentProviderResult;
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.OperationApplicationException;
-import android.content.UriMatcher;
+import android.content.*;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 
@@ -16,7 +12,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.preference.PreferenceHelper;
 import by.istin.android.xcore.provider.ModelContract.ModelColumns;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
@@ -26,7 +24,8 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class ModelContentProvider extends ContentProvider {
 
-	private static UriMatcher sUriMatcher;
+    public static final String OLD_APP_VERSION = "oldAppVersion";
+    private static UriMatcher sUriMatcher;
 
 	private static final int MODELS = 1;
 
@@ -38,18 +37,33 @@ public abstract class ModelContentProvider extends ContentProvider {
 
     private volatile Boolean isLock = false;
 
-    private volatile Object mLock = new Object();
+    private static volatile Object mLock = new Object();
 
     @Override
 	public boolean onCreate() {
         initUriMatcher();
-        if (sDbHelper != null) {
-            //check for only one instance of helper
-            //2.3 android issue, we can have 2 calls of this method
-            return true;
+        Log.init(getContext());
+        Context context = ContextHolder.getInstance().getContext();
+        if (context == null) {
+            ContextHolder.getInstance().setContext(getContext());
         }
         synchronized (mLock) {
+            if (sDbHelper != null) {
+                //check for only one instance of helper
+                //2.3 android issue, we can have 2 calls of this method
+                return true;
+            }
             sDbHelper = new DBHelper(getContext());
+            if (Log.isOff) {
+                int currentAppVersion = getAppVersion();
+                int oldAppVersion = PreferenceHelper.getInt(OLD_APP_VERSION, 0);
+                if (currentAppVersion == oldAppVersion) {
+                    //return true;
+                } else {
+                    PreferenceHelper.set(OLD_APP_VERSION, currentAppVersion);
+                    onUpgrade(oldAppVersion, currentAppVersion);
+                }
+            }
             Class<?>[] dbEntities = getDbEntities();
             sDbHelper.createTablesForModels(DataSourceRequestEntity.class);
             sDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);
@@ -57,6 +71,20 @@ public abstract class ModelContentProvider extends ContentProvider {
             return true;
         }
 	}
+
+    protected void onUpgrade(int oldAppVersion, int currentAppVersion) {
+        Log.xd(this, "onUpgrade: from "+oldAppVersion + " to " + currentAppVersion);
+    }
+
+    public int getAppVersion() {
+        try {
+            PackageInfo pInfo = getContext().getPackageManager().getPackageInfo(getContext().getPackageName(), 0);
+            return pInfo.versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            //can be ignored
+        }
+        return 0;
+    }
 
     private void initUriMatcher() {
         if (sUriMatcher == null) {
