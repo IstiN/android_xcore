@@ -96,10 +96,14 @@ public abstract class AbstractExecutorService extends Service {
 	protected void onHandleIntent(final Intent intent) {
         final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
         if (intent.getBooleanExtra(ACTION_STOP, false)) {
+            Log.xd(this, "action stop");
             if (mRequestExecutor != null) {
                 mRequestExecutor.stop(resultReceiver);
+            } else {
+                resultReceiver.send(0, null);
             }
             stopSelf();
+            Log.xd(this, "action stop executore recreated");
             return;
         }
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
