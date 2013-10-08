@@ -16,6 +16,7 @@
     </string-array>
     <string-array name="fragments">
         <item>DemoXListFragment</item>
+        <item>DemoXListFragmentJoinedRequest</item>
     </string-array>
 
 </resources>

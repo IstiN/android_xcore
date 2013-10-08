@@ -13,6 +13,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.xcoredemo.test.DemoXListFragment;
+import com.example.xcoredemo.test.DemoXListFragmentJoinedRequest;
 import com.example.xcoredemo.test.IDemoTest;
 
 public class DemoActivity extends FragmentActivity {
@@ -39,7 +40,7 @@ public class DemoActivity extends FragmentActivity {
 		mTextViewResult = (TextView) findViewById(R.id.tv_demo_result);
 		mProgressBar = (ProgressBar) findViewById(R.id.pb_demo);
 		String name = getIntent().getStringExtra(EXTRA_TEST_NAME);
-		if (name.equals(DemoXListFragment.class.getSimpleName())) {
+		if (name.equals(DemoXListFragment.class.getSimpleName()) || name.equals(DemoXListFragmentJoinedRequest.class.getSimpleName())) {
 			mIsFragment = true;
 		} else {
 			try {
