@@ -34,6 +34,10 @@ public abstract class ModelContentProvider extends ContentProvider {
 	
 	private static final int MODELS_ID_NEGOTIVE = 3;
 
+    //TODO close db helper after long time without work
+    //TODO create dbHelper factory for control dbHelper lifecycle
+    //TODO create dbHelperWrapper like this contentProvider for using inside ptocessors without ContentResolver
+    //it will helps to improve speed for inserting/update/delete operation(specially for sub entities)
 	private static DBHelper sDbHelper;
 
     private volatile Boolean isLock = false;
