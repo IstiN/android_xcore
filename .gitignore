@@ -18,3 +18,22 @@ local.properties
 # Eclipse project files
 .classpath
 .project
+api-demo/xcore-demo/xcore-demo.iml
+plugins/Android-PullToRefresh/Android-PullToRefresh.iml
+plugins/Android-PullToRefresh/Android-PullToRefresh1.iml
+plugins/Android-PullToRefresh/src/by/istin/android/xcore/plugin/plugin1.iml
+plugins/Android-PullToRefresh/xcore-plugin-PullToRefresh.iml
+plugins/UniversalImageLoader/.idea/.name
+plugins/UniversalImageLoader/.idea/compiler.xml
+plugins/UniversalImageLoader/.idea/copyright/profiles_settings.xml
+plugins/UniversalImageLoader/.idea/encodings.xml
+plugins/UniversalImageLoader/.idea/misc.xml
+plugins/UniversalImageLoader/.idea/modules.xml
+plugins/UniversalImageLoader/.idea/scopes/scope_settings.xml
+plugins/UniversalImageLoader/.idea/vcs.xml
+plugins/UniversalImageLoader/.idea/workspace.xml
+plugins/UniversalImageLoader/UniversalImageLoader.iml
+plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/plugin.iml
+plugins/UniversalImageLoader/xcore-plugin-UniversalImageLoader.iml
+xcore-test/xcore-test.iml
+xcore/xcore.iml
