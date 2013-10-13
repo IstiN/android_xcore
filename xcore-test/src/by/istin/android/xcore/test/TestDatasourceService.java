@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.db.DBHelper;
@@ -19,6 +20,8 @@ import by.istin.android.xcore.test.vk.Dialog;
 import by.istin.android.xcore.test.vk.FwdMessage;
 import by.istin.android.xcore.test.vk.User;
 
+import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -96,8 +99,16 @@ public class TestDatasourceService extends ApplicationTestCase<CoreApplication> 
 		dbHelper.createTablesForModels(Attachment.class);
 		dbHelper.createTablesForModels(FwdMessage.class);
 		dbHelper.createTablesForModels(User.class);
+        dbHelper.delete(Dialog.class, null, null);
+        Log.startAction("dialogInsert");
 		dbHelper.updateOrInsert(Dialog.class, dialogs);
-		dbHelper.updateOrInsert(User.class, users);
+        Log.endAction("dialogInsert");
+        Log.startAction("dialogInsertResult");
+        Cursor cursor = dbHelper.query(Dialog.class, null, null, null, null, null, null, null);
+        cursor.getCount();
+        Log.endAction("dialogInsertResult");
+        CursorUtils.close(cursor);
+        dbHelper.updateOrInsert(User.class, users);
 	}
 	
 

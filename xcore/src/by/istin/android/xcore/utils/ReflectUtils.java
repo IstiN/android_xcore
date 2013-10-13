@@ -16,6 +16,8 @@ public class ReflectUtils {
 
     private static Map<Field, String> sNameOfField = new ConcurrentHashMap<Field, String>();
 
+    private static Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
+
     private static Map<Field, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<Field, Set<Class<? extends Annotation>>>();
 
 	public static List<Field> getEntityKeys(Class<?> clazz) {
@@ -70,13 +72,19 @@ public class ReflectUtils {
 	
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
 		try {
+            String cacheKey = clazz.getName() + interfaceTargetClazz.getName();
+            if (sInstancesOfInterface.containsKey(cacheKey)) {
+                return (T) sInstancesOfInterface.get(cacheKey);
+            }
             Class<?> cls = clazz;
             while (cls != null) {
                 Class<?>[] interfaces = cls.getInterfaces();
 
                 for (Class<?> i : interfaces) {
                     if (i.equals(interfaceTargetClazz)) {
-                        return (T)clazz.newInstance();
+                        T object = (T) clazz.newInstance();
+                        sInstancesOfInterface.put(cacheKey, object);
+                        return object;
                     }
                 }
                 cls = cls.getSuperclass();

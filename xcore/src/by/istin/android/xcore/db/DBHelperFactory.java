@@ -1,7 +1,6 @@
 package by.istin.android.xcore.db;
 
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.db.DBHelper;
 
 /**
  * Created with IntelliJ IDEA.

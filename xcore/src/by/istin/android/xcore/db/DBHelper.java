@@ -13,32 +13,15 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.os.Build;
 import android.provider.BaseColumns;
+import by.istin.android.xcore.annotations.*;
+import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-
-import by.istin.android.xcore.annotations.dbBoolean;
-import by.istin.android.xcore.annotations.dbByte;
-import by.istin.android.xcore.annotations.dbByteArray;
-import by.istin.android.xcore.annotations.dbDouble;
-import by.istin.android.xcore.annotations.dbEntities;
-import by.istin.android.xcore.annotations.dbEntity;
-import by.istin.android.xcore.annotations.dbIndex;
-import by.istin.android.xcore.annotations.dbInteger;
-import by.istin.android.xcore.annotations.dbLong;
-import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.BytesUtils;
-import by.istin.android.xcore.utils.Log;
-import by.istin.android.xcore.utils.ReflectUtils;
-import by.istin.android.xcore.utils.StringUtil;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -126,6 +109,7 @@ public class DBHelper extends SQLiteOpenHelper {
         List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
+            sCacheTable.remove(table);
 			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
@@ -256,15 +240,20 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
+    private ConcurrentHashMap<String, Boolean> sCacheTable = new ConcurrentHashMap<String, Boolean>();
+
 	public boolean isExists(String tableName) {
+        if (sCacheTable.contains(tableName)) {
+            return sCacheTable.get(tableName);
+        }
 		SQLiteDatabase readableDb = getReadableDatabase();
 		Cursor cursor = readableDb.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
 		try {
-			return cursor != null && cursor.moveToFirst();	
+            boolean isExists = cursor != null && cursor.moveToFirst();
+            sCacheTable.put(tableName, isExists);
+            return isExists;
 		} finally {
-			if (cursor != null) {
-				cursor.close();
-			}
+			CursorUtils.close(cursor);
 		}
 	}
 	
@@ -324,11 +313,7 @@ public class DBHelper extends SQLiteOpenHelper {
             if (!isLockTransaction) {
                 beginTransaction(db);
             }
-			ICleaner cleaner = ReflectUtils.getInstanceInterface(classOfModel, ICleaner.class);
-			if (cleaner != null) {
-				cleaner.clean(this, db, dataSourceRequest, contentValues);
-			}
-		} 
+		}
 		try {
 			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
 			if (beforeUpdate != null) {
@@ -350,7 +335,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			IMerge merge = ReflectUtils.getInstanceInterface(classOfModel, IMerge.class);
 			long rowId = 0;
 			if (merge == null) {
-				int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
+				int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)});
 				if (rowCount == 0) {
 					rowId = db.insert(tableName, null, contentValues);
 					if (rowId == -1l) {
@@ -358,10 +343,11 @@ public class DBHelper extends SQLiteOpenHelper {
 					}
 				} else {
 					rowId = id;
-				}	
+				}
 			} else {
-				Cursor cursor = query(tableName, null, BaseColumns._ID + " = " + id, null, null, null, null, null);
-				try {
+                Cursor cursor = null;
+                try {
+				    cursor = query(tableName, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
 					if (cursor == null || !cursor.moveToFirst()) {
 						rowId = db.insert(tableName, null, contentValues);
 						if (rowId == -1l) {
@@ -379,9 +365,7 @@ public class DBHelper extends SQLiteOpenHelper {
 						}
 					}
 				} finally {
-					if (cursor != null) {
-						cursor.close();
-					}
+                    CursorUtils.close(cursor);
 				}
 			}
 			if (requestWithoutTransaction) {
@@ -441,7 +425,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			}
 			if (annotation.annotationType().equals(dbEntity.class)) {
 				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-				putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
+                putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
                 updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
 			} else {
 				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
