@@ -37,3 +37,9 @@ plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/plugin.iml
 plugins/UniversalImageLoader/xcore-plugin-UniversalImageLoader.iml
 xcore-test/xcore-test.iml
 xcore/xcore.iml
+api-demo/xcore-demo-libs/PagerSlidingTabStrip/PagerSlidingTabStrip.iml
+plugins/Android-PullToRefresh/src/by/istin/android/xcore/plugin/plugin.iml
+plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/uil-xcore-plugin.iml
+plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/xcore-uil.iml
+xcore-test/.settings/org.eclipse.jdt.core.prefs
+xcore/.settings/org.eclipse.jdt.core.prefs
