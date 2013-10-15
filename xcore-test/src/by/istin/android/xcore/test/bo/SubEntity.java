@@ -8,7 +8,10 @@ public class SubEntity implements BaseColumns {
 
 	@dbLong
 	public static String ID = _ID;
-	
+
+	@dbLong
+	public static String TEST_ENTITY_ID = "testentity_id";
+
 	@dbString
 	public static String STRING_VALUE = "string_value";
 	

@@ -1,5 +1,6 @@
 package by.istin.android.xcore.db;
 
+import android.database.sqlite.SQLiteStatement;
 import by.istin.android.xcore.annotations.*;
 
 import java.lang.reflect.Field;
@@ -38,6 +39,8 @@ class DBAssociationCache {
 
     private ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
 
+    private ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
+
     private DBAssociationCache() {
 
     }
@@ -68,8 +71,12 @@ class DBAssociationCache {
         setTableCreated(tableName, true);
     }
 
-    public void setTableCreated(String tableName, boolean isCreated) {
-        mCacheTable.put(tableName, isCreated);
+    public void setTableCreated(String tableName, Boolean isCreated) {
+        if (isCreated == null) {
+            mCacheTable.remove(tableName);
+        } else {
+            mCacheTable.put(tableName, isCreated);
+        }
     }
 
     public Boolean isTableCreated(String tableName) {
@@ -82,6 +89,14 @@ class DBAssociationCache {
 
     public void setTableName(Class<?> clazz, String tableName) {
         mCacheTableNames.put(clazz, tableName);
+    }
+
+    public SQLiteStatement getInsertStatement(Class<?> clazz) {
+        return mCacheInsertStatements.get(clazz);
+    }
+
+    public void setInsertStatement(Class<?> clazz, SQLiteStatement isertStatement) {
+        mCacheInsertStatements.put(clazz, isertStatement);
     }
 
 }

@@ -1,8 +1,11 @@
 package by.istin.android.xcore.provider;
 
-import android.content.*;
+import android.content.ContentProvider;
+import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
 public abstract class DBContentProvider extends ContentProvider {
 
@@ -14,7 +17,10 @@ public abstract class DBContentProvider extends ContentProvider {
         return true;
 	}
 
-    protected abstract IDBContentProviderSupport getContentProviderSupport(Context context);
+    protected IDBContentProviderSupport getContentProviderSupport(Context context) {
+        DBContentProviderFactory dbContentProviderFactory = DBContentProviderFactory.getInstance();
+        return dbContentProviderFactory.getDbContentProvider(context, DBContentProviderFactory.Type.SQLite, getEntities());
+    };
 
     @Override
     public final String getType(Uri uri) {
@@ -49,4 +55,5 @@ public abstract class DBContentProvider extends ContentProvider {
 	}
 
 
+    public abstract Class<?> getEntities();
 }

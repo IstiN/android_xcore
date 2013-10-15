@@ -11,6 +11,7 @@ import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
+import android.database.sqlite.SQLiteStatement;
 import android.os.Build;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbEntities;
@@ -21,11 +22,8 @@ import by.istin.android.xcore.utils.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -106,7 +104,7 @@ public class DBHelper extends SQLiteOpenHelper {
         List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
-            dbAssociationCache.setTableCreated(table, false);
+            dbAssociationCache.setTableCreated(table, null);
 			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
@@ -198,22 +196,6 @@ public class DBHelper extends SQLiteOpenHelper {
         foreignKeys.add(foreignKey);
     }
 
-    private void endTransaction(SQLiteDatabase dbWriter) {
-        dbWriter.endTransaction();
-    }
-
-    private void setTransactionSuccessful(SQLiteDatabase dbWriter) {
-        dbWriter.setTransactionSuccessful();
-    }
-
-    private void beginTransaction(SQLiteDatabase dbWriter) {
-        if (Build.VERSION.SDK_INT > 10) {
-            dbWriter.beginTransactionNonExclusive();
-        } else {
-            dbWriter.beginTransaction();
-        }
-    }
-
     public int delete(Class<?> clazz, String where, String[] whereArgs) {
 		return delete(null, getTableName(clazz), where, whereArgs);
 	}
@@ -300,7 +282,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
 		return updateOrInsert(null, db, classOfModel, contentValues);
 	}
-	
+
 	public long updateOrInsert(DataSourceRequest dataSourceRequest, SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
 		boolean requestWithoutTransaction = false;
 		if (db == null) {
@@ -333,7 +315,7 @@ public class DBHelper extends SQLiteOpenHelper {
 			if (merge == null) {
 				int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)});
 				if (rowCount == 0) {
-					rowId = db.insert(tableName, null, contentValues);
+					rowId = internalInsert(db, classOfModel, contentValues, tableName);
 					if (rowId == -1l) {
 						throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
 					}
@@ -345,7 +327,7 @@ public class DBHelper extends SQLiteOpenHelper {
                 try {
 				    cursor = query(tableName, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
 					if (cursor == null || !cursor.moveToFirst()) {
-						rowId = db.insert(tableName, null, contentValues);
+						rowId = internalInsert(db, classOfModel, contentValues, tableName);
 						if (rowId == -1l) {
 							throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
 						}
@@ -354,7 +336,7 @@ public class DBHelper extends SQLiteOpenHelper {
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
 						merge.merge(this, db, dataSourceRequest, oldContentValues, contentValues);
 						if (!isContentValuesEquals(oldContentValues, contentValues)) {
-							db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
+							internalUpdate(db, classOfModel, contentValues, id, tableName);
 							rowId = id;
 						} else {
 							rowId = -1l;
@@ -379,7 +361,85 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-	public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
+    private int internalUpdate(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, Long id, String tableName) {
+        return db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
+    }
+
+    private void endTransaction(SQLiteDatabase dbWriter) {
+        dbWriter.endTransaction();
+    }
+
+    private void setTransactionSuccessful(SQLiteDatabase dbWriter) {
+        dbWriter.setTransactionSuccessful();
+    }
+
+
+    private void beginTransaction(SQLiteDatabase dbWriter) {
+        if (Build.VERSION.SDK_INT > 10) {
+            dbWriter.beginTransactionNonExclusive();
+        } else {
+            dbWriter.beginTransaction();
+        }
+    }
+
+    private long internalInsert(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, String tableName) {
+        //TODO needs some parameter to configure strategy insertWithStatement(db, clazz, contentValues, tableName);
+        //return 0;
+        return db.insert(tableName, null, contentValues);
+    }
+
+    private void insertWithStatement(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, String tableName) {
+        SQLiteStatement insertStatement = dbAssociationCache.getInsertStatement(clazz);
+        if (insertStatement == null) {
+            List<Field> fields = ReflectUtils.getEntityKeys(clazz);
+            List<String> columns = new ArrayList<String>();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(dbEntity.class)) {
+                    continue;
+                }
+                if (field.isAnnotationPresent(dbEntities.class)) {
+                    continue;
+                }
+                String name = ReflectUtils.getStaticStringValue(field);
+                columns.add(name);
+            }
+            insertStatement = db.compileStatement(createInsert(tableName, columns.toArray(new String[columns.size()])));
+            dbAssociationCache.setInsertStatement(clazz, insertStatement);
+        }
+        insertStatement.clearBindings();
+        Set<String> keys = contentValues.keySet();
+        String[] values = new String[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            values[i] = contentValues.getAsString(key);
+            i++;
+        }
+        insertStatement.bindAllArgsAsStrings(values);
+        insertStatement.execute();
+    }
+
+    static public String createInsert(final String tableName, final String[] columnNames) {
+        if (tableName == null || columnNames == null || columnNames.length == 0) {
+            throw new IllegalArgumentException();
+        }
+        final StringBuilder s = new StringBuilder();
+        s.append("INSERT OR REPLACE INTO ").append(tableName).append(" (");
+        for (String column : columnNames) {
+            s.append(column).append(" ,");
+        }
+        int length = s.length();
+        s.delete(length - 2, length);
+        s.append(") VALUES( ");
+        for (int i = 0; i < columnNames.length; i++) {
+            s.append(" ? ,");
+        }
+        length = s.length();
+        s.delete(length - 2, length);
+        s.append(")");
+        return s.toString();
+    }
+
+    public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
 		Set<Entry<String, Object>> keySet = contentValues.valueSet();
 		for (Iterator<Entry<String, Object>> iterator = keySet.iterator(); iterator.hasNext();) {
 			Entry<String, Object> entry = iterator.next();

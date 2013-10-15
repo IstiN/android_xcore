@@ -69,6 +69,14 @@ public class ReflectUtils {
 			return null;
 		}
 	}
+
+    public static Class<?> classForName(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 	
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
 		try {

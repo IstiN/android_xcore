@@ -178,7 +178,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 
 
     private int bulkInsert(Uri uri, ContentValues[] values, String className, DBHelper helper) throws ClassNotFoundException {
-        int count = helper.updateOrInsert(getDataSourceRequestFromUri(uri), Class.forName(className), values);
+        int count = helper.updateOrInsert(ModelContract.getDataSourceRequestFromUri(uri), Class.forName(className), values);
         if (count > 0) {
             if (ModelContract.isNotify(uri)) {
                 getContext().getContentResolver().notifyChange(uri, null);
@@ -186,14 +186,6 @@ public abstract class ModelContentProvider extends ContentProvider {
         }
         return count;
     }
-
-    public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
-		String dataSourceRequest = ModelContract.getDataSourceRequest(uri);;
-		if (!StringUtil.isEmpty(dataSourceRequest)) {
-			return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(dataSourceRequest)));
-		}
-		return null;
-	}
 
     private int deleteWithoutLockCheck(DBHelper helper, Uri uri, String where, String[] whereArgs, boolean isNotify) {
         List<String> pathSegments = uri.getPathSegments();
@@ -237,7 +229,7 @@ public abstract class ModelContentProvider extends ContentProvider {
         }
         String className = uri.getLastPathSegment();
         try {
-            DataSourceRequest dataSourceRequestFromUri = getDataSourceRequestFromUri(uri);
+            DataSourceRequest dataSourceRequestFromUri = ModelContract.getDataSourceRequestFromUri(uri);
             Class<?> classOfModel = Class.forName(className);
             long rowId = helper.updateOrInsert(dataSourceRequestFromUri, classOfModel, initialValues);
             if (rowId != -1l) {
