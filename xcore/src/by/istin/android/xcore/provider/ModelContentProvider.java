@@ -162,12 +162,7 @@ public abstract class ModelContentProvider extends ContentProvider {
             return c;
         } else {
             try {
-                String offsetParameter = uri.getQueryParameter("offset");
-                String sizeParameter = uri.getQueryParameter("size");
-                String limitParam = null;
-                if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
-                    limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
-                }
+                String limitParam = ModelContract.getLimitParam(uri);
                 Cursor c = sDbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
                 if (c != null) {
                     c.setNotificationUri(getContext().getContentResolver(), uri);

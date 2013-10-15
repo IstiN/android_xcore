@@ -240,13 +240,13 @@ public class DBHelper extends SQLiteOpenHelper {
 	public boolean isExists(String tableName) {
         Boolean isTableCreated = dbAssociationCache.isTableCreated(tableName);
         if (isTableCreated != null) {
-            return true;
+            return isTableCreated;
         }
 		SQLiteDatabase readableDb = getReadableDatabase();
 		Cursor cursor = readableDb.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
 		try {
             boolean isExists = cursor != null && cursor.moveToFirst();
-            dbAssociationCache.setTableCreated(tableName);
+            dbAssociationCache.setTableCreated(tableName, isExists);
             return isExists;
 		} finally {
 			CursorUtils.close(cursor);

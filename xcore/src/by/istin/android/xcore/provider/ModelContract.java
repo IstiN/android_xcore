@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.BaseColumns;
-
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
@@ -21,18 +20,11 @@ public class ModelContract {
 	private static final String CONTENT_ID_TEMPLATE = "content://"
 			+ "%s" + "/%s/%d";
 
-	private static final String CONTENT_ALL_PAGINATED_TEMPLATE = "content://"
-			+ "%s" + "/%s?offset=%d&size=%d";
-	
 	private static final String CONTENT_ALL_TEMPLATE = "content://"
 			+ "%s" + "/%s";
 	
 	
 	private static final String CONTENT_TYPE_TEMPLATE = "vnd.android.cursor.dir/%s";
-
-    private static final int DEFAULT_OFFSET = 0;
-
-    private static final int DEFAULT_SIZE = 100;
 
     private static final String SEGMENT_RAW_QUERY = "___srq";
 
@@ -81,6 +73,18 @@ public class ModelContract {
         return intent.getParcelableExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM);
     }
 
+    public static String getLimitParam(Uri uri) {
+        //TODO impelement default paging support
+        /*
+        String offsetParameter = uri.getQueryParameter("offset");
+        String sizeParameter = uri.getQueryParameter("size");
+        String limitParam = null;
+        if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
+            limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
+        }*/
+        return null;
+    }
+
     public static final class ModelColumns implements BaseColumns {
 		
 		private ModelColumns() {
@@ -92,26 +96,10 @@ public class ModelContract {
 		return StringUtil.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
 	}
 	
-	public static Uri getPaginatedUri(Class<?> clazz) {
-		return getPaginatedUri(clazz, DEFAULT_OFFSET, DEFAULT_SIZE);
-	}
-	
 	public static Uri getUri(Class<?> clazz) {
 		return getUri(clazz.getCanonicalName());
 	}
-	
-	public static Uri getPaginatedUri(Class<?> clazz, int offset, int size) {
-		return getPaginatedUri(clazz.getCanonicalName(), offset, size);
-	}
-	
-	public static Uri getPaginatedUri(String modelName) {
-		return getPaginatedUri(modelName, DEFAULT_OFFSET, DEFAULT_SIZE);
-	}
-	
-	public static Uri getPaginatedUri(String modelName, int offset, int size) {
-		return Uri.parse(StringUtil.format(CONTENT_ALL_PAGINATED_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName, offset, size));
-	}
-	
+
 	public static Uri getUri(String modelName) {
 		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName));
 	}
