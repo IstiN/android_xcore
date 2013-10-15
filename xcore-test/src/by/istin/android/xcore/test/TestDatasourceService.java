@@ -26,9 +26,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
-public class TestDatasourceService extends ApplicationTestCase<CoreApplication> {
+public class TestDataSourceService extends ApplicationTestCase<CoreApplication> {
 
-	public TestDatasourceService() {
+	public TestDataSourceService() {
 		super(CoreApplication.class);
 	}
 
