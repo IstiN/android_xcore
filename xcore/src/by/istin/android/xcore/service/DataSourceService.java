@@ -11,14 +11,13 @@ import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
-
-import java.io.Serializable;
-
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.StringUtil;
+
+import java.io.Serializable;
 
 /**
  * @author IstiN
@@ -62,7 +61,7 @@ public class DataSourceService extends AbstractExecutorService {
                             isAlreadyCached = true;
                         } else {
                             contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
-                            getContentResolver().insert(ModelContract.getPaginatedUri(DataSourceRequestEntity.class), contentValues);
+                            getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);
                         }
                     }
                 } finally {
