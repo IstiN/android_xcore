@@ -8,9 +8,9 @@ import by.istin.android.xcore.ContextHolder;
  * Date: 12.10.13
  * Time: 15.13
  */
-public class DBHelperFactory {
+public class DBContentProviderFactory {
 
-    private DBHelperFactory () {}
+    private DBContentProviderFactory() {}
 
     private static class DBHelperHolder {
         private static final DBHelper INSTANCE = new DBHelper(ContextHolder.getInstance().getContext());

@@ -13,15 +13,19 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.os.Build;
 import android.provider.BaseColumns;
-import by.istin.android.xcore.annotations.*;
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbIndex;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.Set;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -39,32 +43,19 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
             + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
 
-    final static Map<Class<?>, String> sTypeAssociation = new HashMap<Class<?>, String>();
-
-    static {
-        sTypeAssociation.put(dbString.class, "LONGTEXT");
-        sTypeAssociation.put(dbInteger.class, "INTEGER");
-        sTypeAssociation.put(dbLong.class, "BIGINT");
-        sTypeAssociation.put(dbDouble.class, "DOUBLE");
-        sTypeAssociation.put(dbBoolean.class, "BOOLEAN");
-        sTypeAssociation.put(dbByte.class, "INTEGER");
-        sTypeAssociation.put(dbByteArray.class, "BLOB");
-    }
-
     public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
             " FOREIGN KEY (%3$s_id) " +
             " REFERENCES %2$s(id);";
-
-    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
-
-    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
 
     private volatile Boolean isLockTransaction = false;
 
     public DBHelper(Context context) {
 		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+        dbAssociationCache = DBAssociationCache.get();
 	}
-	
+
+    private DBAssociationCache dbAssociationCache;
+
 	@Override
 	public void onCreate(SQLiteDatabase db) {
 
@@ -76,7 +67,13 @@ public class DBHelper extends SQLiteOpenHelper {
 	}
 
 	public static String getTableName(Class<?> clazz) {
-		return clazz.getCanonicalName().replace(".", "_");
+        DBAssociationCache associationCache = DBAssociationCache.get();
+        String tableName = associationCache.getTableName(clazz);
+        if (tableName == null) {
+            tableName = clazz.getCanonicalName().replace(".", "_");
+            associationCache.setTableName(clazz, tableName);
+        }
+        return tableName;
 	}
 
     @Override
@@ -109,7 +106,7 @@ public class DBHelper extends SQLiteOpenHelper {
         List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
-            sCacheTable.remove(table);
+            dbAssociationCache.setTableCreated(table, false);
 			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
@@ -123,25 +120,25 @@ public class DBHelper extends SQLiteOpenHelper {
                     boolean isForeign = false;
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
-						if (sTypeAssociation.containsKey(classOfAnnotation)) {
-							type = sTypeAssociation.get(classOfAnnotation);
+						if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
+							type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
 						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<Field> list = mDbEntityFieldsCache.get(classOfModel);
+							List<Field> list = dbAssociationCache.getEntityFields(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
-							mDbEntityFieldsCache.put(classOfModel, list);
+                            dbAssociationCache.putEntityFields(classOfModel, list);
                             addForeignKey(foreignKeys, classOfModel, annotation);
                             isForeign = true;
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<Field> list = mDbEntitiesFieldsCache.get(classOfModel);
+							List<Field> list = dbAssociationCache.getEntitiesFields(classOfModel);
 							if (list == null) {
 								list = new ArrayList<Field>();
 							}
 							list.add(field);
                             addForeignKey(foreignKeys, classOfModel, annotation);
-                            mDbEntitiesFieldsCache.put(classOfModel, list);
+                            dbAssociationCache.putEntitiesFields(classOfModel, list);
                             isForeign = true;
 						} else if (classOfAnnotation.equals(dbIndex.class)) {
                             builder.append("CREATE INDEX "
@@ -240,17 +237,16 @@ public class DBHelper extends SQLiteOpenHelper {
 		}
 	}
 
-    private ConcurrentHashMap<String, Boolean> sCacheTable = new ConcurrentHashMap<String, Boolean>();
-
 	public boolean isExists(String tableName) {
-        if (sCacheTable.contains(tableName)) {
-            return sCacheTable.get(tableName);
+        Boolean isTableCreated = dbAssociationCache.isTableCreated(tableName);
+        if (isTableCreated != null) {
+            return isTableCreated;
         }
 		SQLiteDatabase readableDb = getReadableDatabase();
 		Cursor cursor = readableDb.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
 		try {
             boolean isExists = cursor != null && cursor.moveToFirst();
-            sCacheTable.put(tableName, isExists);
+            dbAssociationCache.setTableCreated(tableName, isExists);
             return isExists;
 		} finally {
 			CursorUtils.close(cursor);
@@ -323,11 +319,11 @@ public class DBHelper extends SQLiteOpenHelper {
 			if (id == null) {
 				throw new IllegalArgumentException("content values needs to contains _ID");
 			}
-			List<Field> listDbEntity = mDbEntityFieldsCache.get(classOfModel);
+			List<Field> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
-			List<Field> listDbEntities = mDbEntitiesFieldsCache.get(classOfModel);
+			List<Field> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
 			if (listDbEntities != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}

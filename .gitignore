@@ -43,6 +43,12 @@ plugins/Android-PullToRefresh/src/by/istin/android/xcore/plugin/plugin.iml
 .idea/copyright/profiles_settings.xml
 .idea/encodings.xml
 .idea/libraries/xcore_libs.xml
+api-demo/xcore-demo-libs/PagerSlidingTabStrip/PagerSlidingTabStrip.iml
+plugins/Android-PullToRefresh/src/by/istin/android/xcore/plugin/plugin.iml
+plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/uil-xcore-plugin.iml
+plugins/UniversalImageLoader/src/by/istin/android/xcore/plugin/xcore-uil.iml
+xcore-test/.settings/org.eclipse.jdt.core.prefs
+xcore/.settings/org.eclipse.jdt.core.prefs
 .idea/misc.xml
 .idea/modules.xml
 .idea/scopes/scope_settings.xml

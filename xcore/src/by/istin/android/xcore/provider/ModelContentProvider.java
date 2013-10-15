@@ -36,7 +36,7 @@ public abstract class ModelContentProvider extends ContentProvider {
 
     //TODO close db helper after long time without work
     //TODO create dbHelper factory for control dbHelper lifecycle
-    //TODO create dbHelperWrapper like this contentProvider for using inside ptocessors without ContentResolver
+    //TODO create dbHelperWrapper like this contentProvider for using inside processors without ContentResolver and inside ContentProvider
     //it will helps to improve speed for inserting/update/delete operation(specially for sub entities)
 	private static DBHelper sDbHelper;
 
@@ -47,6 +47,8 @@ public abstract class ModelContentProvider extends ContentProvider {
     @Override
 	public boolean onCreate() {
         initUriMatcher();
+
+        //TODO init dbhelpercontentprovider
         if (sDbHelper != null) {
             //check for only one instance of helper
             //2.3 android issue, we can have 2 calls of this method
@@ -160,12 +162,7 @@ public abstract class ModelContentProvider extends ContentProvider {
             return c;
         } else {
             try {
-                String offsetParameter = uri.getQueryParameter("offset");
-                String sizeParameter = uri.getQueryParameter("size");
-                String limitParam = null;
-                if (!StringUtil.isEmpty(offsetParameter) && !StringUtil.isEmpty(sizeParameter)) {
-                    limitParam = StringUtil.format("%s,%s",offsetParameter, sizeParameter);
-                }
+                String limitParam = ModelContract.getLimitParam(uri);
                 Cursor c = sDbHelper.query(Class.forName(className), projection, selection, selectionArgs, null, null, sortOrder, limitParam);
                 if (c != null) {
                     c.setNotificationUri(getContext().getContentResolver(), uri);
