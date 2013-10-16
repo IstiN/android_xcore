@@ -365,16 +365,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
     }
 
-    private void endTransaction(SQLiteDatabase dbWriter) {
+    public void endTransaction(SQLiteDatabase dbWriter) {
         dbWriter.endTransaction();
     }
 
-    private void setTransactionSuccessful(SQLiteDatabase dbWriter) {
+    public void setTransactionSuccessful(SQLiteDatabase dbWriter) {
         dbWriter.setTransactionSuccessful();
     }
 
 
-    private void beginTransaction(SQLiteDatabase dbWriter) {
+    public void beginTransaction(SQLiteDatabase dbWriter) {
         if (Build.VERSION.SDK_INT > 10) {
             dbWriter.beginTransactionNonExclusive();
         } else {

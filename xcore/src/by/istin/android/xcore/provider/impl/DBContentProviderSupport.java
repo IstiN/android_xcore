@@ -1,18 +1,17 @@
 package by.istin.android.xcore.provider.impl;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
-import android.content.Context;
-import android.content.UriMatcher;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import by.istin.android.xcore.db.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.IDBSupport;
+import by.istin.android.xcore.db.IDBWriteOperationSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -71,6 +70,10 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     @Override
     public int delete(Uri uri, String where, String[] whereArgs) {
+        return internalDelete(mDbSupport, uri, where, whereArgs);
+    }
+
+    private int internalDelete(IDBWriteOperationSupport writeOperationSupport, Uri uri, String where, String[] whereArgs) {
         List<String> pathSegments = uri.getPathSegments();
         String className;
         switch (sUriMatcher.match(uri)) {
@@ -94,7 +97,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
         }
-        int count = mDbSupport.delete(className, where, whereArgs);
+        int count = writeOperationSupport.delete(className, where, whereArgs);
         if (ModelContract.isNotify(uri)) {
             getContext().getContentResolver().notifyChange(uri, null);
         }
@@ -103,12 +106,16 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     @Override
     public Uri insertOrUpdate(Uri uri, ContentValues initialValues) {
+        return internalInsertOrUpdate(mDbSupport, uri, initialValues);
+    }
+
+    private Uri internalInsertOrUpdate(IDBWriteOperationSupport writeOperationSupport, Uri uri, ContentValues initialValues) {
         if (sUriMatcher.match(uri) != MODELS) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }
         String className = uri.getLastPathSegment();
         DataSourceRequest dataSourceRequest = ModelContract.getDataSourceRequestFromUri(uri);
-        long rowId = mDbSupport.updateOrInsert(dataSourceRequest, className, initialValues);
+        long rowId = writeOperationSupport.updateOrInsert(dataSourceRequest, className, initialValues);
         if (rowId != -1l) {
             Uri serializableModelUri = ContentUris.withAppendedId(uri, rowId);
             if (ModelContract.isNotify(uri)) {
@@ -186,7 +193,80 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
     }
 
     @Override
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+        ContentProviderResult[] result = new ContentProviderResult[operations.size()];
+        Set<Uri> set = new HashSet<Uri>();
+        IDBBatchOperationSupport batchOperationConnection = mDbSupport.getConnectionForBatchOperation();
+        try {
+            batchOperationConnection.beginTransaction();
+            for(int i = 0; i < operations.size(); i++) {
+                ContentProviderOperation contentProviderOperation = operations.get(i);
+                Uri uri = contentProviderOperation.getUri();
+                if (ModelContract.isNotify(uri)) {
+                    set.add(uri);
+                }
+                result[i] = apply(batchOperationConnection, contentProviderOperation, result, i);
+            }
+            batchOperationConnection.setTransactionSuccessful();
+        } finally {
+            batchOperationConnection.endTransaction();
+        }
+        for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
+            Uri uri = iterator.next();
+            getContext().getContentResolver().notifyChange(Uri.parse(uri.toString().split("\\?")[0]), null);
+        }
+        return result;
+    }
+
+    public ContentProviderResult apply(IDBBatchOperationSupport batchOperationConnection, ContentProviderOperation contentProviderOperation, ContentProviderResult[] backRefs,
+                                       int numBackRefs) throws OperationApplicationException {
+        ContentValues values = contentProviderOperation.resolveValueBackReferences(backRefs, numBackRefs);
+        String[] selectionArgs = contentProviderOperation.resolveSelectionArgsBackReferences(backRefs, numBackRefs);
+        Uri uri = contentProviderOperation.getUri();
+        if (values != null) {
+            Uri newUri = internalInsertOrUpdate(batchOperationConnection, uri, values);
+            if (newUri == null) {
+                throw new OperationApplicationException("insert failed");
+            }
+            return new ContentProviderResult(newUri);
+        }
+
+        int numRows = internalDelete(batchOperationConnection, uri, selectionArgs == null ? null : "?", selectionArgs);
+
+        return new ContentProviderResult(numRows);
+    }
+
+    @Override
     public Context getContext() {
         return mContext;
+    }
+
+    //helper's methods for batch operations
+    public static ContentProviderOperation getDeleteOperation(DataSourceRequest dataSourceRequest, Class<?> clazz) {
+        return getDeleteOperation(dataSourceRequest, clazz, null);
+    }
+
+    public static ContentProviderOperation getDeleteOperation(DataSourceRequest dataSourceRequest, Class<?> clazz, String selection) {
+        return ContentProviderOperation.
+                newDelete(ModelContract.getUri(dataSourceRequest, clazz)).
+                withSelection("?", selection == null ? null : new String[]{selection}).
+                build();
+    }
+    public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, ContentValues[] array) {
+        List<ContentValues> list = new ArrayList<ContentValues>();
+        Collections.addAll(list, array);
+        return  getContentProviderOperations(dataSourceRequest, clazz, list);
+    }
+
+    public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, List<ContentValues> array) {
+        ArrayList<ContentProviderOperation> list = new ArrayList<ContentProviderOperation>();
+        if (array != null) {
+            for (int i = 0; i < array.size(); i++) {
+                ContentValues contentValues = array.get(i);
+                Uri uri = ModelContract.getUri(dataSourceRequest, clazz);
+                list.add(ContentProviderOperation.newInsert(uri).withValues(contentValues).build());
+            }
+        }
+        return list;
     }
 }

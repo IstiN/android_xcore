@@ -1,11 +1,15 @@
 package by.istin.android.xcore.test.db;
 
 import android.app.Application;
+import android.content.ContentProviderOperation;
 import android.content.ContentValues;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import android.util.Log;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.impl.SQLiteSupport;
+import by.istin.android.xcore.provider.impl.DBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.test.bo.SubEntity;
 import by.istin.android.xcore.test.bo.TestEntity;
@@ -17,14 +21,17 @@ import java.util.concurrent.CountDownLatch;
 
 public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 
-    private static final String TEST_ENTITY_CLASS = TestEntity.class.getCanonicalName();
+    private String TEST_ENTITY_CLASS;
 
-    private static final String SUB_ENTITY_CLASS = SubEntity.class.getCanonicalName();
+    private String SUB_ENTITY_CLASS;
+
     public static final int THREAD_COUNT = 20;
 
-    private static DataSourceRequest DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
+    private DataSourceRequest DATA_SOURCE_REQUEST;
 
     private SQLiteSupport mSQLiteSupport;
+
+    private DBContentProviderSupport dbContentProviderSupport;
 
     public TestSQLiteSupport() {
 		super(Application.class);
@@ -36,6 +43,11 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 		createApplication();
         mSQLiteSupport = new SQLiteSupport();
         mSQLiteSupport.create(getApplication(), new Class[]{TestEntity.class, SubEntity.class});
+        TEST_ENTITY_CLASS = TestEntity.class.getCanonicalName();
+        SUB_ENTITY_CLASS = SubEntity.class.getCanonicalName();
+        DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
+        dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{TestEntity.class, SubEntity.class});
+        ContextHolder.getInstance().setContext(getApplication());
 	}
 
     public void testInsert() throws Exception {
@@ -46,9 +58,50 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         checkResults(1);
     }
 
+    public void testBatch() throws Exception {
+        createAndClearTables();
+
+        ArrayList<ContentProviderOperation> batchInsert = applyInsertBatch();
+
+        checkResults(MockStorage.SIZE);
+
+        ArrayList<ContentProviderOperation> deleteAllBatchOperation = applyDeleteBatch();
+        checkResults(0);
+
+        ArrayList<ContentProviderOperation> all = new ArrayList<ContentProviderOperation>();
+        all.addAll(batchInsert);
+        all.addAll(deleteAllBatchOperation);
+        dbContentProviderSupport.applyBatch(all);
+        checkResults(0);
+    }
+
+    private ArrayList<ContentProviderOperation> applyDeleteBatch() throws OperationApplicationException {
+        ArrayList<ContentProviderOperation> deleteAllBatchOperation = getDeleteAllBatchOperation();
+        dbContentProviderSupport.applyBatch(deleteAllBatchOperation);
+        return deleteAllBatchOperation;
+    }
+
+    private ArrayList<ContentProviderOperation> applyInsertBatch() throws OperationApplicationException {
+        ArrayList<ContentProviderOperation> batchInsert = getBatchInsert();
+        dbContentProviderSupport.applyBatch(batchInsert);
+        return batchInsert;
+    }
+
     private void insertOneEntity() {
         ContentValues contentValues = MockStorage.generateSingleEntity(0);
         mSQLiteSupport.updateOrInsert(DATA_SOURCE_REQUEST, TEST_ENTITY_CLASS, contentValues);
+    }
+
+    private ArrayList<ContentProviderOperation> getBatchInsert() {
+        ContentValues[] contentValueses = MockStorage.generateArray();
+        return DBContentProviderSupport.getContentProviderOperations(DATA_SOURCE_REQUEST, TestEntity.class, contentValueses);
+    }
+
+    private ArrayList<ContentProviderOperation> getDeleteAllBatchOperation() {
+        ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
+        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, TestEntity.class));
+        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, SubEntity.class));
+        return operations;
     }
 
     public void testDelete() throws Exception {
@@ -120,8 +173,8 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     public void testThreadSafe() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT*10);
-        //10 operations
+        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT*12);
+        //12 operations
         List<Runnable> operations = new ArrayList<Runnable>();
         operations.add(new Runnable() {
             @Override
@@ -199,6 +252,30 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
             @Override
             public void run() {
                 queryTestEntity();
+                latch.countDown();
+                Log.d("thread_safe", "thread count " + latch.getCount());
+            }
+        });
+        operations.add(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    applyDeleteBatch();
+                } catch (OperationApplicationException e) {
+                    throw new IllegalStateException(e);
+                }
+                latch.countDown();
+                Log.d("thread_safe", "thread count " + latch.getCount());
+            }
+        });
+        operations.add(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    applyInsertBatch();
+                } catch (OperationApplicationException e) {
+                    throw new IllegalStateException(e);
+                }
                 latch.countDown();
                 Log.d("thread_safe", "thread count " + latch.getCount());
             }

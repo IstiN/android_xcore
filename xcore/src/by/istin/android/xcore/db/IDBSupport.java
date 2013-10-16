@@ -10,12 +10,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
  * User: IstiN
  * Date: 12.10.13
  */
-public interface IDBSupport {
-
-
-    int delete(String className, String where, String[] whereArgs);
-
-    long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues);
+public interface IDBSupport extends IDBWriteOperationSupport {
 
     int updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues[] values);
 
@@ -24,4 +19,8 @@ public interface IDBSupport {
     Cursor query(String className, String[] projection, String selection, String[] selectionArgs, String groupBy, String having, String sortOrder, String limitParam);
 
     void create(Context context, Class<?>[] entities);
+
+    IDBBatchOperationSupport getConnectionForBatchOperation();
+
+
 }

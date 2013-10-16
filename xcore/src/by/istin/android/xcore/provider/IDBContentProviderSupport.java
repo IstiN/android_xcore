@@ -1,9 +1,10 @@
 package by.istin.android.xcore.provider;
 
-import android.content.ContentValues;
-import android.content.Context;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
 
 /**
  * Created with IntelliJ IDEA.
@@ -26,4 +27,5 @@ public interface IDBContentProviderSupport {
 
     Context getContext();
 
+    ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException;
 }

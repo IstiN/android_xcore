@@ -1,11 +1,11 @@
 package by.istin.android.xcore.provider;
 
-import android.content.ContentProvider;
-import android.content.ContentValues;
-import android.content.Context;
+import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
+
+import java.util.ArrayList;
 
 public abstract class DBContentProvider extends ContentProvider {
 
@@ -54,6 +54,10 @@ public abstract class DBContentProvider extends ContentProvider {
 		throw new UnsupportedOperationException("unsupported operation, please use insert method");
 	}
 
+    @Override
+    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+        return dbContentProviderSupport.applyBatch(operations);
+    }
 
     public abstract Class<?> getEntities();
 }
