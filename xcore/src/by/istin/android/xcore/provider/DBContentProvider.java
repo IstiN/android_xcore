@@ -12,7 +12,7 @@ public abstract class DBContentProvider extends ContentProvider {
     private IDBContentProviderSupport dbContentProviderSupport;
 
     @Override
-	public final boolean onCreate() {
+	public boolean onCreate() {
         dbContentProviderSupport = getContentProviderSupport(getContext());
         return true;
 	}
@@ -55,7 +55,7 @@ public abstract class DBContentProvider extends ContentProvider {
 	}
 
     @Override
-    public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+    public final ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         return dbContentProviderSupport.applyBatch(operations);
     }
 

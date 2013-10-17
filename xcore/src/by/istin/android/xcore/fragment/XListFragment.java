@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -20,22 +19,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
+import android.widget.*;
 import android.widget.AbsListView.OnScrollListener;
-import android.widget.Adapter;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.FilterQueryProvider;
-import android.widget.HeaderViewListAdapter;
-import android.widget.ImageView;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
@@ -46,14 +31,20 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.AppUtils;
-import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public abstract class XListFragment extends AdapterViewFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
 
-	private class EndlessScrollListener implements OnScrollListener {
+    public static final int LOADER_PRIORITY_SERVICE = 1;
+
+    public static final int LOADER_PRIORITY_HIGH = 2;
+
+    private class EndlessScrollListener implements OnScrollListener {
 
         private int visibleThreshold = 5;
 
@@ -285,7 +276,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        isLoaderWork = true;
+        setLoaderWork(true, LOADER_PRIORITY_HIGH);
         Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -331,7 +322,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 plugin.onLoadFinished(this, loader, cursor);
             }
         }
-        isLoaderWork = false;
+        setLoaderWork(false, LOADER_PRIORITY_HIGH);
         checkStatus("onLoadFinished");
 	}
 
@@ -443,13 +434,31 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	
 	private boolean isServiceWork = false;
 
-	private boolean isLoaderWork = false;
+    private int loaderPriority = 0;
+
+    private boolean isLoaderWork = false;
+
+    public boolean isServiceWork() {
+        return isServiceWork;
+    }
+
+    public void setLoaderWork(boolean isLoaderWork, int priority) {
+        if (loaderPriority == LOADER_PRIORITY_HIGH && this.isLoaderWork && priority == LOADER_PRIORITY_SERVICE) {
+            return;
+        }
+        this.loaderPriority = priority;
+        this.isLoaderWork = isLoaderWork;
+    }
+
+    public boolean isLoaderWork() {
+        return isLoaderWork;
+    }
 
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
 		if (CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState)) {
-            isLoaderWork = true;
+            setLoaderWork(true, LOADER_PRIORITY_HIGH);
         }
 		String url = getUrl();
         loadData(getActivity(), url, isForceUpdateData(), null);
@@ -513,6 +522,8 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                         plugin.onStatusResultReceiverStart(XListFragment.this, resultData);
                     }
                 }
+                setLoaderWork(true, LOADER_PRIORITY_SERVICE);
+                XListFragment.this.onAddToQueue(resultData);
                 checkStatus("onAddToQueue");
             }
 
@@ -524,13 +535,14 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             @Override
             public void onError(Exception exception) {
                 XListFragment.this.onError(exception, dataSourceRequest);
+                setLoaderWork(false, LOADER_PRIORITY_SERVICE);
             }
 
             @Override
             public void onDone(Bundle resultData) {
                 isServiceWork = false;
                 //TODO needs check if loader not was launched and finished before
-                isLoaderWork = true;
+                //isLoaderWork = true;
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
                     return;
@@ -549,6 +561,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             @Override
             protected void onCached(Bundle resultData) {
                 isServiceWork = false;
+                setLoaderWork(false, LOADER_PRIORITY_SERVICE);
                 super.onCached(resultData);
                 FragmentActivity context = getActivity();
                 if (context == null) {
@@ -566,6 +579,10 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             }
 
         });
+    }
+
+    public void onAddToQueue(Bundle resultData) {
+
     }
 
     public void onReceiverOnCached(Bundle resultData) {
@@ -615,7 +632,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
     public void onDestroy() {
         mEndlessScrollListener = null;
         mWatcher = null;
-        isLoaderWork = false;
+        setLoaderWork(false, LOADER_PRIORITY_HIGH);
         isServiceWork = false;
         checkStatus("onDestroy");
         super.onDestroy();
@@ -631,10 +648,14 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         if (view == null) {
             return;
         }
-        View progressView = view.findViewById(android.R.id.progress);
+        View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
             progressView.setVisibility(View.GONE);
         }
+    }
+
+    protected int getProgressViewId() {
+        return android.R.id.progress;
     }
 
     @Override
@@ -647,7 +668,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         if (view == null) {
             return;
         }
-        View progressView = view.findViewById(android.R.id.progress);
+        View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
             progressView.setVisibility(View.VISIBLE);
         }
@@ -662,10 +683,14 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         if (view == null) {
             return;
         }
-        View progressView = view.findViewById(android.R.id.secondaryProgress);
+        View progressView = view.findViewById(getSecondaryProgressId());
         if (progressView != null) {
             progressView.setVisibility(View.VISIBLE);
         }
+    }
+
+    protected int getSecondaryProgressId() {
+        return android.R.id.secondaryProgress;
     }
 
     protected void hidePagingProgress() {
@@ -677,7 +702,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
         if (view == null) {
             return;
         }
-        View progressView = view.findViewById(android.R.id.secondaryProgress);
+        View progressView = view.findViewById(getSecondaryProgressId());
         if (progressView != null) {
             progressView.setVisibility(View.GONE);
         }
@@ -705,6 +730,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             } else {
                 hidePagingProgress();
                 hideProgress();
+                hideEmptyView(view);
             }
             return;
         }
@@ -717,6 +743,8 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 if (isPaging) {
                     showPagingProgress();
                 }
+                hideEmptyView(view);
+                hideProgress();
             }
             return;
         }
@@ -734,6 +762,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             if (isPaging) {
                 hidePagingProgress();
             }
+            hideEmptyView(view);
         }
     }
 

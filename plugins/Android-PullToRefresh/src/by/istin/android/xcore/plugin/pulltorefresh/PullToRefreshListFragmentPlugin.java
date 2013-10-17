@@ -1,4 +1,4 @@
-package by.istin.android.xcore.test.bo;
+package by.istin.android.xcore.plugin.pulltorefresh;
 
 import android.database.Cursor;
 import android.os.Bundle;
