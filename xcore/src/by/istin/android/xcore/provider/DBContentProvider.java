@@ -59,5 +59,5 @@ public abstract class DBContentProvider extends ContentProvider {
         return dbContentProviderSupport.applyBatch(operations);
     }
 
-    public abstract Class<?> getEntities();
+    public abstract Class<?>[] getEntities();
 }

@@ -22,8 +22,11 @@ import by.istin.android.xcore.utils.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -44,8 +47,6 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
             " FOREIGN KEY (%3$s_id) " +
             " REFERENCES %2$s(id);";
-
-    private volatile Boolean isLockTransaction = false;
 
     public DBHelper(Context context) {
 		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
@@ -245,18 +246,12 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 		SQLiteDatabase db = getWritableDatabase();
 		try {
-            if (!isLockTransaction) {
-                beginTransaction(db);
-            }
+            beginTransaction(db);
             int count = updateOrInsert(dataSourceRequest, classOfModel, db, contentValues);
-            if (!isLockTransaction) {
-                setTransactionSuccessful(db);
-            }
+            setTransactionSuccessful(db);
 			return count;
 		} finally {
-            if (!isLockTransaction) {
-                endTransaction(db);
-            }
+            endTransaction(db);
 		}
 	}
 
@@ -288,9 +283,7 @@ public class DBHelper extends SQLiteOpenHelper {
 		if (db == null) {
 			db = getWritableDatabase();
 			requestWithoutTransaction = true;
-            if (!isLockTransaction) {
-                beginTransaction(db);
-            }
+            beginTransaction(db);
 		}
 		try {
 			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
@@ -347,16 +340,12 @@ public class DBHelper extends SQLiteOpenHelper {
 				}
 			}
 			if (requestWithoutTransaction) {
-                if (!isLockTransaction) {
-                    setTransactionSuccessful(db);
-                }
+                setTransactionSuccessful(db);
 			}
 			return rowId;
 		} finally {
 			if (requestWithoutTransaction) {
-                if (!isLockTransaction) {
-                    endTransaction(db);
-                }
+                endTransaction(db);
 			}
 		}
 	}
@@ -552,27 +541,4 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
 
-    public void lockTransaction() {
-        synchronized (isLockTransaction) {
-            isLockTransaction = true;
-            SQLiteDatabase writableDatabase = getWritableDatabase();
-            beginTransaction(writableDatabase);
-        }
-    }
-
-    public void unlockTransaction() {
-        synchronized (isLockTransaction) {
-            SQLiteDatabase writableDatabase = getWritableDatabase();
-            setTransactionSuccessful(writableDatabase);
-            endTransaction(writableDatabase);
-            isLockTransaction = false;
-        }
-    }
-
-    public void errorUnlockTransaction() {
-        synchronized (isLockTransaction) {
-            endTransaction(getWritableDatabase());
-            isLockTransaction =  false;
-        }
-    }
 }
