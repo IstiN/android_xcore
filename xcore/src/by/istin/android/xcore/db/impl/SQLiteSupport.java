@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.db.IDBBatchOperationSupport;
+import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
@@ -54,7 +55,7 @@ public class SQLiteSupport implements IDBSupport {
         return new IDBBatchOperationSupport() {
 
             @Override
-            public void beginTransaction() {
+            public void beginTransaction(IDBConnector dbConnector) {
                 sDbHelper.beginTransaction(writableDatabase);
             }
 

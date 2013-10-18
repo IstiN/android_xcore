@@ -17,6 +17,7 @@ import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
+import by.istin.android.xcore.db.impl.SQLiteConnector;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.*;
 
@@ -32,38 +33,19 @@ import java.util.Set;
  * @author Uladzimir_Klyshevich
  *
  */
-public class DBHelper extends SQLiteOpenHelper {
+public class DBHelper {
 
     private static final String TAG = DBHelper.class.getSimpleName();
-	
-	private static final String DATABASE_NAME_TEMPLATE = "%s.main.xcore.db";
 
-	private static final int DATABASE_VERSION = 1;
-
-    /** The Constant CREATE_TABLE_SQL. */
-    public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
-            + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
-
-    public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
-            " FOREIGN KEY (%3$s_id) " +
-            " REFERENCES %2$s(id);";
+    private IDBConnector mDbConnector;
 
     public DBHelper(Context context) {
-		super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+        super();
+        mDbConnector = new SQLiteConnector(context);
         dbAssociationCache = DBAssociationCache.get();
 	}
 
     private DBAssociationCache dbAssociationCache;
-
-	@Override
-	public void onCreate(SQLiteDatabase db) {
-
-    }
-
-	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
-	}
 
 	public static String getTableName(Class<?> clazz) {
         DBAssociationCache associationCache = DBAssociationCache.get();
@@ -75,38 +57,16 @@ public class DBHelper extends SQLiteOpenHelper {
         return tableName;
 	}
 
-    @Override
-    public SQLiteDatabase getWritableDatabase() {
-        SQLiteDatabase writableDatabase = super.getWritableDatabase();
-        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
-            if (writableDatabase != null) {
-                writableDatabase.setLockingEnabled(false);
-            }
-        }
-        return writableDatabase;
-    }
-
-    @Override
-    public SQLiteDatabase getReadableDatabase() {
-        SQLiteDatabase readableDatabase = super.getReadableDatabase();
-        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
-            readableDatabase.setLockingEnabled(false);
-        }
-        return readableDatabase;
-    }
 
 	public synchronized void createTablesForModels(Class<?>... models) {
-		SQLiteDatabase dbWriter = getWritableDatabase();
-        if (Build.VERSION.SDK_INT > 10) {
-            dbWriter.enableWriteAheadLogging();
-        }
-        beginTransaction(dbWriter);
+		IDBConnection dbWriter = mDbConnector.getWritableConnection();
+        dbWriter.beginTransaction(dbWriter);
         StringBuilder builder = new StringBuilder();
         List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
-			dbWriter.execSQL(StringUtil.format(CREATE_FILES_TABLE_SQL, table));
+			dbWriter.execSQL(mDbConnector.getCreateFilesTableSQLTemplate(table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
 				try {
@@ -186,7 +146,7 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
     private void addForeignKey(List<String> foreignKeys, Class<?> classOfModel, Annotation annotation) {
-        Class<?> childClazz;
+        /*TODO Class<?> childClazz;
         if (annotation instanceof dbEntities) {
             childClazz = ((dbEntities) annotation).clazz();
         } else {
@@ -194,14 +154,14 @@ public class DBHelper extends SQLiteOpenHelper {
         }
         String tableName = DBHelper.getTableName(childClazz);
         String foreignKey = StringUtil.format(FOREIGN_KEY_TEMPLATE, tableName, DBHelper.getTableName(classOfModel), classOfModel.getSimpleName().toLowerCase());
-        foreignKeys.add(foreignKey);
+        foreignKeys.add(foreignKey);*/
     }
 
     public int delete(Class<?> clazz, String where, String[] whereArgs) {
 		return delete(null, getTableName(clazz), where, whereArgs);
 	}
 	
-	public int delete(SQLiteDatabase db, Class<?> clazz, String where, String[] whereArgs) {
+	public int delete(IDBConnection db, Class<?> clazz, String where, String[] whereArgs) {
 		return delete(db, getTableName(clazz), where, whereArgs);
 	}
 	
@@ -209,10 +169,10 @@ public class DBHelper extends SQLiteOpenHelper {
 		return delete(null, tableName, where, whereArgs);
 	}
 	
-	public int delete(SQLiteDatabase db, String tableName, String where, String[] whereArgs) {
+	public int delete(IDBConnection db, String tableName, String where, String[] whereArgs) {
 		if (isExists(tableName)) {
 			if (db == null) {
-				db = getWritableDatabase();
+				db = mDbConnector.getWritableConnection();
 			}
             return db.delete(tableName, where, whereArgs);
 		} else {
@@ -225,15 +185,12 @@ public class DBHelper extends SQLiteOpenHelper {
         if (isTableCreated != null) {
             return isTableCreated;
         }
-		SQLiteDatabase readableDb = getReadableDatabase();
-		Cursor cursor = readableDb.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
-		try {
-            boolean isExists = cursor != null && cursor.moveToFirst();
-            dbAssociationCache.setTableCreated(tableName, isExists);
-            return isExists;
-		} finally {
-			CursorUtils.close(cursor);
-		}
+        IDBConnection readableDb = mDbConnector.getReadableConnection();
+        boolean isExists = false;
+        isExists = readableDb.isExists(tableName);
+        dbAssociationCache.setTableCreated(tableName, isExists);
+        return isExists;
+
 	}
 	
 	public int updateOrInsert(Class<?> classOfModel, ContentValues... contentValues) {
@@ -244,7 +201,7 @@ public class DBHelper extends SQLiteOpenHelper {
         if (contentValues == null) {
             return 0;
         }
-		SQLiteDatabase db = getWritableDatabase();
+		IDBConnection db = mDbConnector.getWritableConnection();
 		try {
             beginTransaction(db);
             int count = updateOrInsert(dataSourceRequest, classOfModel, db, contentValues);
@@ -354,21 +311,17 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
     }
 
-    public void endTransaction(SQLiteDatabase dbWriter) {
+    public void endTransaction(IDBConnection dbWriter) {
         dbWriter.endTransaction();
     }
 
-    public void setTransactionSuccessful(SQLiteDatabase dbWriter) {
+    public void setTransactionSuccessful(IDBConnection dbWriter) {
         dbWriter.setTransactionSuccessful();
     }
 
 
-    public void beginTransaction(SQLiteDatabase dbWriter) {
-        if (Build.VERSION.SDK_INT > 10) {
-            dbWriter.beginTransactionNonExclusive();
-        } else {
-            dbWriter.beginTransaction();
-        }
+    public void beginTransaction(IDBConnection dbWriter) {
+        dbWriter.beginTransaction(dbWriter);
     }
 
     private long internalInsert(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, String tableName) {
