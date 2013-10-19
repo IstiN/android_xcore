@@ -1,4 +1,4 @@
-package by.istin.android.xcore.db;
+package by.istin.android.xcore.db.operation;
 
 /**
  * Created with IntelliJ IDEA.

@@ -8,8 +8,8 @@ import java.util.List;
 
 import android.content.ContentValues;
 import android.test.AndroidTestCase;
-import by.istin.android.xcore.db.IBeforeArrayUpdate;
-import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.test.bo.TestEntity;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.ReflectUtils;

@@ -5,7 +5,7 @@ import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.*;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IDBConnection;
-import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
 import com.google.gson.annotations.SerializedName;
 

@@ -1,6 +1,10 @@
 package by.istin.android.xcore.db;
 
 import android.database.Cursor;
+import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
+import by.istin.android.xcore.db.operation.IDBInsertOperationSupport;
+import by.istin.android.xcore.db.operation.IDBTransactionSupport;
+import by.istin.android.xcore.db.operation.IDBUpdateOperationSupport;
 
 /**
  * Created with IntelliJ IDEA.

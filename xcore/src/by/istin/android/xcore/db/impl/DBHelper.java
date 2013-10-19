@@ -12,6 +12,9 @@ import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
 import by.istin.android.xcore.db.*;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IBeforeUpdate;
+import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.*;
 
