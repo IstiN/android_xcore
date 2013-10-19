@@ -10,7 +10,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
  * User: IstiN
  * Date: 12.10.13
  */
-public interface IDBSupport extends IDBWriteOperationSupport {
+public interface IDBSupport extends IDBInsertOrUpdateOperationSupport, IDBDeleteOperationSupport {
 
     int updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues[] values);
 
@@ -22,5 +22,5 @@ public interface IDBSupport extends IDBWriteOperationSupport {
 
     IDBBatchOperationSupport getConnectionForBatchOperation();
 
-
+    IDBConnector createConnector(Context context);
 }

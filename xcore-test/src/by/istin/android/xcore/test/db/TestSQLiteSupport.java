@@ -8,7 +8,7 @@ import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import android.util.Log;
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.db.impl.SQLiteSupport;
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.provider.impl.DBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.test.bo.SubEntity;

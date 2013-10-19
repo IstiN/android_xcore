@@ -1,7 +1,7 @@
 package by.istin.android.xcore.provider.impl;
 
 import android.content.Context;
-import by.istin.android.xcore.db.impl.SQLiteSupport;
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
 import java.util.HashMap;

@@ -4,8 +4,9 @@ import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
 import by.istin.android.xcore.db.IDBBatchOperationSupport;
+import by.istin.android.xcore.db.IDBDeleteOperationSupport;
+import by.istin.android.xcore.db.IDBInsertOrUpdateOperationSupport;
 import by.istin.android.xcore.db.IDBSupport;
-import by.istin.android.xcore.db.IDBWriteOperationSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -73,7 +74,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         return internalDelete(mDbSupport, uri, where, whereArgs);
     }
 
-    private int internalDelete(IDBWriteOperationSupport writeOperationSupport, Uri uri, String where, String[] whereArgs) {
+    private int internalDelete(IDBDeleteOperationSupport writeOperationSupport, Uri uri, String where, String[] whereArgs) {
         List<String> pathSegments = uri.getPathSegments();
         String className;
         switch (sUriMatcher.match(uri)) {
@@ -109,7 +110,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         return internalInsertOrUpdate(mDbSupport, uri, initialValues);
     }
 
-    private Uri internalInsertOrUpdate(IDBWriteOperationSupport writeOperationSupport, Uri uri, ContentValues initialValues) {
+    private Uri internalInsertOrUpdate(IDBInsertOrUpdateOperationSupport writeOperationSupport, Uri uri, ContentValues initialValues) {
         if (sUriMatcher.match(uri) != MODELS) {
             throw new IllegalArgumentException("Unknown URI " + uri);
         }

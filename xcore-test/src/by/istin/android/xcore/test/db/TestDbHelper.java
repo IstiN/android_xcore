@@ -5,9 +5,10 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.IDBConnector;
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.test.bo.SubEntity;
 import by.istin.android.xcore.test.bo.TestEntity;
-import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 
 public class TestDbHelper extends ApplicationTestCase<Application> {
@@ -22,7 +23,8 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
 	protected void setUp() throws Exception {
 		super.setUp();
 		createApplication();
-        dbHelper = new DBHelper(getApplication());
+        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
+        dbHelper = new DBHelper(connector);
 	}
 
     public void testInsert() throws Exception {

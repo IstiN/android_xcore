@@ -1,6 +1,5 @@
 package by.istin.android.xcore.db;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 
 /**
@@ -8,7 +7,11 @@ import android.database.Cursor;
  * User: IstiN
  * Date: 18.10.13
  */
-public interface IDBConnection extends IDBBatchOperationSupport {
+public interface IDBConnection extends
+        IDBTransactionSupport,
+        IDBDeleteOperationSupport,
+        IDBInsertOperationSupport,
+        IDBUpdateOperationSupport {
 
     void execSQL(String sql);
 
@@ -18,7 +21,4 @@ public interface IDBConnection extends IDBBatchOperationSupport {
 
     Cursor rawQuery(String sql, String[] selectionArgs);
 
-    long insert(String tableName, ContentValues contentValues);
-
-    int update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs);
 }

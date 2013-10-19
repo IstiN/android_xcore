@@ -1,14 +1,13 @@
 package by.istin.android.xcore.test;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.IDBConnector;
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;
 import by.istin.android.xcore.processor.impl.GsonArrayContentValuesProcessor;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -19,12 +18,14 @@ import by.istin.android.xcore.test.vk.Attachment;
 import by.istin.android.xcore.test.vk.Dialog;
 import by.istin.android.xcore.test.vk.FwdMessage;
 import by.istin.android.xcore.test.vk.User;
-
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
 
 public class TestDataSourceService extends ApplicationTestCase<CoreApplication> {
 
@@ -53,7 +54,8 @@ public class TestDataSourceService extends ApplicationTestCase<CoreApplication> 
 			
 		};
 		ContentValues[] contentValues = gsonArrayContentValuesProcessor.execute(dataSourceRequest, httpAndroidDataSource, inputStream);
-		DBHelper dbHelper = new DBHelper(getApplication());
+        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
+		DBHelper dbHelper = new DBHelper(connector);
 		dbHelper.createTablesForModels(User.class);
 		dbHelper.updateOrInsert(User.class, contentValues);
 	}
@@ -94,7 +96,8 @@ public class TestDataSourceService extends ApplicationTestCase<CoreApplication> 
 		DialogsResponse dialogResponse = gsonArrayContentValuesProcessor.execute(dataSourceRequest, httpAndroidDataSource, inputStream);
 		ContentValues[] dialogs = dialogResponse.getDialogs();
 		ContentValues[] users = dialogResponse.getUsers();
-		DBHelper dbHelper = new DBHelper(getApplication());
+        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
+		DBHelper dbHelper = new DBHelper(connector);
 		dbHelper.createTablesForModels(Dialog.class);
 		dbHelper.createTablesForModels(Attachment.class);
 		dbHelper.createTablesForModels(FwdMessage.class);

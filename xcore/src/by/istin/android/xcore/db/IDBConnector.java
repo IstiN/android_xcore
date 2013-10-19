@@ -5,13 +5,12 @@ package by.istin.android.xcore.db;
  * User: IstiN
  * Date: 18.10.13
  */
-public interface IDBConnector extends IDBBatchOperationSupport {
+public interface IDBConnector {
 
     IDBConnection getWritableConnection();
 
     IDBConnection getReadableConnection();
 
-    String getCreateFilesTableSQLTemplate(String table);
+    String getCreateTableSQLTemplate(String table);
 
-    void execSQL(String sql);
 }

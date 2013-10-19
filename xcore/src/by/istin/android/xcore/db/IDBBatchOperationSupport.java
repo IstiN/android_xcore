@@ -5,6 +5,10 @@ package by.istin.android.xcore.db;
  * User: IstiN
  * Date: 12.10.13
  */
-public interface IDBBatchOperationSupport extends IDBWriteOperationSupport, IDBTransactionSupport {
+public interface IDBBatchOperationSupport
+        extends
+            IDBTransactionSupport,
+            IDBInsertOrUpdateOperationSupport,
+            IDBDeleteOperationSupport {
 
 }

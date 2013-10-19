@@ -3,8 +3,10 @@ package by.istin.android.xcore.db.impl;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Build;
-import by.istin.android.xcore.db.*;
+import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.IDBBatchOperationSupport;
+import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
@@ -13,16 +15,14 @@ import by.istin.android.xcore.utils.ReflectUtils;
 /**
  * Created with IntelliJ IDEA.
  * User: IstiN
- * Date: 15.10.13
+ * Date: 19.10.13
  */
-public class SQLiteSupport implements IDBSupport {
-
-    public static final int FROYO = 8;
+public abstract class AbstractDBSupport implements IDBSupport {
 
     //we need only one instance of helper
     private static DBHelper sDbHelper;
 
-    private static volatile Object sLock = new Object();
+    private static final Object sLock = new Object();
 
     private static volatile boolean isInit = false;
 
@@ -39,7 +39,7 @@ public class SQLiteSupport implements IDBSupport {
     public void create(Context context, Class<?>[] entities) {
         synchronized (sLock) {
             if (sDbHelper == null) {
-                sDbHelper = new DBHelper(context);
+                sDbHelper = new DBHelper(createConnector(context));
             }
         }
         mEntities = entities;
@@ -79,22 +79,13 @@ public class SQLiteSupport implements IDBSupport {
 
     @Override
     public int delete(String className, String where, String[] whereArgs) {
-        int buildVersion = Build.VERSION.SDK_INT;
         synchronized (sLock) {
             if (!isInit) {
                 initTables();
             }
-            if (buildVersion <= FROYO) {
-                Class<?> clazz = ReflectUtils.classForName(className);
-                return sDbHelper.delete(clazz, where, whereArgs);
-            }
         }
-        if (buildVersion > FROYO) {
-            Class<?> clazz = ReflectUtils.classForName(className);
-            return sDbHelper.delete(clazz, where, whereArgs);
-        } else {
-            throw new IllegalStateException("can't be happens");
-        }
+        Class<?> clazz = ReflectUtils.classForName(className);
+        return sDbHelper.delete(clazz, where, whereArgs);
     }
 
 
@@ -104,17 +95,9 @@ public class SQLiteSupport implements IDBSupport {
             if (!isInit) {
                 initTables();
             }
-            if (Build.VERSION.SDK_INT <= FROYO) {
-                Class<?> clazz = ReflectUtils.classForName(className);
-                return sDbHelper.updateOrInsert(dataSourceRequest, clazz, initialValues);
-            }
         }
-        if (Build.VERSION.SDK_INT > FROYO) {
-            Class<?> clazz = ReflectUtils.classForName(className);
-            return sDbHelper.updateOrInsert(dataSourceRequest, clazz, initialValues);
-        } else {
-            throw new IllegalStateException("can't be happens");
-        }
+        Class<?> clazz = ReflectUtils.classForName(className);
+        return sDbHelper.updateOrInsert(dataSourceRequest, clazz, initialValues);
     }
 
     @Override
@@ -123,17 +106,9 @@ public class SQLiteSupport implements IDBSupport {
             if (!isInit) {
                 initTables();
             }
-            if (Build.VERSION.SDK_INT <= FROYO) {
-                Class<?> clazz = ReflectUtils.classForName(className);
-                return sDbHelper.updateOrInsert(dataSourceRequest, clazz, values);
-            }
         }
-        if (Build.VERSION.SDK_INT > FROYO) {
-            Class<?> clazz = ReflectUtils.classForName(className);
-            return sDbHelper.updateOrInsert(dataSourceRequest, clazz, values);
-        } else {
-            throw new IllegalStateException("can't be happens");
-        }
+        Class<?> clazz = ReflectUtils.classForName(className);
+        return sDbHelper.updateOrInsert(dataSourceRequest, clazz, values);
     }
 
     @Override

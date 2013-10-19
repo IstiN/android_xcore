@@ -1,11 +1,10 @@
-package by.istin.android.xcore.db.impl;
+package by.istin.android.xcore.db.impl.sqlite;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import by.istin.android.xcore.db.IDBConnection;
-import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.CursorUtils;
 
 /**
@@ -81,11 +80,6 @@ class SQLiteConnection implements IDBConnection {
     @Override
     public int delete(String tableName, String where, String[] whereArgs) {
         return mDatabase.delete(tableName, where, whereArgs);
-    }
-
-    @Override
-    public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
-        throw new UnsupportedOperationException("use insert or update for this reason");
     }
 
 }

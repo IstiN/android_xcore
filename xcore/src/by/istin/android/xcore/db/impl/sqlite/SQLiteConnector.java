@@ -1,16 +1,12 @@
-package by.istin.android.xcore.db.impl;
+package by.istin.android.xcore.db.impl.sqlite;
 
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
-import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -27,7 +23,7 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     private static final int DATABASE_VERSION = 1;
 
     /** The Constant CREATE_TABLE_SQL. */
-    public static final String CREATE_FILES_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
+    public static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
             + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
 
     public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
@@ -76,7 +72,7 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     @Override
     public IDBConnection getWritableConnection() {
-        return new SQLiteConnection(getReadableDatabase());  //To change body of implemented methods use File | Settings | File Templates.
+        return new SQLiteConnection(getReadableDatabase());
     }
 
     @Override
@@ -85,38 +81,8 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     }
 
     @Override
-    public String getCreateFilesTableSQLTemplate(String table) {
-        return StringUtil.format(CREATE_FILES_TABLE_SQL, table);
-    }
-
-    @Override
-    public void execSQL(String sql) {
-
-    }
-
-    @Override
-    public void beginTransaction() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void setTransactionSuccessful() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public void endTransaction() {
-        //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public int delete(String className, String where, String[] whereArgs) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
-    }
-
-    @Override
-    public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
-        return 0;  //To change body of implemented methods use File | Settings | File Templates.
+    public String getCreateTableSQLTemplate(String table) {
+        return StringUtil.format(CREATE_TABLE_SQL, table);
     }
 
 }

@@ -4,7 +4,6 @@
 package by.istin.android.xcore.db;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
@@ -12,7 +11,6 @@ import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
-import by.istin.android.xcore.db.impl.SQLiteConnector;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.*;
 
@@ -34,14 +32,13 @@ public class DBHelper {
 
     private IDBConnector mDbConnector;
 
-    public DBHelper(Context context) {
+    private DBAssociationCache dbAssociationCache;
+
+    public DBHelper(IDBConnector dbConnector) {
         super();
-        //TODO create factory
-        mDbConnector = new SQLiteConnector(context);
+        mDbConnector = dbConnector;
         dbAssociationCache = DBAssociationCache.get();
 	}
-
-    private DBAssociationCache dbAssociationCache;
 
 	public static String getTableName(Class<?> clazz) {
         DBAssociationCache associationCache = DBAssociationCache.get();
@@ -53,7 +50,6 @@ public class DBHelper {
         return tableName;
 	}
 
-
 	public synchronized void createTablesForModels(Class<?>... models) {
 		IDBConnection dbWriter = mDbConnector.getWritableConnection();
         dbWriter.beginTransaction();
@@ -62,7 +58,7 @@ public class DBHelper {
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
-			dbWriter.execSQL(mDbConnector.getCreateFilesTableSQLTemplate(table));
+			dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table));
 			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
 			for (Field field : fields) {
 				try {
@@ -256,7 +252,7 @@ public class DBHelper {
 			if (merge == null) {
 				int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)});
 				if (rowCount == 0) {
-					rowId = internalInsert(db, classOfModel, contentValues, tableName);
+					rowId = internalInsert(db, contentValues, tableName);
 					if (rowId == -1l) {
 						throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
 					}
@@ -268,7 +264,7 @@ public class DBHelper {
                 try {
 				    cursor = query(tableName, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
 					if (cursor == null || !cursor.moveToFirst()) {
-						rowId = internalInsert(db, classOfModel, contentValues, tableName);
+						rowId = internalInsert(db, contentValues, tableName);
 						if (rowId == -1l) {
 							throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
 						}
@@ -277,7 +273,7 @@ public class DBHelper {
 						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
 						merge.merge(this, db, dataSourceRequest, oldContentValues, contentValues);
 						if (!isContentValuesEquals(oldContentValues, contentValues)) {
-							internalUpdate(db, classOfModel, contentValues, id, tableName);
+							internalUpdate(db, contentValues, id, tableName);
 							rowId = id;
 						} else {
 							rowId = -1l;
@@ -298,7 +294,7 @@ public class DBHelper {
 		}
 	}
 
-    private int internalUpdate(IDBConnection db, Class<?> clazz, ContentValues contentValues, Long id, String tableName) {
+    private int internalUpdate(IDBConnection db, ContentValues contentValues, Long id, String tableName) {
         return db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
     }
 
@@ -315,7 +311,7 @@ public class DBHelper {
         dbWriter.beginTransaction();
     }
 
-    private long internalInsert(IDBConnection db, Class<?> clazz, ContentValues contentValues, String tableName) {
+    private long internalInsert(IDBConnection db, ContentValues contentValues, String tableName) {
         //TODO needs some parameter to configure strategy insertWithStatement(db, clazz, contentValues, tableName);
         //return 0;
         return db.insert(tableName, contentValues);
@@ -349,7 +345,7 @@ public class DBHelper {
         }
         insertStatement.bindAllArgsAsStrings(values);
         insertStatement.execute();
-    }*/
+    }
 
     static public String createInsert(final String tableName, final String[] columnNames) {
         if (tableName == null || columnNames == null || columnNames.length == 0) {
@@ -370,7 +366,7 @@ public class DBHelper {
         s.delete(length - 2, length);
         s.append(")");
         return s.toString();
-    }
+    }*/
 
     public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
 		Set<Entry<String, Object>> keySet = contentValues.valueSet();
