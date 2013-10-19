@@ -198,7 +198,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         Set<Uri> set = new HashSet<Uri>();
         IDBBatchOperationSupport batchOperationConnection = mDbSupport.getConnectionForBatchOperation();
         try {
-            batchOperationConnection.beginTransaction(dbWriter);
+            batchOperationConnection.beginTransaction();
             for(int i = 0; i < operations.size(); i++) {
                 ContentProviderOperation contentProviderOperation = operations.get(i);
                 Uri uri = contentProviderOperation.getUri();

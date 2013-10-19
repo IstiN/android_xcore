@@ -1,19 +1,12 @@
 package com.example.xcoredemo.test.bo;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
-import by.istin.android.xcore.annotations.dbBoolean;
-import by.istin.android.xcore.annotations.dbByte;
-import by.istin.android.xcore.annotations.dbDouble;
-import by.istin.android.xcore.annotations.dbEntity;
-import by.istin.android.xcore.annotations.dbInteger;
-import by.istin.android.xcore.annotations.dbLong;
-import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.annotations.*;
 import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
-
 import com.google.gson.annotations.SerializedName;
 
 public class TestEntity implements BaseColumns, IMerge {
@@ -41,7 +34,7 @@ public class TestEntity implements BaseColumns, IMerge {
 	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
 
 	@Override
-	public void merge(DBHelper dbHelper, SQLiteDatabase db,
+	public void merge(DBHelper dbHelper, IDBConnection db,
 			DataSourceRequest dataSourceRequest, ContentValues oldValues,
 			ContentValues newValues) {
 		// test interface

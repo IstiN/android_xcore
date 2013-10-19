@@ -6,6 +6,6 @@ import by.istin.android.xcore.source.DataSourceRequest;
 
 public interface IMerge {
 
-	void merge(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues);
+	void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues);
 	
 }

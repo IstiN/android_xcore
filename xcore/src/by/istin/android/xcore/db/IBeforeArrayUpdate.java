@@ -6,6 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 
 public interface IBeforeArrayUpdate {
 
-	void onBeforeListUpdate(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
+	void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
 	
 }

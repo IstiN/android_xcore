@@ -6,6 +6,6 @@ import by.istin.android.xcore.source.DataSourceRequest;
 
 public interface IBeforeUpdate {
 
-	void onBeforeUpdate(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, ContentValues contentValues);
+	void onBeforeUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues contentValues);
 	
 }

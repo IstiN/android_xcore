@@ -76,64 +76,12 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     @Override
     public IDBConnection getWritableConnection() {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        return new SQLiteConnection(getReadableDatabase());  //To change body of implemented methods use File | Settings | File Templates.
     }
 
     @Override
     public IDBConnection getReadableConnection() {
-        return new IDBConnection() {
-            @Override
-            public void execSQL(String sql) {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public Cursor query(String table, String[] projection, String selection, String[] selectionArgs, Object o, Object o1, Object o2) {
-                return null;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public boolean isExists(String tableName) {
-                boolean isExists = false;
-                Cursor cursor = null;
-                try {
-                    cursor = readableDb.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
-                    isExists = !CursorUtils.isEmpty(cursor);
-                } finally {
-                    CursorUtils.close(cursor);
-                }
-                return isExists;
-            }
-
-            @Override
-            public void beginTransaction(IDBConnection dbConnection) {
-                if (Build.VERSION.SDK_INT > 10) {
-                    dbWriter.beginTransactionNonExclusive();
-                } else {
-                    dbWriter.beginTransaction();
-                }
-            }
-
-            @Override
-            public void setTransactionSuccessful() {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public void endTransaction() {
-                //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public int delete(String className, String where, String[] whereArgs) {
-                return 0;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-
-            @Override
-            public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
-                return 0;  //To change body of implemented methods use File | Settings | File Templates.
-            }
-        };
+        return new SQLiteConnection(getWritableDatabase());
     }
 
     @Override
@@ -147,7 +95,7 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     }
 
     @Override
-    public void beginTransaction(IDBConnection dbConnection) {
+    public void beginTransaction() {
         //To change body of implemented methods use File | Settings | File Templates.
     }
 

@@ -8,11 +8,6 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
-import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteOpenHelper;
-import android.database.sqlite.SQLiteQueryBuilder;
-import android.database.sqlite.SQLiteStatement;
-import android.os.Build;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
@@ -41,6 +36,7 @@ public class DBHelper {
 
     public DBHelper(Context context) {
         super();
+        //TODO create factory
         mDbConnector = new SQLiteConnector(context);
         dbAssociationCache = DBAssociationCache.get();
 	}
@@ -60,7 +56,7 @@ public class DBHelper {
 
 	public synchronized void createTablesForModels(Class<?>... models) {
 		IDBConnection dbWriter = mDbConnector.getWritableConnection();
-        dbWriter.beginTransaction(dbWriter);
+        dbWriter.beginTransaction();
         StringBuilder builder = new StringBuilder();
         List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
@@ -186,8 +182,7 @@ public class DBHelper {
             return isTableCreated;
         }
         IDBConnection readableDb = mDbConnector.getReadableConnection();
-        boolean isExists = false;
-        isExists = readableDb.isExists(tableName);
+        boolean isExists = readableDb.isExists(tableName);
         dbAssociationCache.setTableCreated(tableName, isExists);
         return isExists;
 
@@ -212,7 +207,7 @@ public class DBHelper {
 		}
 	}
 
-    private int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, SQLiteDatabase db, ContentValues[] contentValues) {
+    private int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, IDBConnection db, ContentValues[] contentValues) {
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
         int count = 0;
         for (int i = 0; i < contentValues.length; i++) {
@@ -231,14 +226,10 @@ public class DBHelper {
         return count;
     }
 
-    public long updateOrInsert(SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
-		return updateOrInsert(null, db, classOfModel, contentValues);
-	}
-
-	public long updateOrInsert(DataSourceRequest dataSourceRequest, SQLiteDatabase db, Class<?> classOfModel, ContentValues contentValues) {
+	public long updateOrInsert(DataSourceRequest dataSourceRequest, IDBConnection db, Class<?> classOfModel, ContentValues contentValues) {
 		boolean requestWithoutTransaction = false;
 		if (db == null) {
-			db = getWritableDatabase();
+			db = mDbConnector.getWritableConnection();
 			requestWithoutTransaction = true;
             beginTransaction(db);
 		}
@@ -307,7 +298,7 @@ public class DBHelper {
 		}
 	}
 
-    private int internalUpdate(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, Long id, String tableName) {
+    private int internalUpdate(IDBConnection db, Class<?> clazz, ContentValues contentValues, Long id, String tableName) {
         return db.update(tableName, contentValues, BaseColumns._ID + " = " + id, null);
     }
 
@@ -321,16 +312,16 @@ public class DBHelper {
 
 
     public void beginTransaction(IDBConnection dbWriter) {
-        dbWriter.beginTransaction(dbWriter);
+        dbWriter.beginTransaction();
     }
 
-    private long internalInsert(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, String tableName) {
+    private long internalInsert(IDBConnection db, Class<?> clazz, ContentValues contentValues, String tableName) {
         //TODO needs some parameter to configure strategy insertWithStatement(db, clazz, contentValues, tableName);
         //return 0;
-        return db.insert(tableName, null, contentValues);
+        return db.insert(tableName, contentValues);
     }
 
-    private void insertWithStatement(SQLiteDatabase db, Class<?> clazz, ContentValues contentValues, String tableName) {
+    /*private void insertWithStatement(IDBConnection db, Class<?> clazz, ContentValues contentValues, String tableName) {
         SQLiteStatement insertStatement = dbAssociationCache.getInsertStatement(clazz);
         if (insertStatement == null) {
             List<Field> fields = ReflectUtils.getEntityKeys(clazz);
@@ -358,7 +349,7 @@ public class DBHelper {
         }
         insertStatement.bindAllArgsAsStrings(values);
         insertStatement.execute();
-    }
+    }*/
 
     static public String createInsert(final String tableName, final String[] columnNames) {
         if (tableName == null || columnNames == null || columnNames.length == 0) {
@@ -399,7 +390,7 @@ public class DBHelper {
 		return true;
 	}
 
-	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, SQLiteDatabase db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
+	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
 		for (Field field : listDbEntity) {
 			String columnName = ReflectUtils.getStaticStringValue(field);
 			byte[] entityAsByteArray = contentValues.getAsByteArray(columnName);
@@ -452,18 +443,15 @@ public class DBHelper {
 			String selection, String[] selectionArgs, String groupBy,
 			String having, String sortOrder, String limit) {
 		if (isExists(tableName)) {
-			SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-			qb.setTables(tableName);
-			SQLiteDatabase db = getReadableDatabase();
-            return qb.query(db, projection, selection, selectionArgs, groupBy,
-                    having, sortOrder, limit);
+            IDBConnection db = mDbConnector.getReadableConnection();
+            return db.query(tableName, projection, selection, selectionArgs, groupBy, having, sortOrder, limit);
 		} else {
 			return null;
 		}
 	}
 
 	public Cursor rawQuery(String sql, String[] selectionArgs) {
-		SQLiteDatabase db = getReadableDatabase();
+		IDBConnection db = mDbConnector.getReadableConnection();
         return db.rawQuery(sql, selectionArgs);
 	}
 
@@ -494,4 +482,7 @@ public class DBHelper {
         }
     }
 
+    public IDBConnection getWritableDbConnection() {
+        return mDbConnector.getWritableConnection();
+    }
 }

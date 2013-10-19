@@ -7,7 +7,7 @@ package by.istin.android.xcore.db;
  */
 public interface IDBTransactionSupport {
 
-    void beginTransaction(IDBConnection dbConnection);
+    void beginTransaction();
 
     void setTransactionSuccessful();
 

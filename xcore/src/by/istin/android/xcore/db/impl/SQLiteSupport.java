@@ -3,12 +3,8 @@ package by.istin.android.xcore.db.impl;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
-import by.istin.android.xcore.db.DBHelper;
-import by.istin.android.xcore.db.IDBBatchOperationSupport;
-import by.istin.android.xcore.db.IDBConnector;
-import by.istin.android.xcore.db.IDBSupport;
+import by.istin.android.xcore.db.*;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
@@ -51,13 +47,8 @@ public class SQLiteSupport implements IDBSupport {
 
     @Override
     public IDBBatchOperationSupport getConnectionForBatchOperation() {
-        final SQLiteDatabase writableDatabase = sDbHelper.getWritableDatabase();
+        final IDBConnection writableDatabase = sDbHelper.getWritableDbConnection();
         return new IDBBatchOperationSupport() {
-
-            @Override
-            public void beginTransaction(IDBConnector dbConnector) {
-                sDbHelper.beginTransaction(writableDatabase);
-            }
 
             @Override
             public int delete(String className, String where, String[] whereArgs) {
@@ -67,6 +58,11 @@ public class SQLiteSupport implements IDBSupport {
             @Override
             public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
                 return sDbHelper.updateOrInsert(dataSourceRequest, writableDatabase, ReflectUtils.classForName(className), initialValues);
+            }
+
+            @Override
+            public void beginTransaction() {
+                sDbHelper.beginTransaction(writableDatabase);
             }
 
             @Override
