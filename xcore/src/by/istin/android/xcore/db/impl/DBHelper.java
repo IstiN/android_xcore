@@ -69,7 +69,6 @@ public class DBHelper {
 					}
 					Annotation[] annotations = field.getAnnotations();
 					String type = null;
-                    boolean isForeign = false;
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
 						if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
@@ -81,8 +80,6 @@ public class DBHelper {
 							}
 							list.add(field);
                             dbAssociationCache.putEntityFields(classOfModel, list);
-                            addForeignKey(foreignKeys, classOfModel, annotation);
-                            isForeign = true;
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
 							List<Field> list = dbAssociationCache.getEntitiesFields(classOfModel);
 							if (list == null) {
@@ -90,8 +87,6 @@ public class DBHelper {
 							}
 							list.add(field);
                             dbAssociationCache.putEntitiesFields(classOfModel, list);
-                            addForeignKey(foreignKeys, classOfModel, annotation);
-                            isForeign = true;
 						} else if (classOfAnnotation.equals(dbIndex.class)) {
                             builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
                         }
@@ -99,14 +94,7 @@ public class DBHelper {
 					if (type == null) {
 						continue;
 					}
-                    if (!isForeign) {
-					    dbWriter.execSQL("ALTER TABLE "
-							+ table
-							+ " ADD "
-							+ name
-							+ " "
-							+ type);
-                    }
+                    dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
 				} catch (SQLException e) {
 					Log.e(TAG, e);
 				}
@@ -122,27 +110,8 @@ public class DBHelper {
             }
             builder.setLength(0);
 		}
-        for (String foreignKey : foreignKeys) {
-            try {
-                //TODO needs solution for foreign keys dbWriter.execSQL(foreignKey);
-            } catch (SQLException e) {
-                Log.e(TAG, e);
-            }
-        }
         setTransactionSuccessful(dbWriter);
         endTransaction(dbWriter);
-    }
-
-    private void addForeignKey(List<String> foreignKeys, Class<?> classOfModel, Annotation annotation) {
-        /*TODO Class<?> childClazz;
-        if (annotation instanceof dbEntities) {
-            childClazz = ((dbEntities) annotation).clazz();
-        } else {
-            childClazz = ((dbEntity) annotation).clazz();
-        }
-        String tableName = DBHelper.getTableName(childClazz);
-        String foreignKey = StringUtil.format(FOREIGN_KEY_TEMPLATE, tableName, DBHelper.getTableName(classOfModel), classOfModel.getSimpleName().toLowerCase());
-        foreignKeys.add(foreignKey);*/
     }
 
     public int delete(Class<?> clazz, String where, String[] whereArgs) {

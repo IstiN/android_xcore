@@ -14,4 +14,6 @@ public interface IDBConnector {
     String getCreateTableSQLTemplate(String table);
 
     String getCreateIndexSQLTemplate(String table, String name);
+
+    String getCreateColumnSQLTemplate(String table, String name, String type);
 }

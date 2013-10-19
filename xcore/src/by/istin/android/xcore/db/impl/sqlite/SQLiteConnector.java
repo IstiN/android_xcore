@@ -29,6 +29,8 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     public static final String CREATE_INDEX_SQL = "CREATE INDEX fk_%1$s_%2$s ON %1$s (%2$s ASC);";
 
+    public static final String CREATE_COLUMN_SQL = "ALTER TABLE %1$s ADD %2$s %3$s;";
+
     public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
             " FOREIGN KEY (%3$s_id) " +
             " REFERENCES %2$s(id);";
@@ -91,6 +93,11 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     @Override
     public String getCreateIndexSQLTemplate(String table, String name) {
         return StringUtil.format(CREATE_INDEX_SQL, table, name);
+    }
+
+    @Override
+    public String getCreateColumnSQLTemplate(String table, String name, String type) {
+        return StringUtil.format(CREATE_COLUMN_SQL, table, name, type);
     }
 
 }
