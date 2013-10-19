@@ -3,7 +3,6 @@ package by.istin.android.xcore.db.impl;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import by.istin.android.xcore.db.DBHelper;
 import by.istin.android.xcore.db.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBSupport;

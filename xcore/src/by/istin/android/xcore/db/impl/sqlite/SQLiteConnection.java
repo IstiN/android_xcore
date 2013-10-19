@@ -53,6 +53,58 @@ class SQLiteConnection implements IDBConnection {
         return mDatabase.insert(tableName, null, contentValues);
     }
 
+    //TODO maybe it improve insert in future
+    /*private void insertWithStatement(IDBConnection db, Class<?> clazz, ContentValues contentValues, String tableName) {
+        SQLiteStatement insertStatement = dbAssociationCache.getInsertStatement(clazz);
+        if (insertStatement == null) {
+            List<Field> fields = ReflectUtils.getEntityKeys(clazz);
+            List<String> columns = new ArrayList<String>();
+            for (Field field : fields) {
+                if (field.isAnnotationPresent(dbEntity.class)) {
+                    continue;
+                }
+                if (field.isAnnotationPresent(dbEntities.class)) {
+                    continue;
+                }
+                String name = ReflectUtils.getStaticStringValue(field);
+                columns.add(name);
+            }
+            insertStatement = db.compileStatement(createInsert(tableName, columns.toArray(new String[columns.size()])));
+            dbAssociationCache.setInsertStatement(clazz, insertStatement);
+        }
+        insertStatement.clearBindings();
+        Set<String> keys = contentValues.keySet();
+        String[] values = new String[keys.size()];
+        int i = 0;
+        for (String key : keys) {
+            values[i] = contentValues.getAsString(key);
+            i++;
+        }
+        insertStatement.bindAllArgsAsStrings(values);
+        insertStatement.execute();
+    }
+
+    static public String createInsert(final String tableName, final String[] columnNames) {
+        if (tableName == null || columnNames == null || columnNames.length == 0) {
+            throw new IllegalArgumentException();
+        }
+        final StringBuilder s = new StringBuilder();
+        s.append("INSERT OR REPLACE INTO ").append(tableName).append(" (");
+        for (String column : columnNames) {
+            s.append(column).append(" ,");
+        }
+        int length = s.length();
+        s.delete(length - 2, length);
+        s.append(") VALUES( ");
+        for (int i = 0; i < columnNames.length; i++) {
+            s.append(" ? ,");
+        }
+        length = s.length();
+        s.delete(length - 2, length);
+        s.append(")");
+        return s.toString();
+    }*/
+
     @Override
     public int update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs) {
         return mDatabase.update(tableName, contentValues, selection, selectionArgs);

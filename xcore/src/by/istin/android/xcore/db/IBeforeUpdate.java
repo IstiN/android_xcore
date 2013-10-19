@@ -1,7 +1,7 @@
 package by.istin.android.xcore.db;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 
 public interface IBeforeUpdate {

@@ -4,7 +4,7 @@ import android.content.ContentValues;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.IBeforeUpdate;
 import by.istin.android.xcore.db.IDBConnection;

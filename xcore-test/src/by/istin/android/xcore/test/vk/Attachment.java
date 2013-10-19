@@ -6,7 +6,7 @@ import by.istin.android.xcore.annotations.dbDouble;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IBeforeUpdate;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.source.DataSourceRequest;

@@ -3,7 +3,7 @@ package by.istin.android.xcore.test.vk;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.*;
-import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IMerge;

@@ -5,7 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import by.istin.android.xcore.CoreApplication;
-import by.istin.android.xcore.db.DBHelper;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;

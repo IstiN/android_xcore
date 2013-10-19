@@ -1,4 +1,4 @@
-package by.istin.android.xcore.db;
+package by.istin.android.xcore.db.impl;
 
 import android.database.sqlite.SQLiteStatement;
 import by.istin.android.xcore.annotations.*;
