@@ -559,6 +559,11 @@ public abstract class XListFragment extends AdapterViewFragment
                     }
                 }
                 onReceiverOnDone(resultData);
+
+                if (mEndlessScrollListener != null && mEndlessScrollListener.pagingLoading) {
+                    mEndlessScrollListener.pagingLoading = false;
+                }
+
                 checkStatus("onDone");
             }
 
@@ -732,7 +737,9 @@ public abstract class XListFragment extends AdapterViewFragment
                 hideEmptyView(view);
                 hidePagingProgress();
             } else {
-                showPagingProgress();
+                if (isPaging) {
+                    showPagingProgress();
+                }
                 hideProgress();
                 hideEmptyView(view);
             }
@@ -744,15 +751,15 @@ public abstract class XListFragment extends AdapterViewFragment
                 hideEmptyView(view);
                 hidePagingProgress();
             } else {
-                showPagingProgress();
+                if (isPaging) {
+                    showPagingProgress();
+                }
                 hideProgress();
                 hideEmptyView(view);
             }
             return;
         }
-        if (mEndlessScrollListener != null) {
-            mEndlessScrollListener.pagingLoading = false;
-        }
+
         if (size == 0) {
             hidePagingProgress();
             hideProgress();
