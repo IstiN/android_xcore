@@ -7,10 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
@@ -19,6 +15,9 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * Created by IstiN on 14.8.13.
@@ -228,7 +227,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                     if (dataSourceListener != null) {
                         dataSourceListener.onDone(resultData);
                     }
-                    sendResult(resultData, resultData, executeOperation);
+                    sendResult(resultData, resultData.get(StatusResultReceiver.RESULT_KEY), executeOperation);
                     return;
                 }
                 mExecutor.execute(new Runnable() {

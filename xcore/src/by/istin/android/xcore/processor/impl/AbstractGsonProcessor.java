@@ -29,13 +29,21 @@ public abstract class AbstractGsonProcessor<Result> implements IProcessor<Result
 	private Gson gson;
 	
 	private ContentValuesAdapter contentValuesAdapter;
-	
+
+    public AbstractGsonProcessor(Class<? extends Result> resultClassName) {
+        this(null, resultClassName);
+    }
+
 	public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName) {
 		super();
 		this.clazz = clazz;
 		this.resultClassName = resultClassName;
-		contentValuesAdapter = new ContentValuesAdapter(clazz);
-		gson = createGsonWithContentValuesAdapter(contentValuesAdapter);
+        if (clazz == null) {
+            gson = new GsonBuilder().create();
+        } else {
+		    contentValuesAdapter = new ContentValuesAdapter(clazz);
+		    gson = createGsonWithContentValuesAdapter(contentValuesAdapter);
+        }
 	}
 	
 	public static Gson createGsonWithContentValuesAdapter(Class<?> clazz) {
