@@ -25,6 +25,7 @@ import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.model.CursorModel;
+import by.istin.android.xcore.model.CursorModelLoader;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
@@ -38,7 +39,12 @@ import by.istin.android.xcore.utils.StringUtil;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class XListFragment extends AdapterViewFragment implements ICursorLoaderFragmentHelper, IDataSourceHelper, DataSourceExecuteHelper.IDataSourceListener {
+public abstract class XListFragment extends AdapterViewFragment
+        implements
+            ICursorLoaderFragmentHelper,
+            IDataSourceHelper,
+            DataSourceExecuteHelper.IDataSourceListener,
+            CursorModelLoader.ILoading {
 
     public static final int LOADER_PRIORITY_SERVICE = 1;
 
@@ -277,7 +283,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         setLoaderWork(true, LOADER_PRIORITY_HIGH);
-        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
+        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, this, id, args);
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -541,8 +547,6 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             @Override
             public void onDone(Bundle resultData) {
                 isServiceWork = false;
-                //TODO needs check if loader not was launched and finished before
-                //isLoaderWork = true;
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
                     return;
@@ -728,7 +732,7 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 hideEmptyView(view);
                 hidePagingProgress();
             } else {
-                hidePagingProgress();
+                showPagingProgress();
                 hideProgress();
                 hideEmptyView(view);
             }
@@ -740,11 +744,9 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
                 hideEmptyView(view);
                 hidePagingProgress();
             } else {
-                if (isPaging) {
-                    showPagingProgress();
-                }
-                hideEmptyView(view);
+                showPagingProgress();
                 hideProgress();
+                hideEmptyView(view);
             }
             return;
         }
@@ -752,16 +754,12 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             mEndlessScrollListener.pagingLoading = false;
         }
         if (size == 0) {
-            if (isPaging) {
-                hidePagingProgress();
-            }
+            hidePagingProgress();
             hideProgress();
             showEmptyView(view);
         } else {
             hideProgress();
-            if (isPaging) {
-                hidePagingProgress();
-            }
+            hidePagingProgress();
             hideEmptyView(view);
         }
     }
@@ -772,10 +770,14 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             return;
         }
         if (view == null) return;
-        View emptyView = view.findViewById(android.R.id.empty);
+        View emptyView = view.findViewById(getEmptyViewId());
         if (emptyView != null) {
             emptyView.setVisibility(View.GONE);
         }
+    }
+
+    protected int getEmptyViewId() {
+        return android.R.id.empty;
     }
 
     public void showEmptyView(View view) {
@@ -784,9 +786,21 @@ public abstract class XListFragment extends AdapterViewFragment implements ICurs
             return;
         }
         if (view == null) return;
-        View emptyView = view.findViewById(android.R.id.empty);
+        View emptyView = view.findViewById(getEmptyViewId());
         if (emptyView != null) {
             emptyView.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public void onCursorLoaderStartLoading() {
+        setLoaderWork(true, LOADER_PRIORITY_HIGH);
+        checkStatus("onCursorLoaderStartLoading");
+    }
+
+    @Override
+    public void onCursorLoaderStopLoading() {
+        setLoaderWork(false, LOADER_PRIORITY_HIGH);
+        checkStatus("onCursorLoaderStopLoading");
     }
 }
