@@ -3,9 +3,10 @@ package by.istin.android.xcore.db.impl;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBSupport;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
@@ -56,7 +57,12 @@ public abstract class AbstractDBSupport implements IDBSupport {
 
             @Override
             public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
-                return sDbHelper.updateOrInsert(dataSourceRequest, writableDatabase, ReflectUtils.classForName(className), initialValues);
+                Class<?> classOfModel = ReflectUtils.classForName(className);
+                IBeforeArrayUpdate beforeArrayUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
+                if (beforeArrayUpdate != null) {
+                    beforeArrayUpdate.onBeforeListUpdate(sDbHelper, writableDatabase, dataSourceRequest, 0, initialValues);
+                }
+                return sDbHelper.updateOrInsert(dataSourceRequest, writableDatabase, classOfModel, initialValues);
             }
 
             @Override

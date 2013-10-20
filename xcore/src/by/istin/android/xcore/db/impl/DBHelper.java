@@ -204,6 +204,7 @@ public class DBHelper {
 			}
 			Long id = contentValues.getAsLong(BaseColumns._ID);
 			if (id == null) {
+                Log.xd(this, "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
 				throw new IllegalArgumentException("content values needs to contains _ID");
 			}
 			List<Field> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
