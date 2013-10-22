@@ -22,6 +22,13 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
     }
 
     @Override
+    public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+        ContentValues contentValues = super.deserialize(jsonElement, type, jsonDeserializationContext);
+
+        return contentValues;
+    }
+
+    @Override
     protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
         dbEntities entity = field.getAnnotation(dbEntities.class);
         Class<?> clazz = entity.clazz();
@@ -37,6 +44,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
             contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
             dbEntities annotation = field.getAnnotation(dbEntities.class);
             contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+            //TODO input to db
         }
     }
 
@@ -47,10 +55,12 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
         contentValues.put(fieldValue, BytesUtils.toByteArray(values));
         dbEntity annotation = field.getAnnotation(dbEntity.class);
         contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+        //TODO input to db
     }
 
     @Override
     protected ContentValues proceed(ContentValues contentValues) {
+        //TODO input to db
         return contentValues;
     }
 }
