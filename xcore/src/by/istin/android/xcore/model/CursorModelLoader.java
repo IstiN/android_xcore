@@ -117,13 +117,13 @@ public class CursorModelLoader extends CursorLoader {
         super.forceLoad();
     }
 
-    @Override
+    /*@Override
     protected void onStartLoading() {
         Log.xd(this, "onStartLoading");
         super.onStartLoading();
         sendStartLoadingEvent();
     }
-
+*/
     private void sendStartLoadingEvent() {
         if (mLoading != null) {
             mLoading.onCursorLoaderStartLoading();
