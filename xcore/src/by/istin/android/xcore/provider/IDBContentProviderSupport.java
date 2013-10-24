@@ -3,6 +3,7 @@ package by.istin.android.xcore.provider;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import by.istin.android.xcore.db.IDBSupport;
 
 import java.util.ArrayList;
 
@@ -26,6 +27,8 @@ public interface IDBContentProviderSupport {
     Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder);
 
     Context getContext();
+
+    IDBSupport getDbSupport();
 
     ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException;
 }

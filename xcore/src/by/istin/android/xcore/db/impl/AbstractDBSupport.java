@@ -37,12 +37,17 @@ public abstract class AbstractDBSupport implements IDBSupport {
 
     @Override
     public void create(Context context, Class<?>[] entities) {
+        getOrCreateDBHelper(context);
+        mEntities = entities;
+    }
+
+    public DBHelper getOrCreateDBHelper(Context context) {
         synchronized (sLock) {
             if (sDbHelper == null) {
                 sDbHelper = new DBHelper(createConnector(context));
             }
         }
-        mEntities = entities;
+        return sDbHelper;
     }
 
     @Override

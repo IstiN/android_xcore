@@ -3,6 +3,7 @@ package by.istin.android.xcore.db;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
 import by.istin.android.xcore.db.operation.IDBInsertOrUpdateOperationSupport;
@@ -26,4 +27,6 @@ public interface IDBSupport extends IDBInsertOrUpdateOperationSupport, IDBDelete
     IDBBatchOperationSupport getConnectionForBatchOperation();
 
     IDBConnector createConnector(Context context);
+
+    DBHelper getOrCreateDBHelper(Context context);
 }

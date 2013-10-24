@@ -10,11 +10,6 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
-
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
-
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
@@ -23,6 +18,9 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
+
+import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * @author IstiN

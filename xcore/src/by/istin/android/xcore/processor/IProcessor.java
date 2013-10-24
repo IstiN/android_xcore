@@ -8,8 +8,8 @@ import by.istin.android.xcore.source.IDataSource;
 
 public interface IProcessor<Result, DataSourceResult> extends IAppServiceKey {
 
-	Result execute(DataSourceRequest dataSourceRequest, IDataSource<DataSourceResult> dataSource, DataSourceResult dataSourceResult) throws Exception;
-	
-	void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception;
+	public Result execute(DataSourceRequest dataSourceRequest, IDataSource<DataSourceResult> dataSource, DataSourceResult dataSourceResult) throws Exception;
+
+    public void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception;
 
 }

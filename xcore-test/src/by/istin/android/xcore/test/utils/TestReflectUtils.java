@@ -22,7 +22,7 @@ public class TestReflectUtils extends AndroidTestCase {
 
 	public void testKeysFields() throws Exception {
 		List<Field> entityKeys = ReflectUtils.getEntityKeys(TestEntity.class);
-		assertEquals(entityKeys.size(), 7);
+		assertEquals(entityKeys.size(), 8);
 	}
 	
 	public void testInterfaceInstance() throws Exception {

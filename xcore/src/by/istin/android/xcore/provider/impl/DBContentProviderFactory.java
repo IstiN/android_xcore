@@ -24,6 +24,11 @@ public class DBContentProviderFactory {
         return DBContentProviderFactoryHolder.INSTANCE;
     }
 
+    public static IDBContentProviderSupport getDefaultDBContentProvider(Context context, Class<?> ... entities) {
+        DBContentProviderFactory dbContentProviderFactory = getInstance();
+        return dbContentProviderFactory.getDbContentProvider(context, DBContentProviderFactory.Type.SQLite, entities);
+    }
+
     public static enum Type {
         SQLite
         //in future add more db types

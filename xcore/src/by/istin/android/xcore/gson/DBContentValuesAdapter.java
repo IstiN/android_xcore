@@ -1,56 +1,103 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+import android.provider.BaseColumns;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbEntities;
-import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.impl.DBHelper;
-import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
-import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.ReflectUtils;
 import com.google.gson.*;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
-public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
+public class DBContentValuesAdapter extends ContentValuesAdapter {
 
     private final IDBConnection dbConnection;
 
-    public DBContentValuesAdapter(Class<?> contentValuesClass, IDBConnection connection) {
+    private final DBHelper dbHelper;
+
+    private final DataSourceRequest dataSourceRequest;
+
+    private int count = 0;
+
+    private final IBeforeArrayUpdate beforeListUpdate;
+
+    public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBContentProviderSupport dbContentProvider) {
         super(contentValuesClass);
-        dbConnection = connection;
+        this.dbConnection = dbContentProvider.getDbSupport().createConnector(ContextHolder.getInstance().getContext()).getWritableConnection();
+        this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
+        this.dataSourceRequest = dataSourceRequest;
+        this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+    }
+
+
+    protected DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper) {
+        super(contentValuesClass);
+        this.dbConnection = dbConnection;
+        this.dbHelper = dbHelper;
+        this.dataSourceRequest = dataSourceRequest;
+        this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+    }
+
+    public IDBConnection getDbConnection() {
+        return this.dbConnection;
     }
 
     @Override
     protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
         dbEntities entity = field.getAnnotation(dbEntities.class);
         Class<?> clazz = entity.clazz();
-        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dbConnection);
-        ContentValues[] values = new ContentValues[jsonArray.size()];
+        IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
+        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
+        String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonElement item = jsonArray.get(i);
+            ContentValues subEntity;
             if (item.isJsonPrimitive()) {
                 JsonParser parser = new JsonParser();
                 item = parser.parse("{\"value\": \""+item.getAsString()+"\"}");
-                values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
+                subEntity = contentValuesAdapter.deserializeContentValues(contentValues, i, item, type, jsonDeserializationContext);
+            } else {
+                subEntity = contentValuesAdapter.deserializeContentValues(contentValues, i, item, type, jsonDeserializationContext);
             }
-            contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
-            dbEntities annotation = field.getAnnotation(dbEntities.class);
-            contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+            if (subEntity == null) {
+                continue;
+            }
+            if (beforeListUpdate != null) {
+                beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, i, subEntity);
+            }
+            subEntity.put(foreignKey, contentValues.getAsLong(BaseColumns._ID));
+            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, subEntity);
         }
     }
 
     @Override
     protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
-        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dbConnection);
-        ContentValues values = contentValuesAdapter.deserialize(subEntityJsonObject, type, jsonDeserializationContext);
-        contentValues.put(fieldValue, BytesUtils.toByteArray(values));
-        dbEntity annotation = field.getAnnotation(dbEntity.class);
-        contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
+        ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
+        values.put(DBHelper.getForeignKey(getContentValuesEntityClazz()), contentValues.getAsLong(BaseColumns._ID));
+        dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
     }
 
     @Override
-    protected ContentValues proceed(ContentValues contentValues) {
+    protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues) {
+        if (parent == null) {
+            if (contentValues == null) {
+                return null;
+            }
+            if (beforeListUpdate != null) {
+                beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
+            }
+            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
+            count++;
+        }
         return contentValues;
     }
+
+
 }

@@ -26,12 +26,12 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
             if (item.isJsonPrimitive()) {
                 JsonParser parser = new JsonParser();
                 item = parser.parse("{\"value\": \""+item.getAsString()+"\"}");
-                values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
             }
-            contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
-            dbEntities annotation = field.getAnnotation(dbEntities.class);
-            contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+            values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
         }
+        contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
+        dbEntities annotation = field.getAnnotation(dbEntities.class);
+        contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
     }
 
     @Override
-    protected ContentValues proceed(ContentValues contentValues) {
+    protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues) {
         return contentValues;
     }
 }

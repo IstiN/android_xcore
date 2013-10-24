@@ -171,7 +171,7 @@ public class DBHelper {
 		}
 	}
 
-    private int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, IDBConnection db, ContentValues[] contentValues) {
+    public int updateOrInsert(DataSourceRequest dataSourceRequest, Class<?> classOfModel, IDBConnection db, ContentValues[] contentValues) {
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
         int count = 0;
         for (int i = 0; i < contentValues.length; i++) {
@@ -311,7 +311,7 @@ public class DBHelper {
 			}
 			Annotation annotation = field.getAnnotation(dbAnnotation);
 			String contentValuesKey;
-			String foreignId = foreignEntity.getSimpleName().toLowerCase()+"_id";
+			String foreignId = getForeignKey(foreignEntity);
 			try {
 				contentValuesKey = (String) annotation.annotationType().getMethod("contentValuesKey").invoke(annotation);
 			} catch (Exception e) {
@@ -340,7 +340,11 @@ public class DBHelper {
 		}
 	}
 
-	private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {
+    public static String getForeignKey(Class<?> foreignEntity) {
+        return foreignEntity.getSimpleName().toLowerCase()+"_id";
+    }
+
+    private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {
 		entityValues.remove(contentValuesKey);
 		entityValues.put(foreignId, id);
 	}

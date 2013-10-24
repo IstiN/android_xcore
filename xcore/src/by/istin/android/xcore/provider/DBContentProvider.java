@@ -3,6 +3,7 @@ package by.istin.android.xcore.provider;
 import android.content.*;
 import android.database.Cursor;
 import android.net.Uri;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
 import java.util.ArrayList;
@@ -13,6 +14,10 @@ public abstract class DBContentProvider extends ContentProvider {
 
     @Override
 	public boolean onCreate() {
+        Context context = ContextHolder.getInstance().getContext();
+        if (context == null) {
+            ContextHolder.getInstance().setContext(getContext());
+        }
         dbContentProviderSupport = getContentProviderSupport(getContext());
         return true;
 	}

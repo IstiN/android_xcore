@@ -242,6 +242,11 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         return mContext;
     }
 
+    @Override
+    public IDBSupport getDbSupport() {
+        return mDbSupport;
+    }
+
     //helper's methods for batch operations
     public static ContentProviderOperation getDeleteOperation(DataSourceRequest dataSourceRequest, Class<?> clazz) {
         return getDeleteOperation(dataSourceRequest, clazz, null);
