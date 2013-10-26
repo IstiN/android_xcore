@@ -6,6 +6,7 @@ import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -55,6 +56,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
+        Long id = getParentId(contentValues);
         for (int i = 0; i < jsonArray.size(); i++) {
             JsonElement item = jsonArray.get(i);
             ContentValues subEntity;
@@ -71,7 +73,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
             if (beforeListUpdate != null) {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, i, subEntity);
             }
-            subEntity.put(foreignKey, contentValues.getAsLong(BaseColumns._ID));
+            subEntity.put(foreignKey, id);
             dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, subEntity);
         }
     }
@@ -80,8 +82,22 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
     protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
-        values.put(DBHelper.getForeignKey(getContentValuesEntityClazz()), contentValues.getAsLong(BaseColumns._ID));
+        Long id = getParentId(contentValues);
+        values.put(DBHelper.getForeignKey(getContentValuesEntityClazz()), id);
         dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
+    }
+
+    private Long getParentId(ContentValues contentValues) {
+        Long id = contentValues.getAsLong(BaseColumns._ID);
+        if (id == null) {
+            IGenerateID generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
+            if (generateID == null) {
+                throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID");
+            }
+            id = generateID.generateId(dbHelper, dbConnection, dataSourceRequest, contentValues);
+            contentValues.put(BaseColumns._ID, id);
+        }
+        return id;
     }
 
     @Override

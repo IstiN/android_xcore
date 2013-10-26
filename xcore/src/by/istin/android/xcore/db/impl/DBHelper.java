@@ -11,7 +11,8 @@ import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
-import by.istin.android.xcore.db.*;
+import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IBeforeUpdate;
 import by.istin.android.xcore.db.entity.IMerge;
@@ -99,7 +100,7 @@ public class DBHelper {
 					}
                     dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
 				} catch (SQLException e) {
-					Log.e(TAG, e);
+					Log.w(TAG, e);
 				}
 			}
             String sql = builder.toString();
@@ -108,7 +109,7 @@ public class DBHelper {
                 try {
                     dbWriter.execSQL(sql);
                 } catch (SQLException e) {
-                    Log.e(TAG, e);
+                    Log.w(TAG, e);
                 }
             }
             builder.setLength(0);

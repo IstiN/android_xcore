@@ -23,10 +23,10 @@ public class Log {
 	private static final String MANIFEST_METADATA_LOG_KEY = "log";
 
 	public enum Level {
-		INFO, DEBUG, ERROR, OFF
+		INFO, DEBUG, ERROR, WARNING, OFF
 	}
 	
-	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
+	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR, Level.WARNING};
 	
 	public static boolean isOff = false;
 	
@@ -127,7 +127,13 @@ public class Log {
 			android.util.Log.e(tag, String.valueOf(message));
 		}
 	}
-	
+
+	public static void w(String tag, Object message) {
+		if (need(Level.WARNING) || !isOff) {
+			android.util.Log.w(tag, String.valueOf(message));
+		}
+	}
+
 	public static void xe(Object tag, Object message) {
 		if (need(Level.ERROR) || !isOff) {
 			android.util.Log.e(tag.getClass().getSimpleName(), String.valueOf(message));

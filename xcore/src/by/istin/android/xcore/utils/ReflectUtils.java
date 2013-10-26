@@ -1,13 +1,12 @@
 package by.istin.android.xcore.utils;
 
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ReflectUtils {
@@ -32,7 +31,12 @@ public class ReflectUtils {
 				if (keys == null) {
 					keys = new ArrayList<Field>();
 				}
-				keys.add(field);
+                //we need be sure that all sub entities insert after parent
+                if (ReflectUtils.isAnnotationPresent(field, dbEntity.class) || ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
+                    keys.add(field);
+                } else {
+				    keys.add(0, field);
+                }
 			}
 		}
         sFieldsOfClass.put(clazz, keys);

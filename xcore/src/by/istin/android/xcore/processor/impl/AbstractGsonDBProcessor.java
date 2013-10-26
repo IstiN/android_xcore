@@ -3,6 +3,7 @@ package by.istin.android.xcore.processor.impl;
 import android.content.ContentValues;
 import by.istin.android.xcore.gson.ContentValuesAdapter;
 import by.istin.android.xcore.gson.DBContentValuesAdapter;
+import by.istin.android.xcore.gson.external.ArrayAdapterFactory;
 import by.istin.android.xcore.processor.AbstractDBProcessor;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -20,9 +21,15 @@ public abstract class AbstractGsonDBProcessor<Result, DataSourceResult> extends 
     }
 
     public static Gson createGsonWithContentValuesAdapter(ContentValuesAdapter contentValuesAdapter) {
+        GsonBuilder gsonBuilder = initGsonBuilder(contentValuesAdapter);
+        return gsonBuilder.create();
+    }
+
+    public static GsonBuilder initGsonBuilder(ContentValuesAdapter contentValuesAdapter) {
         GsonBuilder gsonBuilder = new GsonBuilder();
         gsonBuilder.registerTypeHierarchyAdapter(ContentValues.class, contentValuesAdapter);
-        return gsonBuilder.create();
+        gsonBuilder.registerTypeAdapterFactory(new ArrayAdapterFactory(contentValuesAdapter));
+        return gsonBuilder;
     }
 
 }

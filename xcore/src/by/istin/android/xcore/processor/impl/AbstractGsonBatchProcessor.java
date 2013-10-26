@@ -36,15 +36,14 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbContentProviderSupport);
-        Gson gson = createGsonWithContentValuesAdapter(contentValuesAdapter);
+        Gson gson = buildGson(contentValuesAdapter);
         IDBConnection dbConnection = contentValuesAdapter.getDbConnection();
         dbConnection.beginTransaction();
+        Result result = null;
 		try {
-            onStartProcessing(dbConnection);
-            Result result = process(gson, bufferedReader);
-            onProcessingFinish(result, dbConnection);
+            onStartProcessing(dataSourceRequest, dbConnection);
+            result = process(gson, bufferedReader);
             dbConnection.setTransactionSuccessful();
-            return result;
 		} catch (JsonIOException exception){
             throw new IOException(exception);
         } finally {
@@ -52,14 +51,20 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 			IOUtils.close(inputStreamReader);
 			IOUtils.close(bufferedReader);
             dbConnection.endTransaction();
+            onProcessingFinish(dataSourceRequest, result, dbConnection);
 		}
+        return result;
 	}
 
-    protected void onStartProcessing(IDBConnection dbConnection) {
+    protected Gson buildGson(DBContentValuesAdapter contentValuesAdapter) {
+        return createGsonWithContentValuesAdapter(contentValuesAdapter);
+    }
+
+    protected void onStartProcessing(DataSourceRequest dataSourceRequest, IDBConnection dbConnection) {
         //remove old data
     };
 
-    protected void onProcessingFinish(Result result, IDBConnection dbConnection) {
+    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result, IDBConnection dbConnection) {
         //notify about finish or do more db operations
     };
 
