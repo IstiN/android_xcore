@@ -92,7 +92,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         if (id == null) {
             IGenerateID generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
             if (generateID == null) {
-                throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID");
+                throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID for "+ getContentValuesEntityClazz());
             }
             id = generateID.generateId(dbHelper, dbConnection, dataSourceRequest, contentValues);
             contentValues.put(BaseColumns._ID, id);

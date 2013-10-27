@@ -119,8 +119,15 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                 proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
             } else if (field.isAnnotationPresent(dbEntities.class)) {
-                JsonArray jsonArray = jsonValue.getAsJsonArray();
-                proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
+                if (jsonValue.isJsonArray()) {
+                    JsonArray jsonArray = jsonValue.getAsJsonArray();
+                    proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
+                } else {
+                    dbEntities entity = field.getAnnotation(dbEntities.class);
+                    Class<?> clazz = entity.clazz();
+                    JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
+                    proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
+                }
             }
         }
         return proceed(parent, position, contentValues);
