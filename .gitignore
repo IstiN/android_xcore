@@ -61,3 +61,4 @@ out/production/xcore-demo/com/example/xcoredemo/test/code/FileDataSourceCode
 out/production/xcore-demo/com/example/xcoredemo/test/code/GsonArrayContentValuesProcessorCode
 out/production/xcore-demo/com/example/xcoredemo/test/code/GsonContentValuesProcessorCode
 out/production/xcore-demo/com/example/xcoredemo/test/code/HttpDataSourceCode
+*.iml
