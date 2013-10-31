@@ -177,6 +177,6 @@ public class Log {
 			}
 			sActionStorage.remove(actionName);
 		}
-        return 0l;
+        return resultTime;
 	}
 }
