@@ -1,7 +1,9 @@
 package by.istin.android.xcore.processor.impl;
 
 import android.content.Context;
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.gson.DBContentValuesAdapter;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -43,6 +45,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 		try {
             onStartProcessing(dataSourceRequest, dbConnection);
             result = process(gson, bufferedReader);
+            onBeforeTransactionCommit(dataSourceRequest, result, dbConnection);
             dbConnection.setTransactionSuccessful();
 		} catch (JsonIOException exception){
             throw new IOException(exception);
@@ -58,6 +61,14 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 
     protected Gson buildGson(DBContentValuesAdapter contentValuesAdapter) {
         return createGsonWithContentValuesAdapter(contentValuesAdapter);
+    }
+
+    public DBHelper getDbHelper() {
+        return dbContentProviderSupport.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
+    }
+
+    protected void onBeforeTransactionCommit(DataSourceRequest dataSourceRequest, Result result, IDBConnection dbConnection) {
+        //do additional manipulations there
     }
 
     protected void onStartProcessing(DataSourceRequest dataSourceRequest, IDBConnection dbConnection) {
@@ -78,6 +89,6 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 
     @Override
     public final void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception {
-
+        //this processor can be used only for caching
     }
 }
