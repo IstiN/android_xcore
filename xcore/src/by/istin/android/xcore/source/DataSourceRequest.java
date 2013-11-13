@@ -28,7 +28,13 @@ public class DataSourceRequest {
 	private static final String REQUEST_FORCE_UPDATE_DATA = "___fud";
 	
 	private static final String REQUEST_CACHE_EXPIRATION = "___exp";
-	
+
+	private static final String JOIN_REQUEST = "___joinrequest";
+
+	private static final String JOIN_PROCESSOR_KEY = "___joinprocessor";
+
+	private static final String JOIN_DATASOURCE_KEY = "___joindatasource";
+
 	private static final String[] KEYS = new String[] {
 		REQUEST_URI,
         REQUEST_PARENT_URI,
@@ -150,7 +156,38 @@ public class DataSourceRequest {
 	public void toBundle(Bundle bundle) {
         ModelContract.dataSourceRequestToBundle(bundle, mBundle);
 	}
-	
+
+    public void joinRequest(DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+        if (dataSourceRequest == null) {
+            throw new IllegalArgumentException("dataSourceRequest can not be null");
+        }
+        if (processorKey == null) {
+            throw new IllegalArgumentException("processorKey can not be null");
+        }
+        if (dataSourceKey == null) {
+            throw new IllegalArgumentException("dataSourceKey can not be null");
+        }
+        mBundle.putString(JOIN_REQUEST, dataSourceRequest.toUriParams());
+        mBundle.putString(JOIN_PROCESSOR_KEY, processorKey);
+        mBundle.putString(JOIN_DATASOURCE_KEY, dataSourceKey);
+    }
+
+    public DataSourceRequest getJoinedRequest() {
+        String joinedRequest = mBundle.getString(JOIN_REQUEST);
+        if (StringUtil.isEmpty(joinedRequest)) {
+            return null;
+        }
+        return fromUri(Uri.parse("content://temp?"+joinedRequest));
+    }
+
+    public String getJoinedProcessorKey() {
+        return mBundle.getString(JOIN_PROCESSOR_KEY);
+    }
+
+    public String getJoinedDataSourceKey() {
+        return mBundle.getString(JOIN_DATASOURCE_KEY);
+    }
+
 	public static DataSourceRequest fromBundle(Bundle bundle) {
 		DataSourceRequest data = new DataSourceRequest();
 		data.mBundle = ModelContract.getDataSourceFromBundle(bundle);
@@ -174,5 +211,5 @@ public class DataSourceRequest {
 		}
 		return requestData;
 	}
-	
+
 }

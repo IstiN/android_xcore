@@ -1,7 +1,6 @@
 package by.istin.android.xcore.utils;
 
 import android.content.Context;
-
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.ParseException;
@@ -11,7 +10,7 @@ import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class Log {
@@ -23,10 +22,10 @@ public class Log {
 	private static final String MANIFEST_METADATA_LOG_KEY = "log";
 
 	public enum Level {
-		INFO, DEBUG, ERROR, OFF
+		INFO, DEBUG, ERROR, WARNING, OFF
 	}
 	
-	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR};
+	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR, Level.WARNING};
 	
 	public static boolean isOff = false;
 	
@@ -127,7 +126,13 @@ public class Log {
 			android.util.Log.e(tag, String.valueOf(message));
 		}
 	}
-	
+
+	public static void w(String tag, Object message) {
+		if (need(Level.WARNING) || !isOff) {
+			android.util.Log.w(tag, String.valueOf(message));
+		}
+	}
+
 	public static void xe(Object tag, Object message) {
 		if (need(Level.ERROR) || !isOff) {
 			android.util.Log.e(tag.getClass().getSimpleName(), String.valueOf(message));
@@ -146,20 +151,32 @@ public class Log {
 		}
 	}
 	
-	private static HashMap<String, Long> sActionStorage = new HashMap<String, Long>();
-	
-	public static synchronized void startAction(String actionName) {
-		if (need(Level.DEBUG)) {
+	private static ConcurrentHashMap<String, Long> sActionStorage = new ConcurrentHashMap<String, Long>();
+
+    public static synchronized void startAction(String actionName) {
+        startAction(actionName, true);
+    }
+
+	public static synchronized void startAction(String actionName, boolean isCheckLevel) {
+		if (need(Level.DEBUG) || !isCheckLevel) {
 			sActionStorage.put(actionName, System.currentTimeMillis());
 		}
 	}
-	
-	public static synchronized void endAction(String actionName) {
-		if (need(Level.DEBUG)) {
+
+    public static synchronized long endAction(String actionName) {
+        return endAction(actionName, true);
+    }
+
+
+	public static synchronized long endAction(String actionName, boolean isCheckLevel) {
+        long resultTime = 0l;
+		if (need(Level.DEBUG) || !isCheckLevel) {
 			if (sActionStorage.get(actionName) != null) {
-				d(TIME_ACTION, actionName + ":" + (System.currentTimeMillis() - sActionStorage.get(actionName)));
+                resultTime = System.currentTimeMillis() - sActionStorage.get(actionName);
+                d(TIME_ACTION, actionName + ":" + resultTime);
 			}
 			sActionStorage.remove(actionName);
 		}
+        return resultTime;
 	}
 }

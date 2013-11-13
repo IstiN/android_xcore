@@ -1,13 +1,12 @@
 package by.istin.android.xcore.utils;
 
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ReflectUtils {
@@ -15,6 +14,8 @@ public class ReflectUtils {
     private static Map<Class<?>, List<Field>> sFieldsOfClass = new ConcurrentHashMap<Class<?>, List<Field>>();
 
     private static Map<Field, String> sNameOfField = new ConcurrentHashMap<Field, String>();
+
+    private static Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
 
     private static Map<Field, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<Field, Set<Class<? extends Annotation>>>();
 
@@ -30,7 +31,12 @@ public class ReflectUtils {
 				if (keys == null) {
 					keys = new ArrayList<Field>();
 				}
-				keys.add(field);
+                //we need be sure that all sub entities insert after parent
+                if (ReflectUtils.isAnnotationPresent(field, dbEntity.class) || ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
+                    keys.add(field);
+                } else {
+				    keys.add(0, field);
+                }
 			}
 		}
         sFieldsOfClass.put(clazz, keys);
@@ -67,16 +73,30 @@ public class ReflectUtils {
 			return null;
 		}
 	}
+
+    public static Class<?> classForName(String className) {
+        try {
+            return Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
 	
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
 		try {
+            String cacheKey = clazz.getName() + interfaceTargetClazz.getName();
+            if (sInstancesOfInterface.containsKey(cacheKey)) {
+                return (T) sInstancesOfInterface.get(cacheKey);
+            }
             Class<?> cls = clazz;
             while (cls != null) {
                 Class<?>[] interfaces = cls.getInterfaces();
 
                 for (Class<?> i : interfaces) {
                     if (i.equals(interfaceTargetClazz)) {
-                        return (T)clazz.newInstance();
+                        T object = (T) clazz.newInstance();
+                        sInstancesOfInterface.put(cacheKey, object);
+                        return object;
                     }
                 }
                 cls = cls.getSuperclass();

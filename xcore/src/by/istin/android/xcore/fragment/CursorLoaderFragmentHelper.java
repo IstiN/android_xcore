@@ -4,14 +4,11 @@ import android.app.Activity;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
 import android.support.v4.content.Loader;
-
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.model.CursorModelLoader;
 import by.istin.android.xcore.utils.Log;
@@ -40,14 +37,19 @@ public class CursorLoaderFragmentHelper {
 
         CursorModel.CursorModelCreator getCursorModelCreator();
 	}
-	
-	public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
+
+    public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
+        return onCreateLoader(cursorLoaderFragment, null, id, args);
+    }
+
+	public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, CursorModelLoader.ILoading loading, int id, Bundle args) {
 		Loader<Cursor> loader = null;
 		if (id == cursorLoaderFragment.getLoaderId()) {
 			loader = new CursorModelLoader(
 					cursorLoaderFragment.getActivity(),
                     cursorLoaderFragment.getCursorModelCreator(),
-					cursorLoaderFragment.getUri(), 
+                    loading,
+					cursorLoaderFragment.getUri(),
 					cursorLoaderFragment.getProjection(), 
 					cursorLoaderFragment.getSelection(), 
 					cursorLoaderFragment.getSelectionArgs(), 

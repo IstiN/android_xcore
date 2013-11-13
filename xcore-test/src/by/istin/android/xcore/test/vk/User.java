@@ -1,18 +1,17 @@
 package by.istin.android.xcore.test.vk;
 
 import android.content.ContentValues;
-import android.database.sqlite.SQLiteDatabase;
 import android.provider.BaseColumns;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.db.DBHelper;
-import by.istin.android.xcore.db.IBeforeArrayUpdate;
-import by.istin.android.xcore.db.IMerge;
+import by.istin.android.xcore.db.impl.DBHelper;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
-
 import com.google.gson.annotations.SerializedName;
 
 public class User implements BaseColumns, IMerge, IBeforeArrayUpdate {
@@ -69,14 +68,14 @@ public class User implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	public static final String POSITION = "position";
 	
 	@Override
-	public void merge(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
+	public void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		if (newValues.getAsInteger(POSITION) == null) {
 			newValues.put(POSITION, oldValues.getAsInteger(POSITION));
 		}
 	}
 
 	@Override
-	public void onBeforeListUpdate(DBHelper dbHelper, SQLiteDatabase db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
+	public void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
 		String fullName = contentValues.getAsString(FIRST_NAME) + " " + contentValues.getAsString(LAST_NAME);
 		contentValues.put(FULL_NAME, fullName);
 		contentValues.put(SEARCH_VALUE, StringUtil.translit(fullName));

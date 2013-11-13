@@ -6,7 +6,7 @@
     
     <fragment
         android:id="@+id/fragment1"
-        android:name="com.example.xcoredemo.test.DemoXListFragment"
+        android:name="com.example.xcoredemo.test.DemoXListFragmentJoinedRequest"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent" />
 
