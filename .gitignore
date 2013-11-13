@@ -64,3 +64,6 @@ out/production/xcore-demo/com/example/xcoredemo/test/code/HttpDataSourceCode
 *.iml
 projects/sampleproject/.idea/.name
 projects/sampleproject/.idea
+projects/sampleproject-impl/.idea/.name
+projects/sampleproject-impl/.idea/compiler.xml
+projects/sampleproject-impl/.idea/*
