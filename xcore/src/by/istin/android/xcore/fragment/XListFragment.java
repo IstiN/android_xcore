@@ -612,10 +612,14 @@ public abstract class XListFragment extends AdapterViewFragment
 		if (getView() != null) {
             Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
             Adapter adapter = getListView().getAdapter();
-            if (adapter instanceof HeaderViewListAdapter) {
-                adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+            if (adapter != null) {
+                if (adapter instanceof HeaderViewListAdapter) {
+                    adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
+                }
+                if (adapter instanceof CursorAdapter) {
+                    ((CursorAdapter) adapter).swapCursor(null);
+                }
             }
-            ((CursorAdapter) adapter).swapCursor(null);
 		}
         checkStatus("onLoaderReset");
 	}
