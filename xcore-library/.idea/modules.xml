@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/xcore/xcore.iml" filepath="$PROJECT_DIR$/xcore/xcore.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xcore-library.iml" filepath="$PROJECT_DIR$/xcore-library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/xcore-tests/xcore-tests.iml" filepath="$PROJECT_DIR$/xcore-tests/xcore-tests.iml" />
+    </modules>
+  </component>
+</project>
+

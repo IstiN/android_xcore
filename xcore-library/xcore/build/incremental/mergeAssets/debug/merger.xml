@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="E:\work\git\android_xcore\xcore-library\xcore\src\main\assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="E:\work\git\android_xcore\xcore-library\xcore\src\debug\assets" />
+    </dataSet>
+
+</merger>
