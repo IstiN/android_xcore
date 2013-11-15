@@ -67,3 +67,4 @@ projects/sampleproject/.idea
 projects/sampleproject-impl/.idea/.name
 projects/sampleproject-impl/.idea/compiler.xml
 projects/sampleproject-impl/.idea/*
+xcore-library/.idea/*
