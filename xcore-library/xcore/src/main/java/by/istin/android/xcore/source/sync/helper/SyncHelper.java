@@ -8,6 +8,7 @@ import android.os.Bundle;
 
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Log;
 
 
 public class SyncHelper implements XCoreHelper.IAppServiceKey {
@@ -23,6 +24,8 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 
     private String mModelContentProviderAuthority;
 
+    private String mType;
+
     public static SyncHelper get(Context context) {
         return (SyncHelper) AppUtils.get(context, APP_SERVICE_KEY);
     }
@@ -32,13 +35,18 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
         mPeriod = period;
         mContext = context;
         mModelContentProviderAuthority = modelContentProviderAuthority;
+        mType = mContext.getApplicationContext().getPackageName() + ACCOUNT_TYPE;
     }
 
 	public void addSyncAccount(){
         Context applicationContext = mContext.getApplicationContext();
-        AccountManager am = AccountManager
-				.get(applicationContext);
-		Account account = new Account(mAccountName, applicationContext.getPackageName()+ACCOUNT_TYPE);
+        AccountManager am = AccountManager.get(applicationContext);
+        if (isExists(am)) {
+            Log.xd(this, "account already added");
+            return;
+        }
+        Log.xd(this, "add sync account");
+        Account account = new Account(mAccountName, mType);
 		Bundle params = new Bundle();
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
@@ -54,13 +62,25 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
             //TODO handle
         }
 	}
-	
-	public void removeSyncAccount(){
+
+    private boolean isExists(AccountManager am) {
+        Account[] accountsByType = am.getAccountsByType(mType);
+        if (accountsByType != null && accountsByType.length > 0) {
+            return true;
+        }
+        return false;
+    }
+
+    public void removeSyncAccount(){
         Context applicationContext = mContext.getApplicationContext();
         AccountManager am = AccountManager
 				.get(applicationContext);
-		Account account = new Account(mAccountName,
-                applicationContext.getPackageName()+ACCOUNT_TYPE);
+        if (!isExists(am)) {
+            Log.xd(this, "no sync accounts for remove");
+            return;
+        }
+        Log.xd(this, "remove sync account");
+		Account account = new Account(mAccountName, mType);
 		Bundle params = new Bundle();
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_EXPEDITED, false);
 		params.putBoolean(ContentResolver.SYNC_EXTRAS_DO_NOT_RETRY, false);
@@ -73,14 +93,16 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
         } catch (SecurityException ex) {
             //TODO handle
         }
-
 	}
 	
 	public void removeAccount(){
-		AccountManager am = AccountManager
-				.get(mContext);
-		Account account = new Account(mAccountName,
-                mContext.getPackageName()+ACCOUNT_TYPE);
+		AccountManager am = AccountManager.get(mContext);
+        if (!isExists(am)) {
+            Log.xd(this, "no sync accounts for remove");
+            return;
+        }
+        Log.xd(this, "remove account");
+		Account account = new Account(mAccountName, mType);
 		am.removeAccount(account, null, null);
 	}
 
