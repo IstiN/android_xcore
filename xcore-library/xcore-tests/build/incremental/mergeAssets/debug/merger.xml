@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="XcoreLibraryXcoreUnspecified.aar" >
+        <source path="E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\assets" />
+    </dataSet>
+    <dataSet config="main" >
+        <source path="E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="E:\work\git\android_xcore\xcore-library\xcore-tests\src\debug\assets" />
+    </dataSet>
+
+</merger>

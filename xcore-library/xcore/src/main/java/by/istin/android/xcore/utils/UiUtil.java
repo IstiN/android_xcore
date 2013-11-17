@@ -1,5 +1,7 @@
 package by.istin.android.xcore.utils;
 
+import android.annotation.TargetApi;
+import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
 import android.graphics.Point;
@@ -8,6 +10,10 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
+import android.view.ViewConfiguration;
+import android.view.Window;
 import android.view.WindowManager;
 
 import by.istin.android.xcore.ContextHolder;
@@ -57,6 +63,27 @@ public class UiUtil {
 			sDisplayHeight = display.getHeight();
 		}
 	}
+
+    @TargetApi(Build.VERSION_CODES.KITKAT)
+    public static boolean setTranslucentBars(Activity activity) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+            return false;
+        }
+        boolean hasMenuKey = ViewConfiguration.get(activity).hasPermanentMenuKey();
+        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
+        if(!hasMenuKey && !hasBackKey) {
+            Window win = activity.getWindow();
+            WindowManager.LayoutParams winParams = win.getAttributes();
+            int bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+            winParams.flags |=  bits;
+            bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            winParams.flags |=  bits;
+            win.setAttributes(winParams);
+            return true;
+        } else {
+            return false;
+        }
+    }
 	
     /**
      * Default constructor.

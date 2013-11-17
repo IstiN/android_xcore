@@ -4,9 +4,15 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
+
+import com.google.gson.Gson;
+
+import java.io.BufferedReader;
+import java.io.InputStream;
+
 import by.istin.android.xcore.CoreApplication;
-import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IDBConnector;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;
 import by.istin.android.xcore.processor.impl.GsonArrayContentValuesProcessor;
@@ -20,12 +26,6 @@ import by.istin.android.xcore.test.vk.FwdMessage;
 import by.istin.android.xcore.test.vk.User;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
-
-import java.io.BufferedReader;
-import java.io.InputStream;
 
 public class TestDatasourceService extends ApplicationTestCase<CoreApplication> {
 
@@ -74,7 +74,8 @@ public class TestDatasourceService extends ApplicationTestCase<CoreApplication> 
 			@Override
 			protected DialogsResponse process(Gson gson,
 					BufferedReader bufferedReader) {
-				JsonObject jsonObject = getGson().fromJson(bufferedReader, JsonObject.class);
+                return getGson().fromJson(bufferedReader, DialogsResponse.class);
+				/*JsonObject jsonObject = getGson().fromJson(bufferedReader, JsonObject.class);
 				JsonArray dialogsJsonArray = jsonObject.get("response").getAsJsonObject().getAsJsonArray("dialogs");
 				JsonArray usersJsonArray = jsonObject.get("response").getAsJsonObject().getAsJsonArray("users");
 				Gson dialogGson = createGsonWithContentValuesAdapter(Dialog.class);
@@ -84,7 +85,7 @@ public class TestDatasourceService extends ApplicationTestCase<CoreApplication> 
 				DialogsResponse dialogsResponse = new DialogsResponse();
 				dialogsResponse.setDialogs(dialogs);
 				dialogsResponse.setUsers(users);
-				return dialogsResponse;
+				return dialogsResponse;*/
 			}
 
 			@Override

@@ -1,0 +1,18 @@
+# incremental data. DO NOT EDIT.
+# format is <lastModified> <length> <SHA-1> <path>
+# Encoding is UTF-8
+1384377035259 698 f2a95dd1ac51f407e93ca1c5bf0b475a49377e97 E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\values\styles.xml
+1384709002079 828 40fccae1a7b3dc2ec7f220dbd2c43d18f051cca3 E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\values\values.xml
+1384709002062 1098 52e8ad46f11d52c269069be296f8902edf991e6c E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\drawable-xxhdpi\ic_launcher.png
+1384377035257 351 4b9b78b6caaa87730a02a00465d9674ae9e8153a E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\drawable-mdpi\ic_launcher.png
+1384377035259 391 c2ba0c068f67436940fda302e9b49143f33acf9a E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\values-v14\styles.xml
+1384709002047 420 b1ce967169e0895d19de1a6b7984e4034e726c26 E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\drawable-hdpi\ic_launcher.png
+1384377035257 533 645ce58dc3408def68b4b9e0a8c35c22a23528fc E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\drawable-xhdpi\ic_launcher.png
+1384377035258 1098 52e8ad46f11d52c269069be296f8902edf991e6c E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\drawable-xxhdpi\ic_launcher.png
+1384709002052 351 4b9b78b6caaa87730a02a00465d9674ae9e8153a E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\drawable-mdpi\ic_launcher.png
+1384377035258 333 8b3a7994ad0cfcf80dd5660f293a12990aee611c E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\values-v11\styles.xml
+1384377035259 73 51cf05f54ecf74b0cf5098a04953a472517da835 E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\values\strings.xml
+1384709002073 354 47597c921e64d83891fa449966635fcc1227296c E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\values-v14\values.xml
+1384709002057 533 645ce58dc3408def68b4b9e0a8c35c22a23528fc E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\drawable-xhdpi\ic_launcher.png
+1384709002068 340 eec2745334866d5516731c1387b7e9eb5c111113 E:\work\git\android_xcore\xcore-library\xcore-tests\build\exploded-bundles\XcoreLibraryXcoreUnspecified.aar\res\values-v11\values.xml
+1384377035256 420 b1ce967169e0895d19de1a6b7984e4034e726c26 E:\work\git\android_xcore\xcore-library\xcore-tests\src\main\res\drawable-hdpi\ic_launcher.png
