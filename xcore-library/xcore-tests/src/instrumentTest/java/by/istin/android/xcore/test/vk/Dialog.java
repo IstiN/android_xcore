@@ -2,15 +2,22 @@ package by.istin.android.xcore.test.vk;
 
 import android.content.ContentValues;
 import android.provider.BaseColumns;
-import by.istin.android.xcore.annotations.*;
-import by.istin.android.xcore.db.impl.DBHelper;
-import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+
+import by.istin.android.xcore.annotations.dbByte;
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbInteger;
+import by.istin.android.xcore.annotations.dbLong;
+import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.HashUtils;
 
-public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
+public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate, IGenerateID {
 
 	@dbLong
 	public static final String ID = _ID;
@@ -69,7 +76,10 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	
 	@dbInteger
 	public static final String POSITION = "position";
-	
+
+	@dbLong
+	public static final String RESPONSE_ID = "response_id";
+
 	@Override
 	public void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		if (newValues.getAsInteger(POSITION) == null) {
@@ -80,7 +90,13 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	@Override
 	public void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
 		contentValues.put(POSITION, position);
-		contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID)));
+        if (contentValues.getAsLong(ID) == null) {
+		    contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID)));
+        }
 	}
-	
+
+    @Override
+    public long generateId(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues contentValues) {
+        return HashUtils.generateId(contentValues.getAsLong(UID) + "_" + contentValues.getAsLong(CHAT_ID));
+    }
 }

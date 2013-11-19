@@ -66,7 +66,10 @@ public class User implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	
 	@dbInteger
 	public static final String POSITION = "position";
-	
+
+    @dbLong
+    public static final String RESPONSE_ID = "response_id";
+
 	@Override
 	public void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues) {
 		if (newValues.getAsInteger(POSITION) == null) {

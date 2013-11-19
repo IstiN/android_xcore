@@ -1,14 +1,30 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
-import by.istin.android.xcore.annotations.*;
-import by.istin.android.xcore.utils.ReflectUtils;
-import com.google.gson.*;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import by.istin.android.xcore.annotations.JsonSubJSONObject;
+import by.istin.android.xcore.annotations.dbBoolean;
+import by.istin.android.xcore.annotations.dbByte;
+import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbInteger;
+import by.istin.android.xcore.annotations.dbLong;
+import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
@@ -48,13 +64,13 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return deserializeContentValues(null, UNKNOWN_POSITION, jsonElement, type, jsonDeserializationContext);
     }
 
-    protected T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+    protected T deserializeContentValues(ContentValues parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         if (mEntityKeys == null) {
             mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
         }
         ContentValues contentValues = new ContentValues();
         if (mEntityKeys == null) {
-            return proceed(parent, position, contentValues);
+            return (T) proceed(parent, position, contentValues);
         }
         if (jsonElement.isJsonPrimitive()) {
             if (mJsonPrimitiveHandler == null) {
@@ -130,7 +146,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                 }
             }
         }
-        return proceed(parent, position, contentValues);
+        return (T) proceed(parent, position, contentValues);
     }
 
     protected void putPrimitiveValue(ContentValues contentValues, Field field, JsonElement jsonValue, String fieldValue) {
@@ -153,6 +169,6 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
 
-    protected abstract T proceed(T parent, int position, ContentValues contentValues);
+    protected abstract Object proceed(ContentValues parent, int position, ContentValues contentValues);
 
 }

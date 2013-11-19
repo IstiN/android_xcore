@@ -1,6 +1,17 @@
 package by.istin.android.xcore.processor.impl;
 
 import android.content.Context;
+import android.provider.BaseColumns;
+
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
@@ -9,13 +20,6 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
@@ -38,9 +42,9 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbContentProviderSupport);
-        Gson gson = buildGson(contentValuesAdapter);
         IDBConnection dbConnection = contentValuesAdapter.getDbConnection();
         dbConnection.beginTransaction();
+        Gson gson = buildGson(contentValuesAdapter);
         Result result = null;
 		try {
             onStartProcessing(dataSourceRequest, dbConnection);
@@ -60,7 +64,12 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 	}
 
     protected Gson buildGson(DBContentValuesAdapter contentValuesAdapter) {
-        return createGsonWithContentValuesAdapter(contentValuesAdapter);
+        GsonBuilder gsonBuilder = createGsonBuilder(contentValuesAdapter);
+        return gsonBuilder.create();
+    }
+
+    protected GsonBuilder createGsonBuilder(DBContentValuesAdapter contentValuesAdapter) {
+        return initGsonBuilder(contentValuesAdapter);
     }
 
     public DBHelper getDbHelper() {

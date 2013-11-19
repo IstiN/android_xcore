@@ -24,7 +24,7 @@ public class ReflectUtils {
             return sFieldsOfClass.get(clazz);
         }
 		Field[] fields = clazz.getFields();
-		List<Field> keys = null;
+		List<Field> keys = new ArrayList<Field>();
 		for (Field field : fields) {
 			Annotation[] annotations = field.getAnnotations();
 			if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers()) && annotations != null && annotations.length != 0) {

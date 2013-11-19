@@ -10,10 +10,9 @@ import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
-import by.istin.android.xcore.gson.AbstractValuesAdapter;
+import by.istin.android.xcore.gson.TypeContentValues;
+import by.istin.android.xcore.gson.DBContentValuesAdapter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -21,46 +20,39 @@ import by.istin.android.xcore.gson.AbstractValuesAdapter;
  * Date: 25.10.13
  * Time: 18.26
  */
-public class ArrayAdapter<T> extends TypeAdapter<List<T>> {
+public class DBContentValuesTypeAdapter extends TypeAdapter<TypeContentValues> {
 
-    private final AbstractValuesAdapter contentValuesAdapter;
+    private final DBContentValuesAdapter contentValuesAdapter;
 
-    private Class<T> adapterclass;
+    private Class<?> adapterClass;
 
 
-    public ArrayAdapter(Class<T> adapterclass, AbstractValuesAdapter contentValuesAdapter) {
-        this.adapterclass = adapterclass;
+    public DBContentValuesTypeAdapter(Class<?> adapterClass, DBContentValuesAdapter contentValuesAdapter) {
+        this.adapterClass = adapterClass;
         this.contentValuesAdapter = contentValuesAdapter;
     }
 
-    public List<T> read(JsonReader reader) throws IOException {
+    @Override
+    public void write(JsonWriter jsonWriter, TypeContentValues tdbContentValues) throws IOException {
 
-        List<T> list = new ArrayList<T>();
+    }
 
+    @Override
+    public TypeContentValues read(JsonReader reader) throws IOException {
         Gson gson = new GsonBuilder()
                 .registerTypeHierarchyAdapter(ContentValues.class, contentValuesAdapter)
                 .registerTypeAdapterFactory(new ArrayAdapterFactory(contentValuesAdapter))
                 .create();
 
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
-            T inning = gson.fromJson(reader, adapterclass);
-            list.add(inning);
-
+            gson.fromJson(reader, adapterClass);
         } else if (reader.peek() == JsonToken.BEGIN_ARRAY) {
             reader.beginArray();
             while (reader.hasNext()) {
-                T inning = gson.fromJson(reader, adapterclass);
-                list.add(inning);
+                gson.fromJson(reader, adapterClass);
             }
             reader.endArray();
         }
-
-        return list;
+        return null;
     }
-
-    public void write(JsonWriter writer, List<T> value) throws IOException {
-
-    }
-
-
 }

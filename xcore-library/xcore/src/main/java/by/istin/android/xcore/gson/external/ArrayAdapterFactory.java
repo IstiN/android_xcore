@@ -1,7 +1,5 @@
 package by.istin.android.xcore.gson.external;
 
-import android.content.ContentValues;
-import by.istin.android.xcore.gson.ContentValuesAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -10,6 +8,8 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
+import by.istin.android.xcore.gson.AbstractValuesAdapter;
+
 /**
  * Created with IntelliJ IDEA.
  * User: IstiN
@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class ArrayAdapterFactory implements TypeAdapterFactory {
 
-    private final ContentValuesAdapter contentValuesAdapter;
+    private final AbstractValuesAdapter contentValuesAdapter;
 
-    public ArrayAdapterFactory(ContentValuesAdapter contentValuesAdapter) {
+    public ArrayAdapterFactory(AbstractValuesAdapter contentValuesAdapter) {
         this.contentValuesAdapter = contentValuesAdapter;
     }
 

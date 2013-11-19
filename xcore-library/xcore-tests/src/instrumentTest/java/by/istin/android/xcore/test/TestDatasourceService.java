@@ -1,28 +1,30 @@
 package by.istin.android.xcore.test;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 
 import com.google.gson.Gson;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
-import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;
+import by.istin.android.xcore.processor.impl.AbstractGsonBatchProcessor;
 import by.istin.android.xcore.processor.impl.GsonArrayContentValuesProcessor;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.test.bo.DialogsResponse;
 import by.istin.android.xcore.test.bo.FriendsResponse;
-import by.istin.android.xcore.test.vk.Attachment;
 import by.istin.android.xcore.test.vk.Dialog;
-import by.istin.android.xcore.test.vk.FwdMessage;
+import by.istin.android.xcore.test.vk.Response;
 import by.istin.android.xcore.test.vk.User;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
@@ -59,61 +61,55 @@ public class TestDatasourceService extends ApplicationTestCase<CoreApplication> 
 		dbHelper.createTablesForModels(User.class);
 		dbHelper.updateOrInsert(User.class, contentValues);
 	}
-	
-	public void testGetDialogs() throws Exception {
+
+
+    public void testGetDialogs() throws Exception {
+        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
+        DBHelper dbHelper = new DBHelper(connector);
+        dbHelper.delete(DBHelper.getTableName(Dialog.class), null, null);
+        dbHelper.delete(DBHelper.getTableName(User.class), null, null);
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
-		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/getDialogs.json");
+		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/getDialogs2.json");
 		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest);
-		AbstractGsonProcessor<DialogsResponse> gsonArrayContentValuesProcessor = new AbstractGsonProcessor<DialogsResponse>(Dialog.class, DialogsResponse.class) {
 
-			@Override
-			public void cache(Context context, DataSourceRequest dataSourceRequest, DialogsResponse result) {
-				
-			}
-			
-			@Override
-			protected DialogsResponse process(Gson gson,
-					BufferedReader bufferedReader) {
-                return getGson().fromJson(bufferedReader, DialogsResponse.class);
-				/*JsonObject jsonObject = getGson().fromJson(bufferedReader, JsonObject.class);
-				JsonArray dialogsJsonArray = jsonObject.get("response").getAsJsonObject().getAsJsonArray("dialogs");
-				JsonArray usersJsonArray = jsonObject.get("response").getAsJsonObject().getAsJsonArray("users");
-				Gson dialogGson = createGsonWithContentValuesAdapter(Dialog.class);
-				ContentValues[] dialogs = dialogGson.fromJson(dialogsJsonArray, ContentValues[].class);
-				Gson usersGson = createGsonWithContentValuesAdapter(User.class);
-				ContentValues[] users = usersGson.fromJson(usersJsonArray, ContentValues[].class);
-				DialogsResponse dialogsResponse = new DialogsResponse();
-				dialogsResponse.setDialogs(dialogs);
-				dialogsResponse.setUsers(users);
-				return dialogsResponse;*/
-			}
+        //print(inputStream);
 
-			@Override
+        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), new Class<?>[]{Response.class, Dialog.class, User.class});
+        AbstractGsonBatchProcessor<DialogsResponse> gsonArrayContentValuesProcessor = new AbstractGsonBatchProcessor<DialogsResponse>(Response.class, DialogsResponse.class, dbContentProvider) {
+
+            @Override
 			public String getAppServiceKey() {
 				// not needs there
 				return null;
 			}
 		};
-		DialogsResponse dialogResponse = gsonArrayContentValuesProcessor.execute(dataSourceRequest, httpAndroidDataSource, inputStream);
-		ContentValues[] dialogs = dialogResponse.getDialogs();
-		ContentValues[] users = dialogResponse.getUsers();
-        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
-		DBHelper dbHelper = new DBHelper(connector);
-		dbHelper.createTablesForModels(Dialog.class);
-		dbHelper.createTablesForModels(Attachment.class);
-		dbHelper.createTablesForModels(FwdMessage.class);
-		dbHelper.createTablesForModels(User.class);
-        dbHelper.delete(Dialog.class, null, null);
-        Log.startAction("dialogInsert");
-		dbHelper.updateOrInsert(Dialog.class, dialogs);
-        Log.endAction("dialogInsert");
+		gsonArrayContentValuesProcessor.execute(dataSourceRequest, httpAndroidDataSource, inputStream);
         Log.startAction("dialogInsertResult");
         Cursor cursor = dbHelper.query(Dialog.class, null, null, null, null, null, null, null);
-        cursor.getCount();
-        Log.endAction("dialogInsertResult");
+        int dialogCount = cursor.getCount();
         CursorUtils.close(cursor);
-        dbHelper.updateOrInsert(User.class, users);
+        cursor = dbHelper.query(User.class, null, null, null, null, null, null, null);
+        int userCount = cursor.getCount();
+        CursorUtils.close(cursor);
+
+        assertEquals(dialogCount, 171);
+        assertEquals(userCount, 166);
+
 	}
-	
+
+    private void print(InputStream inputStream) throws IOException {
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(
+                        inputStream));
+        StringBuilder response = new StringBuilder();
+        String inputLine;
+        while ((inputLine = in.readLine()) != null)
+            response.append(inputLine);
+
+        in.close();
+        System.out.print("response: "+ response.toString());
+        Log.d("response", response.toString());
+    }
+
 
 }
