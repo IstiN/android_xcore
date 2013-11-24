@@ -142,7 +142,10 @@ public abstract class XListFragment extends AdapterViewFragment
                     }
                 }
             }
-            filterAdapter.getFilter().filter(value);
+            Filter filter = filterAdapter.getFilter();
+            if (filter != null) {
+                filter.filter(value);
+            }
         }
 
     };
