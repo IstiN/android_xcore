@@ -52,6 +52,11 @@ public abstract class AbstractDBSupport implements IDBSupport {
 
     @Override
     public IDBBatchOperationSupport getConnectionForBatchOperation() {
+        synchronized (sLock) {
+            if (!isInit) {
+                initTables();
+            }
+        }
         final IDBConnection writableDatabase = sDbHelper.getWritableDbConnection();
         return new IDBBatchOperationSupport() {
 

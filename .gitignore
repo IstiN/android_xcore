@@ -68,3 +68,7 @@ projects/sampleproject-impl/.idea/.name
 projects/sampleproject-impl/.idea/compiler.xml
 projects/sampleproject-impl/.idea/*
 xcore-library/.idea/*
+xcore-library/xcore/.idea/
+xcore-library/.gradle/
+xcore-library/xcore/build/
+xcore-library/xcore-tests/build/
