@@ -32,6 +32,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import by.istin.android.xcore.utils.ResponderUtils;
 
 /**
  * Static library support version of the framework's {@link android.app.ListFragment}.
@@ -379,5 +380,9 @@ public class AdapterViewFragment extends Fragment {
             }
         }
         mHandler.post(mRequestFocus);
+    }
+
+    protected <T> T findFirstResponderFor(Class<T> clazz) {
+        return ResponderUtils.findFirstResponderFor(this, clazz);
     }
 }

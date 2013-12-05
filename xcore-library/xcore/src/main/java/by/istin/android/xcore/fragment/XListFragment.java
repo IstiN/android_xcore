@@ -31,10 +31,7 @@ import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
-import by.istin.android.xcore.utils.AppUtils;
-import by.istin.android.xcore.utils.HashUtils;
-import by.istin.android.xcore.utils.Log;
-import by.istin.android.xcore.utils.StringUtil;
+import by.istin.android.xcore.utils.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -481,17 +478,17 @@ public abstract class XListFragment extends AdapterViewFragment
                 plugin.onActivityCreated(this, savedInstanceState);
             }
         }
-        Log.d("fragment_status", getClass().getSimpleName() + " onActivityCreated ");
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " onActivityCreated ");
         checkStatus("onActivityCreated");
 	}
 
     public void refresh() {
-        Log.d("fragment_status", getClass().getSimpleName() + " refresh ");
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         refresh(getActivity());
     }
 
     public void refresh(Activity activity) {
-        Log.d("fragment_status", getClass().getSimpleName() + " refresh ");
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
     }
 
@@ -519,7 +516,7 @@ public abstract class XListFragment extends AdapterViewFragment
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
         isServiceWork = true;
-        Log.d("fragment_status", getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
@@ -728,7 +725,7 @@ public abstract class XListFragment extends AdapterViewFragment
     }
 
     protected void checkStatus(String reason) {
-        Log.d("fragment_status", getClass().getSimpleName() + " reason:" + reason);
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " reason:" + reason);
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
@@ -740,7 +737,7 @@ public abstract class XListFragment extends AdapterViewFragment
         ListAdapter listAdapter = getListAdapter();
         int size = getRealAdapterCount(listAdapter);
         boolean isPaging = mEndlessScrollListener != null;
-        Log.d("fragment_status", getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
         if (isLoaderWork) {
             if (size == 0) {
                 showProgress();
@@ -820,4 +817,5 @@ public abstract class XListFragment extends AdapterViewFragment
         setLoaderWork(false, LOADER_PRIORITY_HIGH);
         checkStatus("onCursorLoaderStopLoading");
     }
+
 }

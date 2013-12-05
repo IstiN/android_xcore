@@ -21,6 +21,7 @@ import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XFragment extends Fragment implements ICursorLoaderFragmentHelper {
@@ -221,5 +222,9 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
     @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
+    }
+
+    protected <T> T findFirstResponderFor(Class<T> clazz) {
+        return ResponderUtils.findFirstResponderFor(this, clazz);
     }
 }

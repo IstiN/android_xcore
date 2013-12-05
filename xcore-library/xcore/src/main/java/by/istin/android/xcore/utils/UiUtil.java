@@ -9,13 +9,10 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
-import android.view.Display;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
-import android.view.ViewConfiguration;
-import android.view.Window;
-import android.view.WindowManager;
+import android.view.*;
 
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import by.istin.android.xcore.ContextHolder;
 
 /**
@@ -212,4 +209,14 @@ public class UiUtil {
     public static boolean hasJellyBeanMR1() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
     }
+
+    /**
+     * Hide keyboard
+     * @param view view, prefer set EditText
+     */
+    public static void hideKeyboard(View view) {
+        InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
 }

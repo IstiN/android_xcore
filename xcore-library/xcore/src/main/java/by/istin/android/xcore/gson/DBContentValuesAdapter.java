@@ -57,25 +57,23 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
         Long id = getParentId(contentValues);
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JsonElement item = jsonArray.get(i);
-            ContentValues subEntity;
-            if (item.isJsonPrimitive()) {
-                JsonParser parser = new JsonParser();
-                item = parser.parse("{\"value\": \""+item.getAsString()+"\"}");
-                subEntity = contentValuesAdapter.deserializeContentValues(contentValues, i, item, type, jsonDeserializationContext);
-            } else {
-                subEntity = contentValuesAdapter.deserializeContentValues(contentValues, i, item, type, jsonDeserializationContext);
-            }
-            if (subEntity == null) {
-                continue;
-            }
-            if (beforeListUpdate != null) {
-                beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, i, subEntity);
-            }
-            subEntity.put(foreignKey, id);
-            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, subEntity);
-        }
+        Class<? extends IGsonEntitiesConverter> jsonConverter = entity.jsonConverter();
+        IGsonEntitiesConverter gsonEntityConverter = ReflectUtils.getInstanceInterface(jsonConverter, IGsonEntitiesConverter.class);
+        gsonEntityConverter.convert(new IGsonEntitiesConverter.Params(
+                beforeListUpdate,
+                type,
+                jsonDeserializationContext,
+                contentValues,
+                clazz,
+                field,
+                dataSourceRequest,
+                dbConnection,
+                dbHelper,
+                fieldValue,
+                jsonArray,
+                foreignKey,
+                id)
+        );
     }
 
     @Override
