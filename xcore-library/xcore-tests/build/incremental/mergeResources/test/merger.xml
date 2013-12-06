@@ -1,9 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger>
-
-    <dataSet config="main" >
-        <source path="E:\work\git\android_xcore\xcore-library\xcore-tests\src\instrumentTest\res" />
-        <source path="E:\work\git\android_xcore\xcore-library\xcore-tests\build\res\rs\test" />
-    </dataSet>
-
-</merger>
