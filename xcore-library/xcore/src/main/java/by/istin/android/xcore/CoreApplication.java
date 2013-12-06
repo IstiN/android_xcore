@@ -7,6 +7,8 @@ import android.app.Application;
 
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -34,6 +36,10 @@ public class CoreApplication extends Application {
 
     public void addPlugin(IXListFragmentPlugin listFragmentPlugin) {
         mXCoreHelper.addPlugin(listFragmentPlugin);
+    }
+
+    public IDBContentProviderSupport getDefaultDBContentProvider(Class<?>[] entities) {
+        return DBContentProviderFactory.getDefaultDBContentProvider(this, entities);
     }
 
 	@Override

@@ -1,6 +1,9 @@
 package by.istin.android.xcore.processor.impl;
 
 import android.content.ContentValues;
+import android.content.Context;
+
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.gson.ContentValuesAdapter;
 import by.istin.android.xcore.gson.DBContentValuesAdapter;
 import by.istin.android.xcore.gson.external.ArrayAdapterFactory;
@@ -30,6 +33,10 @@ public abstract class AbstractGsonDBProcessor<Result, DataSourceResult> extends 
         gsonBuilder.registerTypeHierarchyAdapter(ContentValues.class, contentValuesAdapter);
         gsonBuilder.registerTypeAdapterFactory(new ArrayAdapterFactory(contentValuesAdapter));
         return gsonBuilder;
+    }
+
+    public static Context getHolderContext() {
+        return ContextHolder.getInstance().getContext();
     }
 
 }

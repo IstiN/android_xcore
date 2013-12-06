@@ -14,7 +14,21 @@
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
+        android:name="by.isitn.android.xcore.app.Application"
         android:theme="@style/AppTheme" >
+        <meta-data
+            android:name="log"
+            android:value="DEBUG" />
+
+        <service
+            android:name="by.istin.android.xcore.service.DataSourceService"
+            android:exported="false" />
+
+        <provider
+            android:name="by.istin.android.xcore.provider.ContentProvider"
+            android:authorities="by.istin.android.xcore.ModelContentProvider"
+            android:exported="false" />
+
     </application>
 
 </manifest>
