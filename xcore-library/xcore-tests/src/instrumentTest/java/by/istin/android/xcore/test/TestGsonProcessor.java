@@ -50,22 +50,6 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 		Log.d("TestHttpDataSource", contentValues.toString());
 	}
 	
-	public void testArrayLoad() throws Exception {
-        ContextHolder.getInstance().setContext(getApplication());
-        IDBContentProviderSupport defaultDBContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), TestEntity.class, SubEntity.class);
-        Uri testEntityUri = ModelContract.getUri(TestEntity.class);
-        defaultDBContentProvider.delete(testEntityUri, null, null);
-        Uri testSubEntity = ModelContract.getUri(SubEntity.class);
-        defaultDBContentProvider.delete(testSubEntity, null, null);
-
-		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
-		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_array_big.json");
-		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest);
-		ContentValues[] contentValues = new GsonArrayContentValuesProcessor(TestEntity.class).execute(dataSourceRequest, httpAndroidDataSource, inputStream);
-        defaultDBContentProvider.bulkInsertOrUpdate(testEntityUri, contentValues);
-		Log.d("TestHttpDataSource", contentValues.toString());
-	}
-
 	public void testArrayLoadAndInsert() throws Exception {
         ContextHolder.getInstance().setContext(getApplication());
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();

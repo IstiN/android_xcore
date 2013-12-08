@@ -31,10 +31,10 @@ public class TestEntity implements BaseColumns, IMerge {
 	@dbBoolean
 	public static final String BOOLEAN_VALUE = "BOOLEAN_VALUE";
 	
-	@dbEntity(clazz=SubEntity.class)
+	@dbEntity(clazz=SubEntity.class, contentValuesKey = "subEntityValue")
 	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
 
-	@dbEntities(clazz=SubEntity.class)
+	@dbEntities(clazz=SubEntity.class, contentValuesKey = "subEntityValues")
 	public static final String SUB_ENTITY_VALUES = "sub_entity_values";
 
 	@Override

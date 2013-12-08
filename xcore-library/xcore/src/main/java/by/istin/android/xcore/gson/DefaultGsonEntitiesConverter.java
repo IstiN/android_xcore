@@ -27,10 +27,10 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
             if (subEntity == null) {
                 continue;
             }
+            subEntity.put(params.getForeignKey(), params.getId());
             if (params.getBeforeListUpdate() != null) {
                 params.getBeforeListUpdate().onBeforeListUpdate(params.getDbHelper(), params.getDbConnection(), params.getDataSourceRequest(), i, subEntity);
             }
-            subEntity.put(params.getForeignKey(), params.getId());
             params.getDbHelper().updateOrInsert(params.getDataSourceRequest(), params.getDbConnection(), params.getClazz(), subEntity);
         }
     }

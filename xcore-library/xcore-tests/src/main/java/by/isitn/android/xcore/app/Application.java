@@ -3,6 +3,11 @@ package by.isitn.android.xcore.app;
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.processor.SimpleEntityBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityProcessor;
+import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveConverterBatchProcessor;
+import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveEntityBatchProcessor;
+import by.istin.android.xcore.processor.SimpleEntityWithSubEntitiesBatchProcessor;
+import by.istin.android.xcore.processor.SimpleEntityWithSubEntityBatchProcessor;
+import by.istin.android.xcore.processor.SimpleEntityWithSubJsonBatchProcessor;
 import by.istin.android.xcore.provider.ContentProvider;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
@@ -19,5 +24,10 @@ public class Application extends CoreApplication {
 
         registerAppService(new SimpleEntityProcessor());
         registerAppService(new SimpleEntityBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SimpleEntityWithSubEntityBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SimpleEntityWithSubJsonBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SimpleEntityWithPrimitiveEntityBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SimpleEntityWithPrimitiveConverterBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SimpleEntityWithSubEntitiesBatchProcessor(defaultDBContentProvider));
     }
 }

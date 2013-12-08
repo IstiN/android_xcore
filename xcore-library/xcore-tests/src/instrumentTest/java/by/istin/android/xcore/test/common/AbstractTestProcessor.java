@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.test.ApplicationTestCase;
 
 import java.io.InputStream;
+import java.util.HashMap;
 
 import by.isitn.android.xcore.app.Application;
 import by.istin.android.xcore.model.CursorModel;
@@ -46,6 +47,15 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
         checkRequiredFields(uri, projection, selection, selectionArgs, sortOrder, fields);
     }
 
+    protected void checkRequiredFields(Class<?> classEntity, int countRequiredValues, String ... fields) {
+        Uri uri = ModelContract.getUri(classEntity);
+        String[] projection = null;
+        String selection = null;
+        String[] selectionArgs = null;
+        String sortOrder = null;
+        checkRequiredFields(uri, projection, selection, selectionArgs, sortOrder, countRequiredValues, fields);
+    }
+
     protected void checkRequiredFields(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, String... fields) {
         Cursor cursor = getApplication().getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
         CursorModel cursorModel = new CursorModel(cursor);
@@ -59,6 +69,31 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
             }
         }
         CursorUtils.close(cursor);
+    }
+
+    protected void checkRequiredFields(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder, int count, String... fields) {
+        Cursor cursor = getApplication().getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+        CursorModel cursorModel = new CursorModel(cursor);
+        HashMap<String, Integer> fieldsCount = new HashMap<String, Integer>();
+        for (int i = 0; i < fields.length; i++) {
+            fieldsCount.put(fields[i], count);
+        }
+        for (int i = 0; i < cursorModel.size(); i++) {
+            CursorModel entity = cursorModel.get(i);
+            for (int j = 0; j < fields.length; j++) {
+                String field = fields[j];
+                String value = entity.getString(field);
+                if (value != null) {
+                    fieldsCount.put(field, fieldsCount.get(field)-1);
+                }
+            }
+        }
+        CursorUtils.close(cursor);
+
+        for (int i = 0; i < fields.length; i++) {
+            int value = fieldsCount.get(fields[i]);
+            assertEquals(fields[i]+ " is required, " + value +" null values found", 0, value);
+        }
     }
 
     protected void checkCount(Class<?> entity, int count) {
@@ -75,7 +110,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
         if (CursorUtils.isEmpty(cursor)) {
             assertTrue(count != 0);
         } else {
-            assertEquals(cursor.getCount(), count);
+            assertEquals(count, cursor.getCount());
         }
         CursorUtils.close(cursor);
     }
