@@ -98,7 +98,12 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                             tempElement = (JsonObject) element;
                         } else {
                             if (isFirstObjectForJsonArray && element.isJsonArray()) {
-                                tempElement = (JsonObject) ((JsonArray) element).get(0);
+                                JsonArray jsonArray = (JsonArray) element;
+                                if (jsonArray.size() > 0) {
+                                    tempElement = (JsonObject) jsonArray.get(0);
+                                } else {
+                                    break;
+                                }
                             } else {
                                 break;
                             }

@@ -25,6 +25,7 @@ import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.params.HttpProtocolParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
