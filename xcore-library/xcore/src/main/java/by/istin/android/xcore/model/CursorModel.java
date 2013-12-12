@@ -464,7 +464,6 @@ public class CursorModel implements Cursor, List<Cursor> {
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
-    @Override
     public Uri getNotificationUri() {
         return mCursor.getNotificationUri();
     }
