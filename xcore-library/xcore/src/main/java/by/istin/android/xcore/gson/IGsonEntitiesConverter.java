@@ -7,6 +7,7 @@ import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -14,6 +15,7 @@ import java.lang.reflect.Type;
 /**
  * Created by IstiN on 6.12.13.
  */
+@Deprecated
 public interface IGsonEntitiesConverter {
 
     void convert(Params params);

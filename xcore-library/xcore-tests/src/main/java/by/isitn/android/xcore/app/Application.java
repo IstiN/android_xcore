@@ -1,6 +1,7 @@
 package by.isitn.android.xcore.app;
 
 import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.issues.issue12.processor.DaysBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityProcessor;
 import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveConverterBatchProcessor;
@@ -29,5 +30,8 @@ public class Application extends CoreApplication {
         registerAppService(new SimpleEntityWithPrimitiveEntityBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithPrimitiveConverterBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithSubEntitiesBatchProcessor(defaultDBContentProvider));
+
+        //issue 12
+        registerAppService(new DaysBatchProcessor(defaultDBContentProvider));
     }
 }

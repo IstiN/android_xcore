@@ -54,7 +54,6 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         dbEntities entity = field.getAnnotation(dbEntities.class);
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
-        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
         Long id = getParentId(contentValues);
         Class<? extends IGsonEntitiesConverter> jsonConverter = entity.jsonConverter();

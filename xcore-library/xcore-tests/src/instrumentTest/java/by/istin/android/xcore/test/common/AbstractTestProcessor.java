@@ -109,7 +109,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
     protected void checkCount(int count, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor cursor = getApplication().getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
         if (CursorUtils.isEmpty(cursor)) {
-            assertTrue(count == 0);
+            assertTrue(uri + " need to be " + count, count == 0);
         } else {
             assertEquals(count, cursor.getCount());
         }

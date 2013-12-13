@@ -1,14 +1,30 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
-import by.istin.android.xcore.annotations.*;
-import by.istin.android.xcore.utils.ReflectUtils;
-import com.google.gson.*;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonDeserializer;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
+
+import by.istin.android.xcore.annotations.JsonEntityConverter;
+import by.istin.android.xcore.annotations.JsonSubJSONObject;
+import by.istin.android.xcore.annotations.dbBoolean;
+import by.istin.android.xcore.annotations.dbByte;
+import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbInteger;
+import by.istin.android.xcore.annotations.dbLong;
+import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
@@ -19,24 +35,8 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     private List<Field> mEntityKeys;
 
-    private IJsonPrimitiveHandler<T> mJsonPrimitiveHandler;
-
-    public static interface IJsonPrimitiveHandler<T> {
-
-        T convert(JsonPrimitive jsonPrimitive);
-
-    }
-
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
-    }
-
-    public IJsonPrimitiveHandler getJsonPrimitiveHandler() {
-        return mJsonPrimitiveHandler;
-    }
-
-    public void setJsonPrimitiveHandler(IJsonPrimitiveHandler<T> mJsonPrimitiveHandler) {
-        this.mJsonPrimitiveHandler = mJsonPrimitiveHandler;
     }
 
     public AbstractValuesAdapter(Class<?> contentValuesEntityClazz) {
@@ -56,12 +56,11 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         if (mEntityKeys == null) {
             return proceed(parent, position, contentValues);
         }
+        if (isCustomConverter(contentValues, parent, jsonElement, type, jsonDeserializationContext)) {
+            return proceed(parent, position, contentValues);
+        }
         if (jsonElement.isJsonPrimitive()) {
-            if (mJsonPrimitiveHandler == null) {
-                return null;
-            } else {
-                return mJsonPrimitiveHandler.convert((JsonPrimitive) jsonElement);
-            }
+            return null;
         }
         JsonObject jsonObject = (JsonObject) jsonElement;
         for (Field field : mEntityKeys) {
@@ -136,6 +135,17 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             }
         }
         return proceed(parent, position, contentValues);
+    }
+
+    private boolean isCustomConverter(ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+        JsonEntityConverter annotation = mContentValuesEntityClazz.getAnnotation(JsonEntityConverter.class);
+        if (annotation == null) {
+            return false;
+        }
+        Class<? extends IGsonEntityConverter> primitiveConverter = annotation.converter();
+        IGsonEntityConverter primitiveConverterInstance = ReflectUtils.getInstanceInterface(primitiveConverter, IGsonEntityConverter.class);
+        primitiveConverterInstance.convert(contentValues, parent, jsonElement, type, jsonDeserializationContext);
+        return true;
     }
 
     protected void putPrimitiveValue(ContentValues contentValues, Field field, JsonElement jsonValue, String fieldValue) {

@@ -1,5 +1,6 @@
 package by.istin.android.xcore.provider;
 
+import by.istin.android.xcore.issues.issue12.model.DayEntity;
 import by.istin.android.xcore.model.SimpleEntity;
 import by.istin.android.xcore.model.SimpleEntityWithCustomPrimitiveConverter;
 import by.istin.android.xcore.model.SimpleEntityWithParent;
@@ -26,7 +27,10 @@ public class ContentProvider extends DBContentProvider {
             SimpleEntityWithCustomPrimitiveConverter.class,
             SimpleEntityWithSubEntities.class,
             SimpleEntityWithParent1.class,
-            SimpleEntityWithParent2.class
+            SimpleEntityWithParent2.class,
+
+            //issue12
+            DayEntity.class
     };
 
     @Override

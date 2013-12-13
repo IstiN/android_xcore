@@ -46,7 +46,7 @@ public class MockStorage {
         subEntity.put(SubEntity.STRING_VALUE, String.valueOf(i));
 
         contentValues.put(TestEntity.SUB_ENTITY_VALUE, BytesUtils.toByteArray(subEntity));
-        contentValues.put("dbEntity", SubEntity.class.getCanonicalName());
+        contentValues.put("subEntityValue", SubEntity.class.getCanonicalName());
         return contentValues;
     }
 
