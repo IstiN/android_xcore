@@ -1,4 +1,4 @@
-package by.istin.android.xcore.plugin.pulltorefresh;
+package by.istin.android.xcore.plugin.actionbarpulltorefresh;
 
 import android.database.Cursor;
 import android.os.Bundle;
@@ -10,39 +10,54 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
-import com.handmark.pulltorefresh.library.PullToRefreshBase;
-
 import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
+import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
+import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
+import uk.co.senab.actionbarpulltorefresh.library.listeners.OnRefreshListener;
 
 /**
  * Created by IstiN on 29.6.13.
  */
-public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
+public class ActionBarPullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
 
-    private int pullToRefreshId;
+    private int pullToRefreshId = -1;
 
-    public PullToRefreshListFragmentPlugin(int pullToRefreshId) {
-        this.pullToRefreshId = pullToRefreshId;
+    public ActionBarPullToRefreshListFragmentPlugin(int id) {
+        pullToRefreshId = id;
+    }
+
+    private PullToRefreshLayout findLayout(View view) {
+        if (pullToRefreshId == -1) {
+            if (view instanceof PullToRefreshLayout) {
+                return (PullToRefreshLayout) view;
+            } else {
+                return null;
+            }
+        } else {
+            return (PullToRefreshLayout) view.findViewById(pullToRefreshId);
+        }
     }
 
     @Override
     public void onCreateView(final XListFragment listFragment, View view, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        // Now find the PullToRefreshLayout to setup
+        PullToRefreshLayout pullToRefresh = findLayout(view);
         if (pullToRefresh == null) {
             return;
         }
-        pullToRefresh.setOnRefreshListener(new PullToRefreshBase.OnRefreshListener() {
-
-            @Override
-            public void onRefresh(PullToRefreshBase refreshView) {
-                if (listFragment != null) {
-                    listFragment.refresh();
-                }
-            }
-
-        });
+        // Now setup the PullToRefreshLayout
+        ActionBarPullToRefresh.from(listFragment.getActivity())
+                .theseChildrenArePullable(android.R.id.list)
+                .listener(new OnRefreshListener() {
+                    @Override
+                    public void onRefreshStarted(View view) {
+                        if (listFragment != null) {
+                            listFragment.refresh();
+                        };
+                    }
+                })
+        .setup(pullToRefresh);
     }
 
     @Override
@@ -51,7 +66,7 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
     }
 
     @Override
-    public void onLoadFinished(XListFragment listFragment, android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(XListFragment listFragment, Loader<Cursor> loader, Cursor cursor) {
 
     }
 
@@ -71,11 +86,12 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        // Now find the PullToRefreshLayout to setup
+        PullToRefreshLayout pullToRefresh = findLayout(view);
         if (pullToRefresh == null) {
             return;
         }
-        pullToRefresh.onRefreshComplete();
+        pullToRefresh.setRefreshComplete();
     }
 
     @Override
@@ -84,11 +100,12 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        // Now find the PullToRefreshLayout to setup
+        PullToRefreshLayout pullToRefresh = findLayout(view);
         if (pullToRefresh == null) {
             return;
         }
-        pullToRefresh.onRefreshComplete();
+        pullToRefresh.setRefreshComplete();
     }
 
     @Override
@@ -97,11 +114,12 @@ public class PullToRefreshListFragmentPlugin implements IXListFragmentPlugin {
         if (view == null) {
             return;
         }
-        PullToRefreshAdapterViewBase pullToRefresh = (PullToRefreshAdapterViewBase) view.findViewById(pullToRefreshId);
+        // Now find the PullToRefreshLayout to setup
+        PullToRefreshLayout pullToRefresh = findLayout(view);
         if (pullToRefresh == null) {
             return;
         }
-        pullToRefresh.onRefreshComplete();
+        pullToRefresh.setRefreshComplete();
     }
 
     @Override
