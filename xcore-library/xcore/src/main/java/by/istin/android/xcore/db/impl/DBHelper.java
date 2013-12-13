@@ -15,6 +15,7 @@ import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IBeforeUpdate;
+import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.*;
@@ -205,8 +206,16 @@ public class DBHelper {
 			}
 			Long id = contentValues.getAsLong(BaseColumns._ID);
 			if (id == null) {
-                Log.xd(this, "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
-				throw new IllegalArgumentException("content values needs to contains _ID");
+                IGenerateID generateId = ReflectUtils.getInstanceInterface(classOfModel, IGenerateID.class);
+                if (generateId != null) {
+                    id = generateId.generateId(this, db, dataSourceRequest, contentValues);
+                    contentValues.put(BaseColumns._ID, id);
+                }
+                if (id == null) {
+                    Log.xd(this, "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
+                    throw new IllegalArgumentException("content values needs to contains _ID. Details: " +
+                            "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
+                }
 			}
 			List<Field> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {

@@ -11,6 +11,7 @@ import java.util.HashMap;
 import by.isitn.android.xcore.app.Application;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.processor.IProcessor;
+import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
@@ -108,7 +109,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
     protected void checkCount(int count, Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
         Cursor cursor = getApplication().getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
         if (CursorUtils.isEmpty(cursor)) {
-            assertTrue(count != 0);
+            assertTrue(count == 0);
         } else {
             assertEquals(count, cursor.getCount());
         }
@@ -123,6 +124,8 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
         IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
         DataSourceRequest dataSourceRequest = new DataSourceRequest(feedUri);
         InputStream inputStream = testDataSource.getSource(dataSourceRequest);
-        return processor.execute(dataSourceRequest, testDataSource, inputStream);
+        Object executeResult = processor.execute(dataSourceRequest, testDataSource, inputStream);
+        processor.cache(context, dataSourceRequest, executeResult);
+        return executeResult;
     }
 }
