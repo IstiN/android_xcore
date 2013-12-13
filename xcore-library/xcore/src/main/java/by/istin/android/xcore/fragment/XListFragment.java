@@ -315,7 +315,7 @@ public abstract class XListFragment extends AdapterViewFragment
 				
 				@Override
 				public Cursor runQuery(CharSequence constraint) {
-					return getActivity().getContentResolver().query(getUri(), getProjection(), getSearchField() + " like ?", new String[]{"%"+StringUtil.translit(constraint.toString().trim())+"%"}, getOrder());
+					return runSearchQuery(constraint);
 				}
 				
 			});
@@ -335,7 +335,11 @@ public abstract class XListFragment extends AdapterViewFragment
         checkStatus("onLoadFinished");
 	}
 
-	public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
+    protected Cursor runSearchQuery(CharSequence constraint) {
+        return getActivity().getContentResolver().query(getUri(), getProjection(), getSearchField() + " like ?", new String[]{"%"+ StringUtil.translit(constraint.toString().trim())+"%"}, getOrder());
+    }
+
+    public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
         int adapterLayout = getAdapterLayout();
         String[] adapterColumns = getAdapterColumns();
         int[] adapterControlIds = getAdapterControlIds();
