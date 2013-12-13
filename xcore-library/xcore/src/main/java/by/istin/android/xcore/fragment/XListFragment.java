@@ -27,6 +27,7 @@ import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderF
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.model.CursorModelLoader;
 import by.istin.android.xcore.plugin.IXListFragmentPlugin;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -34,6 +35,7 @@ import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.*;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public abstract class XListFragment extends AdapterViewFragment
@@ -315,7 +317,7 @@ public abstract class XListFragment extends AdapterViewFragment
 				
 				@Override
 				public Cursor runQuery(CharSequence constraint) {
-					return runSearchQuery(constraint);
+					return runSearchQuery(getActivity(), constraint);
 				}
 				
 			});
@@ -335,8 +337,31 @@ public abstract class XListFragment extends AdapterViewFragment
         checkStatus("onLoadFinished");
 	}
 
-    protected Cursor runSearchQuery(CharSequence constraint) {
-        return getActivity().getContentResolver().query(getUri(), getProjection(), getSearchField() + " like ?", new String[]{"%"+ StringUtil.translit(constraint.toString().trim())+"%"}, getOrder());
+    public Cursor runSearchQuery(Context context, CharSequence constraint) {
+        Uri uri = getUri();
+        if (!StringUtil.isEmpty(ModelContract.getSqlParam(uri))) {
+            throw new IllegalArgumentException("you need Override XListFragment.runSearchQuery method if you want use search functionality");
+        }
+        String selection = getSelection();
+        if (StringUtil.isEmpty(selection)) {
+            selection = getSearchField() + " like ?";
+        } else {
+            selection = selection + " AND " + getSearchField() + " like ?";
+        }
+        String[] selectionArgs = getSelectionArgs();
+        String[] searchArgs = {"%" + StringUtil.translit(constraint.toString().trim()) + "%"};
+        if (selectionArgs == null) {
+            selectionArgs = searchArgs;
+        } else {
+            selectionArgs = concat(selectionArgs, searchArgs);
+        }
+        return context.getContentResolver().query(uri, getProjection(), selection, selectionArgs, getOrder());
+    }
+
+    private static String[] concat(String[] first, String[] second) {
+        String[] result = Arrays.copyOf(first, first.length + second.length);
+        System.arraycopy(second, 0, result, first.length, second.length);
+        return result;
     }
 
     public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
