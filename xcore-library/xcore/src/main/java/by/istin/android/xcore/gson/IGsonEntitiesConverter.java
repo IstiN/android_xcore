@@ -1,6 +1,8 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+
+import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.impl.DBHelper;
@@ -34,8 +36,9 @@ public interface IGsonEntitiesConverter {
         private final JsonArray jsonArray;
         private final String foreignKey;
         private final Long id;
+        private final dbEntities entity;
 
-        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, Field field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id) {
+        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, Field field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity) {
             this.beforeListUpdate = beforeListUpdate;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -49,6 +52,7 @@ public interface IGsonEntitiesConverter {
             this.jsonArray = jsonArray;
             this.foreignKey = foreignKey;
             this.id = id;
+            this.entity = entity;
         }
 
         public IBeforeArrayUpdate getBeforeListUpdate() {
@@ -101,6 +105,10 @@ public interface IGsonEntitiesConverter {
 
         public Long getId() {
             return id;
+        }
+
+        public dbEntities getEntity() {
+            return entity;
         }
     }
 }

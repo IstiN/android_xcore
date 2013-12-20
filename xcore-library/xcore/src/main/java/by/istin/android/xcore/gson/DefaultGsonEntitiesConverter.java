@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
+import by.istin.android.xcore.annotations.dbEntities;
+
 /**
  * Created by IstiN on 6.12.13.
  */
@@ -18,6 +20,8 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
             JsonElement item = params.getJsonArray().get(i);
             ContentValues subEntity;
             if (item.isJsonPrimitive()) {
+                dbEntities entity = params.getEntity();
+                if (entity.ignorePrimitive()) return;
                 JsonParser parser = new JsonParser();
                 item = parser.parse("{\""+KEY_VALUE+"\": \""+item.getAsString()+"\"}");
                 subEntity = contentValuesAdapter.deserializeContentValues(params.getContentValues(), i, item, params.getType(), params.getJsonDeserializationContext());

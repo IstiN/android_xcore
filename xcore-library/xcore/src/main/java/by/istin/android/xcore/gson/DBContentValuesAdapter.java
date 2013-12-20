@@ -71,7 +71,8 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
                 fieldValue,
                 jsonArray,
                 foreignKey,
-                id)
+                id,
+                entity)
         );
     }
 

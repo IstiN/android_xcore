@@ -22,5 +22,7 @@ public @interface dbEntities {
 	 * @return key for dbEntity name
 	 */
 	String contentValuesKey() default "dbEntities";
-	
+
+	boolean ignorePrimitive() default false;
+
 }
