@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.6.+'
+        classpath 'com.android.tools.build:gradle:0.7.+'
     }
 }
 apply plugin: 'android-library'
@@ -23,7 +23,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.0.0'
+    compile 'com.android.support:support-v4:19.0.+'
     compile 'com.google.code.gson:gson:2.2.+'
 }
 

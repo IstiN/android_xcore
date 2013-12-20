@@ -21,7 +21,7 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
             ContentValues subEntity;
             if (item.isJsonPrimitive()) {
                 dbEntities entity = params.getEntity();
-                if (entity.ignorePrimitive()) return;
+                if (entity.ignorePrimitive()) continue;
                 JsonParser parser = new JsonParser();
                 item = parser.parse("{\""+KEY_VALUE+"\": \""+item.getAsString()+"\"}");
                 subEntity = contentValuesAdapter.deserializeContentValues(params.getContentValues(), i, item, params.getType(), params.getJsonDeserializationContext());

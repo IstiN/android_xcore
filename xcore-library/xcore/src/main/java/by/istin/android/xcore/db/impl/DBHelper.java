@@ -8,6 +8,15 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.provider.BaseColumns;
+
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Set;
+
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
@@ -18,15 +27,11 @@ import by.istin.android.xcore.db.entity.IBeforeUpdate;
 import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.*;
-
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
+import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.ReflectUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author Uladzimir_Klyshevich
@@ -406,6 +411,17 @@ public class DBHelper {
                 }
             }
         }
+    }
+
+    public static ContentValues duplicateContentValues(ContentValues contentValues) {
+        ContentValues values = new ContentValues();
+        Set<String> keySet = contentValues.keySet();
+        Iterator<String> iterator = keySet.iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            values.put(next, contentValues.getAsString(next));
+        }
+        return values;
     }
 
     public IDBConnection getWritableDbConnection() {
