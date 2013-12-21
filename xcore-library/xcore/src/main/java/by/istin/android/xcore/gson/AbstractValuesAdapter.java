@@ -62,6 +62,9 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         if (jsonElement.isJsonPrimitive()) {
             return null;
         }
+        if (jsonElement.isJsonArray()) {
+            return null;
+        }
         JsonObject jsonObject = (JsonObject) jsonElement;
         for (Field field : mEntityKeys) {
             JsonElement jsonValue = null;
