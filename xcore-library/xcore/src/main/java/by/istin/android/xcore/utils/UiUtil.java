@@ -9,10 +9,15 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
-import android.view.*;
-
+import android.view.Display;
+import android.view.KeyCharacterMap;
+import android.view.KeyEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
+
 import by.istin.android.xcore.ContextHolder;
 
 /**
@@ -46,11 +51,12 @@ public class UiUtil {
         return  mWifi.isConnected();
     }
 
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB_MR2)
 	private static void initDisplayDimensions() {
 		Context ctx = ContextHolder.getInstance().getContext();
 		WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
-		if (VERSION.SDK_INT >= 13) {
+		if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
 			Point size = new Point();
 			display.getSize(size);
 			sDisplayWidth = size.x;

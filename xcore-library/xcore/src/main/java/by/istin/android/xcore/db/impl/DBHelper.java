@@ -415,11 +415,11 @@ public class DBHelper {
 
     public static ContentValues duplicateContentValues(ContentValues contentValues) {
         ContentValues values = new ContentValues();
-        Set<String> keySet = contentValues.keySet();
-        Iterator<String> iterator = keySet.iterator();
+        Set<Entry<String, Object>> entries = contentValues.valueSet();
+        Iterator<Entry<String, Object>> iterator = entries.iterator();
         while (iterator.hasNext()) {
-            String next = iterator.next();
-            values.put(next, contentValues.getAsString(next));
+            Entry<String,Object> keyValue = iterator.next();
+            values.put(keyValue.getKey(), String.valueOf(keyValue.getValue()));
         }
         return values;
     }

@@ -1,10 +1,12 @@
 package by.istin.android.xcore.db.impl.sqlite;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Build;
 import android.provider.BaseColumns;
+
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.utils.StringUtil;
@@ -50,26 +52,28 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     }
 
     @Override
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
-        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             if (writableDatabase != null) {
                 writableDatabase.setLockingEnabled(false);
             }
         }
-        if (Build.VERSION.SDK_INT > 10) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             writableDatabase.enableWriteAheadLogging();
         }
         return writableDatabase;
     }
 
     @Override
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public SQLiteDatabase getReadableDatabase() {
         SQLiteDatabase readableDatabase = super.getReadableDatabase();
-        if (Build.VERSION.SDK_INT > 7 && Build.VERSION.SDK_INT < 16) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             readableDatabase.setLockingEnabled(false);
         }
-        if (Build.VERSION.SDK_INT > 10) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             readableDatabase.enableWriteAheadLogging();
         }
         return readableDatabase;

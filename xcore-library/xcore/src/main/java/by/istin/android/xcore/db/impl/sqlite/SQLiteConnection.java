@@ -1,5 +1,6 @@
 package by.istin.android.xcore.db.impl.sqlite;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
@@ -111,8 +112,9 @@ class SQLiteConnection implements IDBConnection {
     }
 
     @Override
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public void beginTransaction() {
-        if (Build.VERSION.SDK_INT > 10) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
             mDatabase.beginTransactionNonExclusive();
         } else {
             mDatabase.beginTransaction();

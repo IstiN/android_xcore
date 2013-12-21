@@ -1,5 +1,6 @@
 package by.istin.android.xcore.ui;
 
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -30,16 +31,18 @@ public class DialogBuilder {
 	
 	private static final String TAG = DialogBuilder.class.getSimpleName();
 
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
 	private static int getTheme() {
-		if (Build.VERSION.SDK_INT < 11) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return android.R.style.Theme_Dialog;
 		} else {
 			return android.R.style.Theme_Holo_Light_Dialog;
 		}
 	}
-	
+
+    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
 	public static Builder createBuilder(final Context context) {
-		if (Build.VERSION.SDK_INT < 11) {
+		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return new Builder(context);
 		} else {
 			return new Builder(context, getTheme());
