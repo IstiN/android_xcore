@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="xcore-PullToRefresh:jar">
-    <output-path>$PROJECT_DIR$/download</output-path>
-    <root id="archive" name="xcore-PullToRefresh.jar">
-      <element id="module-output" name="xcore-PullToRefresh" />
-    </root>
-  </artifact>
-</component>

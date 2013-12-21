@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="xcore:jar">
-    <output-path>$PROJECT_DIR$/download</output-path>
-    <root id="archive" name="xcore.jar">
-      <element id="module-output" name="xcore" />
-    </root>
-  </artifact>
-</component>

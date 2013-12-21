@@ -62,3 +62,13 @@ out/production/xcore-demo/com/example/xcoredemo/test/code/GsonArrayContentValues
 out/production/xcore-demo/com/example/xcoredemo/test/code/GsonContentValuesProcessorCode
 out/production/xcore-demo/com/example/xcoredemo/test/code/HttpDataSourceCode
 *.iml
+projects/sampleproject/.idea/.name
+projects/sampleproject/.idea
+projects/sampleproject-impl/.idea/.name
+projects/sampleproject-impl/.idea/compiler.xml
+projects/sampleproject-impl/.idea/*
+xcore-library/.idea/*
+xcore-library/xcore/.idea/
+xcore-library/.gradle/
+xcore-library/xcore/build/
+xcore-library/xcore-tests/build/
