@@ -40,6 +40,14 @@ public class ContentUtils {
         context.getContentResolver().delete(ModelContract.getUri(entityClass), BaseColumns._ID + "=?", new String[]{String.valueOf(id)});
     }
 
+    public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
+        List<ContentValues> entities = getEntities(context, entityClass, selection, selectionArgs);
+        if (entities == null || entities.isEmpty()) {
+            return null;
+        }
+        return entities.get(0);
+    }
+
     public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
         Cursor entityCursor = null;
         List<ContentValues> result = null;
