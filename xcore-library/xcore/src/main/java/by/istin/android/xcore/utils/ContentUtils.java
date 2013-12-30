@@ -32,12 +32,22 @@ public class ContentUtils {
         context.getContentResolver().insert(ModelContract.getUri(entityClass), entity);
     }
 
+    public static void putEntities(Context context, Class<?> entityClass, List<ContentValues> entities) {
+        if (entities == null) return;
+        putEntities(context, entityClass, entities.toArray(new ContentValues[entities.size()]));
+    }
+
     public static void putEntities(Context context, Class<?> entityClass, ContentValues... entity) {
         context.getContentResolver().bulkInsert(ModelContract.getUri(entityClass), entity);
     }
 
     public static void removeEntity(Context context, Class<?> entityClass, long id) {
-        context.getContentResolver().delete(ModelContract.getUri(entityClass), BaseColumns._ID + "=?", new String[]{String.valueOf(id)});
+        String where = BaseColumns._ID + "=?";
+        removeEntities(context, entityClass, where, String.valueOf(id));
+    }
+
+    public static void removeEntities(Context context, Class<?> entityClass, String where, String ... selectionArgs) {
+        context.getContentResolver().delete(ModelContract.getUri(entityClass), where, selectionArgs);
     }
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
