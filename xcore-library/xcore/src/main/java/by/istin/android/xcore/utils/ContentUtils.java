@@ -58,11 +58,11 @@ public class ContentUtils {
         return entities.get(0);
     }
 
-    public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
+    public static List<ContentValues> getEntitiesWithOrder(Context context, Class<?> entityClass, String sortOrder, String selection, String... selectionArgs) {
         Cursor entityCursor = null;
         List<ContentValues> result = null;
         try {
-            entityCursor = context.getContentResolver().query(ModelContract.getUri(entityClass), null, selection, selectionArgs, null);
+            entityCursor = context.getContentResolver().query(ModelContract.getUri(entityClass), null, selection, selectionArgs, sortOrder);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 result = new ArrayList<ContentValues>();
                 CursorUtils.convertToContentValuesAndClose(entityCursor, result);
@@ -71,5 +71,9 @@ public class ContentUtils {
             CursorUtils.close(entityCursor);
         }
         return result;
+    }
+
+    public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
+        return getEntitiesWithOrder(context, entityClass, null, selection, selectionArgs);
     }
 }
