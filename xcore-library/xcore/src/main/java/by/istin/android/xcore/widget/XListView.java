@@ -1,6 +1,7 @@
 package by.istin.android.xcore.widget;
 
 import android.content.Context;
+import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
@@ -18,5 +19,12 @@ public class XListView extends ListView {
         super(context, attrs, defStyle);
     }
 
-
+    @Override
+    protected void dispatchDraw(Canvas canvas) {
+        try {
+            super.dispatchDraw(canvas);
+        } catch (IndexOutOfBoundsException e) {
+            // on some samsung error
+        }
+    }
 }
