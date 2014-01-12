@@ -4,11 +4,13 @@ import android.content.Context;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
@@ -49,6 +51,11 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
             result = process(gson, bufferedReader);
             onBeforeTransactionCommit(dataSourceRequest, result, dbConnection);
             dbConnection.setTransactionSuccessful();
+		} catch (JsonSyntaxException exception){
+            Throwable cause = exception.getCause();
+            if (cause instanceof SocketTimeoutException) {
+                throw new IOException(exception);
+            }
 		} catch (JsonIOException exception){
             throw new IOException(exception);
         } finally {
@@ -82,7 +89,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
     };
 
     protected Result process(Gson gson, BufferedReader bufferedReader) {
-		return (Result) gson.fromJson(bufferedReader, resultClassName);
+        return (Result) gson.fromJson(bufferedReader, resultClassName);
 	}
 
 	public Class<?> getClazz() {
