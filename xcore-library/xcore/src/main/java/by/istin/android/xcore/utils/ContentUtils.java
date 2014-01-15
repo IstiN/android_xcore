@@ -4,6 +4,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.net.Uri;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
@@ -14,10 +15,15 @@ import by.istin.android.xcore.provider.ModelContract;
 public class ContentUtils {
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, Long id) {
+        Uri uri = ModelContract.getUri(entityClass, id);
+        return getEntity(context, uri);
+    }
+
+    public static ContentValues getEntity(Context context, Uri uri) {
         Cursor entityCursor = null;
         ContentValues values = null;
         try {
-            entityCursor = context.getContentResolver().query(ModelContract.getUri(entityClass, id), null, null, null, null);
+            entityCursor = context.getContentResolver().query(uri, null, null, null, null);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 values = new ContentValues();
                 DatabaseUtils.cursorRowToContentValues(entityCursor, values);
@@ -47,7 +53,12 @@ public class ContentUtils {
     }
 
     public static void removeEntities(Context context, Class<?> entityClass, String where, String ... selectionArgs) {
-        context.getContentResolver().delete(ModelContract.getUri(entityClass), where, selectionArgs);
+        Uri uri = ModelContract.getUri(entityClass);
+        removeEntities(context, uri, where, selectionArgs);
+    }
+
+    public static void removeEntities(Context context, Uri uri, String where, String[] selectionArgs) {
+        context.getContentResolver().delete(uri, where, selectionArgs);
     }
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
@@ -59,10 +70,20 @@ public class ContentUtils {
     }
 
     public static List<ContentValues> getEntitiesWithOrder(Context context, Class<?> entityClass, String sortOrder, String selection, String... selectionArgs) {
+        Uri uri = ModelContract.getUri(entityClass);
+        return getEntities(context, uri, sortOrder, selection, selectionArgs);
+    }
+
+    public static List<ContentValues> getEntitiesFromSQL(Context context, String sql, String ... args) {
+        Uri uri = ModelContract.getSQLQueryUri(sql, null);
+        return getEntities(context, uri, null, null, args);
+    }
+
+    public static List<ContentValues> getEntities(Context context, Uri uri, String sortOrder, String selection, String[] selectionArgs) {
         Cursor entityCursor = null;
         List<ContentValues> result = null;
         try {
-            entityCursor = context.getContentResolver().query(ModelContract.getUri(entityClass), null, selection, selectionArgs, sortOrder);
+            entityCursor = context.getContentResolver().query(uri, null, selection, selectionArgs, sortOrder);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 result = new ArrayList<ContentValues>();
                 CursorUtils.convertToContentValuesAndClose(entityCursor, result);
