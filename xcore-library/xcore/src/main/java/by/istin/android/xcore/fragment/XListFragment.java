@@ -19,8 +19,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.FilterQueryProvider;
+import android.widget.HeaderViewListAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
@@ -32,11 +48,10 @@ import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
-import by.istin.android.xcore.utils.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.HashUtils;
+import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XListFragment extends AdapterViewFragment
         implements
@@ -519,6 +534,10 @@ public abstract class XListFragment extends AdapterViewFragment
     public void refresh(Activity activity) {
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
+        if (isPagingSupport()) {
+            mEndlessScrollListener.currentPage = 0;
+            mEndlessScrollListener.previousTotal = 0;
+        }
     }
 
     public void loadData(Activity activity, String url, String parentRequestUri) {

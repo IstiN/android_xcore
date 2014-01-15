@@ -38,7 +38,7 @@ public class SyncDataSourceRequestEntity implements BaseColumns {
 	public static final String IS_ERROR = "is_error";
 
 	@dbBoolean
-	public static final String CACHEABLE = "cacheble";
+	public static final String CACHEABLE = "cacheable";
 
 	@dbLong
 	public static final String LAST_CHANGED = "last_changed";
