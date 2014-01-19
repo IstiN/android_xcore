@@ -31,7 +31,9 @@ public class CursorModelLoader extends CursorLoader {
     public Cursor loadInBackground() {
         Cursor cursor = super.loadInBackground();
         if (cursor != null) {
-            cursor = mCursorModelCreator.create(cursor);
+            CursorModel cursorModel = mCursorModelCreator.create(cursor);
+            cursor = cursorModel;
+            cursorModel.doInBackground(getContext());
         }
         return cursor;
     }

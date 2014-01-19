@@ -14,7 +14,7 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19"
+    buildToolsVersion "19.0.1"
 
     defaultConfig {
         minSdkVersion 10
@@ -27,6 +27,6 @@ android {
 
 dependencies {
     compile project(':xcore')
-    compile 'com.android.support:support-v4:19.0.0'
+    compile 'com.android.support:support-v4:19.0.+'
     compile 'com.google.code.gson:gson:2.2.+'
 }

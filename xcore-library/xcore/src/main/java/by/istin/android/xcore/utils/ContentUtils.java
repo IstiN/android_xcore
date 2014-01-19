@@ -20,10 +20,14 @@ public class ContentUtils {
     }
 
     public static ContentValues getEntity(Context context, Uri uri) {
+        return getEntity(context, uri, null, null, null);
+    }
+
+    public static ContentValues getEntity(Context context, Uri uri, String[] projection, String selection, String[] selectionArgs) {
         Cursor entityCursor = null;
         ContentValues values = null;
         try {
-            entityCursor = context.getContentResolver().query(uri, null, null, null, null);
+            entityCursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 values = new ContentValues();
                 DatabaseUtils.cursorRowToContentValues(entityCursor, values);

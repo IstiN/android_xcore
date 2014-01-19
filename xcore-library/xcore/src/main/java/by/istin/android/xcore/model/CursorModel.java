@@ -3,6 +3,7 @@ package by.istin.android.xcore.model;
 import android.annotation.TargetApi;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.CharArrayBuffer;
 import android.database.ContentObserver;
 import android.database.Cursor;
@@ -25,6 +26,7 @@ import by.istin.android.xcore.utils.CursorUtils;
 public class CursorModel implements Cursor, List<Cursor> {
 
     public static interface CursorModelCreator {
+
         CursorModel create(Cursor cursor);
 
         public static CursorModelCreator DEFAULT = new CursorModelCreator() {
@@ -35,11 +37,21 @@ public class CursorModel implements Cursor, List<Cursor> {
         };
     }
 
+    public void doInBackground(Context context) {
+
+    }
+
     private Cursor mCursor;
 
     public CursorModel(Cursor cursor) {
+        this(cursor, true);
+    }
+
+    public CursorModel(Cursor cursor, boolean isMoveToFirst) {
         this.mCursor = cursor;
-        this.mCursor.moveToFirst();
+        if (isMoveToFirst) {
+            this.mCursor.moveToFirst();
+        }
     }
 
     @Override

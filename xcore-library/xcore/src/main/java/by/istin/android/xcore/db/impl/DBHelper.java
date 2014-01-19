@@ -45,6 +45,8 @@ public class DBHelper {
 
     private DBAssociationCache dbAssociationCache;
 
+    public static boolean IS_LOG_ENABLED = false;
+
     public DBHelper(IDBConnector dbConnector) {
         super();
         mDbConnector = dbConnector;
@@ -106,6 +108,7 @@ public class DBHelper {
 					}
                     dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
 				} catch (SQLException e) {
+                    if (IS_LOG_ENABLED)
 					Log.w(TAG, e);
 				}
 			}
@@ -115,6 +118,7 @@ public class DBHelper {
                 try {
                     dbWriter.execSQL(sql);
                 } catch (SQLException e) {
+                    if (IS_LOG_ENABLED)
                     Log.w(TAG, e);
                 }
             }

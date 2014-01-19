@@ -25,6 +25,8 @@ public class RequestExecutor {
 
     public static int DEFAULT_POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
 
+    public static boolean IS_LOG_ENABLED = false;
+
     public static abstract class ExecuteRunnable implements Runnable {
 
         private class StatusBundle {
@@ -130,16 +132,20 @@ public class RequestExecutor {
         synchronized (mLock) {
             if (!queue.contains(executeRunnable)) {
                 queue.add(executeRunnable);
+                if (IS_LOG_ENABLED)
                 Log.xd(this, "queue: add new " + executeRunnable.getKey());
             } else {
                 int index = queue.indexOf(executeRunnable);
                 ExecuteRunnable oldRunnable = queue.get(index);
                 oldRunnable.addResultReceiver(executeRunnable.getResultReceivers());
                 executeRunnable = oldRunnable;
+                if (IS_LOG_ENABLED)
                 Log.xd(this, "queue: up to top old " + executeRunnable.getKey());
             }
+            if (IS_LOG_ENABLED)
             Log.xd(this, "queue size: " + queue.size() + " " + executeRunnable.getKey());
             if (executeRunnable.isRunning) {
+                if (IS_LOG_ENABLED)
                 Log.xd(this, "queue: already running connect " + executeRunnable.getKey());
                 return;
             }
@@ -148,10 +154,12 @@ public class RequestExecutor {
                 @Override
                 public void run() {
                     finalRunnable.isRunning = true;
+                    if (IS_LOG_ENABLED)
                     Log.xd(RequestExecutor.this, "queue: start run " + finalRunnable.getKey());
                     finalRunnable.run();
                     synchronized (mLock) {
                         queue.remove(finalRunnable);
+                        if (IS_LOG_ENABLED)
                         Log.xd(RequestExecutor.this, "queue: finish and remove, size: " + queue.size() + " " + finalRunnable.getKey());
                         finalRunnable.onDone();
                     }
@@ -169,16 +177,21 @@ public class RequestExecutor {
         try {
             mExecutor.shutdownNow();
         } catch (RuntimeException e) {
+            if (IS_LOG_ENABLED)
             Log.xd(this, "stop error during shutdown");
             e.printStackTrace();
         } catch (Exception e) {
+            if (IS_LOG_ENABLED)
             Log.xd(this, "stop error during shutdown");
             e.printStackTrace();
         }
+        if (IS_LOG_ENABLED)
         Log.xd(this, "stop send info to receiver");
         resultReceiver.send(0, null);
+        if (IS_LOG_ENABLED)
         Log.xd(this, "stop start recreation");
         recreateExecutor();
+        if (IS_LOG_ENABLED)
         Log.xd(this, "stop done");
     }
 }
