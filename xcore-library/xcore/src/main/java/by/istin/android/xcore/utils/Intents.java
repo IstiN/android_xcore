@@ -49,4 +49,16 @@ public class Intents {
         }
         return app_installed;
     }
+
+    public static void playVideo(final Context ctx, String playUrl) {
+        Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(playUrl), "video/*");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        try {
+            ctx.startActivity(intent);
+        } catch (ActivityNotFoundException e) {
+            Toast.makeText(ctx, "player not found", Toast.LENGTH_SHORT).show();
+        }
+    }
 }
