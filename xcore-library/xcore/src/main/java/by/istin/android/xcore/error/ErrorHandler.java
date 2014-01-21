@@ -220,7 +220,7 @@ public class ErrorHandler implements IErrorHandler {
     @Override
     public boolean isCanBeReSent(Exception exception) {
         ErrorType errorType = getErrorType(exception);
-        return errorType != ErrorType.DEVELOPER_ERROR || errorType != ErrorType.UNKNOWN;
+        return errorType != ErrorType.DEVELOPER_ERROR && errorType != ErrorType.UNKNOWN;
     }
 
     public static String joinStackTrace(Throwable e) {
