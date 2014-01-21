@@ -225,10 +225,41 @@ public class DataSourceRequest {
 
         private List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
 
+        private String dataSourceKey;
+
+        private String processorKey;
+
         public JoinedRequestBuilder(DataSourceRequest dataSourceRequest) {
             RequestConfig requestConfig = new RequestConfig();
             requestConfig.dataSourceRequest = dataSourceRequest;
             dataSourceRequests.add(requestConfig);
+        }
+
+        public JoinedRequestBuilder setDataSource(String dataSourceKey) {
+            this.dataSourceKey = dataSourceKey;
+            return this;
+        }
+
+        public JoinedRequestBuilder setProcessor(String processorKey) {
+            this.processorKey = processorKey;
+            return this;
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest) {
+            if (StringUtil.isEmpty(dataSourceKey)) {
+                throw new IllegalStateException("default dataSource is not set, call JoinedRequestBuilder.setDataSource to set");
+            }
+            if (StringUtil.isEmpty(processorKey)) {
+                throw new IllegalStateException("default processorKey is not set, call JoinedRequestBuilder.setProcessor to set");
+            }
+            return add(dataSourceRequest, processorKey, dataSourceKey);
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest, String processorKey) {
+            if (StringUtil.isEmpty(dataSourceKey)) {
+                throw new IllegalStateException("default dataSource is not set, call JoinedRequestBuilder.setDataSource to set");
+            }
+            return add(dataSourceRequest, processorKey, dataSourceKey);
         }
 
         public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
