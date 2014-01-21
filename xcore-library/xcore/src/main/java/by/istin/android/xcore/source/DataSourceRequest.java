@@ -212,4 +212,45 @@ public class DataSourceRequest {
 		return requestData;
 	}
 
+    public static class JoinedRequestBuilder {
+
+        private class RequestConfig {
+
+            private String processorKey;
+
+            private String dataSourceKey;
+
+            private DataSourceRequest dataSourceRequest;
+        }
+
+        private List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
+
+        public JoinedRequestBuilder(DataSourceRequest dataSourceRequest) {
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.dataSourceRequest = dataSourceRequest;
+            dataSourceRequests.add(requestConfig);
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.dataSourceRequest = dataSourceRequest;
+            requestConfig.processorKey = processorKey;
+            requestConfig.dataSourceKey = dataSourceKey;
+            dataSourceRequests.add(requestConfig);
+            return this;
+        }
+
+        public DataSourceRequest build() {
+            if (dataSourceRequests.isEmpty()) {
+                return null;
+            }
+            for (int i = dataSourceRequests.size()-1; i > 0; i--) {
+                RequestConfig requestConfig = dataSourceRequests.get(i);
+                RequestConfig prevRequest = dataSourceRequests.get(i-1);
+                prevRequest.dataSourceRequest.joinRequest(requestConfig.dataSourceRequest, requestConfig.processorKey, requestConfig.dataSourceKey);
+
+            }
+            return dataSourceRequests.get(0).dataSourceRequest;
+        };
+    }
 }
