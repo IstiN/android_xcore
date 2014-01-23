@@ -15,11 +15,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.error.ErrorHandler;
+import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
 import by.istin.android.xcore.source.sync.helper.SyncHelper;
+import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
 /**
@@ -78,10 +81,12 @@ public class SyncDataSourceService extends DataSourceService {
                 if (resultReceiver != null) {
                     ((StatusResultReceiver)resultReceiver).onError(exception);
                 }
-                if (ErrorHandler.getErrorType(exception) != ErrorHandler.ErrorType.DEVELOPER_ERROR) {
-                    Log.xe(context, "developer error", exception);
+                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(ContextHolder.getInstance().getContext(), IErrorHandler.SYSTEM_SERVICE_KEY);
+                if (errorHandler.isCanBeReSent(exception)) {
+                    Log.xe(context, "save request for resubmit", exception);
                     markSyncEntityAsError(context, dataSourceRequest, datasourceKey, processorKey, exception);
                 } else {
+                    Log.xe(context, "error", exception);
                     removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
                 }
             }

@@ -11,10 +11,9 @@ import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
 
-public class SyncHelper implements XCoreHelper.IAppServiceKey {
+public class SyncHelper implements ISyncHelper {
 	
 	public static final String ACCOUNT_TYPE = ".account";
-    public static final String APP_SERVICE_KEY = "xcore:synchelper";
 
     private String mAccountName;
 
@@ -26,8 +25,8 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
 
     private String mType;
 
-    public static SyncHelper get(Context context) {
-        return (SyncHelper) AppUtils.get(context, APP_SERVICE_KEY);
+    public static ISyncHelper get(Context context) {
+        return (ISyncHelper) AppUtils.get(context, APP_SERVICE_KEY);
     }
 
     public SyncHelper(Context context, String accountName, long period, String modelContentProviderAuthority) {
@@ -38,7 +37,8 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
         mType = mContext.getApplicationContext().getPackageName() + ACCOUNT_TYPE;
     }
 
-	public void addSyncAccount(){
+    @Override
+	public void addSyncAccount() {
         Context applicationContext = mContext.getApplicationContext();
         AccountManager am = AccountManager.get(applicationContext);
         if (isExists(am)) {
@@ -63,7 +63,7 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
         }
 	}
 
-    private boolean isExists(AccountManager am) {
+    protected boolean isExists(AccountManager am) {
         Account[] accountsByType = am.getAccountsByType(mType);
         if (accountsByType != null && accountsByType.length > 0) {
             return true;
@@ -71,6 +71,7 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
         return false;
     }
 
+    @Override
     public void removeSyncAccount(){
         Context applicationContext = mContext.getApplicationContext();
         AccountManager am = AccountManager
@@ -94,7 +95,8 @@ public class SyncHelper implements XCoreHelper.IAppServiceKey {
             //TODO handle
         }
 	}
-	
+
+    @Override
 	public void removeAccount(){
 		AccountManager am = AccountManager.get(mContext);
         if (!isExists(am)) {

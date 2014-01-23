@@ -112,7 +112,7 @@ public class DataSourceRequest {
 		}
 		mBundle.putAll(bundle);
 	}
-	
+
 	private void checkIfParamIsNotRestricted(String key) {
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
@@ -148,7 +148,7 @@ public class DataSourceRequest {
 		}
 		return buffer.toString();
 	}
-	
+
 	public void toIntent(Intent intent) {
         ModelContract.dataSourceRequestToIntent(intent, mBundle);
 	}
@@ -212,4 +212,76 @@ public class DataSourceRequest {
 		return requestData;
 	}
 
+    public static class JoinedRequestBuilder {
+
+        private class RequestConfig {
+
+            private String processorKey;
+
+            private String dataSourceKey;
+
+            private DataSourceRequest dataSourceRequest;
+        }
+
+        private List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
+
+        private String dataSourceKey;
+
+        private String processorKey;
+
+        public JoinedRequestBuilder(DataSourceRequest dataSourceRequest) {
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.dataSourceRequest = dataSourceRequest;
+            dataSourceRequests.add(requestConfig);
+        }
+
+        public JoinedRequestBuilder setDataSource(String dataSourceKey) {
+            this.dataSourceKey = dataSourceKey;
+            return this;
+        }
+
+        public JoinedRequestBuilder setProcessor(String processorKey) {
+            this.processorKey = processorKey;
+            return this;
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest) {
+            if (StringUtil.isEmpty(dataSourceKey)) {
+                throw new IllegalStateException("default dataSource is not set, call JoinedRequestBuilder.setDataSource to set");
+            }
+            if (StringUtil.isEmpty(processorKey)) {
+                throw new IllegalStateException("default processorKey is not set, call JoinedRequestBuilder.setProcessor to set");
+            }
+            return add(dataSourceRequest, processorKey, dataSourceKey);
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest, String processorKey) {
+            if (StringUtil.isEmpty(dataSourceKey)) {
+                throw new IllegalStateException("default dataSource is not set, call JoinedRequestBuilder.setDataSource to set");
+            }
+            return add(dataSourceRequest, processorKey, dataSourceKey);
+        }
+
+        public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+            RequestConfig requestConfig = new RequestConfig();
+            requestConfig.dataSourceRequest = dataSourceRequest;
+            requestConfig.processorKey = processorKey;
+            requestConfig.dataSourceKey = dataSourceKey;
+            dataSourceRequests.add(requestConfig);
+            return this;
+        }
+
+        public DataSourceRequest build() {
+            if (dataSourceRequests.isEmpty()) {
+                return null;
+            }
+            for (int i = dataSourceRequests.size()-1; i > 0; i--) {
+                RequestConfig requestConfig = dataSourceRequests.get(i);
+                RequestConfig prevRequest = dataSourceRequests.get(i-1);
+                prevRequest.dataSourceRequest.joinRequest(requestConfig.dataSourceRequest, requestConfig.processorKey, requestConfig.dataSourceKey);
+
+            }
+            return dataSourceRequests.get(0).dataSourceRequest;
+        };
+    }
 }

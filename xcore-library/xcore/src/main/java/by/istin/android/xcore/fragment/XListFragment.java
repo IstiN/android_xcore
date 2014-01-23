@@ -19,8 +19,24 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
-import android.widget.*;
+import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
+import android.widget.Adapter;
+import android.widget.AdapterView;
+import android.widget.EditText;
+import android.widget.Filter;
+import android.widget.FilterQueryProvider;
+import android.widget.HeaderViewListAdapter;
+import android.widget.ImageView;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
@@ -32,11 +48,10 @@ import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
-import by.istin.android.xcore.utils.*;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.HashUtils;
+import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class XListFragment extends AdapterViewFragment
         implements
@@ -44,6 +59,8 @@ public abstract class XListFragment extends AdapterViewFragment
             IDataSourceHelper,
             DataSourceExecuteHelper.IDataSourceListener,
             CursorModelLoader.ILoading {
+
+    public static boolean IS_CHECK_STATUS_LOG_ENABLED = false;
 
     public static final int LOADER_PRIORITY_SERVICE = 1;
 
@@ -75,7 +92,8 @@ public abstract class XListFragment extends AdapterViewFragment
             if (count == 0) {
                 return;
             }
-            //Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
+            if (IS_CHECK_STATUS_LOG_ENABLED)
+            Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
             if (previousTotal != totalItemCount && !pagingLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = totalItemCount;
             	pagingLoading = true;
@@ -507,18 +525,25 @@ public abstract class XListFragment extends AdapterViewFragment
                 plugin.onActivityCreated(this, savedInstanceState);
             }
         }
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " onActivityCreated ");
         checkStatus("onActivityCreated");
 	}
 
     public void refresh() {
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         refresh(getActivity());
     }
 
     public void refresh(Activity activity) {
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
+        if (isPagingSupport()) {
+            mEndlessScrollListener.currentPage = 0;
+            mEndlessScrollListener.previousTotal = 0;
+        }
     }
 
     public void loadData(Activity activity, String url, String parentRequestUri) {
@@ -545,6 +570,7 @@ public abstract class XListFragment extends AdapterViewFragment
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
         isServiceWork = true;
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
@@ -642,6 +668,7 @@ public abstract class XListFragment extends AdapterViewFragment
 	public void onLoaderReset(Loader<Cursor> loader) {
         //isLoaderWork = false;
 		if (getView() != null) {
+            if (IS_CHECK_STATUS_LOG_ENABLED)
             Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
             Adapter adapter = getListView().getAdapter();
             if (adapter != null) {
@@ -754,6 +781,7 @@ public abstract class XListFragment extends AdapterViewFragment
     }
 
     protected void checkStatus(String reason) {
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " reason:" + reason);
         FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -766,6 +794,7 @@ public abstract class XListFragment extends AdapterViewFragment
         ListAdapter listAdapter = getListAdapter();
         int size = getRealAdapterCount(listAdapter);
         boolean isPaging = mEndlessScrollListener != null;
+        if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
         if (isLoaderWork) {
             if (size == 0) {

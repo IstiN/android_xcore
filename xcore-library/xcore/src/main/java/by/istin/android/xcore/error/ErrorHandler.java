@@ -21,6 +21,7 @@ import by.istin.android.xcore.fragment.IDataSourceHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.ui.DialogBuilder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -29,12 +30,6 @@ import by.istin.android.xcore.utils.StringUtil;
 public class ErrorHandler implements IErrorHandler {
 
     private String mDeveloperErrorMessage;
-
-    public static enum ErrorType {
-
-        INTERNET, SERVER_UNAVAILABLE, DEVELOPER_ERROR;
-
-    }
 
     private class ErrorInfo {
 
@@ -101,73 +96,116 @@ public class ErrorHandler implements IErrorHandler {
         if (!errorInfos.contains(errorInfo)) {
             errorInfos.add(errorInfo);
         }
+        final ErrorType finalType = type;
+        Runnable clearRunnable = new Runnable() {
+
+            @Override
+            public void run() {
+                mErrorTypeMap.remove(finalType);
+                mErrorTypeDialog.remove(finalType);
+            }
+
+        };
 
         if (!mErrorTypeDialog.containsKey(type)) {
             mErrorTypeDialog.put(type, true);
-            String message = null;
-            boolean isDeveloperError = false;
             switch (type) {
                 case INTERNET:
-                    message = mInternetErrorMessage;
-                    break;
+                    handle(activity, dataSourceRequest, exception, type, mInternetErrorMessage, clearRunnable);
+                    return;
                 case SERVER_UNAVAILABLE:
-                    message = mServiceUnavailableMessage;
-                    break;
+                    handle(activity, dataSourceRequest, exception, type, mServiceUnavailableMessage, clearRunnable);
+                    return;
+                case UNKNOWN:
+                    onUnknownError(activity, dataSourceRequest, exception, type, clearRunnable);
+                    return;
                 case DEVELOPER_ERROR:
-                    isDeveloperError = true;
-                    message = mDeveloperErrorMessage;
-                    break;
+                    onDeveloperError(activity, dataSourceRequest, exception, type, mDeveloperErrorMessage, clearRunnable);
+                    return;
             }
-            final boolean finalIsDeveloperError = isDeveloperError;
-            final ErrorType finalType = type;
-            DialogBuilder.confirm(activity,
-                    mErrorDialogTitle,
-                    message,
-                    isDeveloperError ? StringUtil.getStringResource("send") : StringUtil.getStringResource("repeat"),
-                    StringUtil.getStringResource("cancel"),
-                    new DialogInterface.OnClickListener(){
-
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            mErrorTypeMap.remove(finalType);
-                            mErrorTypeDialog.remove(finalType);
-                        }
-                    },
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Set<ErrorInfo> infos = mErrorTypeMap.get(finalType);
-                            if (infos != null && !finalIsDeveloperError) {
-                                for (ErrorInfo info : infos) {
-                                    info.mDataSourceHelper.dataSourceExecute(info.mFragmentActivity, info.mDataSourceRequest);
-                                }
-                            }
-                            mErrorTypeMap.remove(finalType);
-                            mErrorTypeDialog.remove(finalType);
-                            if (finalIsDeveloperError) {
-                                String body = joinStackTrace(exception);
-                                StringBuilder builder = new StringBuilder();
-                                builder.append(body);
-                                builder.append("\n================================");
-                                if (dataSourceRequest != null) {
-                                    builder.append("\nUri:"+ dataSourceRequest.getUri());
-                                    builder.append("\nCacheExpiration:"+ dataSourceRequest.getCacheExpiration());
-                                    builder.append("\nRequestParentUri:"+ dataSourceRequest.getRequestParentUri());
-                                    builder.append("\nUriParams:"+ dataSourceRequest.toUriParams());
-                                }
-                                Intent sendEmailIntent = getSendEmailIntent(mDeveloperEmail, null, activity.getPackageName() + ":error", builder.toString(), null);
-                                try {
-                                    activity.startActivity(sendEmailIntent);
-                                } catch (ActivityNotFoundException e) {
-                                    Toast.makeText(activity, "Please, install mail client", Toast.LENGTH_SHORT).show();
-                                }
-                            }
-                        }
-                    });
         }
     }
 
-    public static ErrorType getErrorType(Exception exception) {
+    protected void handle(final FragmentActivity activity, final DataSourceRequest dataSourceRequest, final Exception exception, final ErrorType type, String message, final Runnable clearErrorHashRunnable) {
+        DialogBuilder.confirm(activity,
+                mErrorDialogTitle,
+                message,
+                StringUtil.getStringResource("repeat"),
+                StringUtil.getStringResource("cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        clearErrorHashRunnable.run();
+                    }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Set<ErrorInfo> infos = mErrorTypeMap.get(type);
+                        if (infos != null) {
+                            for (ErrorInfo info : infos) {
+                                info.mDataSourceHelper.dataSourceExecute(info.mFragmentActivity, info.mDataSourceRequest);
+                            }
+                        }
+                        clearErrorHashRunnable.run();
+                    }
+                }
+        );
+    }
+
+    protected void onUnknownError(final FragmentActivity activity, final DataSourceRequest dataSourceRequest, final Exception exception, ErrorType type, Runnable clearRunnable) {
+        StringBuilder builder = buildExceptionInfo(exception, dataSourceRequest);
+        Log.xe(activity, type + " type exception ", exception);
+        Log.xe(activity, builder.toString());
+        clearRunnable.run();
+    }
+
+    protected void onDeveloperError(final FragmentActivity activity, final DataSourceRequest dataSourceRequest, final Exception exception, ErrorType type, String message, final Runnable clearRunnable) {
+        DialogBuilder.confirm(activity,
+                mErrorDialogTitle,
+                message,
+                StringUtil.getStringResource("send"),
+                StringUtil.getStringResource("cancel"),
+                new DialogInterface.OnClickListener() {
+
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        clearRunnable.run();
+                    }
+                },
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        StringBuilder builder = buildExceptionInfo(exception, dataSourceRequest);
+                        Intent sendEmailIntent = getSendEmailIntent(mDeveloperEmail, null, activity.getPackageName() + ":error", builder.toString(), null);
+                        try {
+                            activity.startActivity(sendEmailIntent);
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(activity, "Please, install mail client", Toast.LENGTH_SHORT).show();
+                        }
+                        clearRunnable.run();
+                    }
+                }
+        );
+    }
+
+    protected static StringBuilder buildExceptionInfo(Exception exception, DataSourceRequest dataSourceRequest) {
+        String body = joinStackTrace(exception);
+        StringBuilder builder = new StringBuilder();
+        builder.append(body);
+        builder.append("\n================================");
+        if (dataSourceRequest != null) {
+            builder.append("\nUri:" + dataSourceRequest.getUri());
+            builder.append("\nCacheExpiration:" + dataSourceRequest.getCacheExpiration());
+            builder.append("\nRequestParentUri:" + dataSourceRequest.getRequestParentUri());
+            builder.append("\nUriParams:" + dataSourceRequest.toUriParams());
+        }
+        return builder;
+    }
+
+    @Override
+    public ErrorType getErrorType(Exception exception) {
         ErrorType type;
         if (exception instanceof IOStatusException) {
             type = ErrorType.SERVER_UNAVAILABLE;
@@ -177,6 +215,12 @@ public class ErrorHandler implements IErrorHandler {
             type = ErrorType.DEVELOPER_ERROR;
         }
         return type;
+    }
+
+    @Override
+    public boolean isCanBeReSent(Exception exception) {
+        ErrorType errorType = getErrorType(exception);
+        return errorType != ErrorType.DEVELOPER_ERROR && errorType != ErrorType.UNKNOWN;
     }
 
     public static String joinStackTrace(Throwable e) {

@@ -23,6 +23,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SyncResult;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
 
@@ -30,6 +31,7 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.SyncDataSourceService;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
+import by.istin.android.xcore.source.sync.helper.ISyncHelper;
 import by.istin.android.xcore.source.sync.helper.SyncHelper;
 import by.istin.android.xcore.utils.CursorUtils;
 
@@ -73,7 +75,7 @@ public abstract class SyncService extends Service {
         Cursor cursor = getContentResolver().query(ModelContract.getUri(SyncDataSourceRequestEntity.class), null, null, null, SyncDataSourceRequestEntity.LAST_CHANGED + " ASC");
         if (CursorUtils.isEmpty(cursor)) {
             CursorUtils.close(cursor);
-            SyncHelper syncHelper = SyncHelper.get(this);
+            ISyncHelper syncHelper = SyncHelper.get(this);
             syncHelper.removeSyncAccount();
             syncHelper.removeAccount();
             return;
@@ -82,7 +84,8 @@ public abstract class SyncService extends Service {
         do {
             String processorKey = CursorUtils.getString(SyncDataSourceRequestEntity.PROCESSOR_KEY, cursor);
             String dataSourceService = CursorUtils.getString(SyncDataSourceRequestEntity.DATASOURCE_KEY, cursor);
-            DataSourceRequest dataSourceRequest = new DataSourceRequest(CursorUtils.getString(SyncDataSourceRequestEntity.URI, cursor));
+            String uriParam = CursorUtils.getString(SyncDataSourceRequestEntity.URI_PARAM, cursor);
+            DataSourceRequest dataSourceRequest = DataSourceRequest.fromUri(Uri.parse("content://temp?" + uriParam));
             dataSourceRequest.setCacheExpiration(CursorUtils.getLong(SyncDataSourceRequestEntity.EXPIRATION, cursor));
             dataSourceRequest.setCacheable(CursorUtils.getInt(SyncDataSourceRequestEntity.CACHEABLE, cursor) == 1);
             dataSourceRequest.setParentUri(CursorUtils.getString(SyncDataSourceRequestEntity.PARENT_URI, cursor));

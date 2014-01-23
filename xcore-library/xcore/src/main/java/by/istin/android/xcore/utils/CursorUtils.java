@@ -128,4 +128,40 @@ public final class CursorUtils {
             list.add(contentValues);
         } while (cursor.moveToNext());
     }
+
+    public static void putIntValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getInt(key, cursor));
+    }
+
+    public static void putLongValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getLong(key, cursor));
+    }
+
+    public static void putStringValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getString(key, cursor));
+    }
+
+    public static void putDoubleValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getDouble(key, cursor));
+    }
+
+    public static void putByteValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getByte(key, cursor));
+    }
+
+    public static void putBlobValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getBlob(key, cursor));
+    }
+
+    public static void putBooleanValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getBoolean(key, cursor));
+    }
+
+    public static void putFloatValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getFloat(key, cursor));
+    }
+
+    public static void putShortValue(String key, Cursor cursor, ContentValues contentValues) {
+        contentValues.put(key, getShort(key, cursor));
+    }
 }

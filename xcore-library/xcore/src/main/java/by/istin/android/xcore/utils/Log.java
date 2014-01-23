@@ -95,7 +95,11 @@ public class Log {
 					}
 					HttpEntity entity = request.getEntity();
 					try {
-						android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY:" + EntityUtils.toString(entity));
+                        if (entity == null) {
+                            android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY:");
+                        } else {
+						    android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY:" + EntityUtils.toString(entity));
+                        }
 					} catch (ParseException e) {
 						android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY: parse exception " + e.getMessage());
 					} catch (IOException e) {

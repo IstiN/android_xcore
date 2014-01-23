@@ -1,6 +1,17 @@
 package by.istin.android.xcore.processor.impl;
 
 import android.content.Context;
+
+import com.google.gson.Gson;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.SocketTimeoutException;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
@@ -9,13 +20,6 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
-import com.google.gson.Gson;
-import com.google.gson.JsonIOException;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
@@ -47,6 +51,11 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
             result = process(gson, bufferedReader);
             onBeforeTransactionCommit(dataSourceRequest, result, dbConnection);
             dbConnection.setTransactionSuccessful();
+		} catch (JsonSyntaxException exception){
+            Throwable cause = exception.getCause();
+            if (cause instanceof SocketTimeoutException) {
+                throw new IOException(exception);
+            }
 		} catch (JsonIOException exception){
             throw new IOException(exception);
         } finally {
@@ -54,7 +63,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 			IOUtils.close(inputStreamReader);
 			IOUtils.close(bufferedReader);
             dbConnection.endTransaction();
-            onProcessingFinish(dataSourceRequest, result, dbConnection);
+            onProcessingFinish(dataSourceRequest, result);
 		}
         return result;
 	}
@@ -75,12 +84,12 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
         //remove old data
     };
 
-    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result, IDBConnection dbConnection) {
+    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result) {
         //notify about finish or do more db operations
     };
 
     protected Result process(Gson gson, BufferedReader bufferedReader) {
-		return (Result) gson.fromJson(bufferedReader, resultClassName);
+        return (Result) gson.fromJson(bufferedReader, resultClassName);
 	}
 
 	public Class<?> getClazz() {

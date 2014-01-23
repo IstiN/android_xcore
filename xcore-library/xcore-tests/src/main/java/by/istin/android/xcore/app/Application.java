@@ -1,4 +1,4 @@
-package by.isitn.android.xcore.app;
+package by.istin.android.xcore.app;
 
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.issues.issue12.processor.DaysBatchProcessor;

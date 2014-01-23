@@ -10,7 +10,7 @@ import by.istin.android.xcore.utils.ResponderUtils;
 /**
  * Created by IstiN on 5.12.13.
  */
-public abstract class AbstractFagment extends Fragment {
+public abstract class AbstractFragment extends Fragment {
 
 
     @Override
