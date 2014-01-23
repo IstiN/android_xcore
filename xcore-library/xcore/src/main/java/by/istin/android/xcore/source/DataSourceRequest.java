@@ -112,7 +112,7 @@ public class DataSourceRequest {
 		}
 		mBundle.putAll(bundle);
 	}
-	
+
 	private void checkIfParamIsNotRestricted(String key) {
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
@@ -148,7 +148,7 @@ public class DataSourceRequest {
 		}
 		return buffer.toString();
 	}
-	
+
 	public void toIntent(Intent intent) {
         ModelContract.dataSourceRequestToIntent(intent, mBundle);
 	}
