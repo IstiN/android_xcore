@@ -1,12 +1,20 @@
 package by.istin.android.xcore.provider;
 
-import android.content.*;
+import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
-import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
 import java.util.ArrayList;
+
+import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.impl.DBHelper;
+import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
 public abstract class DBContentProvider extends ContentProvider {
 
@@ -65,4 +73,23 @@ public abstract class DBContentProvider extends ContentProvider {
     }
 
     public abstract Class<?>[] getEntities();
+
+    public static IDBConnection getWritableConnection(Context context, Class<?>[] entities) {
+        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
+        IDBConnection writableConnection = dbContentProvider.getDbSupport().createConnector(context).getWritableConnection();
+        return writableConnection;
+    }
+
+    public static IDBConnection getReadableConnection(Context context, Class<?>[] entities) {
+        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
+        IDBConnection writableConnection = dbContentProvider.getDbSupport().createConnector(context).getReadableConnection();
+        return writableConnection;
+    }
+
+    public static DBHelper getDBHelper(Context context, Class<?>[] entities) {
+        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
+        DBHelper dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
+        return dbHelper;
+    }
+
 }

@@ -78,6 +78,9 @@ public class BytesUtils {
 	}
 
 	public static Spanned spannedFromByteArray(byte[] byteArray) {
+        if (byteArray == null) {
+            return null;
+        }
 		Parcel obtain = Parcel.obtain();
 		obtain.unmarshall(byteArray, 0, byteArray.length);
 		obtain.setDataPosition(0);
