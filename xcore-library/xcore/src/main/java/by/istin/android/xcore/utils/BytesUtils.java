@@ -110,9 +110,13 @@ public class BytesUtils {
 	}
 	
 	public static byte[] toByteArray(Serializable serializable) {
-		ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        if (serializable == null) {
+            return null;
+        }
+		ByteArrayOutputStream bos = null;
 		ObjectOutput out = null;
 		try {
+            bos = new ByteArrayOutputStream();
 			out = new ObjectOutputStream(bos);
 			out.writeObject(serializable);
 			byte[] bytes = bos.toByteArray();
@@ -120,13 +124,8 @@ public class BytesUtils {
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {
-			try {
-				out.close();
-				bos.close();
-			} catch (IOException e) {
-				//can be ignored;
-			}
-
+            IOUtils.close(bos);
+            IOUtils.close(out);
 		}
 	}
 
@@ -134,27 +133,22 @@ public class BytesUtils {
 		if (bytes == null) {
 			return null;
 		}
-		long currentTimeMillis = System.currentTimeMillis();
-		ByteArrayInputStream bis = new ByteArrayInputStream(bytes);
+		ByteArrayInputStream bis = null;
 		ObjectInput in = null;
 		try {
+            bis = new ByteArrayInputStream(bytes);
 			in = new ObjectInputStream(bis);
 			Serializable o;
 
 			o = (Serializable) in.readObject();
-			Log.d("deserializable", System.currentTimeMillis() - currentTimeMillis);
 			return o;
 		} catch (ClassNotFoundException e) {
             throw new IllegalArgumentException(e);
 		} catch (IOException e) {
             throw new IllegalArgumentException(e);
 		} finally {
-			try {
-				bis.close();
-				in.close();
-			} catch (IOException e) {
-				//can be ignored
-			}
+            IOUtils.close(bis);
+            IOUtils.close(in);
 		}
 	}
 

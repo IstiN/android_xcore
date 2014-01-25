@@ -1,6 +1,6 @@
 package by.istin.android.xcore.test.common.impl;
 
-import by.isitn.android.xcore.app.Application;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.test.common.AbstractTestProcessor;
 
 /**

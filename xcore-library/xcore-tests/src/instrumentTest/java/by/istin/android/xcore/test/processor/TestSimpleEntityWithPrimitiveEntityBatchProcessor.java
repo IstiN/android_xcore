@@ -1,13 +1,10 @@
 package by.istin.android.xcore.test.processor;
 
 
-import by.isitn.android.xcore.app.Application;
-import by.istin.android.xcore.model.SimpleEntityWithParent;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.model.SimpleEntityWithPrimitiveEntity;
-import by.istin.android.xcore.model.SimpleEntityWithSubEntity;
 import by.istin.android.xcore.model.TagEntity;
 import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveEntityBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithSubEntityBatchProcessor;
 import by.istin.android.xcore.test.common.AbstractTestProcessor;
 
 public class TestSimpleEntityWithPrimitiveEntityBatchProcessor extends AbstractTestProcessor {

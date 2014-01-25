@@ -1,7 +1,7 @@
 package by.istin.android.xcore.test.issues;
 
 
-import by.isitn.android.xcore.app.Application;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.issues.issue12.model.DayEntity;
 import by.istin.android.xcore.issues.issue12.processor.DaysBatchProcessor;
 import by.istin.android.xcore.issues.issue12.response.DaysResponse;

@@ -8,7 +8,7 @@ import android.test.ApplicationTestCase;
 import java.io.InputStream;
 import java.util.HashMap;
 
-import by.isitn.android.xcore.app.Application;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.processor.impl.AbstractGsonProcessor;

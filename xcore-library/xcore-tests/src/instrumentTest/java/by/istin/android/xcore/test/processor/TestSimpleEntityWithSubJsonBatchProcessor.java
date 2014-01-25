@@ -1,7 +1,7 @@
 package by.istin.android.xcore.test.processor;
 
 
-import by.isitn.android.xcore.app.Application;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.model.SimpleEntityWithSubJson;
 import by.istin.android.xcore.processor.SimpleEntityWithSubJsonBatchProcessor;
 import by.istin.android.xcore.test.common.AbstractTestProcessor;
