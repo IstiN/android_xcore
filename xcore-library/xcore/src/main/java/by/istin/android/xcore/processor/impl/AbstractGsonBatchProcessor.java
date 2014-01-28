@@ -41,7 +41,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 	public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
 		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
-        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbContentProviderSupport, createContentValuesAdapterTransactionListener(dataSourceRequest));
+        DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbContentProviderSupport, createTransactionCreationController(dataSourceRequest));
         Gson gson = buildGson(contentValuesAdapter);
         IDBConnection dbConnection = contentValuesAdapter.getDbConnection();
         dbConnection.beginTransaction();
@@ -68,7 +68,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
         return result;
 	}
 
-    private DBContentValuesAdapter.ITransactionCreationController createContentValuesAdapterTransactionListener(DataSourceRequest dataSourceRequest) {
+    protected DBContentValuesAdapter.ITransactionCreationController createTransactionCreationController(DataSourceRequest dataSourceRequest) {
         return null;
     }
 
