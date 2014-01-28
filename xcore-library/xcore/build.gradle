@@ -19,6 +19,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 19
+        versionName project.VERSION_NAME
+        versionCode Integer.parseInt(project.VERSION_CODE)
     }
 }
 
@@ -46,4 +48,11 @@ task makeJar(type: Copy) {
     include('classes.jar')
     rename ('classes.jar', '../../../../download/xcore.jar')
 }
-makeJar.dependsOn(clearJar, build)
+
+task moveSources(type: Copy) {
+    from('build/libs/')
+    into('build/libs/')
+    include('xcore-sources.jar')
+    rename ('xcore-sources.jar', '../../../../download/xcore-sources.jar')
+}
+makeJar.dependsOn(clearJar, sourcesJar, moveSources, build)
