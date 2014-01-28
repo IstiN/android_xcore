@@ -1,13 +1,17 @@
 package by.istin.android.xcore.utils;
 
-import by.istin.android.xcore.annotations.dbEntities;
-import by.istin.android.xcore.annotations.dbEntity;
-
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.annotations.dbEntity;
 
 public class ReflectUtils {
 
@@ -18,6 +22,24 @@ public class ReflectUtils {
     private static Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
 
     private static Map<Field, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<Field, Set<Class<? extends Annotation>>>();
+
+    private static Map<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
+
+    public static <T extends Annotation> T getAnnotation(Field field, Class<T> annotationClass) {
+        ConcurrentHashMap<Class<? extends Annotation>, Annotation> classAnnotationConcurrentHashMap = sAnnotationsImplOfField.get(field);
+        if (classAnnotationConcurrentHashMap == null) {
+            classAnnotationConcurrentHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>();
+            sAnnotationsImplOfField.put(field, classAnnotationConcurrentHashMap);
+        }
+        Annotation annotation = classAnnotationConcurrentHashMap.get(annotationClass);
+        if (annotation == null) {
+            annotation = field.getAnnotation(annotationClass);
+        }
+        if (annotation != null) {
+            classAnnotationConcurrentHashMap.put(annotationClass, annotation);
+        }
+        return (T) annotation;
+    }
 
 	public static List<Field> getEntityKeys(Class<?> clazz) {
         if (sFieldsOfClass.containsKey(clazz)) {

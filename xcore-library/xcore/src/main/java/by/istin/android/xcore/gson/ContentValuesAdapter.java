@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.utils.ReflectUtils;
+
 import com.google.gson.*;
 
 import java.lang.reflect.Field;
@@ -17,7 +19,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
 
     @Override
     protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
-        dbEntities entity = field.getAnnotation(dbEntities.class);
+        dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
         Class<?> clazz = entity.clazz();
         ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
         ContentValues[] values = new ContentValues[jsonArray.size()];
@@ -30,7 +32,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
             values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
         }
         contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
-        dbEntities annotation = field.getAnnotation(dbEntities.class);
+        dbEntities annotation = ReflectUtils.getAnnotation(field, dbEntities.class);
         contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
     }
 
@@ -39,7 +41,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
         ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
         ContentValues values = contentValuesAdapter.deserialize(subEntityJsonObject, type, jsonDeserializationContext);
         contentValues.put(fieldValue, BytesUtils.toByteArray(values));
-        dbEntity annotation = field.getAnnotation(dbEntity.class);
+        dbEntity annotation = ReflectUtils.getAnnotation(field, dbEntity.class);
         contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
     }
 

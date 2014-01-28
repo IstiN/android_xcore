@@ -70,16 +70,16 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             JsonElement jsonValue = null;
             String fieldValue = ReflectUtils.getStaticStringValue(field);
             String serializedName = fieldValue;
-            if (field.isAnnotationPresent(SerializedName.class)) {
-                SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
+            if (ReflectUtils.isAnnotationPresent(field, SerializedName.class)) {
+                SerializedName serializedAnnotation = ReflectUtils.getAnnotation(field, SerializedName.class);
                 if (serializedAnnotation != null) {
                     serializedName = serializedAnnotation.value();
                 }
             }
             String separator = null;
             boolean isFirstObjectForJsonArray = false;
-            if (field.isAnnotationPresent(JsonSubJSONObject.class)) {
-                JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
+            if (ReflectUtils.isAnnotationPresent(field, JsonSubJSONObject.class)) {
+                JsonSubJSONObject jsonSubJSONObject = ReflectUtils.getAnnotation(field, JsonSubJSONObject.class);
                 if (jsonSubJSONObject != null) {
                     separator = jsonSubJSONObject.separator();
                     isFirstObjectForJsonArray = jsonSubJSONObject.isFirstObjectForJsonArray();
@@ -121,16 +121,16 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             if (jsonValue.isJsonPrimitive()) {
                 putPrimitiveValue(contentValues, field, jsonValue, fieldValue);
             } else if (ReflectUtils.isAnnotationPresent(field, dbEntity.class)) {
-                dbEntity entity = field.getAnnotation(dbEntity.class);
+                dbEntity entity = ReflectUtils.getAnnotation(field, dbEntity.class);
                 Class<?> clazz = entity.clazz();
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                 proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
-            } else if (field.isAnnotationPresent(dbEntities.class)) {
+            } else if (ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
                 if (jsonValue.isJsonArray()) {
                     JsonArray jsonArray = jsonValue.getAsJsonArray();
                     proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
                 } else {
-                    dbEntities entity = field.getAnnotation(dbEntities.class);
+                    dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
                     Class<?> clazz = entity.clazz();
                     JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                     proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);

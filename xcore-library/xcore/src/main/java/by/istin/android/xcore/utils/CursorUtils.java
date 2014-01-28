@@ -164,4 +164,9 @@ public final class CursorUtils {
     public static void putShortValue(String key, Cursor cursor, ContentValues contentValues) {
         contentValues.put(key, getShort(key, cursor));
     }
+
+    public static void cursorRowToContentValues(Class<?> clazz, Cursor cursor, ContentValues contentValues) {
+        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+    }
+
 }

@@ -19,7 +19,7 @@ class DBAssociationCache {
 
     private static DBAssociationCache INSTANCE = new DBAssociationCache();
 
-    public final static Map<Class<?>, String> TYPE_ASSOCIATION = new HashMap<Class<?>, String>();
+    public final static Map<Class<?>, String> TYPE_ASSOCIATION = new ConcurrentHashMap<Class<?>, String>();
 
     static {
         TYPE_ASSOCIATION.put(dbString.class, "LONGTEXT");
@@ -31,15 +31,17 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbByteArray.class, "BLOB");
     }
 
-    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
+    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new ConcurrentHashMap<Class<?>, List<Field>>();
 
-    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
+    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new ConcurrentHashMap<Class<?>, List<Field>>();
 
     private ConcurrentHashMap<String, Boolean> mCacheTable = new ConcurrentHashMap<String, Boolean>();
 
     private ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
 
     private ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
+
+    private ConcurrentHashMap<Class<?>, String> mForeignKeys = new ConcurrentHashMap<Class<?>, String>();
 
     private DBAssociationCache() {
 
@@ -95,8 +97,16 @@ class DBAssociationCache {
         return mCacheInsertStatements.get(clazz);
     }
 
-    public void setInsertStatement(Class<?> clazz, SQLiteStatement isertStatement) {
-        mCacheInsertStatements.put(clazz, isertStatement);
+    public void setInsertStatement(Class<?> clazz, SQLiteStatement insertStatement) {
+        mCacheInsertStatements.put(clazz, insertStatement);
+    }
+
+    public String getForeignKey(Class<?> clazz) {
+        return mForeignKeys.get(clazz);
+    }
+
+    public void putForeignKey(Class<?> clazz, String value) {
+        mForeignKeys.put(clazz, value);
     }
 
 }

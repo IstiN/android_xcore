@@ -5,7 +5,6 @@ package by.istin.android.xcore.db.impl;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.provider.BaseColumns;
 
@@ -258,7 +257,7 @@ public class DBHelper {
 						}
 					} else {
 						ContentValues oldContentValues = new ContentValues();
-						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
+                        CursorUtils.cursorRowToContentValues(classOfModel, cursor, oldContentValues);
 						merge.merge(this, db, dataSourceRequest, oldContentValues, contentValues);
 						if (!isContentValuesEquals(oldContentValues, contentValues)) {
 							internalUpdate(db, contentValues, id, tableName);
@@ -328,7 +327,7 @@ public class DBHelper {
 			if (entityAsByteArray == null) {
 				continue;
 			}
-			Annotation annotation = field.getAnnotation(dbAnnotation);
+			Annotation annotation = ReflectUtils.getAnnotation(field, dbAnnotation);
 			String contentValuesKey;
 			String foreignId = getForeignKey(foreignEntity);
 			try {
@@ -360,7 +359,14 @@ public class DBHelper {
 	}
 
     public static String getForeignKey(Class<?> foreignEntity) {
-        return foreignEntity.getSimpleName().toLowerCase()+"_id";
+        DBAssociationCache associationCache = DBAssociationCache.get();
+        String foreignKey = associationCache.getForeignKey(foreignEntity);
+        if (foreignKey == null) {
+            foreignKey = foreignEntity.getSimpleName().toLowerCase()+"_id";
+            associationCache.putForeignKey(foreignEntity, foreignKey);
+            return foreignKey;
+        }
+        return foreignKey;
     }
 
     private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {
