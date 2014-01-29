@@ -9,7 +9,7 @@ buildscript {
     }
 }
 
-def isReleaseBuild() {
+/*def isReleaseBuild() {
     return version.contains("SNAPSHOT") == false
 }
 
@@ -20,6 +20,6 @@ allprojects {
     repositories {
         mavenCentral()
     }
-}
+}*/
 
 //apply plugin: 'android-reporting'
