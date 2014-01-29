@@ -1,4 +1,4 @@
-package by.istin.android.xcore.test;
+package by.istin.android.xcore.app;
 
 import android.app.Activity;
 
