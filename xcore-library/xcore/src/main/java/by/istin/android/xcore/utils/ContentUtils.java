@@ -15,12 +15,16 @@ import by.istin.android.xcore.provider.ModelContract;
 public class ContentUtils {
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, Long id) {
-        Uri uri = ModelContract.getUri(entityClass, id);
-        return getEntity(context, uri);
+        return getEntity(context, entityClass, id);
     }
 
-    public static ContentValues getEntity(Context context, Uri uri) {
-        return getEntity(context, uri, null, null, null);
+    public static ContentValues getEntity(Context context, Class<?> entityClass, Long id, String ... projection) {
+        Uri uri = ModelContract.getUri(entityClass, id);
+        return getEntity(context, uri, projection);
+    }
+
+    public static ContentValues getEntity(Context context, Uri uri, String ... projection) {
+        return getEntity(context, uri, projection, null, null);
     }
 
     public static ContentValues getEntity(Context context, Uri uri, String[] projection, String selection, String[] selectionArgs) {
@@ -73,6 +77,14 @@ public class ContentUtils {
         return entities.get(0);
     }
 
+    public static ContentValues getEntity(Context context, Class<?> entityClass, String[] projection, String selection, String ... selectionArgs) {
+        List<ContentValues> entities = getEntities(context, projection, entityClass, selection, selectionArgs);
+        if (entities == null || entities.isEmpty()) {
+            return null;
+        }
+        return entities.get(0);
+    }
+
     public static List<ContentValues> getEntitiesWithOrder(Context context, Class<?> entityClass, String sortOrder, String selection, String... selectionArgs) {
         Uri uri = ModelContract.getUri(entityClass);
         return getEntities(context, uri, sortOrder, selection, selectionArgs);
@@ -83,11 +95,11 @@ public class ContentUtils {
         return getEntities(context, uri, null, null, args);
     }
 
-    public static List<ContentValues> getEntities(Context context, Uri uri, String sortOrder, String selection, String[] selectionArgs) {
+    public static List<ContentValues> getEntities(Context context, String[] projection, Uri uri, String sortOrder, String selection, String[] selectionArgs) {
         Cursor entityCursor = null;
         List<ContentValues> result = null;
         try {
-            entityCursor = context.getContentResolver().query(uri, null, selection, selectionArgs, sortOrder);
+            entityCursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 result = new ArrayList<ContentValues>();
                 CursorUtils.convertToContentValuesAndClose(entityCursor, result);
@@ -98,7 +110,16 @@ public class ContentUtils {
         return result;
     }
 
+    public static List<ContentValues> getEntities(Context context, Uri uri, String sortOrder, String selection, String[] selectionArgs) {
+        return getEntities(context, null, uri, sortOrder, selection, selectionArgs);
+    }
+
+    public static List<ContentValues> getEntities(Context context, String[] projection, Class<?> entityClass, String selection, String ... selectionArgs) {
+        return getEntities(context, projection, ModelContract.getUri(entityClass), null, selection, selectionArgs);
+    }
+
     public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
         return getEntitiesWithOrder(context, entityClass, null, selection, selectionArgs);
     }
+
 }
