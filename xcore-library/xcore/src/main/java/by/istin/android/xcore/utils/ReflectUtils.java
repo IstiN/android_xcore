@@ -26,6 +26,9 @@ public class ReflectUtils {
     private static Map<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
 
     public static <T extends Annotation> T getAnnotation(Field field, Class<T> annotationClass) {
+        if (OsUtils.isDalvik()) {
+            return field.getAnnotation(annotationClass);
+        }
         ConcurrentHashMap<Class<? extends Annotation>, Annotation> classAnnotationConcurrentHashMap = sAnnotationsImplOfField.get(field);
         if (classAnnotationConcurrentHashMap == null) {
             classAnnotationConcurrentHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>();
@@ -66,6 +69,9 @@ public class ReflectUtils {
 	}
 
     public static boolean isAnnotationPresent(Field field, Class<? extends Annotation> annotationClass) {
+        if (OsUtils.isDalvik()) {
+            return field.isAnnotationPresent(annotationClass);
+        }
         if (sAnnotationsOfField.containsKey(field)) {
             return sAnnotationsOfField.get(field).contains(annotationClass);
         }
