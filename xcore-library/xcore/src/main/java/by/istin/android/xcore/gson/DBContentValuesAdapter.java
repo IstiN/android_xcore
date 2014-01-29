@@ -141,7 +141,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
     }
 
     @Override
-    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
+    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
         dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
@@ -168,7 +168,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
     }
 
     @Override
-    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
+    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
         Long id = getParentId(contentValues);

@@ -71,30 +71,30 @@ public class DBHelper {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
 			dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table));
-			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
-			for (Field field : fields) {
+			List<ReflectUtils.XField> fields = ReflectUtils.getEntityKeys(classOfModel);
+			for (ReflectUtils.XField field : fields) {
 				try {
 					String name = ReflectUtils.getStaticStringValue(field);
 					if (name.equals(BaseColumns._ID)) {
 						continue;
 					}
-					Annotation[] annotations = field.getAnnotations();
+					Annotation[] annotations = field.getField().getAnnotations();
 					String type = null;
 					for (Annotation annotation : annotations) {
 						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
 						if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
 							type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
 						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<Field> list = dbAssociationCache.getEntityFields(classOfModel);
+							List<ReflectUtils.XField> list = dbAssociationCache.getEntityFields(classOfModel);
 							if (list == null) {
-								list = new ArrayList<Field>();
+								list = new ArrayList<ReflectUtils.XField>();
 							}
 							list.add(field);
                             dbAssociationCache.putEntityFields(classOfModel, list);
 						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<Field> list = dbAssociationCache.getEntitiesFields(classOfModel);
+							List<ReflectUtils.XField> list = dbAssociationCache.getEntitiesFields(classOfModel);
 							if (list == null) {
-								list = new ArrayList<Field>();
+								list = new ArrayList<ReflectUtils.XField>();
 							}
 							list.add(field);
                             dbAssociationCache.putEntitiesFields(classOfModel, list);
@@ -225,11 +225,11 @@ public class DBHelper {
                             "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
                 }
 			}
-			List<Field> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
+			List<ReflectUtils.XField> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
-			List<Field> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
+			List<ReflectUtils.XField> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
 			if (listDbEntities != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}
@@ -320,8 +320,8 @@ public class DBHelper {
 		return true;
 	}
 
-	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
-		for (Field field : listDbEntity) {
+	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<ReflectUtils.XField> listDbEntity) {
+		for (ReflectUtils.XField field : listDbEntity) {
 			String columnName = ReflectUtils.getStaticStringValue(field);
 			byte[] entityAsByteArray = contentValues.getAsByteArray(columnName);
 			if (entityAsByteArray == null) {

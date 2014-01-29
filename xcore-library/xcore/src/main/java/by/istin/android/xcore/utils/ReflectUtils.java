@@ -15,20 +15,31 @@ import by.istin.android.xcore.annotations.dbEntity;
 
 public class ReflectUtils {
 
-    private static Map<Class<?>, List<Field>> sFieldsOfClass = new ConcurrentHashMap<Class<?>, List<Field>>();
+    public static class XField {
 
-    private static Map<Field, String> sNameOfField = new ConcurrentHashMap<Field, String>();
+        private Field mField;
+
+        XField(Field field) {
+            mField = field;
+        }
+
+        public Field getField() {
+            return mField;
+        }
+
+    }
+
+    private static Map<Class<?>, List<XField>> sFieldsOfClass = new ConcurrentHashMap<Class<?>, List<XField>>();
+
+    private static Map<XField, String> sNameOfField = new ConcurrentHashMap<XField, String>();
 
     private static Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
 
-    private static Map<Field, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<Field, Set<Class<? extends Annotation>>>();
+    private static Map<XField, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<XField, Set<Class<? extends Annotation>>>();
 
-    private static Map<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<Field, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
+    private static Map<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
 
-    public static <T extends Annotation> T getAnnotation(Field field, Class<T> annotationClass) {
-        if (OsUtils.isDalvik()) {
-            return field.getAnnotation(annotationClass);
-        }
+    public static <T extends Annotation> T getAnnotation(XField field, Class<T> annotationClass) {
         ConcurrentHashMap<Class<? extends Annotation>, Annotation> classAnnotationConcurrentHashMap = sAnnotationsImplOfField.get(field);
         if (classAnnotationConcurrentHashMap == null) {
             classAnnotationConcurrentHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>();
@@ -36,7 +47,7 @@ public class ReflectUtils {
         }
         Annotation annotation = classAnnotationConcurrentHashMap.get(annotationClass);
         if (annotation == null) {
-            annotation = field.getAnnotation(annotationClass);
+            annotation = field.mField.getAnnotation(annotationClass);
         }
         if (annotation != null) {
             classAnnotationConcurrentHashMap.put(annotationClass, annotation);
@@ -44,23 +55,24 @@ public class ReflectUtils {
         return (T) annotation;
     }
 
-	public static List<Field> getEntityKeys(Class<?> clazz) {
+	public static List<XField> getEntityKeys(Class<?> clazz) {
         if (sFieldsOfClass.containsKey(clazz)) {
             return sFieldsOfClass.get(clazz);
         }
 		Field[] fields = clazz.getFields();
-		List<Field> keys = null;
+		List<XField> keys = null;
 		for (Field field : fields) {
 			Annotation[] annotations = field.getAnnotations();
 			if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers()) && annotations != null && annotations.length != 0) {
 				if (keys == null) {
-					keys = new ArrayList<Field>();
+					keys = new ArrayList<XField>();
 				}
                 //we need be sure that all sub entities insert after parent
-                if (ReflectUtils.isAnnotationPresent(field, dbEntity.class) || ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
-                    keys.add(field);
+                XField xField = new XField(field);
+                if (ReflectUtils.isAnnotationPresent(xField, dbEntity.class) || ReflectUtils.isAnnotationPresent(xField, dbEntities.class)) {
+                    keys.add(xField);
                 } else {
-				    keys.add(0, field);
+				    keys.add(0, xField);
                 }
 			}
 		}
@@ -68,14 +80,11 @@ public class ReflectUtils {
 		return keys;
 	}
 
-    public static boolean isAnnotationPresent(Field field, Class<? extends Annotation> annotationClass) {
-        if (OsUtils.isDalvik()) {
-            return field.isAnnotationPresent(annotationClass);
-        }
+    public static boolean isAnnotationPresent(XField field, Class<? extends Annotation> annotationClass) {
         if (sAnnotationsOfField.containsKey(field)) {
             return sAnnotationsOfField.get(field).contains(annotationClass);
         }
-        Annotation[] annotations = field.getAnnotations();
+        Annotation[] annotations = field.mField.getAnnotations();
         HashSet<Class<? extends Annotation>> hashSet = new HashSet<Class<? extends Annotation>>();
         for (Annotation annotation : annotations) {
             hashSet.add(annotation.annotationType());
@@ -84,14 +93,14 @@ public class ReflectUtils {
         return hashSet.contains(annotationClass);
     }
 
-	public static String getStaticStringValue(Field field) {
+	public static String getStaticStringValue(XField field) {
         if (sNameOfField.containsKey(field)) {
             return sNameOfField.get(field);
         }
 		try {
-			field.setAccessible(true);
-			String fieldValue = (String)field.get(null);
-			field.setAccessible(false);
+			field.mField.setAccessible(true);
+			String fieldValue = (String)field.mField.get(null);
+            field.mField.setAccessible(false);
             sNameOfField.put(field, fieldValue);
 			return fieldValue;
 		} catch (IllegalArgumentException e) {

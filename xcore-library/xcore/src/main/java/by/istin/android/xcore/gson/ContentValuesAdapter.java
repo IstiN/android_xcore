@@ -18,7 +18,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
     }
 
     @Override
-    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
+    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
         dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
         Class<?> clazz = entity.clazz();
         ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
@@ -37,7 +37,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
     }
 
     @Override
-    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
+    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
         ContentValuesAdapter contentValuesAdapter = new ContentValuesAdapter(clazz);
         ContentValues values = contentValuesAdapter.deserialize(subEntityJsonObject, type, jsonDeserializationContext);
         contentValues.put(fieldValue, BytesUtils.toByteArray(values));

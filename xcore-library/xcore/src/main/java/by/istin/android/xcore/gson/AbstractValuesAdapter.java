@@ -33,7 +33,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     private Class<?> mContentValuesEntityClazz;
 
-    private List<Field> mEntityKeys;
+    private List<ReflectUtils.XField> mEntityKeys;
 
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
@@ -66,7 +66,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             return null;
         }
         JsonObject jsonObject = (JsonObject) jsonElement;
-        for (Field field : mEntityKeys) {
+        for (ReflectUtils.XField field : mEntityKeys) {
             JsonElement jsonValue = null;
             String fieldValue = ReflectUtils.getStaticStringValue(field);
             String serializedName = fieldValue;
@@ -151,7 +151,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return true;
     }
 
-    protected void putPrimitiveValue(ContentValues contentValues, Field field, JsonElement jsonValue, String fieldValue) {
+    protected void putPrimitiveValue(ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, String fieldValue) {
         if (ReflectUtils.isAnnotationPresent(field, dbLong.class)) {
             contentValues.put(fieldValue, jsonValue.getAsLong());
         } else if (ReflectUtils.isAnnotationPresent(field, dbString.class)) {
@@ -167,9 +167,9 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         }
     }
 
-    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray);
+    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray);
 
-    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
+    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
 
     protected abstract T proceed(T parent, int position, ContentValues contentValues);
 

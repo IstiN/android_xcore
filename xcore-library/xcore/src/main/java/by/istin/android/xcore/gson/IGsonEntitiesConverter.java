@@ -7,6 +7,8 @@ import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.ReflectUtils;
+
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
@@ -28,7 +30,7 @@ public interface IGsonEntitiesConverter {
         private final JsonDeserializationContext jsonDeserializationContext;
         private final ContentValues contentValues;
         private final Class<?> clazz;
-        private final Field field;
+        private final ReflectUtils.XField field;
         private final DataSourceRequest dataSourceRequest;
         private final IDBConnection dbConnection;
         private final DBHelper dbHelper;
@@ -38,7 +40,7 @@ public interface IGsonEntitiesConverter {
         private final Long id;
         private final dbEntities entity;
 
-        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, Field field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity) {
+        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity) {
             this.beforeListUpdate = beforeListUpdate;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -75,7 +77,7 @@ public interface IGsonEntitiesConverter {
             return clazz;
         }
 
-        public Field getField() {
+        public ReflectUtils.XField getField() {
             return field;
         }
 
