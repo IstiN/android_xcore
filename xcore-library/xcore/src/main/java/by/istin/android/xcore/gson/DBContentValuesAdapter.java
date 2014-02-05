@@ -8,7 +8,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 import by.istin.android.xcore.ContextHolder;
@@ -128,7 +127,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
     }
 
 
-    protected DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper) {
+    public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper) {
         super(contentValuesClass);
         this.dbConnection = dbConnection;
         this.dbHelper = dbHelper;

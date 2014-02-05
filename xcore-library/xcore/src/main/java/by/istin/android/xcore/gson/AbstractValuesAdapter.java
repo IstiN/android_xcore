@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -48,7 +47,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return deserializeContentValues(null, UNKNOWN_POSITION, jsonElement, type, jsonDeserializationContext);
     }
 
-    protected T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+    public T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         if (mEntityKeys == null) {
             mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
         }
