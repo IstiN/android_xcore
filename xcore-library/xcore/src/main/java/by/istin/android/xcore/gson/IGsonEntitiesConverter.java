@@ -2,19 +2,17 @@ package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+
+import java.lang.reflect.Type;
+
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.ReflectUtils;
-
-import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonElement;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 
 /**
  * Created by IstiN on 6.12.13.
@@ -39,8 +37,9 @@ public interface IGsonEntitiesConverter {
         private final String foreignKey;
         private final Long id;
         private final dbEntities entity;
+        private final int count;
 
-        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity) {
+        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity, int count) {
             this.beforeListUpdate = beforeListUpdate;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -55,6 +54,7 @@ public interface IGsonEntitiesConverter {
             this.foreignKey = foreignKey;
             this.id = id;
             this.entity = entity;
+            this.count = count;
         }
 
         public IBeforeArrayUpdate getBeforeListUpdate() {
@@ -111,6 +111,10 @@ public interface IGsonEntitiesConverter {
 
         public dbEntities getEntity() {
             return entity;
+        }
+
+        public int getCount() {
+            return count;
         }
     }
 }

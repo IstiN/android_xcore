@@ -162,7 +162,8 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
                 jsonArray,
                 foreignKey,
                 id,
-                entity)
+                entity,
+                count)
         );
     }
 
