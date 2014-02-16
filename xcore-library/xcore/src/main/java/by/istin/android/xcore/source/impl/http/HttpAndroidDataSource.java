@@ -236,7 +236,15 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		return mRequestBuilder.build(request);
 	}
 
-	public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
+    public HttpClient getClient() {
+        return mClient;
+    }
+
+    public IResponseStatusHandler getResponseStatusHandler() {
+        return mResponseStatusHandler;
+    }
+
+    public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
 		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
@@ -247,10 +255,6 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			Header firstHeader = response.getFirstHeader("Location");
 			if (firstHeader != null) {
 				HttpGet redirectUri = new HttpGet(firstHeader.getValue());
-				/*Header[] allHeaders = response.getAllHeaders();
-				for (Header resHeader : allHeaders) {
-					redirectUri.addHeader(resHeader);	
-				}*/
 				request.abort();
 				return getInputSteam(redirectUri);
 			}
@@ -258,19 +262,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		if (mResponseStatusHandler != null) {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}
-		/*Header contentEncoding = response.getFirstHeader(CONTENT_ENCODING);
-		boolean isGzipResponse = false;
-		if (contentEncoding != null) {
-			isGzipResponse = contentEncoding != null && GZIP.equalsIgnoreCase(contentEncoding.getValue());
-		}*/
 		HttpEntity httpEntity = response.getEntity();
 		return AndroidHttpClient.getUngzippedContent(httpEntity);
-		/*
-		content = httpEntity.getContent();
-		if (isGzipResponse) {
-			content = new GZIPInputStream(content);
-		}
-		return content;*/
 	}
 
 	@Override
