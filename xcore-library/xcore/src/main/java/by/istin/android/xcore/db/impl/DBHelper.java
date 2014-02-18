@@ -9,7 +9,6 @@ import android.database.SQLException;
 import android.provider.BaseColumns;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,46 +70,55 @@ public class DBHelper {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
 			dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table));
-			List<ReflectUtils.XField> fields = ReflectUtils.getEntityKeys(classOfModel);
-			for (ReflectUtils.XField field : fields) {
-				try {
-					String name = ReflectUtils.getStaticStringValue(field);
-					if (name.equals(BaseColumns._ID)) {
-						continue;
-					}
-					Annotation[] annotations = field.getField().getAnnotations();
-					String type = null;
-					for (Annotation annotation : annotations) {
-						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
-						if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
-							type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
-						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<ReflectUtils.XField> list = dbAssociationCache.getEntityFields(classOfModel);
-							if (list == null) {
-								list = new ArrayList<ReflectUtils.XField>();
-							}
-							list.add(field);
-                            dbAssociationCache.putEntityFields(classOfModel, list);
-						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<ReflectUtils.XField> list = dbAssociationCache.getEntitiesFields(classOfModel);
-							if (list == null) {
-								list = new ArrayList<ReflectUtils.XField>();
-							}
-							list.add(field);
-                            dbAssociationCache.putEntitiesFields(classOfModel, list);
-						} else if (classOfAnnotation.equals(dbIndex.class)) {
-                            builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
+            Cursor columns = null;
+            try {
+                columns = dbWriter.query(table, null, null, null, null, null, null, "0,1");
+                List<ReflectUtils.XField> fields = ReflectUtils.getEntityKeys(classOfModel);
+                for (ReflectUtils.XField field : fields) {
+                    try {
+                        String name = ReflectUtils.getStaticStringValue(field);
+                        if (name.equals(BaseColumns._ID)) {
+                            continue;
                         }
-					}
-					if (type == null) {
-						continue;
-					}
-                    dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
-				} catch (SQLException e) {
-                    if (IS_LOG_ENABLED)
-					Log.w(TAG, e);
-				}
-			}
+                        if (columns.getColumnIndex(name) != -1) {
+                            continue;
+                        }
+                        Annotation[] annotations = field.getField().getAnnotations();
+                        String type = null;
+                        for (Annotation annotation : annotations) {
+                            Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
+                            if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
+                                type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
+                            } else if (classOfAnnotation.equals(dbEntity.class)) {
+                                List<ReflectUtils.XField> list = dbAssociationCache.getEntityFields(classOfModel);
+                                if (list == null) {
+                                    list = new ArrayList<ReflectUtils.XField>();
+                                }
+                                list.add(field);
+                                dbAssociationCache.putEntityFields(classOfModel, list);
+                            } else if (classOfAnnotation.equals(dbEntities.class)) {
+                                List<ReflectUtils.XField> list = dbAssociationCache.getEntitiesFields(classOfModel);
+                                if (list == null) {
+                                    list = new ArrayList<ReflectUtils.XField>();
+                                }
+                                list.add(field);
+                                dbAssociationCache.putEntitiesFields(classOfModel, list);
+                            } else if (classOfAnnotation.equals(dbIndex.class)) {
+                                builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
+                            }
+                        }
+                        if (type == null) {
+                            continue;
+                        }
+                        dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
+                    } catch (SQLException e) {
+                        if (IS_LOG_ENABLED)
+                        Log.w(TAG, e);
+                    }
+			    }
+            } finally {
+                CursorUtils.close(columns);
+            }
             String sql = builder.toString();
             Log.xd(this, sql);
             if (!StringUtil.isEmpty(sql)) {
