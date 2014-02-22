@@ -14,10 +14,6 @@ import by.istin.android.xcore.provider.ModelContract;
 
 public class ContentUtils {
 
-    public static ContentValues getEntity(Context context, Class<?> entityClass, Long id) {
-        return getEntity(context, entityClass, id);
-    }
-
     public static ContentValues getEntity(Context context, Class<?> entityClass, Long id, String ... projection) {
         Uri uri = ModelContract.getUri(entityClass, id);
         return getEntity(context, uri, projection);
