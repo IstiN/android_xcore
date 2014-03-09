@@ -10,6 +10,10 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Parcelable;
 import android.os.ResultReceiver;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
@@ -18,9 +22,6 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
-
-import java.io.Serializable;
-import java.util.ArrayList;
 
 /**
  * @author IstiN
@@ -165,6 +166,18 @@ public abstract class AbstractExecutorService extends Service {
         Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
         if (cacheable) {
             processor.cache(context, dataSourceRequest, result);
+            if (bundle == null) {
+                return result;
+            }
+            if (result instanceof Parcelable) {
+                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
+            } else if (result instanceof Parcelable[]) {
+                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
+            } else if (result instanceof Serializable) {
+                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
+            } else if (result instanceof ArrayList<?>) {
+                bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
+            }
         } else {
             if (bundle == null) {
                 return result;
