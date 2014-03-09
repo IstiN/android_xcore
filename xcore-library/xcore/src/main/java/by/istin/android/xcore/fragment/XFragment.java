@@ -14,6 +14,8 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import by.istin.android.xcore.error.IErrorHandler;
@@ -24,6 +26,7 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -111,10 +114,47 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 			return;
 		}
 		onLoadFinished(cursor);
-		if (isServiceWork) {
-			hideEmptyView(getView());
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        if (isServiceWork) {
+			hideEmptyView(view);
 		}
-	}
+        if (CursorUtils.isEmpty(cursor)) {
+            return;
+        }
+        cursor.moveToFirst();
+        int[] adapterControlIds = getAdapterControlIds();
+        String[] adapterColumns = getAdapterColumns();
+        final int count = adapterControlIds.length;
+
+        for (int i = 0; i < count; i++) {
+            final View v = view.findViewById(adapterControlIds[i]);
+            if (v != null) {
+                String text = CursorUtils.getString(adapterColumns[i], cursor);
+                if (text == null) {
+                    text = "";
+                }
+                if (v instanceof TextView) {
+                    setViewText((TextView) v, text);
+                } else if (v instanceof ImageView) {
+                    setViewImage((ImageView) v, text);
+                } else {
+                    throw new IllegalStateException(v.getClass().getName() + " is not a " +
+                            " view that can be bounds by this SimpleCursorAdapter");
+                }
+            }
+       }
+    }
+
+    protected void setViewImage(ImageView v, String text) {
+        //TODO plugins
+    };
+
+    protected void setViewText(TextView v, String text) {
+        v.setText(text);
+    }
 
     protected abstract void onLoadFinished(Cursor cursor);
 
