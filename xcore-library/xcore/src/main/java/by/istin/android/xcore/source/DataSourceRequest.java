@@ -190,13 +190,19 @@ public class DataSourceRequest {
 
 	public static DataSourceRequest fromBundle(Bundle bundle) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = ModelContract.getDataSourceFromBundle(bundle);
+        Bundle dataSourceFromBundle = ModelContract.getDataSourceFromBundle(bundle);
+        if (dataSourceFromBundle != null) {
+            data.mBundle = dataSourceFromBundle;
+        }
 		return data;
 	}
 	
 	public static DataSourceRequest fromIntent(Intent intent) {
 		DataSourceRequest data = new DataSourceRequest();
-		data.mBundle = ModelContract.getDataSourceFromIntent(intent);
+        Bundle dataSourceFromIntent = ModelContract.getDataSourceFromIntent(intent);
+        if (dataSourceFromIntent != null) {
+            data.mBundle = dataSourceFromIntent;
+        }
 		return data;
 	}
 	
