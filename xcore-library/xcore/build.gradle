@@ -22,6 +22,16 @@ android {
         //versionName project.VERSION_NAME
        // versionCode Integer.parseInt(project.VERSION_CODE)
     }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        debug {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+    }
 }
 
 dependencies {

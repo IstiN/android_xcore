@@ -257,7 +257,7 @@ public class DBHelper {
 			} else {
                 Cursor cursor = null;
                 try {
-				    cursor = query(tableName, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
+				    cursor = query(classOfModel, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
 					if (cursor == null || !cursor.moveToFirst()) {
 						rowId = internalInsert(db, contentValues, tableName);
 						if (rowId == -1l) {
