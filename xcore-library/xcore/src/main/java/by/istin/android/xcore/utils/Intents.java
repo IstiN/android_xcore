@@ -38,6 +38,20 @@ public class Intents {
         context.startActivity(intent);
     }
 
+    /**
+     * Share text.
+     *
+     * @param context the context
+     * @param text    the text
+     */
+    public static void shareText(Context context, String subject, String text) {
+        Intent intent = new Intent(android.content.Intent.ACTION_SEND);
+        intent.setType("text/*");
+        intent.putExtra(Intent.EXTRA_SUBJECT, subject);
+        intent.putExtra(android.content.Intent.EXTRA_TEXT, text);
+        context.startActivity(intent);
+    }
+
     public static boolean appInstalledOrNot(Context context, String uri) {
         PackageManager pm = context.getPackageManager();
         boolean app_installed = false;
