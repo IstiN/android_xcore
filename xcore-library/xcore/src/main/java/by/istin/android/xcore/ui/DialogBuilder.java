@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.os.Build;
+import android.os.Handler;
 import android.text.InputType;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.inputmethod.InputMethodManager;
@@ -249,7 +250,8 @@ public class DialogBuilder {
 			input.setText(defaultValue);
 		}
 		if (isNumber) {
-			input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			input.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            input.setSingleLine(true);
 		}
 		MarginLayoutParams marginLayoutParams = new MarginLayoutParams(MarginLayoutParams.MATCH_PARENT, MarginLayoutParams.WRAP_CONTENT);
 		marginLayoutParams.leftMargin = UiUtil.getDp(activity, 8);
@@ -299,5 +301,12 @@ public class DialogBuilder {
 		} catch (Exception e) {
             // quick back issue for old android version
 		}
+        input.setSelection(input.getText().length());
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                UiUtil.showKeyboard(input);
+            }
+        }, 200l);
 	}
 }
