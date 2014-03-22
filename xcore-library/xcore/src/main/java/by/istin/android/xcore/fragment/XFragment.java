@@ -153,7 +153,11 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
     };
 
     protected void setViewText(TextView v, String text) {
-        v.setText(text);
+        if (StringUtil.isEmpty(text)) {
+            v.setText(StringUtil.EMPTY);
+        } else {
+            v.setText(text);
+        }
     }
 
     protected abstract void onLoadFinished(Cursor cursor);
