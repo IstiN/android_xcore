@@ -14,9 +14,12 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Set;
 
 import by.istin.android.xcore.utils.CursorUtils;
 
@@ -42,6 +45,14 @@ public class CursorModel implements Cursor, List<Cursor> {
     }
 
     private Cursor mCursor;
+
+    private Set<ContentObserver> mContentObservers = Collections.synchronizedSet(new HashSet<ContentObserver>());
+
+    private Set<Cursor> mCursors = Collections.synchronizedSet(new HashSet<Cursor>());
+
+    private Set<DataSetObserver> mDataSetObservers = Collections.synchronizedSet(new HashSet<DataSetObserver>());
+
+    private volatile Object mLock = new Object();
 
     public CursorModel(Cursor cursor) {
         this(cursor, true);
@@ -154,6 +165,26 @@ public class CursorModel implements Cursor, List<Cursor> {
         mCursor.copyStringToBuffer(i, charArrayBuffer);
     }
 
+    protected void setCursor(Cursor cursor) {
+        synchronized (mLock) {
+            if (mCursor != cursor) {
+                Cursor oldCursor = mCursor;
+                mCursor = cursor;
+                if (!mContentObservers.isEmpty()) {
+                    for (ContentObserver contentObserver : mContentObservers) {
+                        registerContentObserver(contentObserver);
+                    }
+                }
+                if (!mDataSetObservers.isEmpty()) {
+                    for (DataSetObserver dataSetObserver : mDataSetObservers) {
+                        registerDataSetObserver(dataSetObserver);
+                    }
+                }
+                mCursors.add(oldCursor);
+            }
+        }
+    }
+
     @Override
     public short getShort(int i) {
         return mCursor.getShort(i);
@@ -202,7 +233,15 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     @Override
     public void close() {
-        mCursor.close();
+        synchronized (mLock) {
+            mCursor.close();
+            if (!mCursors.isEmpty()) {
+                for (Cursor cursor : mCursors) {
+                    CursorUtils.close(cursor);
+                }
+                mCursors.clear();
+            }
+        }
     }
 
     @Override
@@ -212,22 +251,34 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     @Override
     public void registerContentObserver(ContentObserver contentObserver) {
-        mCursor.registerContentObserver(contentObserver);
+        synchronized (mLock) {
+            this.mContentObservers.add(contentObserver);
+            mCursor.registerContentObserver(contentObserver);
+        }
     }
 
     @Override
     public void unregisterContentObserver(ContentObserver contentObserver) {
-        mCursor.unregisterContentObserver(contentObserver);
+        synchronized (mLock) {
+            this.mContentObservers.remove(contentObserver);
+            mCursor.unregisterContentObserver(contentObserver);
+        }
     }
 
     @Override
     public void registerDataSetObserver(DataSetObserver dataSetObserver) {
-        mCursor.registerDataSetObserver(dataSetObserver);
+        synchronized (mLock) {
+            this.mDataSetObservers.add(dataSetObserver);
+            mCursor.registerDataSetObserver(dataSetObserver);
+        }
     }
 
     @Override
     public void unregisterDataSetObserver(DataSetObserver dataSetObserver) {
-        mCursor.unregisterDataSetObserver(dataSetObserver);
+        synchronized (mLock) {
+            this.mDataSetObservers.remove(dataSetObserver);
+            mCursor.unregisterDataSetObserver(dataSetObserver);
+        }
     }
 
     @Override

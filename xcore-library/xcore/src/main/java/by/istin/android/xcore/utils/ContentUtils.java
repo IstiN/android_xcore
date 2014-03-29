@@ -1,14 +1,20 @@
 package by.istin.android.xcore.utils;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.MatrixCursor;
 import android.net.Uri;
+import android.os.Build;
 import android.provider.BaseColumns;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import by.istin.android.xcore.provider.ModelContract;
 
@@ -118,4 +124,36 @@ public class ContentUtils {
         return getEntitiesWithOrder(context, entityClass, null, selection, selectionArgs);
     }
 
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static Set<String> getKeys(ContentValues contentValues) {
+        if (UiUtil.hasHoneycomb()) {
+            return contentValues.keySet();
+        } else {
+            Set<Map.Entry<String, Object>> entries = contentValues.valueSet();
+            Set set = new HashSet();
+            for (Map.Entry<String, Object> objectEntry : entries) {
+                set.add(objectEntry.getKey());
+            }
+            return set;
+        }
+    }
+
+    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues) {
+        if (listContentValues == null || listContentValues.isEmpty()) {
+            return new MatrixCursor(new String[]{});
+        }
+        ContentValues contentValues = listContentValues.get(0);
+        Set<String> keys = getKeys(contentValues);
+        String[] columns = new String[keys.size()];
+        columns = keys.toArray(columns);
+        MatrixCursor matrixCursor = new MatrixCursor(columns);
+        for (ContentValues values : listContentValues) {
+            Object[] objects = new Object[columns.length];
+            for (int i = 0; i < columns.length; i++) {
+                objects[i] = values.get(columns[i]);
+            }
+            matrixCursor.addRow(objects);
+        }
+        return matrixCursor;
+    };
 }
