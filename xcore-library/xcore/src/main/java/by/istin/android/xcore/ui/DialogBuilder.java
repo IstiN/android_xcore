@@ -179,12 +179,24 @@ public class DialogBuilder {
         singleChooseOption(context, titleResource, stringArray, defaultOption, listener);
 
 	}
-
     public static void singleChooseOption(Context context, int titleResource, String[] stringArray, int defaultOption, OnClickListener listener) {
+        singleChooseOption(context, context.getString(titleResource), stringArray, defaultOption, null, listener);
+    }
+
+    public static void singleChooseOption(Context context, String[] stringArray, int defaultOption, String closeButton, OnClickListener listener) {
+        singleChooseOption(context, null, stringArray, defaultOption, closeButton, listener);
+    }
+
+    public static void singleChooseOption(Context context, String titleResource, String[] stringArray, int defaultOption, String closeButton, OnClickListener listener) {
         Builder builder = createBuilder(context);
-        builder.setTitle(titleResource);
+        if (!StringUtil.isEmpty(titleResource)) {
+            builder.setTitle(titleResource);
+        }
         builder.setSingleChoiceItems(stringArray, defaultOption, listener);
-        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+        if (StringUtil.isEmpty(closeButton)) {
+            closeButton = StringUtil.getStringResource("cancel", context);
+        }
+        builder.setNegativeButton(closeButton, new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
