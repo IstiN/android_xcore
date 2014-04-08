@@ -414,10 +414,10 @@ public final class StringUtil {
                 }
             }
         }
-        return join(delimiter, objects.toArray(new Object[objects.size()]));
+        return joinAll(delimiter, objects.toArray(new Object[objects.size()]));
     }
 
-    public static String join(CharSequence delimiter, Object ... values) {
+    public static String joinAll(CharSequence delimiter, Object... values) {
         return TextUtils.join(delimiter, values);
     }
 }
