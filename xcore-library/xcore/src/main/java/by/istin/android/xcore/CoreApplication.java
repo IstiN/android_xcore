@@ -44,9 +44,11 @@ public class CoreApplication extends Application {
 
 	@Override
 	public Object getSystemService(String name) {
-        synchronized (mLock) {
-            if (mXCoreHelper == null) {
-                onCreate();
+        if (mXCoreHelper == null) {
+            synchronized (mLock) {
+                if (mXCoreHelper == null) {
+                    onCreate();
+                }
             }
         }
 		Object object = mXCoreHelper.getSystemService(name);
