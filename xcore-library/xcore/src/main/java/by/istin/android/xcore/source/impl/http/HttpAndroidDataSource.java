@@ -41,6 +41,7 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
 
 /**
@@ -236,44 +237,45 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		return mRequestBuilder.build(request);
 	}
 
-	public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
+    public HttpClient getClient() {
+        return mClient;
+    }
+
+    public IResponseStatusHandler getResponseStatusHandler() {
+        return mResponseStatusHandler;
+    }
+
+    public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
 		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		Log.xd(this, request);
 		HttpResponse response = mClient.execute(request);
 		int statusCode = response.getStatusLine().getStatusCode();
-		if (statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY) {
+        boolean isRedirect = isRedirect(statusCode);
+        if (isRedirect) {
 			Header firstHeader = response.getFirstHeader("Location");
 			if (firstHeader != null) {
-				HttpGet redirectUri = new HttpGet(firstHeader.getValue());
-				/*Header[] allHeaders = response.getAllHeaders();
-				for (Header resHeader : allHeaders) {
-					redirectUri.addHeader(resHeader);	
-				}*/
-				request.abort();
-				return getInputSteam(redirectUri);
+                String value = firstHeader.getValue();
+                if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
+                    HttpGet redirectUri = new HttpGet(value);
+                    request.abort();
+                    return getInputSteam(redirectUri);
+                }
 			}
 		}
 		if (mResponseStatusHandler != null) {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}
-		/*Header contentEncoding = response.getFirstHeader(CONTENT_ENCODING);
-		boolean isGzipResponse = false;
-		if (contentEncoding != null) {
-			isGzipResponse = contentEncoding != null && GZIP.equalsIgnoreCase(contentEncoding.getValue());
-		}*/
 		HttpEntity httpEntity = response.getEntity();
 		return AndroidHttpClient.getUngzippedContent(httpEntity);
-		/*
-		content = httpEntity.getContent();
-		if (isGzipResponse) {
-			content = new GZIPInputStream(content);
-		}
-		return content;*/
 	}
 
-	@Override
+    protected boolean isRedirect(int statusCode) {
+        return statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY;
+    }
+
+    @Override
 	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
 		return getInputSteam(createRequest(dataSourceRequest));
 	}

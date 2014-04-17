@@ -5,7 +5,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.view.View;
 
-import by.isitn.android.xcore.app.Application;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.model.SimpleEntity;

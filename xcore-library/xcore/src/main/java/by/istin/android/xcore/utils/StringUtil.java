@@ -1,16 +1,19 @@
 package by.istin.android.xcore.utils;
 
+import android.content.Context;
+import android.text.Html;
+import android.text.Spanned;
+import android.text.TextUtils;
+
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import android.content.Context;
-import android.text.Html;
-import android.text.Spanned;
 import by.istin.android.xcore.ContextHolder;
 
 /**
@@ -401,4 +404,20 @@ public final class StringUtil {
 		}
 		return Html.fromHtml(value);
 	}
+
+    public static String join(CharSequence delimiter, boolean skipNull, Object ... values) {
+        List<Object> objects = new ArrayList<Object>();
+        if (skipNull) {
+            for (Object o : values) {
+                if (!StringUtil.isEmpty(o)) {
+                    objects.add(o);
+                }
+            }
+        }
+        return joinAll(delimiter, objects.toArray(new Object[objects.size()]));
+    }
+
+    public static String joinAll(CharSequence delimiter, Object... values) {
+        return TextUtils.join(delimiter, values);
+    }
 }

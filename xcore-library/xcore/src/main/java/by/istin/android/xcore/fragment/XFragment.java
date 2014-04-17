@@ -1,6 +1,7 @@
 package by.istin.android.xcore.fragment;
 
 import android.app.Activity;
+import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,18 +14,24 @@ import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XFragment extends Fragment implements ICursorLoaderFragmentHelper {
+public abstract class XFragment extends Fragment implements ICursorLoaderFragmentHelper,IDataSourceHelper,
+        DataSourceExecuteHelper.IDataSourceListener {
 
 	@Override
 	public int getLoaderId() {
@@ -39,6 +46,30 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 		return view;
 	}
 
+    @Override
+    public void setServiceWork(boolean isWork) {
+
+    }
+
+    @Override
+    public void onError(Exception e, DataSourceRequest dataSourceRequest) {
+
+    }
+
+    @Override
+    public void onReceiverOnCached(Bundle resultData) {
+
+    }
+
+    @Override
+    public void onReceiverOnDone(Bundle resultData) {
+
+    }
+
+    @Override
+    public DataSourceExecuteHelper.IDataSourceListener getDataSourceListener() {
+        return this;
+    }
 
 	public void onViewCreated(View view) {
 		
@@ -83,18 +114,57 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 			return;
 		}
 		onLoadFinished(cursor);
-		if (isServiceWork) {
-			hideEmptyView(getView());
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        if (isServiceWork) {
+			hideEmptyView(view);
 		}
-	}
+        if (CursorUtils.isEmpty(cursor)) {
+            return;
+        }
+        cursor.moveToFirst();
+        int[] adapterControlIds = getAdapterControlIds();
+        String[] adapterColumns = getAdapterColumns();
+        final int count = adapterControlIds.length;
+
+        for (int i = 0; i < count; i++) {
+            final View v = view.findViewById(adapterControlIds[i]);
+            if (v != null) {
+                String text = CursorUtils.getString(adapterColumns[i], cursor);
+                if (text == null) {
+                    text = "";
+                }
+                if (v instanceof TextView) {
+                    setViewText((TextView) v, text);
+                } else if (v instanceof ImageView) {
+                    setViewImage((ImageView) v, text);
+                } else {
+                    throw new IllegalStateException(v.getClass().getName() + " is not a " +
+                            " view that can be bounds by this SimpleCursorAdapter");
+                }
+            }
+       }
+    }
+
+    protected void setViewImage(ImageView v, String text) {
+        //TODO plugins
+    };
+
+    protected void setViewText(TextView v, String text) {
+        if (StringUtil.isEmpty(text)) {
+            v.setText(StringUtil.EMPTY);
+        } else {
+            v.setText(text);
+        }
+    }
 
     protected abstract void onLoadFinished(Cursor cursor);
 
     protected abstract String[] getAdapterColumns();
 
 	protected abstract int[] getAdapterControlIds();
-
-	protected abstract int getAdapterLayout();
 
 	private boolean isServiceWork = false;
 
@@ -116,48 +186,58 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
         loadData(activity, url, isForceUpdateData());
     }
 
-	protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
-		DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
-		dataSourceRequest.setCacheable(isCacheable());
-		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdate);
-		DataSourceService.execute(activity, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
-			
-			@Override
-			public void onStart(Bundle resultData) {
-				isServiceWork = true;
-			}
+    @Override
+    public void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest) {
+        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
-			@Override
-			public void onError(Exception exception) {
-				isServiceWork = false;
-				exception.printStackTrace();
+            @Override
+            public void onStart(Bundle resultData) {
+                isServiceWork = true;
+            }
+
+            @Override
+            public void onError(Exception exception) {
+                isServiceWork = false;
+                exception.printStackTrace();
                 FragmentActivity activity = getActivity();
                 if (activity == null) {
                     return;
                 }
-                Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-				hideProgress();
-			}
-			
-			@Override
-			public void onDone(Bundle resultData) {
-				isServiceWork = false;
-				FragmentActivity fragmentActivity = getActivity();
-				if (fragmentActivity == null) {
-					return;
-				}
-				hideProgress();
-			}
+                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+                if (errorHandler != null) {
+                    errorHandler.onError(activity, XFragment.this, dataSourceRequest, exception);
+                } else {
+                    Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                hideProgress();
+            }
 
-			@Override
-			protected void onCached(Bundle resultData) {
-				isServiceWork = false;
-				super.onCached(resultData);
-				hideProgress();
-			}
-			
-		});
+            @Override
+            public void onDone(Bundle resultData) {
+                isServiceWork = false;
+                FragmentActivity fragmentActivity = getActivity();
+                if (fragmentActivity == null) {
+                    return;
+                }
+                hideProgress();
+            }
+
+            @Override
+            protected void onCached(Bundle resultData) {
+                isServiceWork = false;
+                super.onCached(resultData);
+                hideProgress();
+            }
+
+        });
+    }
+
+    protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
+		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
+		dataSourceRequest.setCacheable(isCacheable());
+		dataSourceRequest.setCacheExpiration(getCacheExpiration());
+		dataSourceRequest.setForceUpdateData(isForceUpdate);
+        dataSourceExecute(activity, dataSourceRequest);
 	}
 	
 	protected boolean isForceUpdateData() {
@@ -174,15 +254,15 @@ public abstract class XFragment extends Fragment implements ICursorLoaderFragmen
 
     protected abstract void onLoaderReset();
 
-    protected String getDataSourceKey() {
+    public String getDataSourceKey() {
 		return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
 	}
 
-	protected long getCacheExpiration() {
+	public long getCacheExpiration() {
 		return DateUtils.HOUR_IN_MILLIS;
 	}
 
-	protected boolean isCacheable() {
+	public boolean isCacheable() {
 		return true;
 	}
 

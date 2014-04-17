@@ -93,7 +93,7 @@ public class ModelContract {
 	}
 
     public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
-        String dataSourceRequest = ModelContract.getDataSourceRequest(uri);;
+        String dataSourceRequest = ModelContract.getDataSourceRequest(uri);
         if (!StringUtil.isEmpty(dataSourceRequest)) {
             return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(dataSourceRequest)));
         }

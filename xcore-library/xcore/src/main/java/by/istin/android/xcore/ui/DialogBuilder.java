@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.os.Build;
+import android.os.Handler;
 import android.text.InputType;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.inputmethod.InputMethodManager;
@@ -178,12 +179,24 @@ public class DialogBuilder {
         singleChooseOption(context, titleResource, stringArray, defaultOption, listener);
 
 	}
-
     public static void singleChooseOption(Context context, int titleResource, String[] stringArray, int defaultOption, OnClickListener listener) {
+        singleChooseOption(context, context.getString(titleResource), stringArray, defaultOption, null, listener);
+    }
+
+    public static void singleChooseOption(Context context, String[] stringArray, int defaultOption, String closeButton, OnClickListener listener) {
+        singleChooseOption(context, null, stringArray, defaultOption, closeButton, listener);
+    }
+
+    public static void singleChooseOption(Context context, String titleResource, String[] stringArray, int defaultOption, String closeButton, OnClickListener listener) {
         Builder builder = createBuilder(context);
-        builder.setTitle(titleResource);
+        if (!StringUtil.isEmpty(titleResource)) {
+            builder.setTitle(titleResource);
+        }
         builder.setSingleChoiceItems(stringArray, defaultOption, listener);
-        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+        if (StringUtil.isEmpty(closeButton)) {
+            closeButton = StringUtil.getStringResource("cancel", context);
+        }
+        builder.setNegativeButton(closeButton, new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -249,7 +262,8 @@ public class DialogBuilder {
 			input.setText(defaultValue);
 		}
 		if (isNumber) {
-			input.setInputType(InputType.TYPE_NUMBER_FLAG_DECIMAL);
+			input.setRawInputType(InputType.TYPE_CLASS_NUMBER | InputType.TYPE_NUMBER_FLAG_DECIMAL);
+            input.setSingleLine(true);
 		}
 		MarginLayoutParams marginLayoutParams = new MarginLayoutParams(MarginLayoutParams.MATCH_PARENT, MarginLayoutParams.WRAP_CONTENT);
 		marginLayoutParams.leftMargin = UiUtil.getDp(activity, 8);
@@ -299,5 +313,12 @@ public class DialogBuilder {
 		} catch (Exception e) {
             // quick back issue for old android version
 		}
+        input.setSelection(input.getText().length());
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                UiUtil.showKeyboard(input);
+            }
+        }, 200l);
 	}
 }

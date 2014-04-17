@@ -3,7 +3,7 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.7.+'
+        classpath 'com.android.tools.build:gradle:0.9.1'
     }
 }
 apply plugin: 'android-library'
@@ -14,11 +14,23 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.0.1"
+    buildToolsVersion "19.0.3"
 
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 19
+        //versionName project.VERSION_NAME
+       // versionCode Integer.parseInt(project.VERSION_CODE)
+    }
+    buildTypes {
+        release {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        debug {
+            runProguard false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
     }
 }
 
@@ -31,10 +43,27 @@ task clearJar(type: Delete) {
     delete '../../../../download/xcore.jar'
 }
 
+/*task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.allSource
+}
+
+artifacts {
+    archives sourcesJar
+}*/
+
 task makeJar(type: Copy) {
     from('build/bundles/release/')
     into('build/libs/')
     include('classes.jar')
     rename ('classes.jar', '../../../../download/xcore.jar')
 }
+
+/*task moveSources(type: Copy) {
+    from('build/libs/')
+    into('build/libs/')
+    include('xcore-sources.jar')
+    rename ('xcore-sources.jar', '../../../../download/xcore-sources.jar')
+}*/
+//makeJar.dependsOn(clearJar, sourcesJar, moveSources, build)
 makeJar.dependsOn(clearJar, build)

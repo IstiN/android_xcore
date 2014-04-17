@@ -1,24 +1,31 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.provider.BaseColumns;
+
+import com.google.gson.JsonArray;
+import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonObject;
+
+import java.lang.reflect.Type;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.ReflectUtils;
-import com.google.gson.*;
-
-import java.lang.reflect.Field;
-import java.lang.reflect.Type;
 
 public class DBContentValuesAdapter extends ContentValuesAdapter {
 
     private final IDBConnection dbConnection;
+
+    private ITransactionCreationController transactionCreationController;
 
     private final DBHelper dbHelper;
 
@@ -28,16 +35,99 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
 
     private final IBeforeArrayUpdate beforeListUpdate;
 
+    public static class WritableConnectionWrapper implements IDBConnection {
+
+        private IDBConnection connection;
+
+        private IDBConnector connector;
+
+        WritableConnectionWrapper(IDBConnector connector, IDBConnection connection) {
+            this.connection = connection;
+            this.connector = connector;
+        }
+
+        @Override
+        public void execSQL(String sql) {
+            connection.execSQL(sql);
+        }
+
+        @Override
+        public Cursor query(String table, String[] projection, String selection, String[] selectionArgs, String groupBy, String having, String sortOrder, String limit) {
+            return connection.query(table, projection, selection, selectionArgs, groupBy, having, sortOrder, limit);
+        }
+
+        @Override
+        public boolean isExists(String tableName) {
+            return connection.isExists(tableName);
+        }
+
+        @Override
+        public Cursor rawQuery(String sql, String[] selectionArgs) {
+            return connection.rawQuery(sql, selectionArgs);
+        }
+
+        @Override
+        public int delete(String tableName, String where, String[] whereArgs) {
+            return connection.delete(tableName, where, whereArgs);
+        }
+
+        @Override
+        public long insert(String tableName, ContentValues contentValues) {
+            return connection.insert(tableName, contentValues);
+        }
+
+        @Override
+        public void beginTransaction() {
+            connection.beginTransaction();
+        }
+
+        @Override
+        public void setTransactionSuccessful() {
+            connection.setTransactionSuccessful();
+        }
+
+        @Override
+        public void endTransaction() {
+            connection.endTransaction();
+        }
+
+        @Override
+        public int update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs) {
+            return connection.update(tableName, contentValues, selection, selectionArgs);
+        }
+
+        protected void doneAndCreateNewTransaction() {
+            setTransactionSuccessful();
+            endTransaction();
+            connection = connector.getWritableConnection();
+            connection.beginTransaction();
+        }
+    }
+
+    public static interface ITransactionCreationController {
+
+        boolean isCreateNewTransaction(int count);
+
+        void onTransactionRecreated();
+    }
+
     public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBContentProviderSupport dbContentProvider) {
+        this(contentValuesClass, dataSourceRequest, dbContentProvider, null);
+    }
+
+    public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBContentProviderSupport dbContentProvider, ITransactionCreationController contentValuesAdapterTransactionListener) {
         super(contentValuesClass);
-        this.dbConnection = dbContentProvider.getDbSupport().createConnector(ContextHolder.getInstance().getContext()).getWritableConnection();
+        IDBConnector connector = dbContentProvider.getDbSupport().createConnector(ContextHolder.getInstance().getContext());
+        IDBConnection writableConnection = connector.getWritableConnection();
+        this.transactionCreationController = contentValuesAdapterTransactionListener;
+        this.dbConnection = new WritableConnectionWrapper(connector, writableConnection);
         this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
     }
 
 
-    protected DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper) {
+    public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper) {
         super(contentValuesClass);
         this.dbConnection = dbConnection;
         this.dbHelper = dbHelper;
@@ -50,8 +140,8 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
     }
 
     @Override
-    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray) {
-        dbEntities entity = field.getAnnotation(dbEntities.class);
+    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
+        dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
@@ -72,12 +162,13 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
                 jsonArray,
                 foreignKey,
                 id,
-                entity)
+                entity,
+                count)
         );
     }
 
     @Override
-    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
+    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
         Long id = getParentId(contentValues);
@@ -108,6 +199,14 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
             }
             dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
+            if (transactionCreationController != null) {
+                if (transactionCreationController.isCreateNewTransaction(count)) {
+                    if (dbConnection instanceof WritableConnectionWrapper) {
+                        ((WritableConnectionWrapper) dbConnection).doneAndCreateNewTransaction();
+                        transactionCreationController.onTransactionRecreated();
+                    }
+                }
+            }
             count++;
         }
         return contentValues;

@@ -4,14 +4,14 @@ import android.content.Context;
 
 public class AppUtils {
 	
-	public static Object get(Context context, String name) {
+	public static <T> T get(Context context, String name) {
 		if (context == null || name == null){
 			throw new IllegalArgumentException("Context and key must not be null");
 		}
-		Object systemService = context.getSystemService(name);
+		T systemService = (T) context.getSystemService(name);
 		if (systemService == null) {
 			context = context.getApplicationContext();
-			systemService = context.getSystemService(name);
+			systemService = (T) context.getSystemService(name);
 		}
 		if (systemService == null) {
 			throw new IllegalStateException(name + " not available");

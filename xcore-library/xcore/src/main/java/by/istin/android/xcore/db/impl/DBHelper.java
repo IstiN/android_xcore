@@ -5,12 +5,10 @@ package by.istin.android.xcore.db.impl;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.database.SQLException;
 import android.provider.BaseColumns;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -72,46 +70,55 @@ public class DBHelper {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
 			dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table));
-			List<Field> fields = ReflectUtils.getEntityKeys(classOfModel);
-			for (Field field : fields) {
-				try {
-					String name = ReflectUtils.getStaticStringValue(field);
-					if (name.equals(BaseColumns._ID)) {
-						continue;
-					}
-					Annotation[] annotations = field.getAnnotations();
-					String type = null;
-					for (Annotation annotation : annotations) {
-						Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
-						if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
-							type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
-						} else if (classOfAnnotation.equals(dbEntity.class)) {
-							List<Field> list = dbAssociationCache.getEntityFields(classOfModel);
-							if (list == null) {
-								list = new ArrayList<Field>();
-							}
-							list.add(field);
-                            dbAssociationCache.putEntityFields(classOfModel, list);
-						} else if (classOfAnnotation.equals(dbEntities.class)) {
-							List<Field> list = dbAssociationCache.getEntitiesFields(classOfModel);
-							if (list == null) {
-								list = new ArrayList<Field>();
-							}
-							list.add(field);
-                            dbAssociationCache.putEntitiesFields(classOfModel, list);
-						} else if (classOfAnnotation.equals(dbIndex.class)) {
-                            builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
+            Cursor columns = null;
+            try {
+                columns = dbWriter.query(table, null, null, null, null, null, null, "0,1");
+                List<ReflectUtils.XField> fields = ReflectUtils.getEntityKeys(classOfModel);
+                for (ReflectUtils.XField field : fields) {
+                    try {
+                        String name = ReflectUtils.getStaticStringValue(field);
+                        if (name.equals(BaseColumns._ID)) {
+                            continue;
                         }
-					}
-					if (type == null) {
-						continue;
-					}
-                    dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
-				} catch (SQLException e) {
-                    if (IS_LOG_ENABLED)
-					Log.w(TAG, e);
-				}
-			}
+                        if (columns.getColumnIndex(name) != -1) {
+                            continue;
+                        }
+                        Annotation[] annotations = field.getField().getAnnotations();
+                        String type = null;
+                        for (Annotation annotation : annotations) {
+                            Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
+                            if (DBAssociationCache.TYPE_ASSOCIATION.containsKey(classOfAnnotation)) {
+                                type = DBAssociationCache.TYPE_ASSOCIATION.get(classOfAnnotation);
+                            } else if (classOfAnnotation.equals(dbEntity.class)) {
+                                List<ReflectUtils.XField> list = dbAssociationCache.getEntityFields(classOfModel);
+                                if (list == null) {
+                                    list = new ArrayList<ReflectUtils.XField>();
+                                }
+                                list.add(field);
+                                dbAssociationCache.putEntityFields(classOfModel, list);
+                            } else if (classOfAnnotation.equals(dbEntities.class)) {
+                                List<ReflectUtils.XField> list = dbAssociationCache.getEntitiesFields(classOfModel);
+                                if (list == null) {
+                                    list = new ArrayList<ReflectUtils.XField>();
+                                }
+                                list.add(field);
+                                dbAssociationCache.putEntitiesFields(classOfModel, list);
+                            } else if (classOfAnnotation.equals(dbIndex.class)) {
+                                builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
+                            }
+                        }
+                        if (type == null) {
+                            continue;
+                        }
+                        dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
+                    } catch (SQLException e) {
+                        if (IS_LOG_ENABLED)
+                        Log.w(TAG, e);
+                    }
+			    }
+            } finally {
+                CursorUtils.close(columns);
+            }
             String sql = builder.toString();
             Log.xd(this, sql);
             if (!StringUtil.isEmpty(sql)) {
@@ -226,11 +233,11 @@ public class DBHelper {
                             "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
                 }
 			}
-			List<Field> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
+			List<ReflectUtils.XField> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
 			}
-			List<Field> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
+			List<ReflectUtils.XField> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
 			if (listDbEntities != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
 			}
@@ -250,7 +257,7 @@ public class DBHelper {
 			} else {
                 Cursor cursor = null;
                 try {
-				    cursor = query(tableName, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
+				    cursor = query(classOfModel, null, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)}, null, null, null, null);
 					if (cursor == null || !cursor.moveToFirst()) {
 						rowId = internalInsert(db, contentValues, tableName);
 						if (rowId == -1l) {
@@ -258,7 +265,7 @@ public class DBHelper {
 						}
 					} else {
 						ContentValues oldContentValues = new ContentValues();
-						DatabaseUtils.cursorRowToContentValues(cursor, oldContentValues);
+                        CursorUtils.cursorRowToContentValues(classOfModel, cursor, oldContentValues);
 						merge.merge(this, db, dataSourceRequest, oldContentValues, contentValues);
 						if (!isContentValuesEquals(oldContentValues, contentValues)) {
 							internalUpdate(db, contentValues, id, tableName);
@@ -321,14 +328,14 @@ public class DBHelper {
 		return true;
 	}
 
-	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<Field> listDbEntity) {
-		for (Field field : listDbEntity) {
+	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<ReflectUtils.XField> listDbEntity) {
+		for (ReflectUtils.XField field : listDbEntity) {
 			String columnName = ReflectUtils.getStaticStringValue(field);
 			byte[] entityAsByteArray = contentValues.getAsByteArray(columnName);
 			if (entityAsByteArray == null) {
 				continue;
 			}
-			Annotation annotation = field.getAnnotation(dbAnnotation);
+			Annotation annotation = ReflectUtils.getAnnotation(field, dbAnnotation);
 			String contentValuesKey;
 			String foreignId = getForeignKey(foreignEntity);
 			try {
@@ -360,7 +367,14 @@ public class DBHelper {
 	}
 
     public static String getForeignKey(Class<?> foreignEntity) {
-        return foreignEntity.getSimpleName().toLowerCase()+"_id";
+        DBAssociationCache associationCache = DBAssociationCache.get();
+        String foreignKey = associationCache.getForeignKey(foreignEntity);
+        if (foreignKey == null) {
+            foreignKey = foreignEntity.getSimpleName().toLowerCase()+"_id";
+            associationCache.putForeignKey(foreignEntity, foreignKey);
+            return foreignKey;
+        }
+        return foreignKey;
     }
 
     private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {

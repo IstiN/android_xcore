@@ -10,7 +10,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.util.List;
 
@@ -33,7 +32,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     private Class<?> mContentValuesEntityClazz;
 
-    private List<Field> mEntityKeys;
+    private List<ReflectUtils.XField> mEntityKeys;
 
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
@@ -48,7 +47,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return deserializeContentValues(null, UNKNOWN_POSITION, jsonElement, type, jsonDeserializationContext);
     }
 
-    protected T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+    public T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         if (mEntityKeys == null) {
             mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
         }
@@ -66,20 +65,20 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             return null;
         }
         JsonObject jsonObject = (JsonObject) jsonElement;
-        for (Field field : mEntityKeys) {
+        for (ReflectUtils.XField field : mEntityKeys) {
             JsonElement jsonValue = null;
             String fieldValue = ReflectUtils.getStaticStringValue(field);
             String serializedName = fieldValue;
-            if (field.isAnnotationPresent(SerializedName.class)) {
-                SerializedName serializedAnnotation = field.getAnnotation(SerializedName.class);
+            if (ReflectUtils.isAnnotationPresent(field, SerializedName.class)) {
+                SerializedName serializedAnnotation = ReflectUtils.getAnnotation(field, SerializedName.class);
                 if (serializedAnnotation != null) {
                     serializedName = serializedAnnotation.value();
                 }
             }
             String separator = null;
             boolean isFirstObjectForJsonArray = false;
-            if (field.isAnnotationPresent(JsonSubJSONObject.class)) {
-                JsonSubJSONObject jsonSubJSONObject = field.getAnnotation(JsonSubJSONObject.class);
+            if (ReflectUtils.isAnnotationPresent(field, JsonSubJSONObject.class)) {
+                JsonSubJSONObject jsonSubJSONObject = ReflectUtils.getAnnotation(field, JsonSubJSONObject.class);
                 if (jsonSubJSONObject != null) {
                     separator = jsonSubJSONObject.separator();
                     isFirstObjectForJsonArray = jsonSubJSONObject.isFirstObjectForJsonArray();
@@ -121,16 +120,16 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             if (jsonValue.isJsonPrimitive()) {
                 putPrimitiveValue(contentValues, field, jsonValue, fieldValue);
             } else if (ReflectUtils.isAnnotationPresent(field, dbEntity.class)) {
-                dbEntity entity = field.getAnnotation(dbEntity.class);
+                dbEntity entity = ReflectUtils.getAnnotation(field, dbEntity.class);
                 Class<?> clazz = entity.clazz();
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                 proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
-            } else if (field.isAnnotationPresent(dbEntities.class)) {
+            } else if (ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
                 if (jsonValue.isJsonArray()) {
                     JsonArray jsonArray = jsonValue.getAsJsonArray();
                     proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
                 } else {
-                    dbEntities entity = field.getAnnotation(dbEntities.class);
+                    dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
                     Class<?> clazz = entity.clazz();
                     JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                     proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
@@ -151,7 +150,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return true;
     }
 
-    protected void putPrimitiveValue(ContentValues contentValues, Field field, JsonElement jsonValue, String fieldValue) {
+    protected void putPrimitiveValue(ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, String fieldValue) {
         if (ReflectUtils.isAnnotationPresent(field, dbLong.class)) {
             contentValues.put(fieldValue, jsonValue.getAsLong());
         } else if (ReflectUtils.isAnnotationPresent(field, dbString.class)) {
@@ -167,9 +166,9 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         }
     }
 
-    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, JsonArray jsonArray);
+    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray);
 
-    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Field field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
+    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
 
     protected abstract T proceed(T parent, int position, ContentValues contentValues);
 

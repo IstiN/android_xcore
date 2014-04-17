@@ -1,8 +1,11 @@
 package by.istin.android.xcore.utils;
 
+import android.annotation.TargetApi;
 import android.content.ContentValues;
+import android.database.AbstractWindowedCursor;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.os.Build;
 
 import java.util.List;
 
@@ -102,9 +105,40 @@ public final class CursorUtils {
             return new Converter() {
                 @Override
                 public void convert(Cursor cursor, ContentValues contentValues) {
-                    DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+                    cursorRowToContentValues(cursor, contentValues);
                 }
             };
+        }
+    }
+
+    /**
+     * Read the entire contents of a cursor row and store them in a ContentValues.
+     *
+     * @param cursor the cursor to read from.
+     * @param values the {@link ContentValues} to put the row into.
+     */
+    public static void cursorRowToContentValues(Cursor cursor, ContentValues values) {
+        AbstractWindowedCursor awc =
+                (cursor instanceof AbstractWindowedCursor) ? (AbstractWindowedCursor) cursor : null;
+
+        String[] columns = cursor.getColumnNames();
+        int length = columns.length;
+        for (int i = 0; i < length; i++) {
+            if (awc != null && isBlob(awc, i)) {
+                values.put(columns[i], cursor.getBlob(i));
+            } else {
+                values.put(columns[i], cursor.getString(i));
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    private static boolean isBlob(AbstractWindowedCursor awc, int columnIndex) {
+        if (UiUtil.hasHoneycomb()) {
+            int type = awc.getType(columnIndex);
+            return type == AbstractWindowedCursor.FIELD_TYPE_BLOB;
+        } else {
+            return awc.isBlob(columnIndex);
         }
     }
 
@@ -164,4 +198,9 @@ public final class CursorUtils {
     public static void putShortValue(String key, Cursor cursor, ContentValues contentValues) {
         contentValues.put(key, getShort(key, cursor));
     }
+
+    public static void cursorRowToContentValues(Class<?> clazz, Cursor cursor, ContentValues contentValues) {
+        DatabaseUtils.cursorRowToContentValues(cursor, contentValues);
+    }
+
 }

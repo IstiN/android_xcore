@@ -3,9 +3,12 @@ android_xcore
 
 Core Library For Android
 
+##Applications using XCORE
+**[@to Music: Last.FM and VK.com](https://play.google.com/store/apps/details?id=by.istin.android.vkmusic)** | **[Скачать музыку и видео ВКонтакте (VK Downloader)](http://4pda.ru/forum/index.php?showtopic=552441)**
+
 ## License
 
-    Copyright 2013, Vladimir Klyshevich
+    Copyright 2013-2014, Vladimir Klyshevich
 
     Licensed under the Apache License, Version 2.0 (the "License");
     you may not use this file except in compliance with the License.

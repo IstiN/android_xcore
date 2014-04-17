@@ -2,6 +2,7 @@ package by.istin.android.xcore.db.impl;
 
 import android.database.sqlite.SQLiteStatement;
 import by.istin.android.xcore.annotations.*;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -19,7 +20,7 @@ class DBAssociationCache {
 
     private static DBAssociationCache INSTANCE = new DBAssociationCache();
 
-    public final static Map<Class<?>, String> TYPE_ASSOCIATION = new HashMap<Class<?>, String>();
+    public final static Map<Class<?>, String> TYPE_ASSOCIATION = new ConcurrentHashMap<Class<?>, String>();
 
     static {
         TYPE_ASSOCIATION.put(dbString.class, "LONGTEXT");
@@ -31,15 +32,17 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbByteArray.class, "BLOB");
     }
 
-    private Map<Class<?>, List<Field>> mDbEntityFieldsCache = new HashMap<Class<?>, List<Field>>();
+    private Map<Class<?>, List<ReflectUtils.XField>> mDbEntityFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
 
-    private Map<Class<?>, List<Field>> mDbEntitiesFieldsCache = new HashMap<Class<?>, List<Field>>();
+    private Map<Class<?>, List<ReflectUtils.XField>> mDbEntitiesFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
 
     private ConcurrentHashMap<String, Boolean> mCacheTable = new ConcurrentHashMap<String, Boolean>();
 
     private ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
 
     private ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
+
+    private ConcurrentHashMap<Class<?>, String> mForeignKeys = new ConcurrentHashMap<Class<?>, String>();
 
     private DBAssociationCache() {
 
@@ -50,20 +53,20 @@ class DBAssociationCache {
     }
 
 
-    public List<Field> getEntityFields(Class<?> clazz) {
+    public List<ReflectUtils.XField> getEntityFields(Class<?> clazz) {
         return mDbEntityFieldsCache.get(clazz);
     }
 
-    public List<Field> getEntitiesFields(Class<?> clazz) {
+    public List<ReflectUtils.XField> getEntitiesFields(Class<?> clazz) {
         return mDbEntitiesFieldsCache.get(clazz);
     }
 
 
-    public void putEntityFields(Class<?> classOfModel, List<Field> list) {
+    public void putEntityFields(Class<?> classOfModel, List<ReflectUtils.XField> list) {
         mDbEntityFieldsCache.put(classOfModel, list);
     }
 
-    public void putEntitiesFields(Class<?> classOfModel, List<Field> list) {
+    public void putEntitiesFields(Class<?> classOfModel, List<ReflectUtils.XField> list) {
         mDbEntitiesFieldsCache.put(classOfModel, list);
     }
 
@@ -95,8 +98,16 @@ class DBAssociationCache {
         return mCacheInsertStatements.get(clazz);
     }
 
-    public void setInsertStatement(Class<?> clazz, SQLiteStatement isertStatement) {
-        mCacheInsertStatements.put(clazz, isertStatement);
+    public void setInsertStatement(Class<?> clazz, SQLiteStatement insertStatement) {
+        mCacheInsertStatements.put(clazz, insertStatement);
+    }
+
+    public String getForeignKey(Class<?> clazz) {
+        return mForeignKeys.get(clazz);
+    }
+
+    public void putForeignKey(Class<?> clazz, String value) {
+        mForeignKeys.put(clazz, value);
     }
 
 }
