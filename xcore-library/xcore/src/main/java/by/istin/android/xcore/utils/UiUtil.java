@@ -30,7 +30,12 @@ public class UiUtil {
 
 	static int sDisplayWidth = -1;
 	static int sDisplayHeight = -1;
-	
+
+    public static void clearCachedDisplayDimensions() {
+        int sDisplayWidth = -1;
+        int sDisplayHeight = -1;
+    }
+
 	public static int getDisplayHeight() {
 		if (sDisplayHeight == -1) {
 			initDisplayDimensions();
