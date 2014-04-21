@@ -30,7 +30,12 @@ public class UiUtil {
 
 	static int sDisplayWidth = -1;
 	static int sDisplayHeight = -1;
-	
+
+    public static void clearCachedDisplayDimensions() {
+        int sDisplayWidth = -1;
+        int sDisplayHeight = -1;
+    }
+
 	public static int getDisplayHeight() {
 		if (sDisplayHeight == -1) {
 			initDisplayDimensions();
@@ -242,7 +247,21 @@ public class UiUtil {
      */
     public static void hideKeyboard(View view) {
         InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        Activity activity = (Activity) view.getContext();
+        if (activity == null) {
+            return;
+        }
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            Window window = activity.getWindow();
+            if (window != null && window.getCurrentFocus() != null && window.getCurrentFocus().getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(window.getCurrentFocus().getWindowToken(),0);
+            }
+        } else {
+            View currentFocus = activity.getCurrentFocus();
+            if (currentFocus != null && currentFocus.getWindowToken() != null) {
+                imm.hideSoftInputFromWindow(currentFocus.getWindowToken(), InputMethodManager.HIDE_NOT_ALWAYS);
+            }
+        }
     }
 
     /**
@@ -254,7 +273,13 @@ public class UiUtil {
             return;
         }
         InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        if (android.os.Build.VERSION.SDK_INT < 11) {
+            view.clearFocus();
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            view.requestFocus();
+        } else {
+            imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
 
