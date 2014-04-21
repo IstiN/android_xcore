@@ -83,7 +83,7 @@ public class JSONModel implements Parcelable {
 	 * @param value
 	 *            the value
 	 */
-	protected final void set(final String key, final Object value) {
+	public final void set(final String key, final Object value) {
 		try {
 			synchronized (jo) {
 				if (value == null) {

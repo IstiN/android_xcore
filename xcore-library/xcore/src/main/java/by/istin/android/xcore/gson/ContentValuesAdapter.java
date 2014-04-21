@@ -3,10 +3,13 @@ package by.istin.android.xcore.gson;
 import android.content.ContentValues;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.model.JSONModel;
 import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 import com.google.gson.*;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
@@ -27,7 +30,9 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
             JsonElement item = jsonArray.get(i);
             if (item.isJsonPrimitive()) {
                 JsonParser parser = new JsonParser();
-                item = parser.parse("{\"value\": \""+item.getAsString()+"\"}");
+                JSONModel jsonObject = new JSONModel();
+                jsonObject.set("value", item.getAsString());
+                item = parser.parse(jsonObject.toString());
             }
             values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
         }
