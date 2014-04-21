@@ -105,7 +105,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		}
 
 		@Override
-		public HttpRequestBase build(DataSourceRequest dataSourceRequest) {
+		public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
             String url = dataSourceRequest.getUri();
 			HttpRequestBase request = null;
 			Uri uri = Uri.parse(url);
@@ -233,7 +233,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_KEY);
 	}
 
-	protected HttpRequestBase createRequest(DataSourceRequest request) {
+	protected HttpRequestBase createRequest(DataSourceRequest request) throws IOException {
 		return mRequestBuilder.build(request);
 	}
 
