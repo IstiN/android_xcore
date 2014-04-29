@@ -138,9 +138,12 @@ public class ContentUtils {
         }
     }
 
-    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues) {
+    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String ... defaultColumnsIfNull) {
         if (listContentValues == null || listContentValues.isEmpty()) {
-            return new MatrixCursor(new String[]{});
+            if (defaultColumnsIfNull == null) {
+                defaultColumnsIfNull = new String[]{};
+            }
+            return new MatrixCursor(defaultColumnsIfNull);
         }
         ContentValues contentValues = listContentValues.get(0);
         Set<String> keys = getKeys(contentValues);
