@@ -43,6 +43,14 @@ public class BytesUtils {
 		return byteArray;
 	}
 
+	public static byte[] toByteArray(Parcelable parcelable) {
+		Parcel obtain = Parcel.obtain();
+        parcelable.writeToParcel(obtain, 0);
+		byte[] byteArray = obtain.marshall();
+		obtain.recycle();
+		return byteArray;
+	}
+
 	public static byte[] toByteArray(Spanned spanned) {
 		Parcel obtain = Parcel.obtain();
 		TextUtils.writeToParcel(spanned, obtain, 0);
@@ -64,6 +72,15 @@ public class BytesUtils {
 		obtain.unmarshall(byteArray, 0, byteArray.length);
 		obtain.setDataPosition(0);
 		ContentValues createFromParcel = ContentValues.CREATOR.createFromParcel(obtain);
+		obtain.recycle();
+		return createFromParcel;
+	}
+
+	public static <T extends Parcelable> T parcelableFromByteArray(Parcelable.Creator<T> creator, byte[] byteArray) {
+		Parcel obtain = Parcel.obtain();
+		obtain.unmarshall(byteArray, 0, byteArray.length);
+		obtain.setDataPosition(0);
+		T createFromParcel = creator.createFromParcel(obtain);
 		obtain.recycle();
 		return createFromParcel;
 	}
