@@ -5,8 +5,9 @@ import java.util.List;
 
 public class UrlBuilder {
 
-    public static final String HTTP = "http://";
-    public static final String HTTPS = "https://";
+    public static final String SCHEME_END = "://";
+    public static final String HTTP = "http" + SCHEME_END;
+    public static final String HTTPS = "https" + SCHEME_END;
     public static final String AMP = "&";
     public static final String Q = "?";
 
@@ -42,7 +43,15 @@ public class UrlBuilder {
     }
 
     public static UrlBuilder http(String host) {
-        return new UrlBuilder(HTTP +host);
+        return scheme(HTTP, host);
+    }
+
+    public static UrlBuilder https(String host) {
+        return scheme(HTTPS, host);
+    }
+
+    public static UrlBuilder scheme(String scheme, String host) {
+        return new UrlBuilder(scheme + host);
     }
 
     public static UrlBuilder parent(UrlBuilder urlBuilder) {
@@ -52,9 +61,7 @@ public class UrlBuilder {
         return builder;
     }
 
-    public static UrlBuilder https(String host) {
-        return new UrlBuilder(HTTPS +host);
-    }
+
 
     public UrlBuilder path(String path) {
         mPath+=path;
@@ -125,13 +132,17 @@ public class UrlBuilder {
                 }
                 for (ParamValue paramValue : mListParamsUnknown) {
                     appendPrefix();
-
                     mUrlStringBuilder.append(paramValue.param + "=%s");
                 }
                 resultArgs = join(argsKnown, args);
             }
             return format(resultArgs);
         }
+    }
+
+    @Override
+    public String toString() {
+        return build();
     }
 
     private void appendPrefix() {
