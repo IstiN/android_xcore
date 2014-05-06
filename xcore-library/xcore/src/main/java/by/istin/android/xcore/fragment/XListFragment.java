@@ -482,6 +482,7 @@ public abstract class XListFragment extends AdapterViewFragment
                 plugin.onStatusResultReceiverError(XListFragment.this, exception);
             }
         }
+        hidePagingProgress();
     }
 
     protected ViewBinder getAdapterViewBinder() {
