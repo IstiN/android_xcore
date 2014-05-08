@@ -30,7 +30,7 @@ import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XFragment extends Fragment implements ICursorLoaderFragmentHelper,IDataSourceHelper,
+public abstract class XFragment extends Fragment implements IRefresh, ICursorLoaderFragmentHelper,IDataSourceHelper,
         DataSourceExecuteHelper.IDataSourceListener {
 
 	@Override

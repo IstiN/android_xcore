@@ -1,0 +1,3 @@
+[submodule "xcore-library/plugin_pull_to_refresh/pull_to_refresh"]
+	path = xcore-library/plugin_pull_to_refresh/pull_to_refresh
+	url = https://github.com/IstiN/Android-PullToRefresh.git

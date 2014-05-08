@@ -1,0 +1,13 @@
+<!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/src/main/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1" package="by.istin.android.xcore.plugin.pulltorefresh">
+
+    <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19"/>
+
+    <application/>
+
+    <!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library/xcore/unspecified/AndroidManifest.xml -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/src/main/AndroidManifest.xml -->
+    
+
+</manifest>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="E:\work\git\android_xcore\xcore-library\plugin_ab_pull_to_refresh\src\main\res" />
+        <source path="E:\work\git\android_xcore\xcore-library\plugin_ab_pull_to_refresh\build\res\rs\release" />
+        <source path="E:\work\git\android_xcore\xcore-library\plugin_ab_pull_to_refresh\build\res\generated\release" />
+    </dataSet>
+    <dataSet config="release" >
+        <source path="E:\work\git\android_xcore\xcore-library\plugin_ab_pull_to_refresh\src\release\res" />
+    </dataSet>
+
+</merger>

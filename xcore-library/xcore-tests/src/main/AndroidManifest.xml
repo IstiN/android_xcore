@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="by.istin.android.xcore"
+    package="by.istin.android.xcore.test"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -27,7 +27,7 @@
 
         <provider
             android:name="by.istin.android.xcore.provider.ContentProvider"
-            android:authorities="by.istin.android.xcore.ModelContentProvider"
+            android:authorities="by.istin.android.xcore.test.ModelContentProvider"
             android:exported="false" />
 
     </application>
