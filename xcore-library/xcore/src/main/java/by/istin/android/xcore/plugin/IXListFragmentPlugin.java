@@ -4,10 +4,10 @@ import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import by.istin.android.xcore.fragment.XListFragment;
@@ -23,7 +23,7 @@ public interface IXListFragmentPlugin {
 
     void onLoadFinished(XListFragment listFragment, Loader<Cursor> loader, Cursor cursor);
 
-    void createAdapter(XListFragment listFragment, SimpleCursorAdapter simpleCursorAdapter, FragmentActivity activity, Cursor cursor);
+    void createAdapter(XListFragment listFragment, BaseAdapter baseAdapter, FragmentActivity activity, Cursor cursor);
 
     void onActivityCreated(XListFragment listFragment, Bundle savedInstanceState);
 

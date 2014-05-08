@@ -23,9 +23,11 @@ import android.widget.AbsListView;
 import android.widget.AbsListView.OnScrollListener;
 import android.widget.Adapter;
 import android.widget.AdapterView;
+import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.Filter;
 import android.widget.FilterQueryProvider;
+import android.widget.Filterable;
 import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.ListAdapter;
@@ -52,6 +54,7 @@ import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
+import by.istin.android.xcore.widget.ISetViewBinder;
 
 public abstract class XListFragment extends AdapterViewFragment
         implements
@@ -143,7 +146,7 @@ public abstract class XListFragment extends AdapterViewFragment
             if (adapter instanceof HeaderViewListAdapter) {
                 adapter = ((HeaderViewListAdapter) adapter).getWrappedAdapter();
             }
-            SimpleCursorAdapter filterAdapter = (SimpleCursorAdapter) adapter;
+            Filterable filterAdapter = (Filterable) adapter;
             String value = s.toString();
             if (getSearchEditTextClearId() != null) {
                 if (searchClear == null) {
@@ -326,20 +329,22 @@ public abstract class XListFragment extends AdapterViewFragment
 			return;
 		}
 		if (adapter == null || !(adapter instanceof CursorAdapter)) {
-			SimpleCursorAdapter cursorAdapter = createAdapter(activity, cursor);
+			BaseAdapter baseAdapter = createAdapter(activity, cursor);
 			ViewBinder adapterViewBinder = getAdapterViewBinder();
-			if (adapterViewBinder != null) {
-				cursorAdapter.setViewBinder(adapterViewBinder);
+			if (adapterViewBinder != null && baseAdapter instanceof ISetViewBinder) {
+                ((ISetViewBinder)baseAdapter).setViewBinder(adapterViewBinder);
 			}
-			cursorAdapter.setFilterQueryProvider(new FilterQueryProvider() {
-				
-				@Override
-				public Cursor runQuery(CharSequence constraint) {
-					return runSearchQuery(getActivity(), constraint);
-				}
-				
-			});
-			adapter = cursorAdapter;
+            if (baseAdapter instanceof CursorAdapter) {
+                ((CursorAdapter)baseAdapter).setFilterQueryProvider(new FilterQueryProvider() {
+
+                    @Override
+                    public Cursor runQuery(CharSequence constraint) {
+                        return runSearchQuery(getActivity(), constraint);
+                    }
+
+                });
+            }
+			adapter = baseAdapter;
 			setListAdapter(adapter);
 		} else {
 			((CursorAdapter) adapter).swapCursor(cursor);
@@ -382,42 +387,24 @@ public abstract class XListFragment extends AdapterViewFragment
         return result;
     }
 
-    public SimpleCursorAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
+    public BaseAdapter createAdapter(FragmentActivity activity, Cursor cursor) {
         int adapterLayout = getAdapterLayout();
         String[] adapterColumns = getAdapterColumns();
         int[] adapterControlIds = getAdapterControlIds();
-        SimpleCursorAdapter simpleCursorAdapter = new SimpleCursorAdapter(activity, adapterLayout, cursor, adapterColumns, adapterControlIds, 2) {
-
-            @Override
-            public View getView(int position, View convertView, ViewGroup parent) {
-                View view = super.getView(position, convertView, parent);
-                view = XListFragment.this.onAdapterGetView(this, position, view);
-                return view;
-            }
-
-            @Override
-            public void setViewImage(ImageView v, String value) {
-                if (!setAdapterViewImage(v, value)) {
-                    super.setViewImage(v, value);
-                }
-            }
-
-            public void setViewText(TextView v, String text) {
-                if (!setAdapterViewText(v, text)) {
-                    super.setViewText(v, text);
-                }
-            }
-
-        };
+        BaseAdapter baseAdapter = createAdapter(activity, cursor, adapterLayout, adapterColumns, adapterControlIds);
         //plugins
         List<IXListFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
             for(IXListFragmentPlugin plugin : listFragmentPlugins) {
-                plugin.createAdapter(this, simpleCursorAdapter, activity, cursor);
+                plugin.createAdapter(this, baseAdapter, activity, cursor);
             }
         }
-        return simpleCursorAdapter;
+        return baseAdapter;
 	}
+
+    public BaseAdapter createAdapter(final FragmentActivity activity, final Cursor cursor, final int adapterLayout, final String[] adapterColumns, final int[] adapterControlIds) {
+        return new DefaultAdapter(activity, adapterLayout, cursor, adapterColumns, adapterControlIds);
+    }
 
     protected View onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
         return view;
@@ -877,4 +864,31 @@ public abstract class XListFragment extends AdapterViewFragment
         checkStatus("onCursorLoaderStopLoading");
     }
 
+    private class DefaultAdapter extends SimpleCursorAdapter implements ISetViewBinder {
+
+        public DefaultAdapter(FragmentActivity activity, int adapterLayout, Cursor cursor, String[] adapterColumns, int[] adapterControlIds) {
+            super(activity, adapterLayout, cursor, adapterColumns, adapterControlIds, 2);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            View view = super.getView(position, convertView, parent);
+            view = XListFragment.this.onAdapterGetView(this, position, view);
+            return view;
+        }
+
+        @Override
+        public void setViewImage(ImageView v, String value) {
+            if (!setAdapterViewImage(v, value)) {
+                super.setViewImage(v, value);
+            }
+        }
+
+        public void setViewText(TextView v, String text) {
+            if (!setAdapterViewText(v, text)) {
+                super.setViewText(v, text);
+            }
+        }
+
+    }
 }
