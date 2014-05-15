@@ -33,6 +33,10 @@ public final class ContextHolder {
 		return sInstance;
 	}
 
+    public static Context get() {
+        return getInstance().getContext();
+    }
+
 	/*
 	 * (non-Javadoc)
 	 * 

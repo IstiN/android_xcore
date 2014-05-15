@@ -31,7 +31,11 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
             if (item.isJsonPrimitive()) {
                 JsonParser parser = new JsonParser();
                 JSONModel jsonObject = new JSONModel();
-                jsonObject.set("value", item.getAsString());
+                String string = item.getAsString();
+                if (string.contains("\"")) {
+                    string = string.replace("\"", "&quot;");
+                }
+                jsonObject.set("value", string);
                 item = parser.parse(jsonObject.toString());
             }
             values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);

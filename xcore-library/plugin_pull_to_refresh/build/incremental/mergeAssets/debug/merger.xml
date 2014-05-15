@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger>
+
+    <dataSet config="main" >
+        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_pull_to_refresh\src\main\assets" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_pull_to_refresh\src\debug\assets" />
+    </dataSet>
+
+</merger>

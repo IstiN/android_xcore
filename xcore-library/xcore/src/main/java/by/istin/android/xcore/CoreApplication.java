@@ -6,7 +6,7 @@ package by.istin.android.xcore;
 import android.app.Application;
 
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
-import by.istin.android.xcore.plugin.IXListFragmentPlugin;
+import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 
@@ -34,7 +34,7 @@ public class CoreApplication extends Application {
 		mXCoreHelper.registerAppService(appService);
 	}
 
-    public void addPlugin(IXListFragmentPlugin listFragmentPlugin) {
+    public void addPlugin(IFragmentPlugin listFragmentPlugin) {
         mXCoreHelper.addPlugin(listFragmentPlugin);
     }
 

@@ -33,7 +33,9 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
         final View containerItem = View.inflate(mContext, getResource(position), null);
         onViewItemCreated(containerItem);
         Cursor cursor = getItemAtPosition(position);
-        init(containerItem, cursor);
+        if (cursor != null) {
+            init(containerItem, cursor);
+        }
         container.addView(containerItem, 0);
         return containerItem;
     }

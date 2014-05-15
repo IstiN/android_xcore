@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/values-iw/values.xml -->
+    <eat-comment />
+
+    <string name="pull_to_refresh_pull_label">משוך לרענון…</string>
+    <string name="pull_to_refresh_refreshing_label">טוען…</string>
+    <string name="pull_to_refresh_release_label">שחרר לרענון…</string>
+
+</resources>

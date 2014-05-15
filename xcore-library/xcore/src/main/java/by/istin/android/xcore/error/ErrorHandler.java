@@ -1,6 +1,7 @@
 package by.istin.android.xcore.error;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -21,6 +22,7 @@ import by.istin.android.xcore.fragment.IDataSourceHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.ui.DialogBuilder;
+import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -28,6 +30,10 @@ import by.istin.android.xcore.utils.StringUtil;
  * Created by IstiN on 14.7.13.
  */
 public class ErrorHandler implements IErrorHandler {
+
+    public static IErrorHandler get(Context context) {
+        return AppUtils.get(context, SYSTEM_SERVICE_KEY);
+    }
 
     private String mDeveloperErrorMessage;
 

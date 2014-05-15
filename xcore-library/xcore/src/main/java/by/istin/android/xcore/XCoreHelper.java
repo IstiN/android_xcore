@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import by.istin.android.xcore.plugin.IXListFragmentPlugin;
+import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
@@ -27,15 +27,15 @@ public class XCoreHelper {
 
 	private Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
 
-    private List<IXListFragmentPlugin> mListFragmentPlugins;
+    private List<IFragmentPlugin> mListFragmentPlugins;
 
-    public List<IXListFragmentPlugin> getListFragmentPlugins() {
+    public List<IFragmentPlugin> getListFragmentPlugins() {
         return mListFragmentPlugins;
     }
 
-    public void addPlugin(IXListFragmentPlugin listFragmentPlugin) {
+    public void addPlugin(IFragmentPlugin listFragmentPlugin) {
         if (mListFragmentPlugins == null) {
-            mListFragmentPlugins = new ArrayList<IXListFragmentPlugin>();
+            mListFragmentPlugins = new ArrayList<IFragmentPlugin>();
         }
         mListFragmentPlugins.add(listFragmentPlugin);
     }
