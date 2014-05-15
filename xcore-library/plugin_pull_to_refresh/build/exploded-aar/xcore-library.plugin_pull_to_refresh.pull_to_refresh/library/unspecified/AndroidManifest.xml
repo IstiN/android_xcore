@@ -1,4 +1,4 @@
-<!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2110" android:versionName="2.1.1" package="com.handmark.pulltorefresh.library">
+<!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="2110" android:versionName="2.1.1" package="com.handmark.pulltorefresh.library">
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19"/>
 

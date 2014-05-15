@@ -1,4 +1,4 @@
-<!-- From: file:/E:/work/git/android_xcore/xcore-library/xcore/src/main/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="by.istin.android.xcore">
+<!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/xcore/src/main/AndroidManifest.xml --><manifest xmlns:android="http://schemas.android.com/apk/res/android" android:versionCode="1" android:versionName="1.0" package="by.istin.android.xcore">
 
     <uses-sdk android:minSdkVersion="10" android:targetSdkVersion="19"/>
 

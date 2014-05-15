@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/E:/work/git/android_xcore/xcore-library/xcore/src/main/res/values-v14/styles.xml -->
+    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/xcore/src/main/res/values-v14/styles.xml -->
     <eat-comment />
 
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">

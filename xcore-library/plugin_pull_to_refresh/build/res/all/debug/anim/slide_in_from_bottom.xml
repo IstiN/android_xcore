@@ -19,4 +19,4 @@
     android:duration="@android:integer/config_longAnimTime"
     android:fromYDelta="100%p"
     android:toYDelta="0" />
-<!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/res/anim/slide_in_from_bottom.xml --><!-- From: file:/E:/work/git/android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/anim/slide_in_from_bottom.xml -->
+<!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/res/anim/slide_in_from_bottom.xml --><!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/anim/slide_in_from_bottom.xml -->
