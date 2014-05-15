@@ -108,10 +108,10 @@ public class DataSourceService extends AbstractExecutorService {
 
     private boolean isExecuteJoinedRequestsSuccessful(final RequestExecutor.ExecuteRunnable parentRunnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle statusBundle) {
         DataSourceRequest joinedRequest = dataSourceRequest.getJoinedRequest();
-        String joinedDataSource = dataSourceRequest.getJoinedDataSourceKey();
-        String joinedProcessor = dataSourceRequest.getJoinedProcessorKey();
-        ErrorRedirectExecuteRunnable redirectRunnable = new ErrorRedirectExecuteRunnable(parentRunnable);
-        while (joinedRequest != null) {
+        if (joinedRequest != null) {
+            String joinedDataSource = dataSourceRequest.getJoinedDataSourceKey();
+            String joinedProcessor = dataSourceRequest.getJoinedProcessorKey();
+            ErrorRedirectExecuteRunnable redirectRunnable = new ErrorRedirectExecuteRunnable(parentRunnable);
             Intent joinIntent = new Intent();
             joinIntent.putExtra(DATA_SOURCE_KEY, joinedDataSource);
             joinIntent.putExtra(PROCESSOR_KEY, joinedProcessor);
@@ -119,9 +119,6 @@ public class DataSourceService extends AbstractExecutorService {
             if (redirectRunnable.isError) {
                 return false;
             }
-            joinedRequest = joinedRequest.getJoinedRequest();
-            joinedDataSource = dataSourceRequest.getJoinedDataSourceKey();
-            joinedProcessor = dataSourceRequest.getJoinedProcessorKey();
         }
         return true;
     }
