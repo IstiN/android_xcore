@@ -9,6 +9,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -419,5 +420,33 @@ public final class StringUtil {
 
     public static String joinAll(CharSequence delimiter, Object... values) {
         return TextUtils.join(delimiter, values);
+    }
+
+    public static String makeJoinedPlaceholders(String value, String delimiter, int len) {
+        if (len < 1) {
+            // It will lead to an invalid query anyway ..
+            throw new RuntimeException("No placeholders");
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append(value);
+            for (int i = 1; i < len; i++) {
+                sb.append(delimiter);
+                sb.append(value);
+            }
+            return sb.toString();
+        }
+    }
+
+    public static String[] toStringArray(Collection collection) {
+        if (collection == null) {
+            return null;
+        }
+        String[] strings = new String[collection.size()];
+        int i = 0;
+        for (Object o : collection) {
+            strings[i] = String.valueOf(o);
+            i++;
+        }
+        return strings;
     }
 }

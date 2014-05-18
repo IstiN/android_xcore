@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
 
 import by.istin.android.xcore.ContextHolder;
@@ -89,7 +90,7 @@ public class UiUtil {
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static boolean setTranslucent(Activity activity, boolean isNavigation, boolean isStatus) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.KITKAT) {
+        if (!hasKitKat()) {
             return false;
         }
         boolean hasMenuKey = ViewConfiguration.get(activity).hasPermanentMenuKey();
@@ -241,6 +242,10 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1;
     }
 
+    public static boolean hasKitKat() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
+    }
+
     /**
      * Hide keyboard
      * @param view view, prefer set EditText
@@ -283,5 +288,15 @@ public class UiUtil {
     }
 
 
-
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public static void setAlpha(View view, float alpha) {
+        if (hasHoneycomb()) {
+            view.setAlpha(alpha);
+        } else {
+            AlphaAnimation animation = new AlphaAnimation(alpha, alpha);
+            animation.setDuration(0);
+            animation.setFillAfter(true);
+            view.startAnimation(animation);
+        }
+    }
 }

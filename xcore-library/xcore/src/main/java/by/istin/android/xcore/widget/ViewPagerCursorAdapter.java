@@ -7,6 +7,8 @@ import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 
+import by.istin.android.xcore.utils.CursorUtils;
+
 public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
 	private Cursor mCursor;
@@ -24,6 +26,9 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
 	@Override
 	public int getCount() {
+        if (CursorUtils.isClosed(mCursor)) {
+            return 0;
+        }
 		return mCursor.getCount();
 	}
 
@@ -45,7 +50,7 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
     }
 
     public Cursor getItemAtPosition(int position) {
-        if (mCursor.isClosed()) {
+        if (CursorUtils.isClosed(mCursor)) {
             return null;
         }
 		mCursor.moveToPosition(position);
