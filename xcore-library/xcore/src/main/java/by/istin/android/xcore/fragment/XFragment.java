@@ -188,7 +188,13 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     @Override
     public void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest) {
-        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
+        String processorKey = getProcessorKey();
+        String dataSourceKey = getDataSourceKey();
+        dataSourceExecute(context, dataSourceRequest, processorKey, dataSourceKey);
+    }
+
+    protected void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+        DataSourceService.execute(context, dataSourceRequest, processorKey, dataSourceKey, new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
             public void onStart(Bundle resultData) {
@@ -234,13 +240,17 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
 		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
-		dataSourceRequest.setCacheable(isCacheable());
-		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdate);
-        dataSourceExecute(activity, dataSourceRequest);
+        loadData(activity, isForceUpdate, dataSourceRequest);
 	}
-	
-	protected boolean isForceUpdateData() {
+
+    protected void loadData(Activity activity, Boolean isForceUpdate, DataSourceRequest dataSourceRequest) {
+        dataSourceRequest.setCacheable(isCacheable());
+        dataSourceRequest.setCacheExpiration(getCacheExpiration());
+        dataSourceRequest.setForceUpdateData(isForceUpdate);
+        dataSourceExecute(activity, dataSourceRequest);
+    }
+
+    protected boolean isForceUpdateData() {
 		return false;
 	}
 

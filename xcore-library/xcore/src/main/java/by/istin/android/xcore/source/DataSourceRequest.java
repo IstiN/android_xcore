@@ -251,6 +251,14 @@ public class DataSourceRequest {
             return this;
         }
 
+        public String getDataSourceKey() {
+            return dataSourceKey;
+        }
+
+        public String getProcessorKey() {
+            return processorKey;
+        }
+
         public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest) {
             if (StringUtil.isEmpty(dataSourceKey)) {
                 throw new IllegalStateException("default dataSource is not set, call JoinedRequestBuilder.setDataSource to set");
