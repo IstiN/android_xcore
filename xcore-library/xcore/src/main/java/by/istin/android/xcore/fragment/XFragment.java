@@ -226,6 +226,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
                     return;
                 }
                 hideProgress();
+                onReceiverOnDone(resultData);
             }
 
             @Override
