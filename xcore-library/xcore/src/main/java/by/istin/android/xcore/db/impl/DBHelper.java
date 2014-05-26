@@ -39,11 +39,11 @@ public class DBHelper {
 
     private static final String TAG = DBHelper.class.getSimpleName();
 
-    private IDBConnector mDbConnector;
+    private final IDBConnector mDbConnector;
 
-    private DBAssociationCache dbAssociationCache;
+    private final DBAssociationCache dbAssociationCache;
 
-    public static boolean IS_LOG_ENABLED = false;
+    public static final boolean IS_LOG_ENABLED = false;
 
     public DBHelper(IDBConnector dbConnector) {
         super();
@@ -312,19 +312,17 @@ public class DBHelper {
 
     public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
 		Set<Entry<String, Object>> keySet = contentValues.valueSet();
-		for (Iterator<Entry<String, Object>> iterator = keySet.iterator(); iterator.hasNext();) {
-			Entry<String, Object> entry = iterator.next();
-			Object newObject = entry.getValue();
-			Object oldObject = oldContentValues.get(entry.getKey());
-			if (newObject == null && oldObject == null) {
-				continue;
-			}
-			if (newObject != null && newObject.equals(oldObject)) {
-				continue;
-			} else {
-				return false;
-			}
-		}
+        for (Entry<String, Object> entry : keySet) {
+            Object newObject = entry.getValue();
+            Object oldObject = oldContentValues.get(entry.getKey());
+            if (newObject == null && oldObject == null) {
+                continue;
+            }
+            if (newObject != null && newObject.equals(oldObject)) {
+            } else {
+                return false;
+            }
+        }
 		return true;
 	}
 
@@ -434,9 +432,7 @@ public class DBHelper {
     public static ContentValues duplicateContentValues(ContentValues contentValues) {
         ContentValues values = new ContentValues();
         Set<Entry<String, Object>> entries = contentValues.valueSet();
-        Iterator<Entry<String, Object>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Entry<String,Object> keyValue = iterator.next();
+        for (Entry<String, Object> keyValue : entries) {
             values.put(keyValue.getKey(), String.valueOf(keyValue.getValue()));
         }
         return values;

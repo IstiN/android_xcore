@@ -1,6 +1,5 @@
 package by.istin.android.xcore.gson.external;
 
-import android.content.ContentValues;
 import by.istin.android.xcore.gson.ContentValuesAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;

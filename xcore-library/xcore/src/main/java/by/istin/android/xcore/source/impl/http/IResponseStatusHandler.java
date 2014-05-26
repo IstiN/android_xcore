@@ -11,6 +11,6 @@ import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 
 public interface IResponseStatusHandler {
 	
-	void statusHandle(HttpAndroidDataSource client, HttpUriRequest request, HttpResponse response) throws IOStatusException, ParseException, IOException;
+	void statusHandle(HttpAndroidDataSource client, HttpUriRequest request, HttpResponse response) throws ParseException, IOException;
 	
 }

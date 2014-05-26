@@ -22,7 +22,7 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
 
     protected void onViewCreated(View view) {
 
-    };
+    }
 
     protected abstract int getViewLayout();
 

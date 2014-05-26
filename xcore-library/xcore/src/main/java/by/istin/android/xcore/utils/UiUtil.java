@@ -190,7 +190,7 @@ public class UiUtil {
      * @return value in px
      */
     private static int textWidth(String str) {
-	    return (int) (str.length() - str.replaceAll(NON_THIN, "").length() / 2);
+	    return str.length() - str.replaceAll(NON_THIN, "").length() / 2;
 	}
 
 	/**

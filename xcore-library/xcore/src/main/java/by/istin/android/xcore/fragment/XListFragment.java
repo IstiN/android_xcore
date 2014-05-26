@@ -63,7 +63,7 @@ public abstract class XListFragment extends AdapterViewFragment
             DataSourceExecuteHelper.IDataSourceListener,
             CursorModelLoader.ILoading {
 
-    public static boolean IS_CHECK_STATUS_LOG_ENABLED = false;
+    public static final boolean IS_CHECK_STATUS_LOG_ENABLED = false;
 
     public static final int LOADER_PRIORITY_SERVICE = 1;
 
@@ -180,7 +180,7 @@ public abstract class XListFragment extends AdapterViewFragment
 		return (int)HashUtils.generateId(((Object) this).getClass(), getArguments());
 	}
 
-    private List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
+    private final List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
 
     public void setOnScrollListViewListener(OnScrollListener scrollListViewListener) {
         onScrollListenerList.add(scrollListViewListener);
@@ -455,7 +455,7 @@ public abstract class XListFragment extends AdapterViewFragment
         if (activity == null) {
             return;
         }
-        IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+        IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
         if (errorHandler != null) {
             errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
         } else {

@@ -25,7 +25,7 @@ public class XCoreHelper {
 		
 	}
 
-	private Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
+	private final Map<String, IAppServiceKey> mAppService = new HashMap<String, IAppServiceKey>();
 
     private List<IFragmentPlugin> mListFragmentPlugins;
 

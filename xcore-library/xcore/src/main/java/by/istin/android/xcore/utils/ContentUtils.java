@@ -18,6 +18,7 @@ import java.util.Set;
 
 import by.istin.android.xcore.provider.ModelContract;
 
+@SuppressWarnings("unchecked")
 public class ContentUtils {
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, Long id, String ... projection) {
@@ -158,5 +159,5 @@ public class ContentUtils {
             matrixCursor.addRow(objects);
         }
         return matrixCursor;
-    };
+    }
 }

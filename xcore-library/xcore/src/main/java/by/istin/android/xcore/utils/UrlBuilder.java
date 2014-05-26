@@ -19,23 +19,23 @@ public class UrlBuilder {
             this.autoEncode = autoEncode;
         }
 
-        private String param;
+        private final String param;
 
-        private String value;
+        private final String value;
 
         private boolean autoEncode = true;
 
     }
 
-    private volatile Object mLock = new Object();
+    private final Object mLock = new Object();
 
-    private StringBuffer mUrlStringBuilder;
+    private final StringBuffer mUrlStringBuilder;
 
     private String mPath;
 
-    private List<ParamValue> mListParams = new ArrayList<ParamValue>();
+    private final List<ParamValue> mListParams = new ArrayList<ParamValue>();
 
-    private List<ParamValue> mListParamsUnknown = new ArrayList<ParamValue>();
+    private final List<ParamValue> mListParamsUnknown = new ArrayList<ParamValue>();
 
     private UrlBuilder(String path) {
         mPath = path;
@@ -126,13 +126,13 @@ public class UrlBuilder {
                 int i = 0;
                 for (ParamValue paramValue : mListParams) {
                     appendPrefix();
-                    mUrlStringBuilder.append(paramValue.param + "=%s");
+                    mUrlStringBuilder.append(paramValue.param).append("=%s");
                     argsKnown[i] = (paramValue.autoEncode ? StringUtil.encode(paramValue.value) : paramValue.value);
                     i++;
                 }
                 for (ParamValue paramValue : mListParamsUnknown) {
                     appendPrefix();
-                    mUrlStringBuilder.append(paramValue.param + "=%s");
+                    mUrlStringBuilder.append(paramValue.param).append("=%s");
                 }
                 resultArgs = join(argsKnown, args);
             }

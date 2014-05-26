@@ -23,7 +23,7 @@ public class ArrayAdapter<T> extends TypeAdapter<List<T>> {
 
     private final ContentValuesAdapter contentValuesAdapter;
 
-    private Class<T> adapterclass;
+    private final Class<T> adapterclass;
 
 
     public ArrayAdapter(Class<T> adapterclass, ContentValuesAdapter contentValuesAdapter) {

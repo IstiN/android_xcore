@@ -16,7 +16,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.error.ErrorHandler;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -31,11 +30,11 @@ import by.istin.android.xcore.utils.Log;
  */
 public class SyncDataSourceService extends DataSourceService {
 
-    private static Object sDbLockFlag = new Object();
+    private static final Object sDbLockFlag = new Object();
 
-    private static ExecutorService sSingleExecutor = Executors.newSingleThreadExecutor();
+    private static final ExecutorService sSingleExecutor = Executors.newSingleThreadExecutor();
 
-    private static Handler sHandler = new Handler(Looper.getMainLooper());
+    private static final Handler sHandler = new Handler(Looper.getMainLooper());
 
     public static void execute(final Context context, final DataSourceRequest dataSourceRequest, final String processorKey, final String datasourceKey) {
         SyncHelper.get(context).addSyncAccount();
@@ -55,7 +54,7 @@ public class SyncDataSourceService extends DataSourceService {
             @Override
             public void onStart(Bundle resultData) {
                 if (resultReceiver != null) {
-                    ((StatusResultReceiver)resultReceiver).onStart(resultData);
+                    resultReceiver.onStart(resultData);
                 }
             }
 
@@ -63,7 +62,7 @@ public class SyncDataSourceService extends DataSourceService {
             protected void onCached(Bundle resultData) {
                 super.onCached(resultData);
                 if (resultReceiver != null) {
-                    ((StatusResultReceiver)resultReceiver).onCached(resultData);
+                    resultReceiver.onCached(resultData);
                 }
                 removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
             }
@@ -71,7 +70,7 @@ public class SyncDataSourceService extends DataSourceService {
             @Override
             public void onDone(Bundle resultData) {
                 if (resultReceiver != null) {
-                    ((StatusResultReceiver)resultReceiver).onDone(resultData);
+                    resultReceiver.onDone(resultData);
                 }
                 removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
             }
@@ -79,9 +78,9 @@ public class SyncDataSourceService extends DataSourceService {
             @Override
             public void onError(Exception exception) {
                 if (resultReceiver != null) {
-                    ((StatusResultReceiver)resultReceiver).onError(exception);
+                    resultReceiver.onError(exception);
                 }
-                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(ContextHolder.getInstance().getContext(), IErrorHandler.SYSTEM_SERVICE_KEY);
+                IErrorHandler errorHandler = AppUtils.get(ContextHolder.getInstance().getContext(), IErrorHandler.SYSTEM_SERVICE_KEY);
                 if (errorHandler.isCanBeReSent(exception)) {
                     Log.xe(context, "save request for resubmit", exception);
                     markSyncEntityAsError(context, dataSourceRequest, datasourceKey, processorKey, exception);

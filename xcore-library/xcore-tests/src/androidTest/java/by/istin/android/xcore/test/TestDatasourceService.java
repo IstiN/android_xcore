@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 
 import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
@@ -27,10 +28,10 @@ import by.istin.android.xcore.test.vk.User;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
 
-public class TestDatasourceService extends ApplicationTestCase<CoreApplication> {
+public class TestDatasourceService extends ApplicationTestCase<Application> {
 
 	public TestDatasourceService() {
-		super(CoreApplication.class);
+		super(Application.class);
 	}
 
 	@Override

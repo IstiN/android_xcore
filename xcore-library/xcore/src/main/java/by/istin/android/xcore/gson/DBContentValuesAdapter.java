@@ -39,7 +39,7 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
 
         private IDBConnection connection;
 
-        private IDBConnector connector;
+        private final IDBConnector connector;
 
         WritableConnectionWrapper(IDBConnector connector, IDBConnection connection) {
             this.connection = connection;

@@ -5,7 +5,7 @@ import android.net.Uri;
 import android.test.ApplicationTestCase;
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.provider.ModelContract;
-import by.istin.android.xcore.test.bo.TestEntity;
+import by.istin.android.xcore.model.BigTestEntity;
 
 public class ModelContractTest extends ApplicationTestCase<Application> {
 
@@ -26,7 +26,7 @@ public class ModelContractTest extends ApplicationTestCase<Application> {
 		Application application = getApplication();
 		assertNotNull(application);
 		ContextHolder.getInstance().setContext(application);
-		final Uri REFRESH_URI = ModelContract.getUri(TestEntity.class);
+		final Uri REFRESH_URI = ModelContract.getUri(BigTestEntity.class);
 		Uri sqlQueryUri = ModelContract.getSQLQueryUri(SELECT_FROM_TABLE, REFRESH_URI);
 		String sqlParam = ModelContract.getSqlParam(sqlQueryUri);
 		assertEquals(sqlParam, SELECT_FROM_TABLE);
@@ -36,7 +36,7 @@ public class ModelContractTest extends ApplicationTestCase<Application> {
 		Application application = getApplication();
 		assertNotNull(application);
 		ContextHolder.getInstance().setContext(application);
-		final Uri REFRESH_URI = ModelContract.getUri(TestEntity.class);
+		final Uri REFRESH_URI = ModelContract.getUri(BigTestEntity.class);
 		Uri sqlQueryUri = ModelContract.getSQLQueryUri(SELECT_FROM_TABLE, REFRESH_URI);
 		final Uri resultUri = new ModelContract.UriBuilder(sqlQueryUri).notNotifyChanges().build();
 		String sqlParam = ModelContract.getSqlParam(resultUri);

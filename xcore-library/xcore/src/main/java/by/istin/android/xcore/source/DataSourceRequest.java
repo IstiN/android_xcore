@@ -131,7 +131,7 @@ public class DataSourceRequest {
 	}
 	
 	public String toUriParams() {
-		StringBuffer buffer = new StringBuffer();
+		StringBuilder buffer = new StringBuilder();
 		Set<String> keySet = mBundle.keySet();
         List<String> sortedKeys = new ArrayList<String>();
         sortedKeys.addAll(keySet);
@@ -229,7 +229,7 @@ public class DataSourceRequest {
             private DataSourceRequest dataSourceRequest;
         }
 
-        private List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
+        private final List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
 
         private String dataSourceKey;
 
@@ -296,6 +296,6 @@ public class DataSourceRequest {
 
             }
             return dataSourceRequests.get(0).dataSourceRequest;
-        };
+        }
     }
 }

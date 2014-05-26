@@ -15,7 +15,7 @@ import by.istin.android.xcore.utils.CursorUtils;
  */
 class SQLiteConnection implements IDBConnection {
 
-    private SQLiteDatabase mDatabase;
+    private final SQLiteDatabase mDatabase;
 
     SQLiteConnection(SQLiteDatabase database) {
         mDatabase = database;

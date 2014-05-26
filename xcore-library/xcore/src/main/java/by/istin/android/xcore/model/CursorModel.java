@@ -46,13 +46,13 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     private Cursor mCursor;
 
-    private Set<ContentObserver> mContentObservers = Collections.synchronizedSet(new HashSet<ContentObserver>());
+    private final Set<ContentObserver> mContentObservers = Collections.synchronizedSet(new HashSet<ContentObserver>());
 
-    private Set<Cursor> mCursors = Collections.synchronizedSet(new HashSet<Cursor>());
+    private final Set<Cursor> mCursors = Collections.synchronizedSet(new HashSet<Cursor>());
 
-    private Set<DataSetObserver> mDataSetObservers = Collections.synchronizedSet(new HashSet<DataSetObserver>());
+    private final Set<DataSetObserver> mDataSetObservers = Collections.synchronizedSet(new HashSet<DataSetObserver>());
 
-    private volatile Object mLock = new Object();
+    private final Object mLock = new Object();
 
     public CursorModel(Cursor cursor) {
         this(cursor, true);

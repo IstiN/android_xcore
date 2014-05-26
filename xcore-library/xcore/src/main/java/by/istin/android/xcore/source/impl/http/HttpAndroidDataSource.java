@@ -78,7 +78,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	/* Constant Tag for logging. */
 	private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
 
-	protected static String sUserAgent;
+	protected static final String sUserAgent;
 
 	public static class DefaultHttpRequestBuilder implements IHttpRequestBuilder {
 
@@ -135,8 +135,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		}
 
         protected HttpRequestBase createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpDelete httpDelete = new HttpDelete(url);
-            return httpDelete;
+            return new HttpDelete(url);
         }
 
         protected HttpRequestBase createPutRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
@@ -152,23 +151,21 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
 
         protected HttpRequestBase creteGetRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpGet httpGet = new HttpGet(url);
-            return httpGet;
+            return new HttpGet(url);
         }
 
         private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
 			Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
-			for (Iterator<String> iterator = queryParameterNames.iterator(); iterator.hasNext();) {
-				String paramName = (String) iterator.next();
-				if (paramName.equals(TYPE))
-					continue;
-				String queryParameter = uri.getQueryParameter(paramName);
-				if (Build.VERSION.SDK_INT < 16 && queryParameter != null) {
-					queryParameter = queryParameter.replace(PLUS, SPACE);
-				}
-				nameValuePairs.add(new BasicNameValuePair(paramName, queryParameter));
-			}
+            for (String paramName : queryParameterNames) {
+                if (paramName.equals(TYPE))
+                    continue;
+                String queryParameter = uri.getQueryParameter(paramName);
+                if (Build.VERSION.SDK_INT < 16 && queryParameter != null) {
+                    queryParameter = queryParameter.replace(PLUS, SPACE);
+                }
+                nameValuePairs.add(new BasicNameValuePair(paramName, queryParameter));
+            }
 			try {
 				postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, UTF_8));
 			} catch (UnsupportedEncodingException e) {
@@ -181,7 +178,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws IOStatusException, ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
@@ -200,11 +197,11 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	}
 
 	/* Apache client. */
-	private HttpClient mClient;
+	private final HttpClient mClient;
 
-	private IHttpRequestBuilder mRequestBuilder;
+	private final IHttpRequestBuilder mRequestBuilder;
 
-	private IResponseStatusHandler mResponseStatusHandler;
+	private final IResponseStatusHandler mResponseStatusHandler;
 
 	public HttpAndroidDataSource() {
 		this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());

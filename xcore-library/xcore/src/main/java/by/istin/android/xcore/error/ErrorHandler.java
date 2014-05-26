@@ -35,7 +35,7 @@ public class ErrorHandler implements IErrorHandler {
         return AppUtils.get(context, SYSTEM_SERVICE_KEY);
     }
 
-    private String mDeveloperErrorMessage;
+    private final String mDeveloperErrorMessage;
 
     private class ErrorInfo {
 
@@ -59,17 +59,17 @@ public class ErrorHandler implements IErrorHandler {
         }
     }
 
-    private String mInternetErrorMessage;
+    private final String mInternetErrorMessage;
 
-    private String mServiceUnavailableMessage;
+    private final String mServiceUnavailableMessage;
 
-    private String mErrorDialogTitle;
+    private final String mErrorDialogTitle;
 
-    private String mDeveloperEmail;
+    private final String mDeveloperEmail;
 
-    private Map<ErrorType, Set<ErrorInfo>> mErrorTypeMap = Collections.synchronizedMap(new HashMap<ErrorType, Set<ErrorInfo>>());
+    private final Map<ErrorType, Set<ErrorInfo>> mErrorTypeMap = Collections.synchronizedMap(new HashMap<ErrorType, Set<ErrorInfo>>());
 
-    private Map<ErrorType, Boolean> mErrorTypeDialog = Collections.synchronizedMap(new HashMap<ErrorType, Boolean>());
+    private final Map<ErrorType, Boolean> mErrorTypeDialog = Collections.synchronizedMap(new HashMap<ErrorType, Boolean>());
 
     @Override
     public String getAppServiceKey() {
@@ -127,7 +127,6 @@ public class ErrorHandler implements IErrorHandler {
                     return;
                 case DEVELOPER_ERROR:
                     onDeveloperError(activity, dataSourceRequest, exception, type, mDeveloperErrorMessage, clearRunnable);
-                    return;
             }
         }
     }
@@ -202,10 +201,10 @@ public class ErrorHandler implements IErrorHandler {
         builder.append(body);
         builder.append("\n================================");
         if (dataSourceRequest != null) {
-            builder.append("\nUri:" + dataSourceRequest.getUri());
-            builder.append("\nCacheExpiration:" + dataSourceRequest.getCacheExpiration());
-            builder.append("\nRequestParentUri:" + dataSourceRequest.getRequestParentUri());
-            builder.append("\nUriParams:" + dataSourceRequest.toUriParams());
+            builder.append("\nUri:").append(dataSourceRequest.getUri());
+            builder.append("\nCacheExpiration:").append(dataSourceRequest.getCacheExpiration());
+            builder.append("\nRequestParentUri:").append(dataSourceRequest.getRequestParentUri());
+            builder.append("\nUriParams:").append(dataSourceRequest.toUriParams());
         }
         return builder;
     }
@@ -255,8 +254,7 @@ public class ErrorHandler implements IErrorHandler {
 
                 printer.println(e);
                 StackTraceElement[] trace = e.getStackTrace();
-                for (int i = 0; i < trace.length; i++)
-                    printer.println("\tat " + trace[i]);
+                for (StackTraceElement aTrace : trace) printer.println("\tat " + aTrace);
 
                 e = e.getCause();
                 if (e != null)

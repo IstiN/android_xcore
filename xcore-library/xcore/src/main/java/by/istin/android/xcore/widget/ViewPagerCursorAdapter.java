@@ -13,9 +13,9 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
 	private Cursor mCursor;
 	
-	private Context mContext;
+	private final Context mContext;
 	
-	private int mResource;
+	private final int mResource;
 	
 	public ViewPagerCursorAdapter(Context ctx, Cursor cursor, int resource) {
 		super();
@@ -59,7 +59,7 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
 	public int getResource(int position) {
 	      return mResource;
-	};
+	}
 	   
 	public abstract void init(View container, Cursor cursor);
 

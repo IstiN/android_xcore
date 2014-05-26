@@ -22,7 +22,7 @@ public class RawDataSource implements IDataSource<InputStream> {
 
     public static final String SYSTEM_SERVICE_KEY = "xcore:rawdatasource";
 
-    private Context mContext;
+    private final Context mContext;
 
     public RawDataSource(Context context) {
         this.mContext = context;

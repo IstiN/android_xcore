@@ -161,8 +161,8 @@ public abstract class AbstractExecutorService extends Service {
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, boolean cacheable, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
-        final IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
-        final IDataSource datasource = (IDataSource) AppUtils.get(context, datasourceKey);
+        final IProcessor processor = AppUtils.get(context, processorKey);
+        final IDataSource datasource = AppUtils.get(context, datasourceKey);
         Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
         if (cacheable) {
             processor.cache(context, dataSourceRequest, result);

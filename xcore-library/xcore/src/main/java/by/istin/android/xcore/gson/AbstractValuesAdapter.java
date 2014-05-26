@@ -30,7 +30,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
     public static final int UNKNOWN_POSITION = -1;
 
 
-    private Class<?> mContentValuesEntityClazz;
+    private final Class<?> mContentValuesEntityClazz;
 
     private List<ReflectUtils.XField> mEntityKeys;
 

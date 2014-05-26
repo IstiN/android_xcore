@@ -6,7 +6,7 @@ import android.os.Binder;
 
 public class ServiceBinder<S> extends Binder {
 
-	private  WeakReference<S> mService;
+	private final WeakReference<S> mService;
     
     public ServiceBinder(S service){
         mService = new WeakReference<S>(service);

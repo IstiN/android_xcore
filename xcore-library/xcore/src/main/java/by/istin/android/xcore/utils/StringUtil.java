@@ -46,9 +46,9 @@ public final class StringUtil {
 	/**
 	 * Html entites as escape values.
 	 */
-	private static HashMap<String, String> htmlEntities;
+	private static final HashMap<String, String> htmlEntities;
 
-	private static HashMap<String, String> russianAlternative;
+	private static final HashMap<String, String> russianAlternative;
 
 	static {
 		htmlEntities = new HashMap<String, String>();
@@ -179,7 +179,7 @@ public final class StringUtil {
 	 *            from start
 	 * @return unscape html value
 	 */
-	public static final String unescapeHTML(String source, int start) {
+	public static String unescapeHTML(String source, int start) {
 		int i, j;
 
 		i = source.indexOf("&", start);
@@ -189,9 +189,7 @@ public final class StringUtil {
 				String entityToLookFor = source.substring(i, j + 1);
 				String value = htmlEntities.get(entityToLookFor);
 				if (value != null) {
-					source = new StringBuffer().append(source.substring(0, i))
-							.append(value).append(source.substring(j + 1))
-							.toString();
+					source = source.substring(0, i) + value + source.substring(j + 1);
 					return unescapeHTML(source, i + 1); // recursive call
 				}
 			}

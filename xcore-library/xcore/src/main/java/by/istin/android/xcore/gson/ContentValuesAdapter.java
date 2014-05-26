@@ -9,9 +9,6 @@ import by.istin.android.xcore.utils.ReflectUtils;
 
 import com.google.gson.*;
 
-import org.json.JSONObject;
-
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 
 public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {

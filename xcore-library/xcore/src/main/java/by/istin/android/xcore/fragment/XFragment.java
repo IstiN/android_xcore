@@ -103,8 +103,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
-        return cursorLoader;
+        return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
 	}
 	
 	@Override
@@ -150,7 +149,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     protected void setViewImage(ImageView v, String text) {
         //TODO plugins
-    };
+    }
 
     protected void setViewText(TextView v, String text) {
         if (StringUtil.isEmpty(text)) {
@@ -209,7 +208,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
                 if (activity == null) {
                     return;
                 }
-                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+                IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
                 if (errorHandler != null) {
                     errorHandler.onError(activity, XFragment.this, dataSourceRequest, exception);
                 } else {

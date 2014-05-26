@@ -4,8 +4,6 @@ import android.database.sqlite.SQLiteStatement;
 import by.istin.android.xcore.annotations.*;
 import by.istin.android.xcore.utils.ReflectUtils;
 
-import java.lang.reflect.Field;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,7 +16,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class DBAssociationCache {
 
-    private static DBAssociationCache INSTANCE = new DBAssociationCache();
+    private static final DBAssociationCache INSTANCE = new DBAssociationCache();
 
     public final static Map<Class<?>, String> TYPE_ASSOCIATION = new ConcurrentHashMap<Class<?>, String>();
 
@@ -32,17 +30,17 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbByteArray.class, "BLOB");
     }
 
-    private Map<Class<?>, List<ReflectUtils.XField>> mDbEntityFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
+    private final Map<Class<?>, List<ReflectUtils.XField>> mDbEntityFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
 
-    private Map<Class<?>, List<ReflectUtils.XField>> mDbEntitiesFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
+    private final Map<Class<?>, List<ReflectUtils.XField>> mDbEntitiesFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
 
-    private ConcurrentHashMap<String, Boolean> mCacheTable = new ConcurrentHashMap<String, Boolean>();
+    private final ConcurrentHashMap<String, Boolean> mCacheTable = new ConcurrentHashMap<String, Boolean>();
 
-    private ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
+    private final ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
 
-    private ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
+    private final ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
 
-    private ConcurrentHashMap<Class<?>, String> mForeignKeys = new ConcurrentHashMap<Class<?>, String>();
+    private final ConcurrentHashMap<Class<?>, String> mForeignKeys = new ConcurrentHashMap<Class<?>, String>();
 
     private DBAssociationCache() {
 

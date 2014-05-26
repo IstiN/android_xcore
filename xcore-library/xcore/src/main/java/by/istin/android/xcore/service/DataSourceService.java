@@ -25,7 +25,7 @@ import java.io.Serializable;
  */
 public class DataSourceService extends AbstractExecutorService {
 
-    private Object mDbLockFlag = new Object();
+    private final Object mDbLockFlag = new Object();
 
     public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey) {
         execute(context, dataSourceRequest, processorKey, datasourceKey, DataSourceService.class);

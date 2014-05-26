@@ -29,11 +29,11 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     private static final int MODELS_ID_NEGOTIVE = 3;
 
-    private Context mContext;
+    private final Context mContext;
 
-    private Class<?>[] mEntities;
+    private final Class<?>[] mEntities;
 
-    private IDBSupport mDbSupport;
+    private final IDBSupport mDbSupport;
 
     public DBContentProviderSupport(Context context, IDBSupport dbSupport, Class<?> ... entities) {
         mContext = context;
@@ -212,8 +212,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         } finally {
             batchOperationConnection.endTransaction();
         }
-        for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
-            Uri uri = iterator.next();
+        for (Uri uri : set) {
             getContext().getContentResolver().notifyChange(Uri.parse(uri.toString().split("\\?")[0]), null);
         }
         return result;
@@ -267,8 +266,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
     public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, List<ContentValues> array) {
         ArrayList<ContentProviderOperation> list = new ArrayList<ContentProviderOperation>();
         if (array != null) {
-            for (int i = 0; i < array.size(); i++) {
-                ContentValues contentValues = array.get(i);
+            for (ContentValues contentValues : array) {
                 Uri uri = ModelContract.getUri(dataSourceRequest, clazz);
                 list.add(ContentProviderOperation.newInsert(uri).withValues(contentValues).build());
             }

@@ -19,7 +19,7 @@ public class CoreApplication extends Application {
 	private XCoreHelper mXCoreHelper;
 
     //KitKat workaround
-    private volatile Object mLock = new Object();
+    private final Object mLock = new Object();
 
 	@Override
 	public void onCreate() {

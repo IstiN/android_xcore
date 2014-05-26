@@ -13,7 +13,7 @@ public interface IErrorHandler extends XCoreHelper.IAppServiceKey {
 
     public static enum ErrorType {
 
-        INTERNET, SERVER_UNAVAILABLE, DEVELOPER_ERROR, UNKNOWN;
+        INTERNET, SERVER_UNAVAILABLE, DEVELOPER_ERROR, UNKNOWN
 
     }
 

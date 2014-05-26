@@ -9,7 +9,7 @@ import java.util.List;
 
 public abstract class XArrayAdapter<T> extends ArrayAdapter<T> {
 
-    private int resource;
+    private final int resource;
 
     public XArrayAdapter(Context context, int resource, T[] objects) {
         super(context, resource, objects);

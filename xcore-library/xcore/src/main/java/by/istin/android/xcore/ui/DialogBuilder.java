@@ -131,8 +131,7 @@ public class DialogBuilder {
 		if (titleResource != null) {
 			builder.setTitle(titleResource);
 		}
-		int items = optionsResource;
-		builder.setItems(items, listener);
+		builder.setItems(optionsResource, listener);
 
 		builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
 			

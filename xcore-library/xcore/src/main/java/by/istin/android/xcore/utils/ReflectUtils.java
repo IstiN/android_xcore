@@ -17,7 +17,7 @@ public class ReflectUtils {
 
     public static class XField {
 
-        private Field mField;
+        private final Field mField;
 
         XField(Field field) {
             mField = field;
@@ -29,15 +29,15 @@ public class ReflectUtils {
 
     }
 
-    private static Map<Class<?>, List<XField>> sFieldsOfClass = new ConcurrentHashMap<Class<?>, List<XField>>();
+    private static final Map<Class<?>, List<XField>> sFieldsOfClass = new ConcurrentHashMap<Class<?>, List<XField>>();
 
-    private static Map<XField, String> sNameOfField = new ConcurrentHashMap<XField, String>();
+    private static final Map<XField, String> sNameOfField = new ConcurrentHashMap<XField, String>();
 
-    private static Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
+    private static final Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
 
-    private static Map<XField, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<XField, Set<Class<? extends Annotation>>>();
+    private static final Map<XField, Set<Class<? extends Annotation>>> sAnnotationsOfField = new ConcurrentHashMap<XField, Set<Class<? extends Annotation>>>();
 
-    private static Map<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
+    private static final Map<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>> sAnnotationsImplOfField = new ConcurrentHashMap<XField, ConcurrentHashMap<Class<? extends Annotation>, Annotation>>();
 
     public static <T extends Annotation> T getAnnotation(XField field, Class<T> annotationClass) {
         ConcurrentHashMap<Class<? extends Annotation>, Annotation> classAnnotationConcurrentHashMap = sAnnotationsImplOfField.get(field);
@@ -103,8 +103,6 @@ public class ReflectUtils {
             field.mField.setAccessible(false);
             sNameOfField.put(field, fieldValue);
 			return fieldValue;
-		} catch (IllegalArgumentException e) {
-			throw e;
 		} catch (IllegalAccessException e) {
 			//ignored
 			return null;

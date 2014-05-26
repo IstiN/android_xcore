@@ -15,11 +15,11 @@ import java.io.InputStreamReader;
 
 public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
-	private Class<?> clazz;
+	private final Class<?> clazz;
 	
-	private Class<? extends Result> resultClassName;
+	private final Class<? extends Result> resultClassName;
 	
-	private Gson gson;
+	private final Gson gson;
 	
 	private ContentValuesAdapter contentValuesAdapter;
 
@@ -59,7 +59,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 	}
 	
 	protected Result process(Gson gson, BufferedReader bufferedReader) {
-		return (Result) getGson().fromJson(bufferedReader, resultClassName);
+		return getGson().fromJson(bufferedReader, resultClassName);
 	}
 	
 

@@ -22,9 +22,9 @@ public class CursorModelLoader extends CursorLoader {
 
     }
 
-    private ILoading mLoading;
+    private final ILoading mLoading;
 
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     /* Runs on a worker thread */
     @Override

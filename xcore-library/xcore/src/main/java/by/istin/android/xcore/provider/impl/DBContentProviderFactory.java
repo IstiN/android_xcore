@@ -34,9 +34,9 @@ public class DBContentProviderFactory {
         //in future add more db types
     }
 
-    private volatile Object mLock = new Object();
+    private final Object mLock = new Object();
 
-    private Map<Type, IDBContentProviderSupport> mProviders = new HashMap<Type, IDBContentProviderSupport>();
+    private final Map<Type, IDBContentProviderSupport> mProviders = new HashMap<Type, IDBContentProviderSupport>();
 
     public IDBContentProviderSupport getDbContentProvider(Context context, Type type, Class<?> ... entities) {
         synchronized (mLock) {

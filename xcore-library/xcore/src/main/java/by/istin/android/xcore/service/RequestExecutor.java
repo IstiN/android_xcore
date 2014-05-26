@@ -21,11 +21,11 @@ public class RequestExecutor {
      * Gets the number of available cores
      * (not always the same as the maximum number of cores)
      */
-    private static int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
+    private static final int NUMBER_OF_CORES = Runtime.getRuntime().availableProcessors();
 
-    public static int DEFAULT_POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
+    public static final int DEFAULT_POOL_SIZE = Math.max(NUMBER_OF_CORES, 3);
 
-    public static boolean IS_LOG_ENABLED = false;
+    public static final boolean IS_LOG_ENABLED = false;
 
     public static abstract class ExecuteRunnable implements Runnable {
 
@@ -34,15 +34,15 @@ public class RequestExecutor {
             private Bundle mBundle;
         }
 
-		private String mKey;
+		private final String mKey;
 
-        private List<ResultReceiver> mResultReceivers = new CopyOnWriteArrayList<ResultReceiver>();
+        private final List<ResultReceiver> mResultReceivers = new CopyOnWriteArrayList<ResultReceiver>();
 
         private boolean isRunning = false;
 
-        private List<StatusBundle> mPrevStatuses = Collections.synchronizedList(new ArrayList<StatusBundle>());
+        private final List<StatusBundle> mPrevStatuses = Collections.synchronizedList(new ArrayList<StatusBundle>());
 
-        private volatile Object mPrevStatusLock = new Object();
+        private final Object mPrevStatusLock = new Object();
 
 		public ExecuteRunnable(ResultReceiver resultReceiver) {
 			super();
@@ -93,8 +93,7 @@ public class RequestExecutor {
         public void sendStatus(StatusResultReceiver.Status status, Bundle bundle) {
             synchronized (mPrevStatusLock) {
                 if (mResultReceivers != null) {
-                    for (int i = 0; i < mResultReceivers.size(); i++) {
-                        ResultReceiver resultReceiver = mResultReceivers.get(i);
+                    for (ResultReceiver resultReceiver : mResultReceivers) {
                         resultReceiver.send(status.ordinal(), bundle);
                     }
                 }
@@ -110,13 +109,13 @@ public class RequestExecutor {
 
     private ExecutorService mExecutor;
 
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
 
-    private List<ExecuteRunnable> queue = Collections.synchronizedList(new ArrayList<ExecuteRunnable>());
+    private final List<ExecuteRunnable> queue = Collections.synchronizedList(new ArrayList<ExecuteRunnable>());
 
-    private int mThreadPoolSize;
+    private final int mThreadPoolSize;
 
-    private BlockingQueue<Runnable> mWorkQueue;
+    private final BlockingQueue<Runnable> mWorkQueue;
 
 	public RequestExecutor(int threadPoolSize, BlockingQueue<Runnable> workQueue) {
         mThreadPoolSize = threadPoolSize;

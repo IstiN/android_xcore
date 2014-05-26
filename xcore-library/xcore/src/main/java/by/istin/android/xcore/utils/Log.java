@@ -155,7 +155,7 @@ public class Log {
 		}
 	}
 	
-	private static ConcurrentHashMap<String, Long> sActionStorage = new ConcurrentHashMap<String, Long>();
+	private static final ConcurrentHashMap<String, Long> sActionStorage = new ConcurrentHashMap<String, Long>();
 
     public static synchronized void startAction(String actionName) {
         startAction(actionName, true);
