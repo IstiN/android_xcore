@@ -2,10 +2,10 @@
 <merger>
 
     <dataSet config="main" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\src\main\assets" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\src\main\assets" />
     </dataSet>
     <dataSet config="release" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\src\release\assets" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\src\release\assets" />
     </dataSet>
 
 </merger>

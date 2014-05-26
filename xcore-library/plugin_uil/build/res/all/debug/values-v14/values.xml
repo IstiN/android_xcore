@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_uil/build/exploded-aar/xcore-library/xcore/unspecified/res/values-v14/values.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_uil/build/exploded-aar/xcore-library/xcore/unspecified/res/values-v14/values.xml -->
     <eat-comment />
 
     <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">

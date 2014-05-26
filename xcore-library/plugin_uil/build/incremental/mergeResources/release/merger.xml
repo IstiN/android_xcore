@@ -2,29 +2,29 @@
 <merger>
 
     <dataSet config="unspecified" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res" >
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res" >
             <file
                 name="ic_launcher"
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-hdpi\ic_launcher.png"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-hdpi\ic_launcher.png"
                 qualifiers="hdpi"
                 type="drawable" />
             <file
                 name="ic_launcher"
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-mdpi\ic_launcher.png"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-mdpi\ic_launcher.png"
                 qualifiers="mdpi"
                 type="drawable" />
             <file
                 name="ic_launcher"
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-xhdpi\ic_launcher.png"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-xhdpi\ic_launcher.png"
                 qualifiers="xhdpi"
                 type="drawable" />
             <file
                 name="ic_launcher"
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-xxhdpi\ic_launcher.png"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\drawable-xxhdpi\ic_launcher.png"
                 qualifiers="xxhdpi"
                 type="drawable" />
             <file
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values\values.xml"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values\values.xml"
                 qualifiers="" >
 
                 <style
@@ -49,7 +49,7 @@
                 </style>
             </file>
             <file
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values-v11\values.xml"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values-v11\values.xml"
                 qualifiers="v11" >
 
                 <style
@@ -60,7 +60,7 @@
                 </style>
             </file>
             <file
-                path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values-v14\values.xml"
+                path="D:\work\repos\xcore\xcore-library\plugin_uil\build\exploded-aar\xcore-library\xcore\unspecified\res\values-v14\values.xml"
                 qualifiers="v14" >
 
                 <style
@@ -73,12 +73,12 @@
         </source>
     </dataSet>
     <dataSet config="main" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\src\main\res" />
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\res\rs\release" />
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\build\res\generated\release" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\src\main\res" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\build\res\rs\release" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\build\res\generated\release" />
     </dataSet>
     <dataSet config="release" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_uil\src\release\res" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_uil\src\release\res" />
     </dataSet>
 
 </merger>

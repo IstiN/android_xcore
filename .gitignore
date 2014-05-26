@@ -72,3 +72,8 @@ xcore-library/xcore/.idea/
 xcore-library/.gradle/
 xcore-library/xcore/build/
 xcore-library/xcore-tests/build/
+xcore-library/plugin_ab_pull_to_refresh/build/bundles/debug/AndroidManifest.xml
+xcore-library/plugin_ab_pull_to_refresh/build/
+xcore-library/plugin_uil/build/res/all/release/values/values.xml
+xcore-library/plugin_pull_to_refresh/build/
+xcore-library/plugin_uil/build/

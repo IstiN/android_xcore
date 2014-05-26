@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/values/values.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/values/values.xml -->
     <eat-comment />
 
     <declare-styleable name="PullToRefresh">
@@ -89,11 +89,11 @@
     <item name="gridview" type="id"/>
     <item name="scrollview" type="id"/>
     <item name="webview" type="id"/>
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library/xcore/unspecified/res/values/values.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library/xcore/unspecified/res/values/values.xml -->
     <eat-comment />
 
     <string name="app_name">xcore</string>
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/values/values.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library.plugin_pull_to_refresh.pull_to_refresh/library/unspecified/res/values/values.xml -->
     <eat-comment />
 
     <string name="pull_to_refresh_from_bottom_pull_label">@string/pull_to_refresh_pull_label</string>
@@ -102,7 +102,7 @@
     <string name="pull_to_refresh_pull_label">Pull to refresh…</string>
     <string name="pull_to_refresh_refreshing_label">Loading…</string>
     <string name="pull_to_refresh_release_label">Release to refresh…</string>
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library/xcore/unspecified/res/values/values.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_pull_to_refresh/build/exploded-aar/xcore-library/xcore/unspecified/res/values/values.xml -->
     <eat-comment />
 
     <style name="AppBaseTheme" parent="android:Theme.Light">

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/D:/work/repos/oreader/module_android_xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/res/values-pl/pull_refresh_strings.xml -->
+    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_pull_to_refresh/pull_to_refresh/library/src/main/res/values-pl/pull_refresh_strings.xml -->
     <eat-comment />
 
     <string name="pull_to_refresh_pull_label">Pociągnij, aby odświeżyć…</string>

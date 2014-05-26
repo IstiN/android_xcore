@@ -2,10 +2,10 @@
 <merger>
 
     <dataSet config="main" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_ab_pull_to_refresh\src\main\assets" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_ab_pull_to_refresh\src\main\assets" />
     </dataSet>
     <dataSet config="debug" >
-        <source path="D:\work\repos\oreader\module_android_xcore\xcore-library\plugin_ab_pull_to_refresh\src\debug\assets" />
+        <source path="D:\work\repos\xcore\xcore-library\plugin_ab_pull_to_refresh\src\debug\assets" />
     </dataSet>
 
 </merger>
