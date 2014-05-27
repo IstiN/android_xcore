@@ -22,4 +22,4 @@
         app:divider="?attr/actionBarDivider"
         app:dividerPadding="12dip"
         android:gravity="center_vertical"/>
-<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/klp-ub-dev/frameworks/support/v7/appcompat/res/layout/abc_action_menu_layout.xml --><!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_ab_pull_to_refresh/build/exploded-aar/com.android.support/appcompat-v7/19.1.0/res/layout/abc_action_menu_layout.xml -->
+<!-- From: file:/usr/local/google/buildbot/repo_clients/https___googleplex-android.googlesource.com_a_platform_manifest.git/klp-ub-dev/frameworks/support/v7/appcompat/res/layout/abc_action_menu_layout.xml --><!-- From: file:/D:/work/projects/android_xcore/xcore-library/plugin_ab_pull_to_refresh/build/exploded-aar/com.android.support/appcompat-v7/19.1.0/res/layout/abc_action_menu_layout.xml -->

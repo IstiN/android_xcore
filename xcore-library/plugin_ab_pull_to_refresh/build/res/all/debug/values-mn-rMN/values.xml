@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- From: file:/D:/work/repos/xcore/xcore-library/plugin_ab_pull_to_refresh/build/exploded-aar/com.android.support/appcompat-v7/19.1.0/res/values-mn-rMN/values.xml -->
+    <!-- From: file:/D:/work/projects/android_xcore/xcore-library/plugin_ab_pull_to_refresh/build/exploded-aar/com.android.support/appcompat-v7/19.1.0/res/values-mn-rMN/values.xml -->
     <eat-comment />
 
     <string name="abc_action_bar_home_description" msgid="4600421777120114993">"Нүүр хуудас руу шилжих"</string>
