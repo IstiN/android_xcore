@@ -64,7 +64,7 @@ public class SyncDataSourceService extends DataSourceService {
                 if (resultReceiver != null) {
                     resultReceiver.onCached(resultData);
                 }
-                removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
+                removeSyncEntity(context, dataSourceRequest);
             }
 
             @Override
@@ -72,7 +72,7 @@ public class SyncDataSourceService extends DataSourceService {
                 if (resultReceiver != null) {
                     resultReceiver.onDone(resultData);
                 }
-                removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
+                removeSyncEntity(context, dataSourceRequest);
             }
 
             @Override
@@ -86,7 +86,7 @@ public class SyncDataSourceService extends DataSourceService {
                     markSyncEntityAsError(context, dataSourceRequest, datasourceKey, processorKey, exception);
                 } else {
                     Log.xe(context, "error", exception);
-                    removeSyncEntity(context, dataSourceRequest, datasourceKey, processorKey);
+                    removeSyncEntity(context, dataSourceRequest);
                 }
             }
         };
@@ -94,8 +94,6 @@ public class SyncDataSourceService extends DataSourceService {
 
     @Override
     protected void run(RequestExecutor.ExecuteRunnable runnable, final Intent intent, final DataSourceRequest dataSourceRequest, final Bundle bundle, final ResultReceiver resultReceiver) {
-        final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
-        final String datasourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
         synchronized (sDbLockFlag) {
             super.run(runnable, intent, dataSourceRequest, bundle, resultReceiver);
         }
@@ -116,16 +114,12 @@ public class SyncDataSourceService extends DataSourceService {
         });
     }
 
-    private static void removeSyncEntity(final Context context, final DataSourceRequest dataSourceRequest, final String datasourceKey, final String processorKey) {
+    private static void removeSyncEntity(final Context context, final DataSourceRequest dataSourceRequest) {
         sSingleExecutor.execute(new Runnable() {
             @Override
             public void run() {
                 synchronized (sDbLockFlag) {
-                    ContentValues contentValues = SyncDataSourceRequestEntity.prepare(dataSourceRequest);
-                    Long requestId = contentValues.getAsLong(SyncDataSourceRequestEntity.ID);
-                    contentValues.put(SyncDataSourceRequestEntity.DATASOURCE_KEY, datasourceKey);
-                    contentValues.put(SyncDataSourceRequestEntity.PROCESSOR_KEY, processorKey);
-                    context.getContentResolver().delete(ModelContract.getUri(SyncDataSourceRequestEntity.class, requestId), null, null);
+                    context.getContentResolver().delete(ModelContract.getUri(SyncDataSourceRequestEntity.class, SyncDataSourceRequestEntity.generateId(dataSourceRequest)), null, null);
                 }
             }
         });

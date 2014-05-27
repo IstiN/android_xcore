@@ -3,11 +3,9 @@
  */
 package by.istin.android.xcore.service;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
@@ -15,9 +13,8 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.StringUtil;
-
-import java.io.Serializable;
 
 /**
  * @author IstiN
@@ -27,16 +24,16 @@ public class DataSourceService extends AbstractExecutorService {
 
     private final Object mDbLockFlag = new Object();
 
-    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey) {
-        execute(context, dataSourceRequest, processorKey, datasourceKey, DataSourceService.class);
+    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+        execute(context, dataSourceRequest, processorKey, dataSourceKey, DataSourceService.class);
     }
 
-    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
-        execute(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver, DataSourceService.class);
+    public static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver) {
+        execute(context, dataSourceRequest, processorKey, dataSourceKey, resultReceiver, DataSourceService.class);
     }
 
-    public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver) {
-        return createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver, DataSourceService.class);
+    public static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver) {
+        return createStartIntent(context, dataSourceRequest, processorKey, dataSourceKey, resultReceiver, DataSourceService.class);
     }
 
     @Override
@@ -44,35 +41,22 @@ public class DataSourceService extends AbstractExecutorService {
         runnable.sendStatus(StatusResultReceiver.Status.START, bundle);
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-        ContentValues contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
-        Long requestId = contentValues.getAsLong(DataSourceRequestEntity.ID);
         boolean isAlreadyCached = false;
+        Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
             if (isCacheable && !isForceUpdateData) {
-                Cursor cursor = getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null, null, null);
-                try {
-                    if (cursor == null || !cursor.moveToFirst()) {
-                        getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);
-                    } else {
-                        ContentValues storedRequest = new ContentValues();
-                        DatabaseUtils.cursorRowToContentValues(cursor, storedRequest);
-                        Long lastUpdate = storedRequest.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
-                        if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
-                            isAlreadyCached = true;
-                        } else {
-                            contentValues = DataSourceRequestEntity.prepare(dataSourceRequest);
-                            getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), contentValues);
-                        }
-                    }
-                } finally {
-                    CursorUtils.close(cursor);
-                }
+                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
+                requestIdHolder.set(requestId);
+                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId);
             }
             if (!isAlreadyCached) {
-                String requestParentUri = dataSourceRequest.getRequestParentUri();
-                if (!StringUtil.isEmpty(requestParentUri)) {
+                //String requestParentUri = dataSourceRequest.getRequestParentUri();
+                //TODO something wrong, idea was check current request uri
+                /*if (!StringUtil.isEmpty(requestParentUri)) {
                     getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{requestParentUri});
-                }
+                }*/
+                //is it right?
+                getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
             }
         }
         if (isAlreadyCached) {
@@ -89,15 +73,13 @@ public class DataSourceService extends AbstractExecutorService {
                 runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
             }
         } catch (Exception e) {
-            synchronized (mDbLockFlag) {
-                getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestId), null, null);
+            if (!requestIdHolder.isNull()) {
+                synchronized (mDbLockFlag) {
+                    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
+                }
             }
             try {
-                if (e instanceof Serializable) {
-                    bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
-                } else {
-                    bundle.putSerializable(StatusResultReceiver.ERROR_KEY, new Exception(e.getMessage()));
-                }
+                bundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
                 runnable.sendStatus(StatusResultReceiver.Status.ERROR, bundle);
             } catch (RuntimeException e1) {
                 bundle.remove(StatusResultReceiver.ERROR_KEY);

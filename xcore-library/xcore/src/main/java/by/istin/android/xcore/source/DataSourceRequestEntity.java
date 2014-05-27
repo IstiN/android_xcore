@@ -29,7 +29,7 @@ public class DataSourceRequestEntity implements BaseColumns {
 
 	public static ContentValues prepare(DataSourceRequest dataSourceRequest) {
 		ContentValues contentValues = new ContentValues();
-		contentValues.put(ID, HashUtils.generateId(dataSourceRequest.getUri()));
+		contentValues.put(ID, generateId(dataSourceRequest));
 		contentValues.put(LAST_UPDATE, System.currentTimeMillis());
 		contentValues.put(EXPIRATION, dataSourceRequest.getCacheExpiration());
 		contentValues.put(URI, dataSourceRequest.getUri());
@@ -37,5 +37,9 @@ public class DataSourceRequestEntity implements BaseColumns {
 		contentValues.put(PARENT_URI, dataSourceRequest.getRequestParentUri());
 		return contentValues;
 	}
-	
+
+    public static long generateId(DataSourceRequest dataSourceRequest) {
+        return HashUtils.generateId(dataSourceRequest.getUri());
+    }
+
 }
