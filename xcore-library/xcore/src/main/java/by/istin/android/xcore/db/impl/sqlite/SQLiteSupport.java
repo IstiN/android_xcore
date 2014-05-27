@@ -17,10 +17,12 @@ public class SQLiteSupport extends AbstractDBSupport {
 
     @Override
     public IDBConnector createConnector(Context context) {
-        synchronized (sLock) {
-            //we need be sure, that have only one sqlite connector
-            if (sDbConnector == null) {
-                sDbConnector = new SQLiteConnector(context);
+        if (sDbConnector == null) {
+            synchronized (sLock) {
+                //we need be sure, that have only one sqlite connector
+                if (sDbConnector == null) {
+                    sDbConnector = new SQLiteConnector(context);
+                }
             }
         }
         return sDbConnector;

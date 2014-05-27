@@ -10,7 +10,6 @@ import android.provider.BaseColumns;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -348,17 +347,17 @@ public class DBHelper {
 			} catch (ClassNotFoundException e1) {
 				throw new IllegalArgumentException(e1);
 			}
-			if (annotation.annotationType().equals(dbEntity.class)) {
-				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
+            if (annotation.annotationType().equals(dbEntity.class)) {
+                ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
                 putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
                 updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
-			} else {
-				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
+            } else {
+                ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
                 for (ContentValues cv : entitiesValues) {
                     putForeignIdAndClear(id, contentValuesKey, foreignId, cv);
                 }
                 updateOrInsert(dataSourceRequest, modelClass, db, entitiesValues);
-			}
+            }
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
 		}

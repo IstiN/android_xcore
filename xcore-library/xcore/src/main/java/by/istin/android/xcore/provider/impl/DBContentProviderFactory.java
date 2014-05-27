@@ -1,11 +1,12 @@
 package by.istin.android.xcore.provider.impl;
 
 import android.content.Context;
-import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
-import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,6 +40,9 @@ public class DBContentProviderFactory {
     private final Map<Type, IDBContentProviderSupport> mProviders = new HashMap<Type, IDBContentProviderSupport>();
 
     public IDBContentProviderSupport getDbContentProvider(Context context, Type type, Class<?> ... entities) {
+        if (mProviders.containsKey(type)) {
+            return mProviders.get(type);
+        }
         synchronized (mLock) {
             if (mProviders.containsKey(type)) {
                 return mProviders.get(type);

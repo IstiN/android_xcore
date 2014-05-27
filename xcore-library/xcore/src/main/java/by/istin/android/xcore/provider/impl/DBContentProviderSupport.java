@@ -1,18 +1,29 @@
 package by.istin.android.xcore.provider.impl;
 
-import android.content.*;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
 import by.istin.android.xcore.db.operation.IDBInsertOrUpdateOperationSupport;
-import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
-
-import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -143,8 +154,8 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        String className = null;
-        List<String> pathSegments = null;
+        String className;
+        List<String> pathSegments;
         switch (sUriMatcher.match(uri)) {
             case MODELS:
                 className = uri.getLastPathSegment();
@@ -175,10 +186,10 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
             if (c != null) {
                 c.getCount();
                 c.moveToFirst();
-            }
-            Uri observerUri = ModelContract.getObserverUri(uri);
-            if (observerUri != null) {
-                c.setNotificationUri(getContext().getContentResolver(), observerUri);
+                Uri observerUri = ModelContract.getObserverUri(uri);
+                if (observerUri != null) {
+                    c.setNotificationUri(getContext().getContentResolver(), observerUri);
+                }
             }
             return c;
         } else {
