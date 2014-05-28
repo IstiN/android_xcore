@@ -5,6 +5,8 @@ import java.security.NoSuchAlgorithmException;
 
 public class HashUtils {
 
+    private static final Object sLock = new Object();
+
     private static MessageDigest md;
 
     static {
@@ -25,11 +27,15 @@ public class HashUtils {
         for (Object s : value) {
             builder.append(String.valueOf(s));
         }
-        //convert the string value to a byte array and pass it into the hash algorithm
-        md.update(builder.toString().getBytes());
+        byte[] hashValBytes;
+        synchronized (sLock) {
+            md.reset();
+            //convert the string value to a byte array and pass it into the hash algorithm
+            md.update(builder.toString().getBytes());
 
-        //retrieve a byte array containing the digest
-        byte[] hashValBytes = md.digest();
+            //retrieve a byte array containing the digest
+            hashValBytes = md.digest();
+        }
 
         long hashValLong = 0;
 
