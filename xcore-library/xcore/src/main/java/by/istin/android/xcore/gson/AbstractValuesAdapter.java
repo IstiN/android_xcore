@@ -34,12 +34,15 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     private List<ReflectUtils.XField> mEntityKeys;
 
+    private JsonEntityConverter mJsonEntityConverterAnnotation;
+
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
     }
 
     public AbstractValuesAdapter(Class<?> contentValuesEntityClazz) {
         this.mContentValuesEntityClazz = contentValuesEntityClazz;
+        this.mJsonEntityConverterAnnotation = mContentValuesEntityClazz.getAnnotation(JsonEntityConverter.class);
     }
 
     @Override
@@ -140,11 +143,10 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
     }
 
     private boolean isCustomConverter(ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
-        JsonEntityConverter annotation = mContentValuesEntityClazz.getAnnotation(JsonEntityConverter.class);
-        if (annotation == null) {
+        if (mJsonEntityConverterAnnotation == null) {
             return false;
         }
-        Class<? extends IGsonEntityConverter> primitiveConverter = annotation.converter();
+        Class<? extends IGsonEntityConverter> primitiveConverter = mJsonEntityConverterAnnotation.converter();
         IGsonEntityConverter primitiveConverterInstance = ReflectUtils.getInstanceInterface(primitiveConverter, IGsonEntityConverter.class);
         primitiveConverterInstance.convert(contentValues, parent, jsonElement, type, jsonDeserializationContext);
         return true;

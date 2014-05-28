@@ -219,8 +219,9 @@ public class DBHelper {
 			if (beforeUpdate != null) {
 				beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
 			}
-			Long id = contentValues.getAsLong(BaseColumns._ID);
-			if (id == null) {
+			String idAsString = contentValues.getAsString(BaseColumns._ID);
+            Long id = null;
+			if (idAsString == null) {
                 IGenerateID generateId = ReflectUtils.getInstanceInterface(classOfModel, IGenerateID.class);
                 if (generateId != null) {
                     id = generateId.generateId(this, db, dataSourceRequest, contentValues);
@@ -231,7 +232,9 @@ public class DBHelper {
                     throw new IllegalArgumentException("content values needs to contains _ID. Details: " +
                             "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
                 }
-			}
+			} else {
+                id = Long.valueOf(idAsString);
+            }
 			List<ReflectUtils.XField> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);

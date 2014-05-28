@@ -26,6 +26,8 @@ public class ReflectUtils {
 
         private List<XField> listFields;
 
+        private final Map<XClass, Holder> instancesOfInterface = new ConcurrentHashMap<XClass, Holder>();
+
         public List<XField> getFields() {
             if (listFields == null) {
                 synchronized (lock) {
@@ -48,6 +50,37 @@ public class ReflectUtils {
                 }
             }
             return listFields;
+        }
+
+        public <T> T getInstanceInterface(Class<T> interfaceTargetClazz) {
+            try {
+                XClass xInterfaceClass = getXClass(interfaceTargetClazz);
+                Holder<T> result = (Holder<T>) instancesOfInterface.get(xInterfaceClass);
+                if (result == null) {
+                    synchronized (lock) {
+                        result = (Holder<T>) instancesOfInterface.get(xInterfaceClass);
+                        if (result == null && !instancesOfInterface.containsKey(xInterfaceClass)) {
+                            Class<?> cls = clazz;
+                            while (cls != null) {
+                                Class<?>[] interfaces = cls.getInterfaces();
+                                for (Class<?> i : interfaces) {
+                                    if (i.equals(interfaceTargetClazz)) {
+                                        T object = (T) clazz.newInstance();
+                                        instancesOfInterface.put(xInterfaceClass, new Holder<T>(object));
+                                        return object;
+                                    }
+                                }
+                                cls = cls.getSuperclass();
+                            }
+                        }
+                        result = new Holder<T>();
+                        instancesOfInterface.put(xInterfaceClass, result);
+                    }
+                }
+                return result.get();
+            } catch (Exception e) {
+                return null;
+            }
         }
     }
 
@@ -104,8 +137,6 @@ public class ReflectUtils {
 
     private static final Map<Class<?>, XClass> sClassesCache = new ConcurrentHashMap<Class<?>, XClass>();
 
-    private static final Map<String, Object> sInstancesOfInterface = new ConcurrentHashMap<String, Object>();
-
     public static <T extends Annotation> T getAnnotation(XField field, Class<T> annotationClass) {
         return field.getAnnotation(annotationClass);
     }
@@ -141,28 +172,8 @@ public class ReflectUtils {
 
     //TODO move common logic to XClass
 	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
-		try {
-            String cacheKey = clazz.getName() + interfaceTargetClazz.getName();
-            T t = (T) sInstancesOfInterface.get(cacheKey);
-            if (t != null || sInstancesOfInterface.containsKey(cacheKey)) {
-                return t;
-            }
-            Class<?> cls = clazz;
-            while (cls != null) {
-                Class<?>[] interfaces = cls.getInterfaces();
-                for (Class<?> i : interfaces) {
-                    if (i.equals(interfaceTargetClazz)) {
-                        T object = (T) clazz.newInstance();
-                        sInstancesOfInterface.put(cacheKey, object);
-                        return object;
-                    }
-                }
-                cls = cls.getSuperclass();
-            }
-			return null;
-		} catch (Exception e) {
-			return null;
-		}
+        XClass xClass = getXClass(clazz);
+        return xClass.getInstanceInterface(interfaceTargetClazz);
 	}
 
     public static <T> T newInstance(Class<T> clazz) {

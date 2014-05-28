@@ -35,6 +35,10 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
 
     private final IBeforeArrayUpdate beforeListUpdate;
 
+    private IGenerateID generateID;
+
+    private String foreignKey;
+
     public static class WritableConnectionWrapper implements IDBConnection {
 
         private IDBConnection connection;
@@ -124,6 +128,8 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
+        this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
     }
 
 
@@ -133,6 +139,8 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         this.dbHelper = dbHelper;
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
+        this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
     }
 
     public IDBConnection getDbConnection() {
@@ -144,7 +152,6 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
-        String foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
         Long id = getParentId(contentValues);
         Class<? extends IGsonEntitiesConverter> jsonConverter = entity.jsonConverter();
         IGsonEntitiesConverter gsonEntityConverter = ReflectUtils.getInstanceInterface(jsonConverter, IGsonEntitiesConverter.class);
@@ -172,14 +179,13 @@ public class DBContentValuesAdapter extends ContentValuesAdapter {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
         Long id = getParentId(contentValues);
-        values.put(DBHelper.getForeignKey(getContentValuesEntityClazz()), id);
+        values.put(foreignKey, id);
         dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
     }
 
     private Long getParentId(ContentValues contentValues) {
         Long id = contentValues.getAsLong(BaseColumns._ID);
         if (id == null) {
-            IGenerateID generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
             if (generateID == null) {
                 throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID for "+ getContentValuesEntityClazz());
             }

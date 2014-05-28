@@ -38,8 +38,7 @@ public class ContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
             values[i] = contentValuesAdapter.deserialize(item, type, jsonDeserializationContext);
         }
         contentValues.put(fieldValue, BytesUtils.arrayToByteArray(values));
-        dbEntities annotation = ReflectUtils.getAnnotation(field, dbEntities.class);
-        contentValues.put(annotation.contentValuesKey(), annotation.clazz().getCanonicalName());
+        contentValues.put(entity.contentValuesKey(), entity.clazz().getCanonicalName());
     }
 
     @Override
