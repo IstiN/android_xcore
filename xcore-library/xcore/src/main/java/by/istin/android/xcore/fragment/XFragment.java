@@ -231,6 +231,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
             @Override
             protected void onCached(Bundle resultData) {
                 isServiceWork = false;
+                onReceiverOnCached(resultData);
                 super.onCached(resultData);
                 hideProgress();
             }
