@@ -31,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -196,12 +195,12 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 				+ Locale.getDefault().getCountry() + USER_AGENT_DIVIDER + android.os.Build.DEVICE + USER_AGENT_BUILD + android.os.Build.ID + USER_AGENT_END;
 	}
 
-	/* Apache client. */
-	private final HttpClient mClient;
 
 	private final IHttpRequestBuilder mRequestBuilder;
 
 	private final IResponseStatusHandler mResponseStatusHandler;
+
+    private final InputStreamHttpClientHelper mInputStreamHelper;
 
 	public HttpAndroidDataSource() {
 		this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());
@@ -211,11 +210,11 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
 		mRequestBuilder = requestBuilder;
 		mResponseStatusHandler = statusHandler;
-		mClient = createHttpClient();
+        mInputStreamHelper = createInputStreamHttpClientHelper();
 	}
 
-    public HttpClient createHttpClient() {
-        return AndroidHttpClient.newInstance(sUserAgent);
+    protected InputStreamHttpClientHelper createInputStreamHttpClientHelper() {
+        return new InputStreamHttpClientHelper(sUserAgent);
     }
 
     public IHttpRequestBuilder getRequestBuilder(){
@@ -234,10 +233,6 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		return mRequestBuilder.build(request);
 	}
 
-    public HttpClient getClient() {
-        return mClient;
-    }
-
     public IResponseStatusHandler getResponseStatusHandler() {
         return mResponseStatusHandler;
     }
@@ -247,7 +242,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		Log.xd(this, request);
-		HttpResponse response = mClient.execute(request);
+        HttpClient client = mInputStreamHelper.getClient();
+        HttpResponse response = client.execute(request);
 		int statusCode = response.getStatusLine().getStatusCode();
         boolean isRedirect = isRedirect(statusCode);
         if (isRedirect) {
@@ -265,7 +261,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}
 		HttpEntity httpEntity = response.getEntity();
-		return AndroidHttpClient.getUngzippedContent(httpEntity);
+        InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
+        return mInputStreamHelper.getInputStream(ungzippedContent, client);
 	}
 
     protected boolean isRedirect(int statusCode) {
