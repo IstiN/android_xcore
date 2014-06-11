@@ -72,25 +72,30 @@ public abstract class SyncService extends Service {
     }
 
     protected void onPerformSync(Account account, Bundle extras, String authority, ContentProviderClient provider, SyncResult syncResult) {
-        Cursor cursor = getContentResolver().query(ModelContract.getUri(SyncDataSourceRequestEntity.class), null, null, null, SyncDataSourceRequestEntity.LAST_CHANGED + " ASC");
-        if (CursorUtils.isEmpty(cursor)) {
+        Cursor cursor = null;
+        try {
+            cursor = getContentResolver().query(ModelContract.getUri(SyncDataSourceRequestEntity.class), null, null, null, SyncDataSourceRequestEntity.LAST_CHANGED + " ASC");
+            if (CursorUtils.isEmpty(cursor)) {
+                ISyncHelper syncHelper = SyncHelper.get(this);
+                syncHelper.removeSyncAccount();
+                syncHelper.removeAccount();
+                return;
+            }
+            cursor.moveToFirst();
+            do {
+                String processorKey = CursorUtils.getString(SyncDataSourceRequestEntity.PROCESSOR_KEY, cursor);
+                String dataSourceService = CursorUtils.getString(SyncDataSourceRequestEntity.DATASOURCE_KEY, cursor);
+                String uriParam = CursorUtils.getString(SyncDataSourceRequestEntity.URI_PARAM, cursor);
+                DataSourceRequest dataSourceRequest = DataSourceRequest.fromUri(Uri.parse("content://temp?" + uriParam));
+                dataSourceRequest.setCacheExpiration(CursorUtils.getLong(SyncDataSourceRequestEntity.EXPIRATION, cursor));
+                dataSourceRequest.setCacheable(CursorUtils.getInt(SyncDataSourceRequestEntity.CACHEABLE, cursor) == 1);
+                dataSourceRequest.setParentUri(CursorUtils.getString(SyncDataSourceRequestEntity.PARENT_URI, cursor));
+                SyncDataSourceService.execute(this, dataSourceRequest, processorKey, dataSourceService);
+            } while (cursor.moveToNext());
+        } finally {
             CursorUtils.close(cursor);
-            ISyncHelper syncHelper = SyncHelper.get(this);
-            syncHelper.removeSyncAccount();
-            syncHelper.removeAccount();
-            return;
         }
-        cursor.moveToFirst();
-        do {
-            String processorKey = CursorUtils.getString(SyncDataSourceRequestEntity.PROCESSOR_KEY, cursor);
-            String dataSourceService = CursorUtils.getString(SyncDataSourceRequestEntity.DATASOURCE_KEY, cursor);
-            String uriParam = CursorUtils.getString(SyncDataSourceRequestEntity.URI_PARAM, cursor);
-            DataSourceRequest dataSourceRequest = DataSourceRequest.fromUri(Uri.parse("content://temp?" + uriParam));
-            dataSourceRequest.setCacheExpiration(CursorUtils.getLong(SyncDataSourceRequestEntity.EXPIRATION, cursor));
-            dataSourceRequest.setCacheable(CursorUtils.getInt(SyncDataSourceRequestEntity.CACHEABLE, cursor) == 1);
-            dataSourceRequest.setParentUri(CursorUtils.getString(SyncDataSourceRequestEntity.PARENT_URI, cursor));
-            SyncDataSourceService.execute(this, dataSourceRequest, processorKey, dataSourceService);
-        } while (cursor.moveToNext());
+        stopSelf();
     }
 
 
