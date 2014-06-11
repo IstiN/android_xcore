@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.text.TextUtils;
+import android.webkit.URLUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -251,9 +252,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			if (firstHeader != null) {
                 String value = firstHeader.getValue();
                 if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
-                    HttpGet redirectUri = new HttpGet(value);
-                    request.abort();
-                    return getInputSteam(redirectUri);
+                    return createRedirectRequest(request, response, value);
                 }
 			}
 		}
@@ -264,6 +263,18 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
         return mInputStreamHelper.getInputStream(ungzippedContent, client);
 	}
+
+    protected InputStream createRedirectRequest(HttpUriRequest request, HttpResponse response, String value) throws IOException {
+        Log.xd(this, "redirect " + value);
+        if (!URLUtil.isNetworkUrl(value)) {
+            Log.xd(this, "redirect current request ");
+            value = request.getURI().getScheme() + "://" + request.getURI().getHost() + value;
+            Log.xd(this, "redirect current request " + value);
+        }
+        HttpGet redirectUri = new HttpGet(value);
+        request.abort();
+        return getInputSteam(redirectUri);
+    }
 
     protected boolean isRedirect(int statusCode) {
         return statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY;
