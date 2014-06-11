@@ -5,9 +5,10 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.URLCodec;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -372,12 +373,12 @@ public final class StringUtil {
 			return defaultValue;
 		}
 		try {
-			return URLEncoder.encode(value, "utf-8").replaceAll("\\+", "%20");
-		} catch (UnsupportedEncodingException e) {
-			return value;
-		}
+			return new URLCodec("utf-8").encode(value).replaceAll("\\+", "%20");
+		} catch (EncoderException e) {
+            return value;
+        }
 
-	}
+    }
 	
 	public static String encode(String value) {
 		return encode(value, null); 
@@ -388,14 +389,14 @@ public final class StringUtil {
 			return null;
 		}
 		try {
-			return URLDecoder.decode(value, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			return value;
+			return new URLCodec("utf-8").decode(value);
 		} catch (IllegalArgumentException e) {
             return value;
+        } catch (DecoderException e) {
+            return value;
         }
-		
-	}
+
+    }
 
 	public static Spanned fromHtml(String value) {
 		if (StringUtil.isEmpty(value)) {
