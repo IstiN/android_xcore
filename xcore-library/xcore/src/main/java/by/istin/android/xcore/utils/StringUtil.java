@@ -5,9 +5,12 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+
+import com.google.common.internal.net.PercentEscaper;
+
+import org.apache.commons.codec.internal.DecoderException;
+import org.apache.commons.codec.internal.net.URLCodec;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -21,6 +24,10 @@ import by.istin.android.xcore.ContextHolder;
  * The Class StringUtil. Provides set of common low-level string functions.
  */
 public final class StringUtil {
+
+    private static final URLCodec URL_CODEC = new URLCodec("utf-8");
+
+    private static final PercentEscaper PERCENT_ESCAPER = new PercentEscaper("-_.*", false);
 
 	/**
 	 * Empty string array
@@ -371,13 +378,8 @@ public final class StringUtil {
 		if (isEmpty(value)) {
 			return defaultValue;
 		}
-		try {
-			return URLEncoder.encode(value, "utf-8").replaceAll("\\+", "%20");
-		} catch (UnsupportedEncodingException e) {
-			return value;
-		}
-
-	}
+        return PERCENT_ESCAPER.escape(value);
+    }
 	
 	public static String encode(String value) {
 		return encode(value, null); 
@@ -388,14 +390,14 @@ public final class StringUtil {
 			return null;
 		}
 		try {
-			return URLDecoder.decode(value, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			return value;
+			return URL_CODEC.decode(value);
 		} catch (IllegalArgumentException e) {
             return value;
+        } catch (DecoderException e) {
+            return value;
         }
-		
-	}
+
+    }
 
 	public static Spanned fromHtml(String value) {
 		if (StringUtil.isEmpty(value)) {
