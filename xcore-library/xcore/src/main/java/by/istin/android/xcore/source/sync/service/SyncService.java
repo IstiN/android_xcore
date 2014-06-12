@@ -34,6 +34,7 @@ import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
 import by.istin.android.xcore.source.sync.helper.ISyncHelper;
 import by.istin.android.xcore.source.sync.helper.SyncHelper;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * Service to handle Account sync. This is invoked with an intent with action
@@ -79,6 +80,8 @@ public abstract class SyncService extends Service {
                 ISyncHelper syncHelper = SyncHelper.get(this);
                 syncHelper.removeSyncAccount();
                 syncHelper.removeAccount();
+                Log.xd(this, "empty");
+                stopSelf();
                 return;
             }
             cursor.moveToFirst();
@@ -92,10 +95,12 @@ public abstract class SyncService extends Service {
                 dataSourceRequest.setParentUri(CursorUtils.getString(SyncDataSourceRequestEntity.PARENT_URI, cursor));
                 SyncDataSourceService.execute(this, dataSourceRequest, processorKey, dataSourceService);
             } while (cursor.moveToNext());
+            Log.xd(this, "done all entities " + cursor.getCount());
         } finally {
             CursorUtils.close(cursor);
+            stopSelf();
         }
-        stopSelf();
+
     }
 
 
