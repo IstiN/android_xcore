@@ -2,21 +2,19 @@ package by.istin.android.xcore.test.utils;
 
 import android.test.ApplicationTestCase;
 
-import com.ziesemer.utils.codec.IByteToCharEncoder;
-import com.ziesemer.utils.codec.ICharToByteDecoder;
+
+import com.google.common.internal.net.PercentEscaper;
 
 import org.apache.commons.codec.net.URLCodec;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 
 import by.istin.android.xcore.CoreApplication;
 
 public class TestEncodeUtils extends ApplicationTestCase<CoreApplication>{
 
-    public static final int COUNT = 200;
+    public static final int COUNT = 2000;
 
     public TestEncodeUtils() {
 		super(CoreApplication.class);
@@ -32,34 +30,33 @@ public class TestEncodeUtils extends ApplicationTestCase<CoreApplication>{
 	
 	public void testDefaultEncoding() throws Exception {
         for (int i = 0; i < COUNT; i++) {
-            String encode = URLEncoder.encode(TEST, "utf-8");
+            String encode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
             String decode = URLDecoder.decode(encode, "utf-8");
             assertEquals(decode, TEST);
         }
     }
 
 	public void testDefaultFastEncoding() throws Exception {
-        String sampleEncode = URLEncoder.encode(TEST, "utf-8");
+        String sampleEncode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
+        URLCodec urlCodec = new URLCodec("utf-8");
         for (int i = 0; i < COUNT; i++) {
-            String encode = new URLCodec("utf-8").encode(TEST);
+            String encode = urlCodec.encode(TEST).replaceAll("\\+", "%20");
             assertEquals(sampleEncode, encode);
-            String decode = new URLCodec("utf-8").decode(encode);
+            String decode = urlCodec.decode(encode);
             assertEquals(decode, TEST);
         }
     }
 
-	public void testDefaultFastEncoding2() throws Exception {
-        String sampleEncode = URLEncoder.encode(TEST, "UTF-8");
-        IByteToCharEncoder encoder = new com.ziesemer.utils.codec.impl.URLEncoder();
-        ICharToByteDecoder decoder = new com.ziesemer.utils.codec.impl.URLDecoder();
+	public void testDefaultFast2Encoding() throws Exception {
+        String sampleEncode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
+        PercentEscaper percentEscaper = new PercentEscaper("-_.*", false);
+        URLCodec urlCodec = new URLCodec("utf-8");
         for (int i = 0; i < COUNT; i++) {
-            CharBuffer encode = encoder.code(ByteBuffer.wrap(TEST.getBytes("UTF-8")));
-            String actual = encode.toString();
-            assertEquals(sampleEncode, actual);
-            CharBuffer wrap = CharBuffer.wrap(actual);
-            ByteBuffer decode = decoder.code(wrap);
-            String v = new String(decode.array(), "UTF-8");
-            //assertEquals(v, TEST);
+            //String encode = UrlEscapers.urlPathSegmentEscaper().escape(TEST);
+            String encode = percentEscaper.escape(TEST);
+            assertEquals(sampleEncode, encode);
+            String decode = urlCodec.decode(encode);
+            assertEquals(decode, TEST);
         }
     }
 

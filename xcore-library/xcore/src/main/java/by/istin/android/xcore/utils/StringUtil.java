@@ -5,9 +5,11 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
+
+import com.google.common.internal.net.PercentEscaper;
+
+import org.apache.commons.codec.internal.DecoderException;
+import org.apache.commons.codec.internal.net.URLCodec;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -22,6 +24,10 @@ import by.istin.android.xcore.ContextHolder;
  * The Class StringUtil. Provides set of common low-level string functions.
  */
 public final class StringUtil {
+
+    private static final URLCodec URL_CODEC = new URLCodec("utf-8");
+
+    private static final PercentEscaper PERCENT_ESCAPER = new PercentEscaper("-_.*", false);
 
 	/**
 	 * Empty string array
@@ -372,12 +378,7 @@ public final class StringUtil {
 		if (isEmpty(value)) {
 			return defaultValue;
 		}
-		try {
-			return new URLCodec("utf-8").encode(value).replaceAll("\\+", "%20");
-		} catch (EncoderException e) {
-            return value;
-        }
-
+        return PERCENT_ESCAPER.escape(value);
     }
 	
 	public static String encode(String value) {
@@ -389,7 +390,7 @@ public final class StringUtil {
 			return null;
 		}
 		try {
-			return new URLCodec("utf-8").decode(value);
+			return URL_CODEC.decode(value);
 		} catch (IllegalArgumentException e) {
             return value;
         } catch (DecoderException e) {
