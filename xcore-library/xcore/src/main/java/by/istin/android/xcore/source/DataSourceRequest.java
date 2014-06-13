@@ -15,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
 
@@ -129,6 +130,7 @@ public class DataSourceRequest {
 	}
 
 	private void checkIfParamIsNotRestricted(String key) {
+        if (Log.isOff) return;
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
 				throw new IllegalArgumentException(key + " is reserved by DataSourceRequest class and can't be used.");
