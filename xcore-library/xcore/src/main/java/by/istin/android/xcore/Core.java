@@ -30,17 +30,17 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         public void onStart(Bundle resultData) {
 
-        };
+        }
 
         public abstract void onDone(Bundle resultData);
 
         public void onError(Exception exception) {
 
-        };
+        }
 
         public void onCached(Bundle resultData) {
 
-        };
+        }
 
     }
 
@@ -193,11 +193,11 @@ public class Core implements XCoreHelper.IAppServiceKey {
         }
     }
 
-    private Context mContext;
+    private final Context mContext;
 
-    private ExecutorService mExecutor = Executors.newFixedThreadPool(3);
+    private final ExecutorService mExecutor = Executors.newFixedThreadPool(3);
 
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     public Core(Context context) {
         mContext = context;
@@ -242,7 +242,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                     if (dataSourceListener != null) {
                         dataSourceListener.onDone(resultData);
                     }
-                    sendResult((Bundle) resultData, (Object) resultData.get(StatusResultReceiver.RESULT_KEY), (IExecuteOperation<?>) executeOperation, true);
+                    sendResult(resultData, resultData.get(StatusResultReceiver.RESULT_KEY), executeOperation, true);
                     return;
                 }
                 mExecutor.execute(new Runnable() {
@@ -252,7 +252,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                         if (cursor != null) {
                             cursor.getCount();
                         }
-                        if (!sendResult((Bundle) resultData, (Object) cursor, (IExecuteOperation<?>) executeOperation, true)) {
+                        if (!sendResult(resultData, cursor, executeOperation, true)) {
                             CursorUtils.close(cursor);
                         }
                     }

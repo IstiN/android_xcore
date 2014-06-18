@@ -1,18 +1,29 @@
 package by.istin.android.xcore.provider.impl;
 
-import android.content.*;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
+import android.content.ContentUris;
+import android.content.ContentValues;
+import android.content.Context;
+import android.content.OperationApplicationException;
+import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
 import by.istin.android.xcore.db.operation.IDBInsertOrUpdateOperationSupport;
-import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
-
-import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -29,11 +40,11 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     private static final int MODELS_ID_NEGOTIVE = 3;
 
-    private Context mContext;
+    private final Context mContext;
 
-    private Class<?>[] mEntities;
+    private final Class<?>[] mEntities;
 
-    private IDBSupport mDbSupport;
+    private final IDBSupport mDbSupport;
 
     public DBContentProviderSupport(Context context, IDBSupport dbSupport, Class<?> ... entities) {
         mContext = context;
@@ -143,8 +154,8 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-        String className = null;
-        List<String> pathSegments = null;
+        String className;
+        List<String> pathSegments;
         switch (sUriMatcher.match(uri)) {
             case MODELS:
                 className = uri.getLastPathSegment();
@@ -175,10 +186,10 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
             if (c != null) {
                 c.getCount();
                 c.moveToFirst();
-            }
-            Uri observerUri = ModelContract.getObserverUri(uri);
-            if (observerUri != null) {
-                c.setNotificationUri(getContext().getContentResolver(), observerUri);
+                Uri observerUri = ModelContract.getObserverUri(uri);
+                if (observerUri != null) {
+                    c.setNotificationUri(getContext().getContentResolver(), observerUri);
+                }
             }
             return c;
         } else {
@@ -212,8 +223,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         } finally {
             batchOperationConnection.endTransaction();
         }
-        for (Iterator<Uri> iterator = set.iterator(); iterator.hasNext(); ) {
-            Uri uri = iterator.next();
+        for (Uri uri : set) {
             getContext().getContentResolver().notifyChange(Uri.parse(uri.toString().split("\\?")[0]), null);
         }
         return result;
@@ -267,8 +277,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
     public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, List<ContentValues> array) {
         ArrayList<ContentProviderOperation> list = new ArrayList<ContentProviderOperation>();
         if (array != null) {
-            for (int i = 0; i < array.size(); i++) {
-                ContentValues contentValues = array.get(i);
+            for (ContentValues contentValues : array) {
                 Uri uri = ModelContract.getUri(dataSourceRequest, clazz);
                 list.add(ContentProviderOperation.newInsert(uri).withValues(contentValues).build());
             }

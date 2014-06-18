@@ -201,7 +201,7 @@ public class AdapterViewFragment extends Fragment {
      * Set the currently selected list item to the specified
      * position with the adapter's data
      *
-     * @param position
+     * @param position position of listview
      */
     public void setSelection(int position) {
         ensureList();

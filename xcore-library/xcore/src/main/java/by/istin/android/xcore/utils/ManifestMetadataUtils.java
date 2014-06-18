@@ -18,8 +18,7 @@ public class ManifestMetadataUtils {
 			if (bundle == null) {
 				return null;
 			}
-			Object value = bundle.get(keyName);
-			return value;
+			return bundle.get(keyName);
 		} catch (NameNotFoundException ex) {
 			//return null if key not found in the manifest
 			return null;

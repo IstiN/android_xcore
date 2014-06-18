@@ -7,8 +7,8 @@ import android.test.ApplicationTestCase;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
-import by.istin.android.xcore.test.bo.SubEntity;
-import by.istin.android.xcore.test.bo.TestEntity;
+import by.istin.android.xcore.model.BigTestEntity;
+import by.istin.android.xcore.model.BigTestSubEntity;
 import by.istin.android.xcore.utils.CursorUtils;
 
 public class TestDbHelper extends ApplicationTestCase<Application> {
@@ -32,7 +32,7 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
 
         createAndClearTables();
 
-        dbHelper.updateOrInsert(TestEntity.class, contentValues);
+        dbHelper.updateOrInsert(BigTestEntity.class, contentValues);
 
         checkResults(1);
     }
@@ -40,8 +40,8 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
     public void testDelete() throws Exception {
         testBulkInsert();
 
-        dbHelper.delete(TestEntity.class, null, null);
-        dbHelper.delete(SubEntity.class, null, null);
+        dbHelper.delete(BigTestEntity.class, null, null);
+        dbHelper.delete(BigTestSubEntity.class, null, null);
 
         checkResults(0);
     }
@@ -49,8 +49,8 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
     public void testDeleteWithCondition() throws Exception {
         testBulkInsert();
 
-        dbHelper.delete(TestEntity.class, TestEntity.ID + "= ?", new String[]{"0"});
-        dbHelper.delete(SubEntity.class, SubEntity.ID + "= ?", new String[]{"0"});
+        dbHelper.delete(BigTestEntity.class, BigTestEntity.ID + "= ?", new String[]{"0"});
+        dbHelper.delete(BigTestSubEntity.class, BigTestSubEntity.ID + "= ?", new String[]{"0"});
 
         checkResults(MockStorage.SIZE-1);
     }
@@ -59,13 +59,13 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
         ContentValues[] contentValues = MockStorage.generateArray();
         createAndClearTables();
 
-		dbHelper.updateOrInsert(TestEntity.class, contentValues);
+		dbHelper.updateOrInsert(BigTestEntity.class, contentValues);
 
         checkResults(MockStorage.SIZE);
 	}
 
     private void checkResults(int count) {
-        Cursor cursor = dbHelper.query(SubEntity.class, new String[]{SubEntity.ID}, null, null, null, null, null, null);
+        Cursor cursor = dbHelper.query(BigTestSubEntity.class, new String[]{BigTestSubEntity.ID}, null, null, null, null, null, null);
         if (count == 0) {
             assertTrue(CursorUtils.isEmpty(cursor));
         } else {
@@ -73,7 +73,7 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
         }
         CursorUtils.close(cursor);
 
-        cursor = dbHelper.query(TestEntity.class, new String[]{TestEntity.ID}, null, null, null, null, null, null);
+        cursor = dbHelper.query(BigTestEntity.class, new String[]{BigTestEntity.ID}, null, null, null, null, null, null);
         if (count == 0) {
             assertTrue(CursorUtils.isEmpty(cursor));
         } else {
@@ -83,9 +83,9 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
     }
 
     private void createAndClearTables() {
-        dbHelper.createTablesForModels(SubEntity.class, TestEntity.class);
-        dbHelper.delete(SubEntity.class, null, null);
-        dbHelper.delete(TestEntity.class, null, null);
+        dbHelper.createTablesForModels(BigTestSubEntity.class, BigTestEntity.class);
+        dbHelper.delete(BigTestSubEntity.class, null, null);
+        dbHelper.delete(BigTestEntity.class, null, null);
     }
 
 }

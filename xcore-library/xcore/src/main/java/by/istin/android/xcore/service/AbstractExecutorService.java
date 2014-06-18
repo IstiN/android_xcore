@@ -30,7 +30,7 @@ import by.istin.android.xcore.utils.Log;
 public abstract class AbstractExecutorService extends Service {
 
     private static final String ACTION_STOP = "stop";
-	protected static final String DATA_SOURCE_KEY = "datasourceKey";
+	protected static final String DATA_SOURCE_KEY = "dataSourceKey";
     protected static final String PROCESSOR_KEY = "processorKey";
     protected static final String RESULT_RECEIVER = "resultReceiver";
 
@@ -43,25 +43,25 @@ public abstract class AbstractExecutorService extends Service {
         context.startService(intent);
     }
 
-    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, Class<?> serviceClass) {
-        execute(context, dataSourceRequest, processorKey, datasourceKey, null, serviceClass);
+    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, Class<?> serviceClass) {
+        execute(context, dataSourceRequest, processorKey, dataSourceKey, null, serviceClass);
     }
 
-    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
+    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
         if (context == null) {
             context = ContextHolder.getInstance().getContext();
             if (context == null) {
                 return;
             }
         }
-        Intent intent = createStartIntent(context, dataSourceRequest, processorKey, datasourceKey, resultReceiver, serviceClass);
+        Intent intent = createStartIntent(context, dataSourceRequest, processorKey, dataSourceKey, resultReceiver, serviceClass);
         if (intent == null) {
             return;
         }
         context.startService(intent);
     }
 
-    protected static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String datasourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
+    protected static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
         if (context == null) {
             context = ContextHolder.getInstance().getContext();
             if (context == null) {
@@ -69,7 +69,7 @@ public abstract class AbstractExecutorService extends Service {
             }
         }
         Intent intent = new Intent(context, serviceClass);
-        intent.putExtra(DATA_SOURCE_KEY, datasourceKey);
+        intent.putExtra(DATA_SOURCE_KEY, dataSourceKey);
         intent.putExtra(PROCESSOR_KEY, processorKey);
         intent.putExtra(RESULT_RECEIVER, resultReceiver);
         dataSourceRequest.toIntent(intent);
@@ -102,7 +102,7 @@ public abstract class AbstractExecutorService extends Service {
                 resultReceiver.send(0, null);
             }
             stopSelf();
-            Log.xd(this, "action stop executore recreated");
+            Log.xd(this, "action stop executor recreated");
             return;
         }
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
@@ -160,10 +160,10 @@ public abstract class AbstractExecutorService extends Service {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object execute(Context context, boolean cacheable, String processorKey, String datasourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
-        final IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
-        final IDataSource datasource = (IDataSource) AppUtils.get(context, datasourceKey);
-        Object result = processor.execute(dataSourceRequest, datasource, datasource.getSource(dataSourceRequest));
+    public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+        final IProcessor processor = AppUtils.get(context, processorKey);
+        final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
+        Object result = processor.execute(dataSourceRequest, dataSource, dataSource.getSource(dataSourceRequest));
         if (cacheable) {
             processor.cache(context, dataSourceRequest, result);
             if (bundle == null) {
@@ -175,8 +175,6 @@ public abstract class AbstractExecutorService extends Service {
                 bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
             } else if (result instanceof Serializable) {
                 bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            } else if (result instanceof ArrayList<?>) {
-                bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
             }
         } else {
             if (bundle == null) {
@@ -188,8 +186,6 @@ public abstract class AbstractExecutorService extends Service {
                 bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
             } else if (result instanceof Serializable) {
                 bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            } else if (result instanceof ArrayList<?>) {
-                bundle.putParcelableArrayList(StatusResultReceiver.RESULT_KEY, (ArrayList<? extends Parcelable>) result);
             }
         }
         return result;

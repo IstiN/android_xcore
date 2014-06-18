@@ -23,11 +23,11 @@ import by.istin.android.xcore.utils.IOUtils;
 
 public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
-	private Class<?> clazz;
+	private final Class<?> clazz;
 
-	private Class<? extends Result> resultClassName;
+	private final Class<? extends Result> resultClassName;
 
-    private IDBContentProviderSupport dbContentProviderSupport;
+    private final IDBContentProviderSupport dbContentProviderSupport;
 
 	public AbstractGsonBatchProcessor(Class<?> clazz, Class<? extends Result> resultClassName, IDBContentProviderSupport contentProviderSupport) {
 		super();
@@ -69,6 +69,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 	}
 
     protected DBContentValuesAdapter.ITransactionCreationController createTransactionCreationController(DataSourceRequest dataSourceRequest) {
+        //can be overrided in future if needs
         return null;
     }
 
@@ -86,14 +87,14 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 
     protected void onStartProcessing(DataSourceRequest dataSourceRequest, IDBConnection dbConnection) {
         //remove old data
-    };
+    }
 
     protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result) {
         //notify about finish or do more db operations
-    };
+    }
 
     protected Result process(Gson gson, BufferedReader bufferedReader) {
-        return (Result) gson.fromJson(bufferedReader, resultClassName);
+        return gson.fromJson(bufferedReader, resultClassName);
 	}
 
 	public Class<?> getClazz() {

@@ -5,7 +5,6 @@ package by.istin.android.xcore.source.impl;
 
 import android.content.Context;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -23,7 +22,7 @@ public class AssetsDataSource implements IDataSource<InputStream> {
 
 	public static final String SYSTEM_SERVICE_KEY = "xcore:assetsdatasource";
 
-    private Context mContext;
+    private final Context mContext;
 
     public AssetsDataSource(Context context) {
         this.mContext = context;

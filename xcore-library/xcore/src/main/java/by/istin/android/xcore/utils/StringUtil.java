@@ -5,10 +5,14 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
+
+import com.google.common.internal.net.PercentEscaper;
+
+import org.apache.commons.codec.internal.DecoderException;
+import org.apache.commons.codec.internal.net.URLCodec;
+
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
@@ -20,6 +24,10 @@ import by.istin.android.xcore.ContextHolder;
  * The Class StringUtil. Provides set of common low-level string functions.
  */
 public final class StringUtil {
+
+    private static final URLCodec URL_CODEC = new URLCodec("utf-8");
+
+    private static final PercentEscaper PERCENT_ESCAPER = new PercentEscaper("-_.*", false);
 
 	/**
 	 * Empty string array
@@ -45,9 +53,9 @@ public final class StringUtil {
 	/**
 	 * Html entites as escape values.
 	 */
-	private static HashMap<String, String> htmlEntities;
+	private static final HashMap<String, String> htmlEntities;
 
-	private static HashMap<String, String> russianAlternative;
+	private static final HashMap<String, String> russianAlternative;
 
 	static {
 		htmlEntities = new HashMap<String, String>();
@@ -178,7 +186,7 @@ public final class StringUtil {
 	 *            from start
 	 * @return unscape html value
 	 */
-	public static final String unescapeHTML(String source, int start) {
+	public static String unescapeHTML(String source, int start) {
 		int i, j;
 
 		i = source.indexOf("&", start);
@@ -188,9 +196,7 @@ public final class StringUtil {
 				String entityToLookFor = source.substring(i, j + 1);
 				String value = htmlEntities.get(entityToLookFor);
 				if (value != null) {
-					source = new StringBuffer().append(source.substring(0, i))
-							.append(value).append(source.substring(j + 1))
-							.toString();
+					source = source.substring(0, i) + value + source.substring(j + 1);
 					return unescapeHTML(source, i + 1); // recursive call
 				}
 			}
@@ -372,13 +378,8 @@ public final class StringUtil {
 		if (isEmpty(value)) {
 			return defaultValue;
 		}
-		try {
-			return URLEncoder.encode(value, "utf-8").replaceAll("\\+", "%20");
-		} catch (UnsupportedEncodingException e) {
-			return value;
-		}
-
-	}
+        return PERCENT_ESCAPER.escape(value);
+    }
 	
 	public static String encode(String value) {
 		return encode(value, null); 
@@ -389,14 +390,14 @@ public final class StringUtil {
 			return null;
 		}
 		try {
-			return URLDecoder.decode(value, "utf-8");
-		} catch (UnsupportedEncodingException e) {
-			return value;
+			return URL_CODEC.decode(value);
 		} catch (IllegalArgumentException e) {
             return value;
+        } catch (DecoderException e) {
+            return value;
         }
-		
-	}
+
+    }
 
 	public static Spanned fromHtml(String value) {
 		if (StringUtil.isEmpty(value)) {
@@ -419,5 +420,33 @@ public final class StringUtil {
 
     public static String joinAll(CharSequence delimiter, Object... values) {
         return TextUtils.join(delimiter, values);
+    }
+
+    public static String makeJoinedPlaceholders(String value, String delimiter, int len) {
+        if (len < 1) {
+            // It will lead to an invalid query anyway ..
+            throw new RuntimeException("No placeholders");
+        } else {
+            StringBuilder sb = new StringBuilder(len * 2 - 1);
+            sb.append(value);
+            for (int i = 1; i < len; i++) {
+                sb.append(delimiter);
+                sb.append(value);
+            }
+            return sb.toString();
+        }
+    }
+
+    public static String[] toStringArray(Collection collection) {
+        if (collection == null) {
+            return null;
+        }
+        String[] strings = new String[collection.size()];
+        int i = 0;
+        for (Object o : collection) {
+            strings[i] = String.valueOf(o);
+            i++;
+        }
+        return strings;
     }
 }

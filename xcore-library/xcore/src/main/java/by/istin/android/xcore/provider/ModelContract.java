@@ -149,7 +149,7 @@ public class ModelContract {
 
 	public static class UriBuilder {
 		
-		private StringBuilder builder;
+		private final StringBuilder builder;
 
         private boolean isParamAdded = false;
 

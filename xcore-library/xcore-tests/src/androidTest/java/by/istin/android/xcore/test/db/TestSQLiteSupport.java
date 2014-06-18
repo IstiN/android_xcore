@@ -11,8 +11,8 @@ import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.provider.impl.DBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.test.bo.SubEntity;
-import by.istin.android.xcore.test.bo.TestEntity;
+import by.istin.android.xcore.model.BigTestEntity;
+import by.istin.android.xcore.model.BigTestSubEntity;
 import by.istin.android.xcore.utils.CursorUtils;
 
 import java.util.ArrayList;
@@ -42,11 +42,11 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 		super.setUp();
 		createApplication();
         mSQLiteSupport = new SQLiteSupport();
-        mSQLiteSupport.create(getApplication(), new Class[]{TestEntity.class, SubEntity.class});
-        TEST_ENTITY_CLASS = TestEntity.class.getCanonicalName();
-        SUB_ENTITY_CLASS = SubEntity.class.getCanonicalName();
+        mSQLiteSupport.create(getApplication(), new Class[]{BigTestEntity.class, BigTestSubEntity.class});
+        TEST_ENTITY_CLASS = BigTestEntity.class.getCanonicalName();
+        SUB_ENTITY_CLASS = BigTestSubEntity.class.getCanonicalName();
         DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
-        dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{TestEntity.class, SubEntity.class});
+        dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{BigTestEntity.class, BigTestSubEntity.class});
         ContextHolder.getInstance().setContext(getApplication());
 	}
 
@@ -94,13 +94,13 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 
     private ArrayList<ContentProviderOperation> getBatchInsert() {
         ContentValues[] contentValueses = MockStorage.generateArray();
-        return DBContentProviderSupport.getContentProviderOperations(DATA_SOURCE_REQUEST, TestEntity.class, contentValueses);
+        return DBContentProviderSupport.getContentProviderOperations(DATA_SOURCE_REQUEST, BigTestEntity.class, contentValueses);
     }
 
     private ArrayList<ContentProviderOperation> getDeleteAllBatchOperation() {
         ArrayList<ContentProviderOperation> operations = new ArrayList<ContentProviderOperation>();
-        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, TestEntity.class));
-        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, SubEntity.class));
+        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, BigTestEntity.class));
+        operations.add(DBContentProviderSupport.getDeleteOperation(DATA_SOURCE_REQUEST, BigTestSubEntity.class));
         return operations;
     }
 
@@ -126,8 +126,8 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     private void deleteWithCondition() {
-        mSQLiteSupport.delete(TEST_ENTITY_CLASS, TestEntity.ID + "= ?", new String[]{"0"});
-        mSQLiteSupport.delete(SUB_ENTITY_CLASS, SubEntity.ID + "= ?", new String[]{"0"});
+        mSQLiteSupport.delete(TEST_ENTITY_CLASS, BigTestEntity.ID + "= ?", new String[]{"0"});
+        mSQLiteSupport.delete(SUB_ENTITY_CLASS, BigTestSubEntity.ID + "= ?", new String[]{"0"});
     }
 
     public void testBulkInsert() throws Exception {
@@ -160,11 +160,11 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     private Cursor querySubEntity() {
-        return mSQLiteSupport.query(SUB_ENTITY_CLASS, new String[]{SubEntity.ID}, null, null, null, null, null, null);
+        return mSQLiteSupport.query(SUB_ENTITY_CLASS, new String[]{BigTestSubEntity.ID}, null, null, null, null, null, null);
     }
 
     private Cursor queryTestEntity() {
-        return mSQLiteSupport.query(TEST_ENTITY_CLASS, new String[]{TestEntity.ID}, null, null, null, null, null, null);
+        return mSQLiteSupport.query(TEST_ENTITY_CLASS, new String[]{BigTestEntity.ID}, null, null, null, null, null, null);
     }
 
     private void createAndClearTables() {

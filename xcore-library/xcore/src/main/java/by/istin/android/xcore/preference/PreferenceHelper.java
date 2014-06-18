@@ -8,16 +8,20 @@ import android.os.Bundle;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.utils.BytesUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 public class PreferenceHelper {
 
     private static final String SETTINGS = "settings";
     public static final String STRING_ARRAY_DELIM = "====DELIM====";
 
+    public static Editor editor() {
+        Context ctx = ContextHolder.getInstance().getContext();
+        return ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE).edit();
+    }
+
     public static void set(String key, boolean value) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.putBoolean(key, value);
 		editor.commit();
 	}
@@ -30,9 +34,7 @@ public class PreferenceHelper {
 	}
 	
 	public static void set(String key, int value) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.putInt(key, value);
 		editor.commit();
 	}
@@ -43,18 +45,15 @@ public class PreferenceHelper {
 				Context.MODE_PRIVATE);
 		return savedSession.getInt(key, def);
 	}
-	
+
 	public static void set(String key, long value) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.putLong(key, value);
 		editor.commit();
 	}
 	
 	public static void clear() {
-		Editor editor = ContextHolder.getInstance().getContext().getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.clear();
 		editor.commit();
 	}
@@ -67,9 +66,7 @@ public class PreferenceHelper {
 	}
 	
 	public static void set(String key, float value) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.putFloat(key, value);
 		editor.commit();
 	}
@@ -82,9 +79,7 @@ public class PreferenceHelper {
 	}
 	
 	public static void set(String key, String value) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		editor.putString(key, value);
 		editor.commit();
 	}
@@ -109,9 +104,7 @@ public class PreferenceHelper {
 	}
 
 	public static void set(String key, byte[] byteArray) {
-		Context ctx = ContextHolder.getInstance().getContext();
-		Editor editor = ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE)
-				.edit();
+		Editor editor = editor();
 		if (byteArray != null) {
 			editor.putString(key, new String(byteArray));
 		} else {
@@ -159,14 +152,7 @@ public class PreferenceHelper {
        if (value == null) {
            set(key, (String)null);
        } else {
-           StringBuilder stringBuilder = new StringBuilder();
-           for (int i = 0; i < value.length; i++) {
-               stringBuilder.append(value[i]);
-               if (i != value.length-1) {
-                   stringBuilder.append(STRING_ARRAY_DELIM);
-               }
-           }
-           set(key, stringBuilder.toString());
+           set(key, StringUtil.join(STRING_ARRAY_DELIM, false, value));
        }
     }
 

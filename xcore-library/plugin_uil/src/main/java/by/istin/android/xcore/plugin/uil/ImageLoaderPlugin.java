@@ -13,7 +13,7 @@ import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.assist.PauseOnScrollListener;
+import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.plugin.IFragmentPlugin;

@@ -9,9 +9,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.provider.ModelContract;
+import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
 
@@ -44,7 +48,11 @@ public class DataSourceRequest {
 	};
 	
 	private Bundle mBundle = new Bundle();
-	
+
+    private Map<String, Holder<String>> mParamsCache = new ConcurrentHashMap<String, Holder<String>>();
+
+    private Uri mCacheUri = null;
+
 	public DataSourceRequest() {	
 		
 	}
@@ -54,13 +62,21 @@ public class DataSourceRequest {
 	}
 
     public void setUri(String uri) {
+        mCacheUri = null;
         mBundle.putString(REQUEST_URI, uri);
     }
 
 	public String getUri() {
 		return mBundle.getString(REQUEST_URI);
 	}
-	
+
+	public Uri getRequestUri() {
+        if (mCacheUri == null) {
+            mCacheUri = Uri.parse(getUri());
+        }
+		return mCacheUri;
+	}
+
 	public void setCacheable(boolean isCacheable) {
 		mBundle.putString(REQUEST_CACHEABLE, String.valueOf(isCacheable));
 	}
@@ -114,6 +130,7 @@ public class DataSourceRequest {
 	}
 
 	private void checkIfParamIsNotRestricted(String key) {
+        if (Log.isOff) return;
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
 				throw new IllegalArgumentException(key + " is reserved by DataSourceRequest class and can't be used.");
@@ -124,14 +141,19 @@ public class DataSourceRequest {
 	public String getParam(String key) {
         String value = mBundle.getString(key);
         if (value == null) {
-            String uri = mBundle.getString(REQUEST_URI);
-            return Uri.parse(uri).getQueryParameter(key);
+            Holder<String> stringHolder = mParamsCache.get(key);
+            value = stringHolder == null ? null : stringHolder.get();
+            if (value == null) {
+                String queryParameter = getRequestUri().getQueryParameter(key);
+                mParamsCache.put(key, new Holder<String>(queryParameter));
+                return queryParameter;
+            }
         }
         return value;
 	}
-	
-	public String toUriParams() {
-		StringBuffer buffer = new StringBuffer();
+
+    public String toUriParams() {
+		StringBuilder buffer = new StringBuilder();
 		Set<String> keySet = mBundle.keySet();
         List<String> sortedKeys = new ArrayList<String>();
         sortedKeys.addAll(keySet);
@@ -229,7 +251,7 @@ public class DataSourceRequest {
             private DataSourceRequest dataSourceRequest;
         }
 
-        private List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
+        private final List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
 
         private String dataSourceKey;
 
@@ -249,6 +271,14 @@ public class DataSourceRequest {
         public JoinedRequestBuilder setProcessor(String processorKey) {
             this.processorKey = processorKey;
             return this;
+        }
+
+        public String getDataSourceKey() {
+            return dataSourceKey;
+        }
+
+        public String getProcessorKey() {
+            return processorKey;
         }
 
         public JoinedRequestBuilder add(DataSourceRequest dataSourceRequest) {
@@ -288,6 +318,6 @@ public class DataSourceRequest {
 
             }
             return dataSourceRequests.get(0).dataSourceRequest;
-        };
+        }
     }
 }

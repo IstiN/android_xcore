@@ -21,7 +21,7 @@ public abstract class AbstractDBProcessor<Result, DataSourceResult> implements I
         if (withNotify) {
             deleteUrl = ModelContract.getUri(clazz);
         } else {
-            deleteUrl = new ModelContract.UriBuilder(clazz).notNotifyChanges().build();;
+            deleteUrl = new ModelContract.UriBuilder(clazz).notNotifyChanges().build();
         }
         context.getContentResolver().delete(ModelContract.getUri(dataSourceRequest, deleteUrl), selection, selectionArgs);
     }

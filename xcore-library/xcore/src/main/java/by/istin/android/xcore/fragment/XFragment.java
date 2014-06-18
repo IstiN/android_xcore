@@ -103,8 +103,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
-        return cursorLoader;
+        return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
 	}
 	
 	@Override
@@ -150,7 +149,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     protected void setViewImage(ImageView v, String text) {
         //TODO plugins
-    };
+    }
 
     protected void setViewText(TextView v, String text) {
         if (StringUtil.isEmpty(text)) {
@@ -188,7 +187,13 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     @Override
     public void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest) {
-        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
+        String processorKey = getProcessorKey();
+        String dataSourceKey = getDataSourceKey();
+        dataSourceExecute(context, dataSourceRequest, processorKey, dataSourceKey);
+    }
+
+    protected void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+        DataSourceService.execute(context, dataSourceRequest, processorKey, dataSourceKey, new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
             public void onStart(Bundle resultData) {
@@ -203,7 +208,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
                 if (activity == null) {
                     return;
                 }
-                IErrorHandler errorHandler = (IErrorHandler) AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+                IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
                 if (errorHandler != null) {
                     errorHandler.onError(activity, XFragment.this, dataSourceRequest, exception);
                 } else {
@@ -220,11 +225,13 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
                     return;
                 }
                 hideProgress();
+                onReceiverOnDone(resultData);
             }
 
             @Override
             protected void onCached(Bundle resultData) {
                 isServiceWork = false;
+                onReceiverOnCached(resultData);
                 super.onCached(resultData);
                 hideProgress();
             }
@@ -234,13 +241,17 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
 		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
-		dataSourceRequest.setCacheable(isCacheable());
-		dataSourceRequest.setCacheExpiration(getCacheExpiration());
-		dataSourceRequest.setForceUpdateData(isForceUpdate);
-        dataSourceExecute(activity, dataSourceRequest);
+        loadData(activity, isForceUpdate, dataSourceRequest);
 	}
-	
-	protected boolean isForceUpdateData() {
+
+    protected void loadData(Activity activity, Boolean isForceUpdate, DataSourceRequest dataSourceRequest) {
+        dataSourceRequest.setCacheable(isCacheable());
+        dataSourceRequest.setCacheExpiration(getCacheExpiration());
+        dataSourceRequest.setForceUpdateData(isForceUpdate);
+        dataSourceExecute(activity, dataSourceRequest);
+    }
+
+    protected boolean isForceUpdateData() {
 		return false;
 	}
 

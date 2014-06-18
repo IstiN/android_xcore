@@ -139,8 +139,7 @@ public class BytesUtils {
             bos = new ByteArrayOutputStream();
 			out = new ObjectOutputStream(bos);
 			out.writeObject(serializable);
-			byte[] bytes = bos.toByteArray();
-			return bytes;
+			return bos.toByteArray();
 		} catch (IOException e) {
 			throw new IllegalArgumentException(e);
 		} finally {

@@ -10,7 +10,6 @@ import android.provider.BaseColumns;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -39,11 +38,11 @@ public class DBHelper {
 
     private static final String TAG = DBHelper.class.getSimpleName();
 
-    private IDBConnector mDbConnector;
+    private final IDBConnector mDbConnector;
 
-    private DBAssociationCache dbAssociationCache;
+    private final DBAssociationCache dbAssociationCache;
 
-    public static boolean IS_LOG_ENABLED = false;
+    public static final boolean IS_LOG_ENABLED = false;
 
     public DBHelper(IDBConnector dbConnector) {
         super();
@@ -220,8 +219,9 @@ public class DBHelper {
 			if (beforeUpdate != null) {
 				beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
 			}
-			Long id = contentValues.getAsLong(BaseColumns._ID);
-			if (id == null) {
+			String idAsString = contentValues.getAsString(BaseColumns._ID);
+            Long id = null;
+			if (idAsString == null) {
                 IGenerateID generateId = ReflectUtils.getInstanceInterface(classOfModel, IGenerateID.class);
                 if (generateId != null) {
                     id = generateId.generateId(this, db, dataSourceRequest, contentValues);
@@ -232,7 +232,9 @@ public class DBHelper {
                     throw new IllegalArgumentException("content values needs to contains _ID. Details: " +
                             "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
                 }
-			}
+			} else {
+                id = Long.valueOf(idAsString);
+            }
 			List<ReflectUtils.XField> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
 			if (listDbEntity != null) {
 				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
@@ -312,19 +314,17 @@ public class DBHelper {
 
     public static boolean isContentValuesEquals(ContentValues oldContentValues, ContentValues contentValues) {
 		Set<Entry<String, Object>> keySet = contentValues.valueSet();
-		for (Iterator<Entry<String, Object>> iterator = keySet.iterator(); iterator.hasNext();) {
-			Entry<String, Object> entry = iterator.next();
-			Object newObject = entry.getValue();
-			Object oldObject = oldContentValues.get(entry.getKey());
-			if (newObject == null && oldObject == null) {
-				continue;
-			}
-			if (newObject != null && newObject.equals(oldObject)) {
-				continue;
-			} else {
-				return false;
-			}
-		}
+        for (Entry<String, Object> entry : keySet) {
+            Object newObject = entry.getValue();
+            Object oldObject = oldContentValues.get(entry.getKey());
+            if (newObject == null && oldObject == null) {
+                continue;
+            }
+            if (newObject != null && newObject.equals(oldObject)) {
+            } else {
+                return false;
+            }
+        }
 		return true;
 	}
 
@@ -350,17 +350,17 @@ public class DBHelper {
 			} catch (ClassNotFoundException e1) {
 				throw new IllegalArgumentException(e1);
 			}
-			if (annotation.annotationType().equals(dbEntity.class)) {
-				ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
+            if (annotation.annotationType().equals(dbEntity.class)) {
+                ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
                 putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
                 updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
-			} else {
-				ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
+            } else {
+                ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
                 for (ContentValues cv : entitiesValues) {
                     putForeignIdAndClear(id, contentValuesKey, foreignId, cv);
                 }
                 updateOrInsert(dataSourceRequest, modelClass, db, entitiesValues);
-			}
+            }
 			contentValues.remove(columnName);
 			contentValues.remove(contentValuesKey);
 		}
@@ -434,9 +434,7 @@ public class DBHelper {
     public static ContentValues duplicateContentValues(ContentValues contentValues) {
         ContentValues values = new ContentValues();
         Set<Entry<String, Object>> entries = contentValues.valueSet();
-        Iterator<Entry<String, Object>> iterator = entries.iterator();
-        while (iterator.hasNext()) {
-            Entry<String,Object> keyValue = iterator.next();
+        for (Entry<String, Object> keyValue : entries) {
             values.put(keyValue.getKey(), String.valueOf(keyValue.getValue()));
         }
         return values;

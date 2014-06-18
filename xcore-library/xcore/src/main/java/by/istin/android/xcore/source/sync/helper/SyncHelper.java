@@ -6,7 +6,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.os.Bundle;
 
-import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
@@ -15,15 +14,15 @@ public class SyncHelper implements ISyncHelper {
 	
 	public static final String ACCOUNT_TYPE = ".account";
 
-    private String mAccountName;
+    private final String mAccountName;
 
-    private long mPeriod;
+    private final long mPeriod;
 
-    private Context mContext;
+    private final Context mContext;
 
-    private String mModelContentProviderAuthority;
+    private final String mModelContentProviderAuthority;
 
-    private String mType;
+    private final String mType;
 
     public static ISyncHelper get(Context context) {
         return (ISyncHelper) AppUtils.get(context, APP_SERVICE_KEY);
@@ -65,10 +64,7 @@ public class SyncHelper implements ISyncHelper {
 
     protected boolean isExists(AccountManager am) {
         Account[] accountsByType = am.getAccountsByType(mType);
-        if (accountsByType != null && accountsByType.length > 0) {
-            return true;
-        }
-        return false;
+        return accountsByType != null && accountsByType.length > 0;
     }
 
     @Override

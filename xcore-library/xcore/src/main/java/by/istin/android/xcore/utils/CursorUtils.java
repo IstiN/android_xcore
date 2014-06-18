@@ -91,10 +91,7 @@ public final class CursorUtils {
 
     public static boolean getBoolean(String columnName, Cursor cursor) {
         int columnIndex = cursor.getColumnIndex(columnName);
-        if (columnIndex == -1) {
-            return false;
-        }
-        return cursor.getInt(columnIndex) == 1;
+        return columnIndex != -1 && cursor.getInt(columnIndex) == 1;
     }
 
     public static abstract class Converter {

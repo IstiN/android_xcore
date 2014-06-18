@@ -55,13 +55,13 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-            if (writableDatabase != null) {
-                writableDatabase.setLockingEnabled(false);
+        if (writableDatabase != null) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+                    writableDatabase.setLockingEnabled(false);
             }
-        }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            writableDatabase.enableWriteAheadLogging();
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+                writableDatabase.enableWriteAheadLogging();
+            }
         }
         return writableDatabase;
     }

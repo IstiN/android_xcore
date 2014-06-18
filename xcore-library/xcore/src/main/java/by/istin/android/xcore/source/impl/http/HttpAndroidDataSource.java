@@ -9,6 +9,7 @@ import android.net.Uri;
 import android.net.http.AndroidHttpClient;
 import android.os.Build;
 import android.text.TextUtils;
+import android.webkit.URLUtil;
 
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;
@@ -31,7 +32,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -78,7 +78,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	/* Constant Tag for logging. */
 	private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
 
-	protected static String sUserAgent;
+	protected static final String sUserAgent;
 
 	public static class DefaultHttpRequestBuilder implements IHttpRequestBuilder {
 
@@ -135,8 +135,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		}
 
         protected HttpRequestBase createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpDelete httpDelete = new HttpDelete(url);
-            return httpDelete;
+            return new HttpDelete(url);
         }
 
         protected HttpRequestBase createPutRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
@@ -152,23 +151,21 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
 
         protected HttpRequestBase creteGetRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            HttpGet httpGet = new HttpGet(url);
-            return httpGet;
+            return new HttpGet(url);
         }
 
         private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
 			Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
-			for (Iterator<String> iterator = queryParameterNames.iterator(); iterator.hasNext();) {
-				String paramName = (String) iterator.next();
-				if (paramName.equals(TYPE))
-					continue;
-				String queryParameter = uri.getQueryParameter(paramName);
-				if (Build.VERSION.SDK_INT < 16 && queryParameter != null) {
-					queryParameter = queryParameter.replace(PLUS, SPACE);
-				}
-				nameValuePairs.add(new BasicNameValuePair(paramName, queryParameter));
-			}
+            for (String paramName : queryParameterNames) {
+                if (paramName.equals(TYPE))
+                    continue;
+                String queryParameter = uri.getQueryParameter(paramName);
+                if (Build.VERSION.SDK_INT < 16 && queryParameter != null) {
+                    queryParameter = queryParameter.replace(PLUS, SPACE);
+                }
+                nameValuePairs.add(new BasicNameValuePair(paramName, queryParameter));
+            }
 			try {
 				postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, UTF_8));
 			} catch (UnsupportedEncodingException e) {
@@ -181,7 +178,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws IOStatusException, ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
@@ -199,12 +196,12 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 				+ Locale.getDefault().getCountry() + USER_AGENT_DIVIDER + android.os.Build.DEVICE + USER_AGENT_BUILD + android.os.Build.ID + USER_AGENT_END;
 	}
 
-	/* Apache client. */
-	private HttpClient mClient;
 
-	private IHttpRequestBuilder mRequestBuilder;
+	private final IHttpRequestBuilder mRequestBuilder;
 
-	private IResponseStatusHandler mResponseStatusHandler;
+	private final IResponseStatusHandler mResponseStatusHandler;
+
+    private final InputStreamHttpClientHelper mInputStreamHelper;
 
 	public HttpAndroidDataSource() {
 		this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());
@@ -214,11 +211,11 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
 		mRequestBuilder = requestBuilder;
 		mResponseStatusHandler = statusHandler;
-		mClient = createHttpClient();
+        mInputStreamHelper = createInputStreamHttpClientHelper();
 	}
 
-    public HttpClient createHttpClient() {
-        return AndroidHttpClient.newInstance(sUserAgent);
+    protected InputStreamHttpClientHelper createInputStreamHttpClientHelper() {
+        return new InputStreamHttpClientHelper(sUserAgent);
     }
 
     public IHttpRequestBuilder getRequestBuilder(){
@@ -237,10 +234,6 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		return mRequestBuilder.build(request);
 	}
 
-    public HttpClient getClient() {
-        return mClient;
-    }
-
     public IResponseStatusHandler getResponseStatusHandler() {
         return mResponseStatusHandler;
     }
@@ -250,7 +243,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		Log.xd(this, request);
-		HttpResponse response = mClient.execute(request);
+        HttpClient client = mInputStreamHelper.getClient();
+        HttpResponse response = client.execute(request);
 		int statusCode = response.getStatusLine().getStatusCode();
         boolean isRedirect = isRedirect(statusCode);
         if (isRedirect) {
@@ -258,9 +252,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			if (firstHeader != null) {
                 String value = firstHeader.getValue();
                 if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
-                    HttpGet redirectUri = new HttpGet(value);
-                    request.abort();
-                    return getInputSteam(redirectUri);
+                    return createRedirectRequest(request, response, value);
                 }
 			}
 		}
@@ -268,8 +260,21 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			mResponseStatusHandler.statusHandle(this, request, response);
 		}
 		HttpEntity httpEntity = response.getEntity();
-		return AndroidHttpClient.getUngzippedContent(httpEntity);
+        InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
+        return mInputStreamHelper.getInputStream(ungzippedContent, client);
 	}
+
+    protected InputStream createRedirectRequest(HttpUriRequest request, HttpResponse response, String value) throws IOException {
+        Log.xd(this, "redirect " + value);
+        if (!URLUtil.isNetworkUrl(value)) {
+            Log.xd(this, "redirect current request ");
+            value = request.getURI().getScheme() + "://" + request.getURI().getHost() + value;
+            Log.xd(this, "redirect current request " + value);
+        }
+        HttpGet redirectUri = new HttpGet(value);
+        request.abort();
+        return getInputSteam(redirectUri);
+    }
 
     protected boolean isRedirect(int statusCode) {
         return statusCode == HttpStatus.SC_MOVED_TEMPORARILY || statusCode == HttpStatus.SC_MOVED_PERMANENTLY;

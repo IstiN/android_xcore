@@ -33,7 +33,7 @@ public abstract class DBContentProvider extends ContentProvider {
     protected IDBContentProviderSupport getContentProviderSupport(Context context) {
         DBContentProviderFactory dbContentProviderFactory = DBContentProviderFactory.getInstance();
         return dbContentProviderFactory.getDbContentProvider(context, DBContentProviderFactory.Type.SQLite, getEntities());
-    };
+    }
 
     @Override
     public final String getType(Uri uri) {
@@ -76,20 +76,17 @@ public abstract class DBContentProvider extends ContentProvider {
 
     public static IDBConnection getWritableConnection(Context context, Class<?>[] entities) {
         IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        IDBConnection writableConnection = dbContentProvider.getDbSupport().createConnector(context).getWritableConnection();
-        return writableConnection;
+        return dbContentProvider.getDbSupport().createConnector(context).getWritableConnection();
     }
 
     public static IDBConnection getReadableConnection(Context context, Class<?>[] entities) {
         IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        IDBConnection writableConnection = dbContentProvider.getDbSupport().createConnector(context).getReadableConnection();
-        return writableConnection;
+        return dbContentProvider.getDbSupport().createConnector(context).getReadableConnection();
     }
 
     public static DBHelper getDBHelper(Context context, Class<?>[] entities) {
         IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        DBHelper dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
-        return dbHelper;
+        return dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
     }
 
 }
