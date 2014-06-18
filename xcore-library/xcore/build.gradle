@@ -53,7 +53,7 @@ artifacts {
 }*/
 
 task makeJar(type: Copy) {
-    from('build/bundles/release/')
+    from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
     rename ('classes.jar', '../../../../download/xcore.jar')
