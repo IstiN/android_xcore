@@ -23,7 +23,11 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
                 dbEntities entity = params.getEntity();
                 if (entity.ignorePrimitive()) continue;
                 JsonParser parser = new JsonParser();
-                item = parser.parse("{\""+KEY_VALUE+"\": \""+item.getAsString()+"\"}");
+                String itemAsString = item.getAsString();
+                if (itemAsString.contains("\"")) {
+                    itemAsString = itemAsString.replace("\"", "&quot;");
+                }
+                item = parser.parse("{\"value\": \"" + itemAsString + "\"}");
                 subEntity = contentValuesAdapter.deserializeContentValues(params.getContentValues(), i, item, params.getType(), params.getJsonDeserializationContext());
             } else {
                 subEntity = contentValuesAdapter.deserializeContentValues(params.getContentValues(), i, item, params.getType(), params.getJsonDeserializationContext());

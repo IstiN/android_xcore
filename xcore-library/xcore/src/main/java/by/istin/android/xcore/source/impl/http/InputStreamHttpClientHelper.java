@@ -9,6 +9,8 @@ import java.io.InputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import by.istin.android.xcore.utils.IOUtils;
+
 /**
  * Created by Uladzimir_Klyshevich on 6/2/2014.
  */
@@ -78,13 +80,16 @@ public class InputStreamHttpClientHelper {
         @Override
         public void close() throws IOException {
             synchronized (mLock) {
-                mInputStream.close();
-                mStreams.remove(this);
-                if (mStreams.isEmpty()) {
-                    ((AndroidHttpClient)mClient).close();
-                    mClient = null;
+                try {
+                    mInputStream.close();
+                    super.close();
+                } finally {
+                    mStreams.remove(this);
+                    if (mStreams.isEmpty()) {
+                        ((AndroidHttpClient) mClient).close();
+                        mClient = null;
+                    }
                 }
-                super.close();
             }
         }
 
