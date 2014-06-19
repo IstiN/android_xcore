@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import by.istin.android.xcore.utils.IOUtils;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * Created by Uladzimir_Klyshevich on 6/2/2014.
@@ -18,7 +19,7 @@ public class InputStreamHttpClientHelper {
 
     private String mUserAgent;
 
-    private Object mLock = new Object();
+    private final Object mLock = new Object();
 
     private Set<InputStream> mStreams = new HashSet<InputStream>();
 
@@ -27,9 +28,6 @@ public class InputStreamHttpClientHelper {
     public InputStreamHttpClientHelper(String userAgent) {
         this.mUserAgent = userAgent;
     }
-
-    /* Apache client. */
-    private HttpClient mClient;
 
     public HttpClient getClient() {
         synchronized (mLock) {
@@ -43,6 +41,9 @@ public class InputStreamHttpClientHelper {
         }
     }
 
+    /* Apache client. */
+    private HttpClient mClient;
+
     public HttpClient createHttpClient() {
         return AndroidHttpClient.newInstance(mUserAgent);
     }
@@ -53,7 +54,8 @@ public class InputStreamHttpClientHelper {
         }
         synchronized (mLock) {
             InputStreamWrapper inputStreamWrapper = new InputStreamWrapper(pInputStream);
-            mStreams.add(inputStreamWrapper);
+            mStreams.add(pInputStream);
+            Log.xd(this, "add "+  mStreams.size());
             return inputStreamWrapper;
         }
     }
@@ -79,18 +81,21 @@ public class InputStreamHttpClientHelper {
 
         @Override
         public void close() throws IOException {
-            synchronized (mLock) {
+
                 try {
                     mInputStream.close();
                     super.close();
                 } finally {
-                    mStreams.remove(this);
-                    if (mStreams.isEmpty()) {
-                        ((AndroidHttpClient) mClient).close();
-                        mClient = null;
+                    synchronized (mLock) {
+                        mStreams.remove(mInputStream);
+                        Log.xd(this, "remove " + mStreams.size());
+                        if (mStreams.isEmpty() && mClient != null) {
+                            ((AndroidHttpClient) mClient).close();
+                            mClient = null;
+                        }
                     }
                 }
-            }
+
         }
 
         @Override
