@@ -243,25 +243,30 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
 		Log.xd(this, request);
-        HttpClient client = mInputStreamHelper.getClient();
-        HttpResponse response = client.execute(request);
-		int statusCode = response.getStatusLine().getStatusCode();
-        boolean isRedirect = isRedirect(statusCode);
-        if (isRedirect) {
-			Header firstHeader = response.getFirstHeader("Location");
-			if (firstHeader != null) {
-                String value = firstHeader.getValue();
-                if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
-                    return createRedirectRequest(request, response, value);
+        HttpClient client = null;
+        try {
+            client = mInputStreamHelper.getClient();
+            HttpResponse response = client.execute(request);
+            int statusCode = response.getStatusLine().getStatusCode();
+            boolean isRedirect = isRedirect(statusCode);
+            if (isRedirect) {
+                Header firstHeader = response.getFirstHeader("Location");
+                if (firstHeader != null) {
+                    String value = firstHeader.getValue();
+                    if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
+                        return createRedirectRequest(request, response, value);
+                    }
                 }
-			}
-		}
-		if (mResponseStatusHandler != null) {
-			mResponseStatusHandler.statusHandle(this, request, response);
-		}
-		HttpEntity httpEntity = response.getEntity();
-        InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
-        return mInputStreamHelper.getInputStream(ungzippedContent, client);
+            }
+            if (mResponseStatusHandler != null) {
+                mResponseStatusHandler.statusHandle(this, request, response);
+            }
+            HttpEntity httpEntity = response.getEntity();
+            InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
+            return mInputStreamHelper.getInputStream(ungzippedContent, client);
+        } finally {
+            mInputStreamHelper.releaseClient(client);
+        }
 	}
 
     protected InputStream createRedirectRequest(HttpUriRequest request, HttpResponse response, String value) throws IOException {

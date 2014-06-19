@@ -6,7 +6,9 @@ import org.apache.http.client.HttpClient;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import by.istin.android.xcore.utils.IOUtils;
@@ -23,7 +25,9 @@ public class InputStreamHttpClientHelper {
 
     private Set<InputStream> mStreams = new HashSet<InputStream>();
 
-    private boolean isAndroidHttpClient = false;
+    private List<HttpClient> mHttpClients = new ArrayList<HttpClient>();
+
+    private volatile boolean isAndroidHttpClient = true;
 
     public InputStreamHttpClientHelper(String userAgent) {
         this.mUserAgent = userAgent;
@@ -34,9 +38,8 @@ public class InputStreamHttpClientHelper {
             if (mClient == null) {
                 mClient = createHttpClient();
             }
-            if (mClient instanceof AndroidHttpClient) {
-                isAndroidHttpClient = true;
-            }
+            Log.xd(this, "isBusy true "+  mStreams.size());
+            mHttpClients.add(mClient);
             return mClient;
         }
     }
@@ -45,6 +48,7 @@ public class InputStreamHttpClientHelper {
     private HttpClient mClient;
 
     public HttpClient createHttpClient() {
+        isAndroidHttpClient = true;
         return AndroidHttpClient.newInstance(mUserAgent);
     }
 
@@ -53,10 +57,21 @@ public class InputStreamHttpClientHelper {
             return pInputStream;
         }
         synchronized (mLock) {
-            InputStreamWrapper inputStreamWrapper = new InputStreamWrapper(pInputStream);
+            InputStreamWrapper inputStreamWrapper = new InputStreamWrapper(pInputStream, client);
             mStreams.add(pInputStream);
             Log.xd(this, "add "+  mStreams.size());
             return inputStreamWrapper;
+        }
+    }
+
+    public void releaseClient(HttpClient httpClient) {
+        synchronized (mLock) {
+            mHttpClients.remove(httpClient);
+            Log.xd(this, "isBusy false "+  mStreams.size());
+            if (mStreams.isEmpty() && isAndroidHttpClient && !mHttpClients.contains(httpClient)) {
+                ((AndroidHttpClient) httpClient).close();
+                mClient = null;
+            }
         }
     }
 
@@ -64,9 +79,11 @@ public class InputStreamHttpClientHelper {
 
         private final InputStream mInputStream;
 
+        private final HttpClient mHttpClient;
 
-        private InputStreamWrapper(InputStream mInputStream) {
+        private InputStreamWrapper(InputStream mInputStream, HttpClient client) {
             this.mInputStream = mInputStream;
+            this.mHttpClient = client;
         }
 
         @Override
@@ -81,16 +98,15 @@ public class InputStreamHttpClientHelper {
 
         @Override
         public void close() throws IOException {
-
                 try {
                     mInputStream.close();
                     super.close();
                 } finally {
                     synchronized (mLock) {
                         mStreams.remove(mInputStream);
-                        Log.xd(this, "remove " + mStreams.size());
-                        if (mStreams.isEmpty() && mClient != null) {
-                            ((AndroidHttpClient) mClient).close();
+                        Log.xd(this, "remove " + mStreams.size() + " " + mHttpClients.size());
+                        if (mStreams.isEmpty() && !mHttpClients.contains(mHttpClient)) {
+                            ((AndroidHttpClient) mHttpClient).close();
                             mClient = null;
                         }
                     }
