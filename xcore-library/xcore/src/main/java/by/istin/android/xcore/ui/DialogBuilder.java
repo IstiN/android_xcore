@@ -32,13 +32,15 @@ public class DialogBuilder {
 	
 	private static final String TAG = DialogBuilder.class.getSimpleName();
 
-    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
+    @TargetApi(value = Build.VERSION_CODES.L)
 	private static int getTheme() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return android.R.style.Theme_Dialog;
-		} else {
+		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.L) {
 			return android.R.style.Theme_Holo_Light_Dialog;
-		}
+		} else {
+            return android.R.style.Theme_Material_Light_Dialog;
+        }
 	}
 
     @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)

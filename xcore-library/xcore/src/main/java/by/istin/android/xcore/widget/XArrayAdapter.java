@@ -42,7 +42,8 @@ public abstract class XArrayAdapter<T> extends ArrayAdapter<T> {
         } else {
             if (viewTypeCount > 0) {
                 int itemViewType = getItemViewType(position);
-                if (itemViewType != convertView.getTag()) {
+                Object tag = convertView.getTag();
+                if (tag != null && !tag.equals(itemViewType)) {
                     convertView = createView(parent, resource, position, item, parent);
                     convertView.setTag(itemViewType);
                 }
