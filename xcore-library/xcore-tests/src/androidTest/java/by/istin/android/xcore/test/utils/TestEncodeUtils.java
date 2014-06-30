@@ -5,7 +5,8 @@ import android.test.ApplicationTestCase;
 
 import com.google.common.internal.net.PercentEscaper;
 
-import org.apache.commons.codec.net.URLCodec;
+
+import org.apache.commons.codec.internal.net.URLCodec;
 
 import java.net.URLDecoder;
 import java.net.URLEncoder;

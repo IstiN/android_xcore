@@ -14,11 +14,13 @@ import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.HashUtils;
 
-public class BigTestEntity implements BaseColumns, IMerge {
+public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
 
 	@dbLong
 	@SerializedName(value="id")
@@ -50,4 +52,8 @@ public class BigTestEntity implements BaseColumns, IMerge {
 		// test interface
     }
 
+    @Override
+    public void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
+        contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(ID), position));
+    }
 }
