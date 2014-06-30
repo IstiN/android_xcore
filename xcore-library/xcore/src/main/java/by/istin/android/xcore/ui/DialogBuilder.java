@@ -15,6 +15,8 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
+import java.lang.reflect.Field;
+
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
@@ -26,20 +28,27 @@ import by.istin.android.xcore.utils.UiUtil;
  */
 public class DialogBuilder {
 
-	private static final String OK = "Ok";
+    private static final String OK = "Ok";
 	
 	private static final String CANCEL = "cancel";
 	
 	private static final String TAG = DialogBuilder.class.getSimpleName();
+    public static final int ANDROID_L = 10000;
 
-    @TargetApi(value = Build.VERSION_CODES.L)
+    @TargetApi(value = ANDROID_L)
 	private static int getTheme() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return android.R.style.Theme_Dialog;
-		} else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.L) {
+		} else if (Build.VERSION.SDK_INT < ANDROID_L) {
 			return android.R.style.Theme_Holo_Light_Dialog;
 		} else {
-            return android.R.style.Theme_Material_Light_Dialog;
+            try {
+                Class c =  Class.forName("com.startpage.mobile.R$style");
+                Field field = c.getDeclaredField("Theme_Material_Light_Dialog");
+                return (Integer)field.get(null);
+            } catch (Exception e) {
+                return android.R.style.Theme_Holo_Light_Dialog;
+            }
         }
 	}
 

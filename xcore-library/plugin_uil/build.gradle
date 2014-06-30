@@ -1,12 +1,4 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.12.+'
-    }
-}
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 
 repositories {
     mavenCentral()
@@ -14,12 +6,11 @@ repositories {
 
 android {
     compileSdkVersion 19
-    buildToolsVersion "19.1"
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 'android-L'
-        compileSdkVersion 'android-L'
+        targetSdkVersion 19
     }
     buildTypes {
         release {
@@ -34,7 +25,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:21.+'
+    compile 'com.android.support:support-v4:19.1.+'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.+'
     compile project(':xcore')
 }
