@@ -16,6 +16,10 @@ public abstract class AbstractDBProcessor<Result, DataSourceResult> implements I
         clearEntity(context, dataSourceRequest, clazz, null, null, withNotify);
     }
 
+    protected int getListBufferSize() {
+        return -1;
+    }
+
     public static void clearEntity(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz, String selection, String[] selectionArgs, boolean withNotify) {
         Uri deleteUrl = null;
         if (withNotify) {

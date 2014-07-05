@@ -1,6 +1,5 @@
 package by.istin.android.xcore.gson.external;
 
-import by.istin.android.xcore.gson.ContentValuesAdapter;
 import com.google.gson.Gson;
 import com.google.gson.TypeAdapter;
 import com.google.gson.TypeAdapterFactory;
@@ -8,6 +7,8 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
+
+import by.istin.android.xcore.gson.ContentValuesAdapter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -18,8 +19,11 @@ public class ArrayAdapterFactory implements TypeAdapterFactory {
 
     private final ContentValuesAdapter contentValuesAdapter;
 
-    public ArrayAdapterFactory(ContentValuesAdapter contentValuesAdapter) {
+    private final int listBufferSize;
+
+    public ArrayAdapterFactory(int listBufferSize, ContentValuesAdapter contentValuesAdapter) {
         this.contentValuesAdapter = contentValuesAdapter;
+        this.listBufferSize = listBufferSize;
     }
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -30,7 +34,7 @@ public class ArrayAdapterFactory implements TypeAdapterFactory {
 
         try {
             if (type.getRawType() == List.class) {
-                typeAdapter = new ArrayAdapter(
+                typeAdapter = new ArrayAdapter(listBufferSize,
                         (Class) ((ParameterizedType) type.getType())
                                 .getActualTypeArguments()[0], contentValuesAdapter);
             }

@@ -1,9 +1,5 @@
 package by.istin.android.xcore.processor.impl;
 
-import by.istin.android.xcore.gson.ContentValuesAdapter;
-import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.IDataSource;
-import by.istin.android.xcore.utils.IOUtils;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -12,6 +8,11 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+
+import by.istin.android.xcore.gson.ContentValuesAdapter;
+import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.source.IDataSource;
+import by.istin.android.xcore.utils.IOUtils;
 
 public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
@@ -38,7 +39,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
             gson = new GsonBuilder().create();
         } else {
 		    this.contentValuesAdapter = contentValuesAdapter;
-		    gson = createGsonWithContentValuesAdapter(contentValuesAdapter);
+		    gson = createGsonWithContentValuesAdapter(getListBufferSize(), contentValuesAdapter);
         }
 	}
 
@@ -79,4 +80,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 		return gson;
 	}
 
+    protected int getListBufferSize() {
+        return -1;
+    }
 }

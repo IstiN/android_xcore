@@ -5,12 +5,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 19
+    compileSdkVersion 20
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 19
+        targetSdkVersion 20
     }
     buildTypes {
         release {
@@ -22,10 +22,13 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
         }
     }
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.+'
+    compile 'com.android.support:support-v4:19.1.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.+'
     compile project(':xcore')
 }

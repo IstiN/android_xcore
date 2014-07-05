@@ -9,6 +9,7 @@ import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveEntityBatchProc
 import by.istin.android.xcore.processor.SimpleEntityWithSubEntitiesBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityWithSubEntityBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityWithSubJsonBatchProcessor;
+import by.istin.android.xcore.processor.SuperBigEntityBatchProcessor;
 import by.istin.android.xcore.provider.ContentProvider;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
@@ -30,6 +31,7 @@ public class Application extends CoreApplication {
         registerAppService(new SimpleEntityWithPrimitiveEntityBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithPrimitiveConverterBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithSubEntitiesBatchProcessor(defaultDBContentProvider));
+        registerAppService(new SuperBigEntityBatchProcessor(defaultDBContentProvider));
 
         //issue 12
         registerAppService(new DaysBatchProcessor(defaultDBContentProvider));

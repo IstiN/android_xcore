@@ -12,6 +12,7 @@ import by.istin.android.xcore.model.SimpleEntityWithPrimitiveEntity;
 import by.istin.android.xcore.model.SimpleEntityWithSubEntities;
 import by.istin.android.xcore.model.SimpleEntityWithSubEntity;
 import by.istin.android.xcore.model.SimpleEntityWithSubJson;
+import by.istin.android.xcore.model.SuperBigTestEntity;
 import by.istin.android.xcore.model.TagEntity;
 
 /**
@@ -33,6 +34,8 @@ public class ContentProvider extends DBContentProvider {
 
             BigTestEntity.class,
             BigTestSubEntity.class,
+
+            SuperBigTestEntity.class,
 
             //issue12
             DayEntity.class
