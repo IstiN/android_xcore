@@ -3,23 +3,21 @@ package by.istin.android.xcore.test;
 import android.app.Application;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.net.Uri;
 import android.test.ApplicationTestCase;
-import android.util.Log;
+
+import java.io.InputStream;
+
 import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.model.BigTestEntity;
+import by.istin.android.xcore.model.BigTestSubEntity;
 import by.istin.android.xcore.processor.impl.AbstractGsonBatchProcessor;
-import by.istin.android.xcore.processor.impl.GsonContentValuesProcessor;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
-import by.istin.android.xcore.model.BigTestEntity;
-import by.istin.android.xcore.model.BigTestSubEntity;
 import by.istin.android.xcore.utils.CursorUtils;
-
-import java.io.InputStream;
 
 public class TestGsonProcessor extends ApplicationTestCase<Application> {
 
@@ -44,9 +42,7 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
 		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_object.json");
 		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest);
-		ContentValues contentValues = new GsonContentValuesProcessor(BigTestEntity.class).execute(dataSourceRequest, httpAndroidDataSource, inputStream);
 		inputStream.close();
-		Log.d("TestHttpDataSource", contentValues.toString());
 	}
 	
 	public void testArrayLoadAndInsert() throws Exception {

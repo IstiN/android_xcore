@@ -3,10 +3,11 @@
  */
 package by.istin.android.xcore.test.utils;
 
-import java.util.List;
-
 import android.content.ContentValues;
 import android.test.AndroidTestCase;
+
+import java.util.List;
+
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.model.BigTestEntity;
@@ -28,7 +29,7 @@ public class TestReflectUtils extends AndroidTestCase {
 		IMerge merge = ReflectUtils.getInstanceInterface(BigTestEntity.class, IMerge.class);
 		assertNotNull(merge);
 		IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(BigTestEntity.class, IBeforeArrayUpdate.class);
-		assertNull(beforeListUpdate);
+		assertNotNull(beforeListUpdate);
 	}
 	
 	public void testContentValueByteConvertation() throws Exception {

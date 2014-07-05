@@ -9,7 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-import by.istin.android.xcore.gson.ContentValuesAdapter;
+import by.istin.android.xcore.gson.AbstractValuesAdapter;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
@@ -22,16 +22,13 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 	
 	private final Gson gson;
 	
-	private ContentValuesAdapter contentValuesAdapter;
+	private AbstractValuesAdapter contentValuesAdapter;
 
     public AbstractGsonProcessor(Class<? extends Result> resultClassName) {
         this(null, resultClassName, null);
     }
 
-    public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName) {
-        this(clazz, resultClassName, new ContentValuesAdapter(clazz));
-    }
-	public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName, ContentValuesAdapter contentValuesAdapter) {
+	public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName, AbstractValuesAdapter contentValuesAdapter) {
 		super();
 		this.clazz = clazz;
 		this.resultClassName = resultClassName;
@@ -64,11 +61,11 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 	}
 	
 
-	public ContentValuesAdapter getContentValuesAdapter() {
+	public AbstractValuesAdapter getContentValuesAdapter() {
 		return contentValuesAdapter;
 	}
 
-	public void setContentValuesAdapter(ContentValuesAdapter contentValuesAdaper) {
+	public void setContentValuesAdapter(AbstractValuesAdapter contentValuesAdaper) {
 		this.contentValuesAdapter = contentValuesAdaper;
 	}
 	

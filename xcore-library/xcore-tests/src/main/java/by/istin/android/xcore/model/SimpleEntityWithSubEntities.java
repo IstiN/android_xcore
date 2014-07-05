@@ -5,7 +5,6 @@ import android.provider.BaseColumns;
 import com.google.gson.annotations.SerializedName;
 
 import by.istin.android.xcore.annotations.dbEntities;
-import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 
@@ -30,11 +29,11 @@ public class SimpleEntityWithSubEntities implements BaseColumns {
     @SerializedName(value = "image_url")
     public static final String IMAGE_URL = "image_url";
 
-    @dbEntities(clazz = SimpleEntityWithParent1.class, contentValuesKey = "subEntities1")
+    @dbEntities(clazz = SimpleEntityWithParent1.class)
     @SerializedName(value = "sub_entities1")
     public static final String SUB_ENTITIES1 = "sub_entities1";
 
-    @dbEntities(clazz = SimpleEntityWithParent2.class, contentValuesKey = "subEntities2")
+    @dbEntities(clazz = SimpleEntityWithParent2.class)
     @SerializedName(value = "sub_entities2")
     public static final String SUB_ENTITIES2 = "sub_entities2";
 

@@ -18,7 +18,6 @@ import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.HashUtils;
 
 public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
 
@@ -41,10 +40,10 @@ public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	@dbBoolean
 	public static final String BOOLEAN_VALUE = "BOOLEAN_VALUE";
 	
-	@dbEntity(clazz=BigTestSubEntity.class, contentValuesKey = "subEntityValue")
+	@dbEntity(clazz=BigTestSubEntity.class)
 	public static final String SUB_ENTITY_VALUE = "sub_entity_value";
 
-	@dbEntities(clazz=BigTestSubEntity.class, contentValuesKey = "subEntityValues")
+	@dbEntities(clazz=BigTestSubEntity.class)
 	public static final String SUB_ENTITY_VALUES = "sub_entity_values";
 
 	@Override
@@ -54,6 +53,6 @@ public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
 
     @Override
     public void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
-        contentValues.put(ID, HashUtils.generateId(contentValues.getAsLong(ID), position));
+
     }
 }

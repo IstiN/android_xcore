@@ -31,7 +31,7 @@ public class SimpleEntityWithCustomPrimitiveConverter implements BaseColumns {
     public static final String IMAGE_URL = "image_url";
 
     //for processing primitive types
-    @dbEntities(clazz = Object.class, contentValuesKey = "stubValues", jsonConverter = TagJsonConverter.class)
+    @dbEntities(clazz = Object.class, jsonConverter = TagJsonConverter.class)
     @SerializedName(value = "tags")
     public static final String TAGS_FOR_PROCESSING = "tags_for_processing";
 

@@ -572,8 +572,8 @@ jQuery.cookie = function(name, value, options) {
 <body>
 <div id="container">
 <div id="header">
-<div class="time">19.44 s</div>
-<h1>All Tests: <strong><span class="total">107 total, </span><span class="passed">107 passed</span></strong>
+<div class="time">5 m 42 s</div>
+<h1>All Tests: <strong><span class="total">103 total, </span><span class="failed">7 failed, </span><span class="passed">96 passed</span></strong>
 </h1>
 <div id="treecontrol">
 <ul>
@@ -591,34 +591,7 @@ jQuery.cookie = function(name, value, options) {
 <ul id="tree">
 <li xmlns="" class="level top open">
 <span><em class="time">
-<div class="time">3.44 s</div>
-</em>by.istin.android.xcore.test.TestDatasourceService</span>
-<ul>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">1.48 s</div>
-</em><em class="status">passed</em>testGetDialogs</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">1.96 s</div>
-</em><em class="status">passed</em>testGetFriends</span>
-</li>
-</ul>
-</li>
-<li class="level top open">
-<span><em class="time">
-<div class="time">6.73 s</div>
+<div class="time">1 m 8 s</div>
 </em>by.istin.android.xcore.test.TestGsonProcessor</span>
 <ul>
 <li class="level test">
@@ -633,19 +606,19 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">5.76 s</div>
+<div class="time">1 m 7 s</div>
 </em><em class="status">passed</em>testArrayLoadAndInsert</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">975 ms</div>
+<div class="time">950 ms</div>
 </em><em class="status">passed</em>testObjectLoad</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">551 ms</div>
+<div class="time">500 ms</div>
 </em>by.istin.android.xcore.test.TestHttpDataSource</span>
 <ul>
 <li class="level test">
@@ -655,12 +628,12 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">551 ms</div>
+<div class="time">475 ms</div>
 </em><em class="status">passed</em>testLoad</span>
 </li>
 </ul>
@@ -682,9 +655,9 @@ jQuery.cookie = function(name, value, options) {
 </li>
 </ul>
 </li>
-<li class="level top open">
+<li class="level top failed open">
 <span><em class="time">
-<div class="time">550 ms</div>
+<div class="time">900 ms</div>
 </em>by.istin.android.xcore.test.db.TestDbHelper</span>
 <ul>
 <li class="level test">
@@ -699,34 +672,39 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">250 ms</div>
+<div class="time">275 ms</div>
 </em><em class="status">passed</em>testBulkInsert</span>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">150 ms</div>
+<div class="time">300 ms</div>
 </em><em class="status">passed</em>testDelete</span>
 </li>
-<li class="level test">
+<li class="level test failed open">
 <span><em class="time">
-<div class="time">150 ms</div>
-</em><em class="status">passed</em>testDeleteWithCondition</span>
+<div class="time">300 ms</div>
+</em><em class="status">failed</em>testDeleteWithCondition</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;199&gt; but was:&lt;200&gt;<br/>at by.istin.android.xcore.test.db.TestDbHelper.checkResults(TestDbHelper.java:72)<br/>at by.istin.android.xcore.test.db.TestDbHelper.testDeleteWithCondition(TestDbHelper.java:55)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testInsert</span>
 </li>
 </ul>
 </li>
-<li class="level top open">
+<li class="level top failed open">
 <span><em class="time">
-<div class="time">7.80 s</div>
+<div class="time">31.04 s</div>
 </em>by.istin.android.xcore.test.db.TestSQLiteSupport</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">1 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -734,67 +712,60 @@ jQuery.cookie = function(name, value, options) {
 <div class="time">0 ms</div>
 </em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
 </li>
-<li class="level test">
+<li class="level test failed open">
 <span><em class="time">
-<div class="time">351 ms</div>
-</em><em class="status">passed</em>testBatch</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">125 ms</div>
-</em><em class="status">passed</em>testBulkInsert</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">150 ms</div>
-</em><em class="status">passed</em>testDelete</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">151 ms</div>
-</em><em class="status">passed</em>testDeleteWithCondition</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">1 ms</div>
-</em><em class="status">passed</em>testInsert</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">7.02 s</div>
-</em><em class="status">passed</em>testThreadSafe</span>
+<div class="time">1.20 s</div>
+</em><em class="status">failed</em>testBatch</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;200&gt; but was:&lt;0&gt;<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.checkResults(TestSQLiteSupport.java:149)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testBatch(TestSQLiteSupport.java:66)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
 </li>
 </ul>
 </li>
-<li class="level top open">
+<li class="level test failed open">
 <span><em class="time">
-<div class="time">0 ms</div>
-</em>by.istin.android.xcore.test.fragment.TestXListFragment</span>
+<div class="time">300 ms</div>
+</em><em class="status">failed</em>testBulkInsert</span>
 <ul>
-<li class="level test">
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;200&gt; but was:&lt;0&gt;<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.checkResults(TestSQLiteSupport.java:149)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testBulkInsert(TestSQLiteSupport.java:136)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
+</li>
+<li class="level test failed open">
 <span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
+<div class="time">250 ms</div>
+</em><em class="status">failed</em>testDelete</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;200&gt; but was:&lt;0&gt;<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.checkResults(TestSQLiteSupport.java:149)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testBulkInsert(TestSQLiteSupport.java:136)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testDelete(TestSQLiteSupport.java:108)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
+</li>
+<li class="level test failed open">
+<span><em class="time">
+<div class="time">300 ms</div>
+</em><em class="status">failed</em>testDeleteWithCondition</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;200&gt; but was:&lt;0&gt;<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.checkResults(TestSQLiteSupport.java:149)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testBulkInsert(TestSQLiteSupport.java:136)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testDeleteWithCondition(TestSQLiteSupport.java:121)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
+</li>
+<li class="level test failed open">
+<span><em class="time">
+<div class="time">25 ms</div>
+</em><em class="status">failed</em>testInsert</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: expected:&lt;1&gt; but was:&lt;0&gt;<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.checkResults(TestSQLiteSupport.java:149)<br/>at by.istin.android.xcore.test.db.TestSQLiteSupport.testInsert(TestSQLiteSupport.java:58)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testSearch</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testSearchWithSelections</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testWrongParametersForSearch</span>
+<div class="time">28.94 s</div>
+</em><em class="status">passed</em>testThreadSafe</span>
 </li>
 </ul>
 </li>
@@ -837,12 +808,12 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">125 ms</div>
 </em>by.istin.android.xcore.test.issues.TestIssue12Processor</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -852,14 +823,14 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">100 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">75 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityBatchProcessor</span>
 <ul>
 <li class="level test">
@@ -874,36 +845,14 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">75 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">50 ms</div>
-</em>by.istin.android.xcore.test.processor.TestSimpleEntityProcessor</span>
-<ul>
-<li class="level test">
-<span><em class="time">
-<div class="time">25 ms</div>
-</em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">0 ms</div>
-</em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
-</li>
-<li class="level test">
-<span><em class="time">
-<div class="time">25 ms</div>
-</em><em class="status">passed</em>testSampleProcessor</span>
-</li>
-</ul>
-</li>
-<li class="level top open">
-<span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">75 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityWithPrimitiveConverterBatchProcessor</span>
 <ul>
 <li class="level test">
@@ -918,19 +867,19 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">75 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">50 ms</div>
+<div class="time">125 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityWithPrimitiveEntityBatchProcessor</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">0 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -940,19 +889,19 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">125 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">50 ms</div>
+<div class="time">175 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityWithSubEntitiesBatchProcessor</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -962,14 +911,14 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">50 ms</div>
+<div class="time">150 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">125 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityWithSubEntityBatchProcessor</span>
 <ul>
 <li class="level test">
@@ -984,14 +933,14 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">125 ms</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">126 ms</div>
 </em>by.istin.android.xcore.test.processor.TestSimpleEntityWithSubJsonBatchProcessor</span>
 <ul>
 <li class="level test">
@@ -1006,7 +955,29 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">126 ms</div>
+</em><em class="status">passed</em>testSampleProcessor</span>
+</li>
+</ul>
+</li>
+<li class="level top open">
+<span><em class="time">
+<div class="time">3 m 26 s</div>
+</em>by.istin.android.xcore.test.processor.TestSuperBigEntityBatchProcessor</span>
+<ul>
+<li class="level test">
+<span><em class="time">
+<div class="time">0 ms</div>
+</em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">0 ms</div>
+</em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">3 m 26 s</div>
 </em><em class="status">passed</em>testSampleProcessor</span>
 </li>
 </ul>
@@ -1040,12 +1011,12 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em>by.istin.android.xcore.test.source.TestDataSourceRequest</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -1062,7 +1033,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">75 ms</div>
+<div class="time">50 ms</div>
 </em>by.istin.android.xcore.test.utils.TestAppUtils</span>
 <ul>
 <li class="level test">
@@ -1092,7 +1063,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">25 ms</div>
+<div class="time">0 ms</div>
 </em><em class="status">passed</em>testWrongKey</span>
 </li>
 </ul>
@@ -1136,12 +1107,12 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">26 ms</div>
-</em>by.istin.android.xcore.test.utils.TestHashUtils</span>
+<div class="time">34.89 s</div>
+</em>by.istin.android.xcore.test.utils.TestEncodeUtils</span>
 <ul>
 <li class="level test">
 <span><em class="time">
-<div class="time">26 ms</div>
+<div class="time">0 ms</div>
 </em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
 </li>
 <li class="level test">
@@ -1151,7 +1122,39 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
+<div class="time">17.51 s</div>
+</em><em class="status">passed</em>testDefaultEncoding</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">8.99 s</div>
+</em><em class="status">passed</em>testDefaultFast2Encoding</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">8.39 s</div>
+</em><em class="status">passed</em>testDefaultFastEncoding</span>
+</li>
+</ul>
+</li>
+<li class="level top open">
+<span><em class="time">
+<div class="time">175 ms</div>
+</em>by.istin.android.xcore.test.utils.TestHashUtils</span>
+<ul>
+<li class="level test">
+<span><em class="time">
+<div class="time">25 ms</div>
+</em><em class="status">passed</em>testAndroidTestCaseSetupProperly</span>
+</li>
+<li class="level test">
+<span><em class="time">
 <div class="time">0 ms</div>
+</em><em class="status">passed</em>testApplicationTestCaseSetUpProperly</span>
+</li>
+<li class="level test">
+<span><em class="time">
+<div class="time">150 ms</div>
 </em><em class="status">passed</em>testOutOfMemory</span>
 </li>
 </ul>
@@ -1178,9 +1181,9 @@ jQuery.cookie = function(name, value, options) {
 </li>
 </ul>
 </li>
-<li class="level top open">
+<li class="level top failed open">
 <span><em class="time">
-<div class="time">26 ms</div>
+<div class="time">0 ms</div>
 </em>by.istin.android.xcore.test.utils.TestReflectUtils</span>
 <ul>
 <li class="level test">
@@ -1193,14 +1196,19 @@ jQuery.cookie = function(name, value, options) {
 <div class="time">0 ms</div>
 </em><em class="status">passed</em>testContentValueByteConvertation</span>
 </li>
-<li class="level test">
+<li class="level test failed open">
 <span><em class="time">
 <div class="time">0 ms</div>
-</em><em class="status">passed</em>testInterfaceInstance</span>
+</em><em class="status">failed</em>testInterfaceInstance</span>
+<ul>
+<li class="text">
+<span class="stderr">junit.framework.AssertionFailedError: Expected: &lt;null&gt; but was: by.istin.android.xcore.model.BigTestEntity@41e59e08<br/>at by.istin.android.xcore.test.utils.TestReflectUtils.testInterfaceInstance(TestReflectUtils.java:31)<br/>at java.lang.reflect.Method.invokeNative(Native Method)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:191)<br/>at android.test.AndroidTestRunner.runTest(AndroidTestRunner.java:176)<br/>at android.test.InstrumentationTestRunner.onStart(InstrumentationTestRunner.java:554)<br/>at android.app.Instrumentation$InstrumentationThread.run(Instrumentation.java:1701)<br/></span>
+</li>
+</ul>
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">26 ms</div>
+<div class="time">0 ms</div>
 </em><em class="status">passed</em>testKeysFields</span>
 </li>
 </ul>
@@ -1224,7 +1232,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">26 ms</div>
 </em>by.istin.android.xcore.test.utils.TestUiUtil</span>
 <ul>
 <li class="level test">
@@ -1254,7 +1262,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">26 ms</div>
 </em><em class="status">passed</em>testGetFontSize</span>
 </li>
 <li class="level test">
@@ -1271,7 +1279,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level top open">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em>by.istin.android.xcore.test.utils.TestUriUtils</span>
 <ul>
 <li class="level test">
@@ -1286,7 +1294,7 @@ jQuery.cookie = function(name, value, options) {
 </li>
 <li class="level test">
 <span><em class="time">
-<div class="time">0 ms</div>
+<div class="time">25 ms</div>
 </em><em class="status">passed</em>testEmptyQuery</span>
 </li>
 <li class="level test">
@@ -1310,7 +1318,7 @@ jQuery.cookie = function(name, value, options) {
 </div>
 </div>
 <div id="footer">
-<p>Generated by Android Studio on 11.06.14 23:38</p>
+<p>Generated by Android Studio on 06.07.14 1:08</p>
 </div>
 </body>
 </html>

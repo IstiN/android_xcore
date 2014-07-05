@@ -54,10 +54,10 @@ public class Dialog implements BaseColumns, IMerge, IBeforeArrayUpdate {
 	@dbEntity(clazz = Attachment.class)
 	public static final String ATTACHMENT = "attachment";
 	
-	@dbEntities(clazz = Attachment.class, contentValuesKey="entities_attachments")
+	@dbEntities(clazz = Attachment.class)
 	public static final String ATTACHMENTS = "attachments";
 	
-	@dbEntities(clazz = FwdMessage.class, contentValuesKey="entities_fwdmessage")
+	@dbEntities(clazz = FwdMessage.class)
 	public static final String FWD_MESSAGES = "fwd_messages";
 	
 	//local fields

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import by.istin.android.xcore.gson.ContentValuesAdapter;
+import by.istin.android.xcore.gson.AbstractValuesAdapter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -23,13 +23,13 @@ import by.istin.android.xcore.gson.ContentValuesAdapter;
  */
 public class ArrayAdapter<T> extends TypeAdapter<List<T>> {
 
-    private final ContentValuesAdapter contentValuesAdapter;
+    private final AbstractValuesAdapter<T> contentValuesAdapter;
 
     private final Class<T> adapterclass;
 
     private int listBufferSize;
 
-    public ArrayAdapter(int listBufferSize, Class<T> adapterClass, ContentValuesAdapter contentValuesAdapter) {
+    public ArrayAdapter(int listBufferSize, Class<T> adapterClass, AbstractValuesAdapter<T> contentValuesAdapter) {
         this.adapterclass = adapterClass;
         this.listBufferSize = listBufferSize;
         this.contentValuesAdapter = contentValuesAdapter;

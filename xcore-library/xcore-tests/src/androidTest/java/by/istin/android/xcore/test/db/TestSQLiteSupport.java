@@ -7,17 +7,18 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
 import android.util.Log;
-import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
-import by.istin.android.xcore.provider.impl.DBContentProviderSupport;
-import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.model.BigTestEntity;
-import by.istin.android.xcore.model.BigTestSubEntity;
-import by.istin.android.xcore.utils.CursorUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+
+import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
+import by.istin.android.xcore.model.BigTestEntity;
+import by.istin.android.xcore.model.BigTestSubEntity;
+import by.istin.android.xcore.provider.impl.DBContentProviderSupport;
+import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.CursorUtils;
 
 public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 
@@ -142,25 +143,13 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     private void checkResults(int count) {
-        Cursor cursor = querySubEntity();
+        Cursor cursor = queryTestEntity();
         if (count == 0) {
             assertTrue(CursorUtils.isEmpty(cursor));
         } else {
             assertEquals(count, cursor.getCount());
         }
         CursorUtils.close(cursor);
-
-        cursor = queryTestEntity();
-        if (count == 0) {
-            assertTrue(CursorUtils.isEmpty(cursor));
-        } else {
-            assertEquals(count, cursor.getCount());
-        }
-        CursorUtils.close(cursor);
-    }
-
-    private Cursor querySubEntity() {
-        return mSQLiteSupport.query(SUB_ENTITY_CLASS, new String[]{BigTestSubEntity.ID}, null, null, null, null, null, null);
     }
 
     private Cursor queryTestEntity() {
@@ -173,8 +162,8 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     public void testThreadSafe() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT*12);
-        //12 operations
+        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT*8);
+        //8 operations
         List<Runnable> operations = new ArrayList<Runnable>();
         operations.add(new Runnable() {
             @Override
@@ -211,14 +200,6 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         operations.add(new Runnable() {
             @Override
             public void run() {
-                querySubEntity();
-                latch.countDown();
-                Log.d("thread_safe", "thread count " + latch.getCount());
-            }
-        });
-        operations.add(new Runnable() {
-            @Override
-            public void run() {
                 queryTestEntity();
                 latch.countDown();
                 Log.d("thread_safe", "thread count " + latch.getCount());
@@ -227,23 +208,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         operations.add(new Runnable() {
             @Override
             public void run() {
-                querySubEntity();
-                latch.countDown();
-                Log.d("thread_safe", "thread count " + latch.getCount());
-            }
-        });
-        operations.add(new Runnable() {
-            @Override
-            public void run() {
                 queryTestEntity();
-                latch.countDown();
-                Log.d("thread_safe", "thread count " + latch.getCount());
-            }
-        });
-        operations.add(new Runnable() {
-            @Override
-            public void run() {
-                querySubEntity();
                 latch.countDown();
                 Log.d("thread_safe", "thread count " + latch.getCount());
             }

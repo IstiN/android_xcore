@@ -9,4 +9,6 @@ import java.lang.annotation.Target;
 @Retention(value= RetentionPolicy.RUNTIME)
 public @interface dbByte {
 
+    Config config() default @Config(dbType = Config.DBType.BYTE);
+
 }

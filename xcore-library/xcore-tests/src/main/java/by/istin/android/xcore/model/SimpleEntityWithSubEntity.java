@@ -29,7 +29,7 @@ public class SimpleEntityWithSubEntity implements BaseColumns {
     @SerializedName(value = "image_url")
     public static final String IMAGE_URL = "image_url";
 
-    @dbEntity(clazz = SimpleEntityWithParent.class, contentValuesKey = "subEntity")
+    @dbEntity(clazz = SimpleEntityWithParent.class)
     @SerializedName(value = "sub_entity")
     public static final String SUB_ENTITY = "sub_entity";
 

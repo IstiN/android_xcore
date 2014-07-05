@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.ParameterizedType;
 import java.util.List;
 
-import by.istin.android.xcore.gson.ContentValuesAdapter;
+import by.istin.android.xcore.gson.AbstractValuesAdapter;
 
 /**
  * Created with IntelliJ IDEA.
@@ -17,11 +17,11 @@ import by.istin.android.xcore.gson.ContentValuesAdapter;
  */
 public class ArrayAdapterFactory implements TypeAdapterFactory {
 
-    private final ContentValuesAdapter contentValuesAdapter;
+    private final AbstractValuesAdapter contentValuesAdapter;
 
     private final int listBufferSize;
 
-    public ArrayAdapterFactory(int listBufferSize, ContentValuesAdapter contentValuesAdapter) {
+    public ArrayAdapterFactory(int listBufferSize, AbstractValuesAdapter contentValuesAdapter) {
         this.contentValuesAdapter = contentValuesAdapter;
         this.listBufferSize = listBufferSize;
     }

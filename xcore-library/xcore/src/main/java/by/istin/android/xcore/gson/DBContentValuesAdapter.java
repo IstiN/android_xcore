@@ -21,7 +21,7 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.ReflectUtils;
 
-public class DBContentValuesAdapter extends ContentValuesAdapter {
+public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
 
     private final IDBConnection dbConnection;
 

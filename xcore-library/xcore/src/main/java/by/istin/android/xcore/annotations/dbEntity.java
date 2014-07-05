@@ -9,13 +9,8 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface dbEntity {
 
+    Config config() default @Config(dbType = Config.DBType.ENTITY);
+
 	Class<?> clazz();
-	
-	/**
-	 * Returns key for content values for byte[] with entity
-	 * override if more than one sub entity in the model
-	 * @return key for dbEntity name
-	 */
-	String contentValuesKey() default "dbEntity";
 	
 }

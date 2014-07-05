@@ -24,7 +24,6 @@ import by.istin.android.xcore.db.entity.IBeforeUpdate;
 import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.BytesUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
@@ -235,14 +234,6 @@ public class DBHelper {
 			} else {
                 id = Long.valueOf(idAsString);
             }
-			List<ReflectUtils.XField> listDbEntity = dbAssociationCache.getEntityFields(classOfModel);
-			if (listDbEntity != null) {
-				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntity.class, listDbEntity);
-			}
-			List<ReflectUtils.XField> listDbEntities = dbAssociationCache.getEntitiesFields(classOfModel);
-			if (listDbEntities != null) {
-				storeSubEntity(dataSourceRequest, id, classOfModel, db, contentValues, dbEntities.class, listDbEntities);
-			}
 			String tableName = getTableName(classOfModel);
 			IMerge merge = ReflectUtils.getInstanceInterface(classOfModel, IMerge.class);
 			long rowId = 0;
@@ -328,43 +319,6 @@ public class DBHelper {
 		return true;
 	}
 
-	private void storeSubEntity(DataSourceRequest dataSourceRequest, long id, Class<?> foreignEntity, IDBConnection db, ContentValues contentValues, Class<? extends Annotation> dbAnnotation, List<ReflectUtils.XField> listDbEntity) {
-		for (ReflectUtils.XField field : listDbEntity) {
-			String columnName = ReflectUtils.getStaticStringValue(field);
-			byte[] entityAsByteArray = contentValues.getAsByteArray(columnName);
-			if (entityAsByteArray == null) {
-				continue;
-			}
-			Annotation annotation = ReflectUtils.getAnnotation(field, dbAnnotation);
-			String contentValuesKey;
-			String foreignId = getForeignKey(foreignEntity);
-			try {
-				contentValuesKey = (String) annotation.annotationType().getMethod("contentValuesKey").invoke(annotation);
-			} catch (Exception e) {
-				throw new IllegalArgumentException(e); 
-			}
-			String className = contentValues.getAsString(contentValuesKey);
-			Class<?> modelClass;
-			try {
-				modelClass = Class.forName(className);
-			} catch (ClassNotFoundException e1) {
-				throw new IllegalArgumentException(e1);
-			}
-            if (annotation.annotationType().equals(dbEntity.class)) {
-                ContentValues entityValues = BytesUtils.contentValuesFromByteArray(entityAsByteArray);
-                putForeignIdAndClear(id, contentValuesKey, foreignId, entityValues);
-                updateOrInsert(dataSourceRequest, db, modelClass, entityValues);
-            } else {
-                ContentValues[] entitiesValues = BytesUtils.arrayContentValuesFromByteArray(entityAsByteArray);
-                for (ContentValues cv : entitiesValues) {
-                    putForeignIdAndClear(id, contentValuesKey, foreignId, cv);
-                }
-                updateOrInsert(dataSourceRequest, modelClass, db, entitiesValues);
-            }
-			contentValues.remove(columnName);
-			contentValues.remove(contentValuesKey);
-		}
-	}
 
     public static String getForeignKey(Class<?> foreignEntity) {
         DBAssociationCache associationCache = DBAssociationCache.get();

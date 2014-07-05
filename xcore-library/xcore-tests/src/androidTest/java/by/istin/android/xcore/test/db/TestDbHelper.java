@@ -50,7 +50,6 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
         testBulkInsert();
 
         dbHelper.delete(BigTestEntity.class, BigTestEntity.ID + "= ?", new String[]{"0"});
-        dbHelper.delete(BigTestSubEntity.class, BigTestSubEntity.ID + "= ?", new String[]{"0"});
 
         checkResults(MockStorage.SIZE-1);
     }
@@ -65,15 +64,7 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
 	}
 
     private void checkResults(int count) {
-        Cursor cursor = dbHelper.query(BigTestSubEntity.class, new String[]{BigTestSubEntity.ID}, null, null, null, null, null, null);
-        if (count == 0) {
-            assertTrue(CursorUtils.isEmpty(cursor));
-        } else {
-            assertEquals(count, cursor.getCount());
-        }
-        CursorUtils.close(cursor);
-
-        cursor = dbHelper.query(BigTestEntity.class, new String[]{BigTestEntity.ID}, null, null, null, null, null, null);
+        Cursor cursor = dbHelper.query(BigTestEntity.class, new String[]{BigTestEntity.ID}, null, null, null, null, null, null);
         if (count == 0) {
             assertTrue(CursorUtils.isEmpty(cursor));
         } else {
