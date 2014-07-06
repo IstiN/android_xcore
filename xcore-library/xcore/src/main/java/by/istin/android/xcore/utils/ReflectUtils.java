@@ -2,6 +2,7 @@ package by.istin.android.xcore.utils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 
@@ -19,6 +21,8 @@ public class ReflectUtils {
     private static class XClass {
 
         private Class<?> clazz;
+
+        private Object instance;
 
         private XClass(Class<?> clazz) {
             this.clazz = clazz;
@@ -84,10 +88,18 @@ public class ReflectUtils {
                 return null;
             }
         }
+
+        public <T> T getInstance() {
+            if (instance == null) {
+                instance = ReflectUtils.newInstance(clazz);
+            }
+            return (T) instance;
+        }
     }
 
     public static class XField {
 
+        public static final String DB_ANNOTATION_PREFIX = "by.istin.android.xcore.annotations.db";
         private final Field mField;
 
         private final String mNameOfField;
@@ -95,6 +107,8 @@ public class ReflectUtils {
         private final HashSet<Class<? extends Annotation>> mAnnotations;
 
         private final Map<Class<? extends Annotation>, Annotation> mClassAnnotationHashMap;
+
+        private Config mConfig;
 
         XField(Field field) {
             mField = field;
@@ -117,6 +131,15 @@ public class ReflectUtils {
                     Class<? extends Annotation> annotationType = annotation.annotationType();
                     mAnnotations.add(annotationType);
                     mClassAnnotationHashMap.put(annotationType, annotation);
+                    String name = annotationType.getName();
+                    if (name.startsWith(DB_ANNOTATION_PREFIX)) {
+                        try {
+                            Method method = annotation.getClass().getMethod("config");
+                            mConfig = (Config) method.invoke(annotation);
+                        } catch (Exception e) {
+                            throw new IllegalArgumentException(e);
+                        }
+                    }
                 }
             } else {
                 mAnnotations = new HashSet<Class<? extends Annotation>>(0);
@@ -131,6 +154,10 @@ public class ReflectUtils {
 
         public String getNameOfField() {
             return mNameOfField;
+        }
+
+        public Config getConfig() {
+            return mConfig;
         }
 
         public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
@@ -191,6 +218,11 @@ public class ReflectUtils {
         } catch (IllegalAccessException e) {
             throw new IllegalArgumentException(e);
         }
+    }
+
+    public static <T> T newSingleInstance(Class<T> clazz) {
+        XClass xClass = getXClass(clazz);
+        return xClass.getInstance();
     }
 
 }

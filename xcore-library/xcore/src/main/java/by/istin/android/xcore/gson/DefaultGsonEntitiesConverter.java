@@ -5,6 +5,10 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 
 import by.istin.android.xcore.annotations.dbEntities;
+import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.impl.DBHelper;
+import by.istin.android.xcore.source.DataSourceRequest;
 
 /**
  * Created by IstiN on 6.12.13.
@@ -13,14 +17,22 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
 
     public static final String KEY_VALUE = "value";
 
+    public static final DefaultGsonEntitiesConverter INSTANCE = new DefaultGsonEntitiesConverter();
+
     @Override
     public void convert(IGsonEntitiesConverter.Params params) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(params.getClazz(), params.getDataSourceRequest(), params.getDbConnection(), params.getDbHelper());
-        for (int i = 0; i < params.getJsonArray().size(); i++) {
+        int size = params.getJsonArray().size();
+        dbEntities entity = params.getEntity();
+        IBeforeArrayUpdate beforeListUpdate = params.getBeforeListUpdate();
+        DBHelper dbHelper = params.getDbHelper();
+        DataSourceRequest dataSourceRequest = params.getDataSourceRequest();
+        IDBConnection dbConnection = params.getDbConnection();
+        Class<?> clazz = params.getClazz();
+        for (int i = 0; i < size; i++) {
             JsonElement item = params.getJsonArray().get(i);
             ContentValues subEntity;
             if (item.isJsonPrimitive()) {
-                dbEntities entity = params.getEntity();
                 if (entity.ignorePrimitive()) continue;
                 JsonParser parser = new JsonParser();
                 String itemAsString = item.getAsString();
@@ -36,10 +48,10 @@ public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
                 continue;
             }
             subEntity.put(params.getForeignKey(), params.getId());
-            if (params.getBeforeListUpdate() != null) {
-                params.getBeforeListUpdate().onBeforeListUpdate(params.getDbHelper(), params.getDbConnection(), params.getDataSourceRequest(), i, subEntity);
+            if (beforeListUpdate != null) {
+                beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, i, subEntity);
             }
-            params.getDbHelper().updateOrInsert(params.getDataSourceRequest(), params.getDbConnection(), params.getClazz(), subEntity);
+            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, subEntity);
         }
     }
 

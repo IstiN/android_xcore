@@ -153,8 +153,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         Long id = getParentId(contentValues);
-        Class<? extends IGsonEntitiesConverter> jsonConverter = entity.jsonConverter();
-        IGsonEntitiesConverter gsonEntityConverter = ReflectUtils.getInstanceInterface(jsonConverter, IGsonEntitiesConverter.class);
+        IGsonEntitiesConverter gsonEntityConverter = DefaultGsonEntitiesConverter.INSTANCE;
         gsonEntityConverter.convert(new IGsonEntitiesConverter.Params(
                 beforeListUpdate,
                 type,

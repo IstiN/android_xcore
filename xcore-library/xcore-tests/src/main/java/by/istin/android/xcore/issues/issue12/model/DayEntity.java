@@ -9,25 +9,23 @@ import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
 
-import by.istin.android.xcore.annotations.JsonEntityConverter;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.impl.DBHelper;
-import by.istin.android.xcore.gson.IGsonEntityConverter;
+import by.istin.android.xcore.gson.IConverter;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.HashUtils;
 
 /**
  * Created by IstiN on 13.11.13.
  */
-@JsonEntityConverter(converter = DayEntity.DayEntityConverter.class)
 public class DayEntity implements BaseColumns, IGenerateID {
 
-    public static class DayEntityConverter implements IGsonEntityConverter {
+    public static class DayEntityConverter implements IConverter {
 
         @Override
-        public void convert(ContentValues contentValues, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+        public void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
             if (jsonElement.isJsonPrimitive()) {
                 contentValues.put(VALUE, jsonElement.getAsLong());
             }

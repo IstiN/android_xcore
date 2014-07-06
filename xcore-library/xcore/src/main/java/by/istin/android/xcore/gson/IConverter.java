@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 /**
  * Created by IstiN on 6.12.13.
  */
-public interface IGsonEntityConverter {
+public interface IConverter {
 
-    void convert(ContentValues contentValues, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext);
+    void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext);
 }

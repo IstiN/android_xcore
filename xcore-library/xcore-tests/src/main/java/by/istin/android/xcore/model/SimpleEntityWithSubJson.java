@@ -4,8 +4,6 @@ import android.provider.BaseColumns;
 
 import com.google.gson.annotations.SerializedName;
 
-import by.istin.android.xcore.annotations.JsonSubJSONObject;
-import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 
@@ -31,25 +29,19 @@ public class SimpleEntityWithSubJson implements BaseColumns {
     public static final String IMAGE_URL = "image_url";
 
     @dbLong
-    @JsonSubJSONObject
     @SerializedName(value = "sub_entity:id")
     public static final String SUB_ID = "sub_entity_id";
 
     @dbString
-    @JsonSubJSONObject
     @SerializedName(value = "sub_entity:title")
     public static final String SUB_TITLE = "sub_entity_title";
 
     @dbString
-    @JsonSubJSONObject
     @SerializedName(value = "sub_entity:about")
     public static final String SUB_ABOUT = "sub_entity_about";
 
     @dbString
-    @JsonSubJSONObject
     @SerializedName(value = "sub_entity:image_url")
     public static final String SUB_IMAGE_URL = "sub_entity_image_url";
-
-
 
 }

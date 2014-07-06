@@ -13,17 +13,11 @@ import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Type;
 import java.util.List;
 
-import by.istin.android.xcore.annotations.JsonEntityConverter;
-import by.istin.android.xcore.annotations.JsonSubJSONObject;
-import by.istin.android.xcore.annotations.dbBoolean;
-import by.istin.android.xcore.annotations.dbByte;
-import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
-import by.istin.android.xcore.annotations.dbInteger;
-import by.istin.android.xcore.annotations.dbLong;
-import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.utils.ReflectUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
@@ -34,15 +28,12 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     private List<ReflectUtils.XField> mEntityKeys;
 
-    private JsonEntityConverter mJsonEntityConverterAnnotation;
-
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
     }
 
     public AbstractValuesAdapter(Class<?> contentValuesEntityClazz) {
         this.mContentValuesEntityClazz = contentValuesEntityClazz;
-        this.mJsonEntityConverterAnnotation = mContentValuesEntityClazz.getAnnotation(JsonEntityConverter.class);
     }
 
     @Override
@@ -56,9 +47,6 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         }
         ContentValues contentValues = new ContentValues();
         if (mEntityKeys == null) {
-            return proceed(parent, position, contentValues);
-        }
-        if (isCustomConverter(contentValues, parent, jsonElement, type, jsonDeserializationContext)) {
             return proceed(parent, position, contentValues);
         }
         if (jsonElement.isJsonPrimitive()) {
@@ -78,23 +66,25 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                     serializedName = serializedAnnotation.value();
                 }
             }
-            String separator = null;
-            boolean isFirstObjectForJsonArray = false;
-            if (ReflectUtils.isAnnotationPresent(field, JsonSubJSONObject.class)) {
-                JsonSubJSONObject jsonSubJSONObject = ReflectUtils.getAnnotation(field, JsonSubJSONObject.class);
-                if (jsonSubJSONObject != null) {
-                    separator = jsonSubJSONObject.separator();
-                    isFirstObjectForJsonArray = jsonSubJSONObject.isFirstObjectForJsonArray();
-                }
+            Config config = field.getConfig();
+            String configKey = config.key();
+            if (!StringUtil.isEmpty(configKey)) {
+                serializedName = configKey;
             }
+            Class<? extends Config.Transformer> transformerClass = config.transformer();
+            Config.Transformer transformer = ReflectUtils.newSingleInstance(transformerClass);
+            String separator = transformer.subElementSeparator();
+            boolean isFirstObjectForJsonArray = transformer.isFirstObjectForArray();
             if (separator != null && serializedName.contains(separator)) {
                 String[] values = serializedName.split(separator);
                 JsonObject tempElement = jsonObject;
-                for (int i = 0; i < values.length; i++) {
-                    if (i == values.length - 1) {
-                        jsonValue = tempElement.get(values[i]);
+                int arrayLength = values.length;
+                for (int i = 0; i < arrayLength; i++) {
+                    String value = values[i];
+                    if (i == arrayLength - 1) {
+                        jsonValue = tempElement.get(value);
                     } else {
-                        JsonElement element = tempElement.get(values[i]);
+                        JsonElement element = tempElement.get(value);
                         if (element == null) {
                             break;
                         }
@@ -120,14 +110,18 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             if (jsonValue == null) {
                 continue;
             }
-            if (jsonValue.isJsonPrimitive()) {
-                putPrimitiveValue(contentValues, field, jsonValue, fieldValue);
-            } else if (ReflectUtils.isAnnotationPresent(field, dbEntity.class)) {
+            Config.DBType dbType = config.dbType();
+            if (isCustomConverter(dbType, config, transformer, contentValues, parent, jsonElement, type, jsonDeserializationContext, fieldValue)) {
+                return proceed(parent, position, contentValues);
+            }
+            if (dbType.isPrimitive() && !jsonValue.isJsonNull()) {
+                putPrimitiveValue(dbType, contentValues, field, jsonValue, fieldValue);
+            } else if (dbType == Config.DBType.ENTITY) {
                 dbEntity entity = ReflectUtils.getAnnotation(field, dbEntity.class);
                 Class<?> clazz = entity.clazz();
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                 proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
-            } else if (ReflectUtils.isAnnotationPresent(field, dbEntities.class)) {
+            } else if (dbType == Config.DBType.ENTITIES) {
                 if (jsonValue.isJsonArray()) {
                     JsonArray jsonArray = jsonValue.getAsJsonArray();
                     proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
@@ -142,29 +136,35 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return proceed(parent, position, contentValues);
     }
 
-    private boolean isCustomConverter(ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
-        if (mJsonEntityConverterAnnotation == null) {
+    private boolean isCustomConverter(Config.DBType dbType, Config config, Config.Transformer transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
+        IConverter converter = transformer.converter();
+        if (converter == null) {
             return false;
         }
-        Class<? extends IGsonEntityConverter> primitiveConverter = mJsonEntityConverterAnnotation.converter();
-        IGsonEntityConverter primitiveConverterInstance = ReflectUtils.getInstanceInterface(primitiveConverter, IGsonEntityConverter.class);
-        primitiveConverterInstance.convert(contentValues, parent, jsonElement, type, jsonDeserializationContext);
+        converter.convert(contentValues, fieldValue, parent, jsonElement, type, jsonDeserializationContext);
         return true;
     }
 
-    protected void putPrimitiveValue(ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, String fieldValue) {
-        if (ReflectUtils.isAnnotationPresent(field, dbLong.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsLong());
-        } else if (ReflectUtils.isAnnotationPresent(field, dbString.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsString());
-        } else if (ReflectUtils.isAnnotationPresent(field, dbBoolean.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsBoolean());
-        } else if (ReflectUtils.isAnnotationPresent(field, dbByte.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsByte());
-        } else if (ReflectUtils.isAnnotationPresent(field, dbDouble.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsDouble());
-        } else if (ReflectUtils.isAnnotationPresent(field, dbInteger.class)) {
-            contentValues.put(fieldValue, jsonValue.getAsInt());
+    protected void putPrimitiveValue(Config.DBType dbType, ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, String fieldValue) {
+        switch (dbType) {
+            case LONG:
+                contentValues.put(fieldValue, jsonValue.getAsLong());
+                break;
+            case STRING:
+                contentValues.put(fieldValue, jsonValue.getAsString());
+                break;
+            case BOOL:
+                contentValues.put(fieldValue, jsonValue.getAsBoolean());
+                break;
+            case INTEGER:
+                contentValues.put(fieldValue, jsonValue.getAsInt());
+                break;
+            case DOUBLE:
+                contentValues.put(fieldValue, jsonValue.getAsDouble());
+                break;
+            case BYTE:
+                contentValues.put(fieldValue, jsonValue.getAsByte());
+                break;
         }
     }
 
