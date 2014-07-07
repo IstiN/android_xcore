@@ -49,10 +49,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         if (mEntityKeys == null) {
             return proceed(parent, position, contentValues);
         }
-        if (jsonElement.isJsonPrimitive()) {
-            return null;
-        }
-        if (jsonElement.isJsonArray()) {
+        if (!jsonElement.isJsonObject()) {
             return null;
         }
         JsonObject jsonObject = (JsonObject) jsonElement;
@@ -111,12 +108,10 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                 continue;
             }
             Config.DBType dbType = config.dbType();
-            if (isCustomConverter(dbType, config, transformer, contentValues, parent, jsonElement, type, jsonDeserializationContext, fieldValue)) {
-                return proceed(parent, position, contentValues);
+            if (isCustomConverter(transformer, contentValues, parent, jsonValue, type, jsonDeserializationContext, fieldValue)) {
+                continue;
             }
-            if (dbType.isPrimitive() && !jsonValue.isJsonNull()) {
-                putPrimitiveValue(dbType, contentValues, field, jsonValue, fieldValue);
-            } else if (dbType == Config.DBType.ENTITY) {
+            if (dbType == Config.DBType.ENTITY) {
                 dbEntity entity = ReflectUtils.getAnnotation(field, dbEntity.class);
                 Class<?> clazz = entity.clazz();
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
@@ -136,36 +131,13 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return proceed(parent, position, contentValues);
     }
 
-    private boolean isCustomConverter(Config.DBType dbType, Config config, Config.Transformer transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
+    private boolean isCustomConverter(Config.Transformer transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
         IConverter converter = transformer.converter();
         if (converter == null) {
             return false;
         }
         converter.convert(contentValues, fieldValue, parent, jsonElement, type, jsonDeserializationContext);
         return true;
-    }
-
-    protected void putPrimitiveValue(Config.DBType dbType, ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, String fieldValue) {
-        switch (dbType) {
-            case LONG:
-                contentValues.put(fieldValue, jsonValue.getAsLong());
-                break;
-            case STRING:
-                contentValues.put(fieldValue, jsonValue.getAsString());
-                break;
-            case BOOL:
-                contentValues.put(fieldValue, jsonValue.getAsBoolean());
-                break;
-            case INTEGER:
-                contentValues.put(fieldValue, jsonValue.getAsInt());
-                break;
-            case DOUBLE:
-                contentValues.put(fieldValue, jsonValue.getAsDouble());
-                break;
-            case BYTE:
-                contentValues.put(fieldValue, jsonValue.getAsByte());
-                break;
-        }
     }
 
     protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray);

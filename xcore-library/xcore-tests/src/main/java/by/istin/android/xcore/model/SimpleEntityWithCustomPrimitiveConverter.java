@@ -11,6 +11,7 @@ import com.google.gson.annotations.SerializedName;
 import java.lang.reflect.Type;
 
 import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.gson.IConverter;
@@ -38,7 +39,7 @@ public class SimpleEntityWithCustomPrimitiveConverter implements BaseColumns {
     @SerializedName(value = "image_url")
     public static final String IMAGE_URL = "image_url";
 
-    @dbString(config = @Config(dbType = Config.DBType.STRING, transformer = TagsTransformer.class))
+    @db(config = @Config(dbType = Config.DBType.STRING, transformer = TagsTransformer.class))
     public static final String TAGS = "tags";
 
     public static class TagsTransformer extends Config.DefaultTransformer {

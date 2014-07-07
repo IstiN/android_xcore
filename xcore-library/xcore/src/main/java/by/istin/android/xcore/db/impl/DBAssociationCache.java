@@ -29,6 +29,17 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbByte.class, "INTEGER");
         TYPE_ASSOCIATION.put(dbByteArray.class, "BLOB");
     }
+    public final static Map<Config.DBType, String> DB_TYPE_ASSOCIATION = new ConcurrentHashMap<Config.DBType, String>();
+
+    static {
+        DB_TYPE_ASSOCIATION.put(Config.DBType.STRING, "LONGTEXT");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.INTEGER, "INTEGER");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.LONG, "BIGINT");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.DOUBLE, "DOUBLE");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.BOOL, "BOOLEAN");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.BYTE, "INTEGER");
+        DB_TYPE_ASSOCIATION.put(Config.DBType.BYTE_ARRAY, "BLOB");
+    }
 
     private final Map<Class<?>, List<ReflectUtils.XField>> mDbEntityFieldsCache = new ConcurrentHashMap<Class<?>, List<ReflectUtils.XField>>();
 

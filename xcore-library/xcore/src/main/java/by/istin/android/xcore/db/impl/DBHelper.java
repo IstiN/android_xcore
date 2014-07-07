@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbIndex;
@@ -63,7 +65,6 @@ public class DBHelper {
 		IDBConnection dbWriter = mDbConnector.getWritableConnection();
         dbWriter.beginTransaction();
         StringBuilder builder = new StringBuilder();
-        List<String> foreignKeys = new ArrayList<String>();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
@@ -82,6 +83,7 @@ public class DBHelper {
                             continue;
                         }
                         Annotation[] annotations = field.getField().getAnnotations();
+                        Config config = field.getConfig();
                         String type = null;
                         for (Annotation annotation : annotations) {
                             Class<? extends Annotation> classOfAnnotation = annotation.annotationType();
@@ -103,6 +105,8 @@ public class DBHelper {
                                 dbAssociationCache.putEntitiesFields(classOfModel, list);
                             } else if (classOfAnnotation.equals(dbIndex.class)) {
                                 builder.append(mDbConnector.getCreateIndexSQLTemplate(table, name));
+                            } else if (classOfAnnotation.equals(db.class)) {
+                                type = DBAssociationCache.DB_TYPE_ASSOCIATION.get(config.dbType());
                             }
                         }
                         if (type == null) {
