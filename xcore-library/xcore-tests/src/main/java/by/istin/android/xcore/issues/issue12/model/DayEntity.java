@@ -9,6 +9,8 @@ import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
 
+import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IGenerateID;
@@ -20,25 +22,31 @@ import by.istin.android.xcore.utils.HashUtils;
 /**
  * Created by IstiN on 13.11.13.
  */
+@dbEntity(clazz = DayEntity.class, value = @Config(dbType = Config.DBType.ENTITY, transformer = DayEntity.DayEntityConverter.class))
 public class DayEntity implements BaseColumns, IGenerateID {
 
-    public static class DayEntityConverter implements IConverter {
+    public static class DayEntityConverter extends Config.DefaultTransformer {
 
         @Override
-        public void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
-            if (jsonElement.isJsonPrimitive()) {
-                contentValues.put(VALUE, jsonElement.getAsLong());
-            }
+        public IConverter converter() {
+            return new IConverter() {
+                @Override
+                public void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+                    if (jsonElement.isJsonPrimitive()) {
+                        contentValues.put(VALUE, jsonElement.getAsLong());
+                    }
+                }
+            };
         }
 
     }
 
     @dbLong
-    @SerializedName(value = "id")
+    @SerializedName("id")
     public static final String ID = _ID;
 
     @dbLong
-    @SerializedName(value = "value")
+    @SerializedName("value")
     public static final String VALUE = "value";
 
     @Override

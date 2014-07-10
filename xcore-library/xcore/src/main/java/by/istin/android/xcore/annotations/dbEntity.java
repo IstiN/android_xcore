@@ -5,11 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(value = ElementType.FIELD)
+@Target(value = {ElementType.FIELD, ElementType.TYPE})
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface dbEntity {
 
-    Config config() default @Config(dbType = Config.DBType.ENTITY);
+    Config value() default @Config(dbType = Config.DBType.ENTITY);
 
 	Class<?> clazz();
 	

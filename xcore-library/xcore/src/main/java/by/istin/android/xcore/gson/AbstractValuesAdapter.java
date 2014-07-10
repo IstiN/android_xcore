@@ -42,6 +42,17 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
     }
 
     public T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+        Config classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
+        if (classConfig != null) {
+            Class<? extends Config.Transformer> transformerClass = classConfig.transformer();
+            Config.Transformer transformer = ReflectUtils.newSingleInstance(transformerClass);
+            IConverter converter = transformer.converter();
+            if (converter != null) {
+                ContentValues contentValues = new ContentValues();
+                converter.convert(contentValues, null, null, jsonElement, type, jsonDeserializationContext);
+                return proceed(parent, position, contentValues);
+            }
+        }
         if (mEntityKeys == null) {
             mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
         }

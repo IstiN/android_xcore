@@ -39,7 +39,7 @@ public class SimpleEntityWithCustomPrimitiveConverter implements BaseColumns {
     @SerializedName(value = "image_url")
     public static final String IMAGE_URL = "image_url";
 
-    @db(config = @Config(dbType = Config.DBType.STRING, transformer = TagsTransformer.class))
+    @db(@Config(dbType = Config.DBType.STRING, transformer = TagsTransformer.class))
     public static final String TAGS = "tags";
 
     public static class TagsTransformer extends Config.DefaultTransformer {

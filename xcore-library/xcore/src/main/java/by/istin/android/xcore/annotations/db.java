@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 @Retention(value= RetentionPolicy.RUNTIME)
 public @interface db {
 
-    Config config();
+    Config value();
 
 }

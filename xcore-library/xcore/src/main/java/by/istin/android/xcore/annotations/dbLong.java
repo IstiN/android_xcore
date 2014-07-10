@@ -17,7 +17,7 @@ import by.istin.android.xcore.gson.IConverter;
 @Retention(value= RetentionPolicy.RUNTIME)
 public @interface dbLong {
 
-    Config config() default @Config(dbType = Config.DBType.LONG, transformer = Transformer.class);
+    Config value() default @Config(dbType = Config.DBType.LONG, transformer = Transformer.class);
 
     public static class Transformer extends Config.DefaultTransformer {
 

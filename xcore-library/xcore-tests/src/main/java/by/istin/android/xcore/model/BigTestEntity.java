@@ -5,6 +5,8 @@ import android.provider.BaseColumns;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.UUID;
+
 import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbDouble;
@@ -15,16 +17,20 @@ import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.HashUtils;
 
-public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
+public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate, IGenerateID {
 
 	@dbLong
-	@SerializedName(value="id")
 	public static final String ID = _ID;
-	
+
+	@dbLong
+	public static final String EN_ID = "id";
+
 	@dbInteger
 	public static final String INT_VALUE = "INT_VALUE";
 	
@@ -54,5 +60,10 @@ public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate {
     @Override
     public void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues) {
 
+    }
+
+    @Override
+    public long generateId(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues contentValues) {
+        return UUID.randomUUID().getMostSignificantBits();
     }
 }

@@ -20,7 +20,7 @@ import by.istin.android.xcore.utils.StringUtil;
 @Retention(value= RetentionPolicy.RUNTIME)
 public @interface dbBoolean {
 
-    Config config() default @Config(dbType = Config.DBType.BOOL, transformer = Transformer.class);
+    Config value() default @Config(dbType = Config.DBType.BOOL, transformer = Transformer.class);
 
     public static class Transformer extends Config.DefaultTransformer {
 

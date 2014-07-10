@@ -18,14 +18,28 @@ public class ReflectUtils {
 
     private static final Object STUB = new Object();
 
+    public static Config getClassConfig(Class<?> clazz) {
+        return getXClass(clazz).getConfig();
+    }
+
     private static class XClass {
 
         private Class<?> clazz;
 
         private Object instance;
 
+        private Config config;
+
         private XClass(Class<?> clazz) {
             this.clazz = clazz;
+            dbEntity annotation = this.clazz.getAnnotation(dbEntity.class);
+            if (annotation != null) {
+                config = annotation.value();
+            }
+        }
+
+        public Config getConfig() {
+            return config;
         }
 
         private final Object lock = new Object();
@@ -134,7 +148,7 @@ public class ReflectUtils {
                     String name = annotationType.getName();
                     if (name.startsWith(DB_ANNOTATION_PREFIX)) {
                         try {
-                            Method method = annotation.getClass().getMethod("config");
+                            Method method = annotation.getClass().getMethod("value");
                             mConfig = (Config) method.invoke(annotation);
                         } catch (Exception e) {
                             throw new IllegalArgumentException(e);

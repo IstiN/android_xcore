@@ -17,7 +17,7 @@ import by.istin.android.xcore.gson.IConverter;
 @Retention(value= RetentionPolicy.RUNTIME)
 public @interface dbDouble {
 
-    Config config() default @Config(dbType = Config.DBType.DOUBLE, transformer = Transformer.class);
+    Config value() default @Config(dbType = Config.DBType.DOUBLE, transformer = Transformer.class);
 
     public static class Transformer extends Config.DefaultTransformer {
 

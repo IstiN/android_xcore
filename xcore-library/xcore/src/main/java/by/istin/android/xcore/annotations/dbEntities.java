@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
 @Retention(value = RetentionPolicy.RUNTIME)
 public @interface dbEntities {
 
-    Config config() default @Config(dbType = Config.DBType.ENTITIES);
+    Config value() default @Config(dbType = Config.DBType.ENTITIES);
 
 	Class<?> clazz();
 
