@@ -19,5 +19,5 @@ public class BigTestSubEntity implements BaseColumns {
 
 	@dbString
 	public static String STRING_VALUE = "STRING_VALUE";
-	
+
 }
