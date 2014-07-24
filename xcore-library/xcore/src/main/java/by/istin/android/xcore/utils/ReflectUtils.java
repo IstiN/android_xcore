@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbIndex;
 
 public class ReflectUtils {
 
@@ -145,12 +146,16 @@ public class ReflectUtils {
                     Class<? extends Annotation> annotationType = annotation.annotationType();
                     mAnnotations.add(annotationType);
                     mClassAnnotationHashMap.put(annotationType, annotation);
+                    if (annotationType.equals(dbIndex.class)) {
+                        continue;
+                    }
                     String name = annotationType.getName();
                     if (name.startsWith(DB_ANNOTATION_PREFIX)) {
                         try {
                             Method method = annotation.getClass().getMethod("value");
                             mConfig = (Config) method.invoke(annotation);
                         } catch (Exception e) {
+                            Log.e("ReflectUtils", mField.toString() + " " + annotation.toString());
                             throw new IllegalArgumentException(e);
                         }
                     }

@@ -5,12 +5,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 20
+    compileSdkVersion 21
     buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 20
+        targetSdkVersion 21
         //versionName project.VERSION_NAME
        // versionCode Integer.parseInt(project.VERSION_CODE)
     }
@@ -27,7 +27,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:20.0.0'
+    compile 'com.android.support:support-v4:21.+'
     compile 'com.google.code.gson:gson:2.2.4'
 }
 

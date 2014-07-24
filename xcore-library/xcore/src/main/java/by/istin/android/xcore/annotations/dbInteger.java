@@ -24,7 +24,7 @@ public @interface dbInteger {
         public static final IConverter CONVERTER = new IConverter() {
             @Override
             public void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonValue, Type type, JsonDeserializationContext jsonDeserializationContext) {
-                if (jsonValue.isJsonNull()) {
+                if (jsonValue.isJsonNull() || !jsonValue.isJsonPrimitive()) {
                     return;
                 }
                 contentValues.put(fieldValue, jsonValue.getAsInt());

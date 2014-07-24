@@ -16,6 +16,7 @@ import java.util.List;
 import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -147,7 +148,12 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         if (converter == null) {
             return false;
         }
-        converter.convert(contentValues, fieldValue, parent, jsonElement, type, jsonDeserializationContext);
+        try {
+            converter.convert(contentValues, fieldValue, parent, jsonElement, type, jsonDeserializationContext);
+        } catch (UnsupportedOperationException e) {
+            Log.xe(this, fieldValue + ":" + jsonElement.toString());
+            throw e;
+        }
         return true;
     }
 
