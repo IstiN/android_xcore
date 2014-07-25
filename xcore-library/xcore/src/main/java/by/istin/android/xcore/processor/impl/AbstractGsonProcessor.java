@@ -73,7 +73,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
 		try {
-			return process(getGson(), bufferedReader);	
+			return process(dataSourceRequest, getGson(), bufferedReader);
 		} catch (JsonIOException exception){
             throw new IOException(exception);
         } finally {
@@ -83,7 +83,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 		}
 	}
 	
-	protected Result process(Gson gson, BufferedReader bufferedReader) {
+	protected Result process(DataSourceRequest dataSourceRequest,Gson gson, BufferedReader bufferedReader) {
 		return getGson().fromJson(bufferedReader, resultClassName);
 	}
 	
