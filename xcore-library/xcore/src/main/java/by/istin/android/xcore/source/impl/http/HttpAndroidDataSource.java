@@ -107,6 +107,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 		@Override
 		public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
             String url = dataSourceRequest.getUri();
+            url = prepare(url, dataSourceRequest);
 			HttpRequestBase request = null;
 			Uri uri = Uri.parse(url);
 			String typeParam = uri.getQueryParameter(TYPE);
@@ -133,6 +134,10 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			}
 			return request;
 		}
+
+        protected String prepare(String url, DataSourceRequest dataSourceRequest) {
+            return url;
+        }
 
         protected HttpRequestBase createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
             return new HttpDelete(url);
