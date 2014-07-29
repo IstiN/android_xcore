@@ -202,7 +202,7 @@ public abstract class XListFragment extends AdapterViewFragment
 		if (isPagingSupport()) {
 			mEndlessScrollListener = new EndlessScrollListener();
             setOnScrollListViewListener(mEndlessScrollListener);
-			((ListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+			((AbsListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView absListView, int i) {
                     for (OnScrollListener onScrollListener : onScrollListenerList) {
