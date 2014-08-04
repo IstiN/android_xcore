@@ -14,6 +14,8 @@ import by.istin.android.xcore.annotations.dbEntity;
 
 public class ReflectUtils {
 
+    private static final Object STUB = new Object();
+
     private static class XClass {
 
         private Class<?> clazz;
@@ -90,9 +92,9 @@ public class ReflectUtils {
 
         private final String mNameOfField;
 
-        private final HashSet<Class<? extends Annotation>> mAnnotations = new HashSet<Class<? extends Annotation>>();
+        private final HashSet<Class<? extends Annotation>> mAnnotations;
 
-        private final Map<Class<? extends Annotation>, Annotation> mClassAnnotationHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>();
+        private final Map<Class<? extends Annotation>, Annotation> mClassAnnotationHashMap;
 
         XField(Field field) {
             mField = field;
@@ -109,11 +111,16 @@ public class ReflectUtils {
             //init annotations
             Annotation[] annotations = mField.getAnnotations();
             if (annotations != null) {
+                mAnnotations = new HashSet<Class<? extends Annotation>>(annotations.length);
+                mClassAnnotationHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>(annotations.length);
                 for (Annotation annotation : annotations) {
                     Class<? extends Annotation> annotationType = annotation.annotationType();
                     mAnnotations.add(annotationType);
                     mClassAnnotationHashMap.put(annotationType, annotation);
                 }
+            } else {
+                mAnnotations = new HashSet<Class<? extends Annotation>>(0);
+                mClassAnnotationHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>(0);
             }
 
         }
@@ -130,7 +137,7 @@ public class ReflectUtils {
             return mAnnotations.contains(annotationClass);
         }
 
-        public <T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+        public <T extends Annotation> T getAnnotation(Class<? extends Annotation> annotationClass) {
             return (T) mClassAnnotationHashMap.get(annotationClass);
         }
     }

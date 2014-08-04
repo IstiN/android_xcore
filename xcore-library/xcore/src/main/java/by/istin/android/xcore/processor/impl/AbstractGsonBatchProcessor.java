@@ -74,7 +74,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
     }
 
     protected Gson buildGson(DBContentValuesAdapter contentValuesAdapter) {
-        return createGsonWithContentValuesAdapter(contentValuesAdapter);
+        return createGsonWithContentValuesAdapter(getListBufferSize(), contentValuesAdapter);
     }
 
     public DBHelper getDbHelper() {

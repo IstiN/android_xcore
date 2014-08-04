@@ -1,32 +1,22 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.11.+'
-    }
-}
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 repositories {
     mavenCentral()
 }
 
 android {
-    compileSdkVersion 19
-    buildToolsVersion "19.1"
+    compileSdkVersion 20
+    buildToolsVersion "20.0.0"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 19
-
-        testPackageName 'by.istin.android.xcore.test'
+        targetSdkVersion 20
         testInstrumentationRunner 'by.istin.android.xcore.test.Runner'
     }
 }
 
 dependencies {
     compile project(':xcore')
-    compile 'com.android.support:support-v4:19.0.+'
-    compile 'com.google.code.gson:gson:2.2.+'
+    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.google.code.gson:gson:2.2.4'
 }

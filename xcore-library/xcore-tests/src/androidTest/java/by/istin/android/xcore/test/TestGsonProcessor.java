@@ -68,10 +68,9 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 
         }.execute(dataSourceRequest, httpAndroidDataSource, inputStream);
         Cursor entityCursor = defaultDBContentProvider.query(testEntityUri, null, null, null, null);
-        DatabaseUtils.dumpCursor(entityCursor);
-        //assertEquals(entityCursor.getCount(), 4);
+        //DatabaseUtils.dumpCursor(entityCursor);
+        assertEquals(entityCursor.getCount(), 12600);
         Cursor subEntityCursor = defaultDBContentProvider.query(testSubEntity, null, null, null, null);
-        DatabaseUtils.dumpCursor(subEntityCursor);
         //assertEquals(subEntityCursor.getCount(), 16);
         CursorUtils.close(entityCursor);
         CursorUtils.close(subEntityCursor);
