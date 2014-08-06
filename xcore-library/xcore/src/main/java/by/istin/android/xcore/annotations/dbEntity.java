@@ -7,6 +7,10 @@ import java.lang.annotation.Target;
 
 @Target(value = {ElementType.FIELD, ElementType.TYPE})
 @Retention(value = RetentionPolicy.RUNTIME)
+@Deprecated
+/**
+ * Use only for the class Entity. See example DayEntity in the test project.
+ */
 public @interface dbEntity {
 
     Config value() default @Config(dbType = Config.DBType.ENTITY);

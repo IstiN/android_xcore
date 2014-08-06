@@ -14,8 +14,10 @@ import java.lang.reflect.Type;
 import java.util.List;
 
 import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 import by.istin.android.xcore.utils.StringUtil;
@@ -46,11 +48,12 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         Config classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
         if (classConfig != null) {
             Class<? extends Config.Transformer> transformerClass = classConfig.transformer();
-            Config.Transformer transformer = ReflectUtils.newSingleInstance(transformerClass);
-            IConverter converter = transformer.converter();
+            Config.Transformer<GsonConverter.Meta> transformer = ReflectUtils.newSingleInstance(transformerClass);
+            IConverter<GsonConverter.Meta> converter = transformer.converter();
             if (converter != null) {
                 ContentValues contentValues = new ContentValues();
-                converter.convert(contentValues, null, null, jsonElement, type, jsonDeserializationContext);
+                GsonConverter.Meta meta = new GsonConverter.Meta(jsonElement, type, jsonDeserializationContext);
+                converter.convert(contentValues, null, null, meta);
                 return proceed(parent, position, contentValues);
             }
         }
@@ -81,7 +84,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
                 serializedName = configKey;
             }
             Class<? extends Config.Transformer> transformerClass = config.transformer();
-            Config.Transformer transformer = ReflectUtils.newSingleInstance(transformerClass);
+            Config.Transformer<GsonConverter.Meta> transformer = ReflectUtils.newSingleInstance(transformerClass);
             String separator = transformer.subElementSeparator();
             boolean isFirstObjectForJsonArray = transformer.isFirstObjectForArray();
             if (separator != null && serializedName.contains(separator)) {
@@ -143,13 +146,14 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return proceed(parent, position, contentValues);
     }
 
-    private boolean isCustomConverter(Config.Transformer transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
+    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
         IConverter converter = transformer.converter();
         if (converter == null) {
             return false;
         }
         try {
-            converter.convert(contentValues, fieldValue, parent, jsonElement, type, jsonDeserializationContext);
+            GsonConverter.Meta meta = new GsonConverter.Meta(jsonElement, type, jsonDeserializationContext);
+            converter.convert(contentValues, fieldValue, parent, meta);
         } catch (UnsupportedOperationException e) {
             Log.xe(this, fieldValue + ":" + jsonElement.toString());
             throw e;

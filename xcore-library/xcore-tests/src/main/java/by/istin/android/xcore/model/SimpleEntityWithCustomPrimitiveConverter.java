@@ -4,17 +4,15 @@ import android.content.ContentValues;
 import android.provider.BaseColumns;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonElement;
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Type;
-
 import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.converter.IConverter;
+import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
-import by.istin.android.xcore.gson.IConverter;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -42,13 +40,14 @@ public class SimpleEntityWithCustomPrimitiveConverter implements BaseColumns {
     @db(@Config(dbType = Config.DBType.STRING, transformer = TagsTransformer.class))
     public static final String TAGS = "tags";
 
-    public static class TagsTransformer extends Config.DefaultTransformer {
+    public static class TagsTransformer extends Config.AbstractTransformer<GsonConverter.Meta> {
 
         @Override
-        public IConverter converter() {
-            return new IConverter() {
+        public IConverter<GsonConverter.Meta> converter() {
+            return new IConverter<GsonConverter.Meta>() {
                 @Override
-                public void convert(ContentValues contentValues, String fieldValue, Object parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+                public void convert(ContentValues contentValues, String fieldValue, Object parent, GsonConverter.Meta meta) {
+                    JsonElement jsonElement = meta.getJsonElement();
                     if (jsonElement.isJsonNull()) {
                         return;
                     }

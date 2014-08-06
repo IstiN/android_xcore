@@ -1,8 +1,13 @@
 package by.istin.android.xcore.callable;
 
 /**
- * Created by IstiN on 14.7.13.
+ * Interface that can be used to delegate Result of operation to top of callers.
  */
 public interface ISuccess<Result> {
+
+    /**
+     * Call this method with result that you want to delegate to top caller
+     * @param result success result of execution operation
+     */
     void success(Result result);
 }
