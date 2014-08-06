@@ -36,6 +36,8 @@ public class CursorLoaderFragmentHelper {
         void hideProgress();
 
         CursorModel.CursorModelCreator getCursorModelCreator();
+
+        LoaderManager getLoaderManager();
 	}
 
     public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
@@ -57,16 +59,18 @@ public class CursorLoaderFragmentHelper {
 		}
 		return loader;
 	}
-	
+
 	public static boolean onActivityCreated(ICursorLoaderFragmentHelper cursorLoaderFragment, Bundle savedInstanceState) {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity) {
 			if (cursorLoaderFragment.getUri() != null) {
-                LoaderManager lm;
-                if (cursorLoaderFragment instanceof Fragment) {
-                    lm = ((Fragment) cursorLoaderFragment).getLoaderManager();
-                } else {
-				    lm = ((FragmentActivity) activity).getSupportLoaderManager();
+                LoaderManager lm = cursorLoaderFragment.getLoaderManager();
+                if (lm == null) {
+                    if (cursorLoaderFragment instanceof FragmentActivity){
+                        lm = ((FragmentActivity) activity).getSupportLoaderManager();
+                    } else {
+                        Log.xe("lm", "loader manager is not specified");
+                    }
                 }
                 Log.xd("lm", lm);
                 lm.restartLoader(cursorLoaderFragment.getLoaderId(), null, cursorLoaderFragment);
