@@ -230,6 +230,10 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
     }
 
+    public static boolean hasL() {
+        return VERSION.CODENAME.equalsIgnoreCase("L");
+    }
+
     public static boolean hasHoneycombMR1() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
     }
@@ -299,4 +303,16 @@ public class UiUtil {
             view.startAnimation(animation);
         }
     }
+
+    @TargetApi(Build.VERSION_CODES.L)
+    public static void setViewName(View view, String viewName) {
+        if (hasL()) {
+            view.setViewName(viewName);
+        }
+    }
+
+    public static void setViewName(View rootView, int id, String viewName) {
+        setViewName(rootView.findViewById(id), viewName);
+    }
+
 }
