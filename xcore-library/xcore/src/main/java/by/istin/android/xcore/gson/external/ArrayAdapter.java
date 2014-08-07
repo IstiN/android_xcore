@@ -23,13 +23,13 @@ import by.istin.android.xcore.gson.AbstractValuesAdapter;
  */
 public class ArrayAdapter<T> extends TypeAdapter<List<T>> {
 
-    private final AbstractValuesAdapter<T> contentValuesAdapter;
+    private final AbstractValuesAdapter contentValuesAdapter;
 
     private final Class<T> adapterclass;
 
     private int listBufferSize;
 
-    public ArrayAdapter(int listBufferSize, Class<T> adapterClass, AbstractValuesAdapter<T> contentValuesAdapter) {
+    public ArrayAdapter(int listBufferSize, Class<T> adapterClass, AbstractValuesAdapter contentValuesAdapter) {
         this.adapterclass = adapterClass;
         this.listBufferSize = listBufferSize;
         this.contentValuesAdapter = contentValuesAdapter;

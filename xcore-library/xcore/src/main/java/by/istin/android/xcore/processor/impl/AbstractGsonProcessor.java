@@ -36,7 +36,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
     }
 
     public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName) {
-        this(clazz, resultClassName, new AbstractValuesAdapter<ContentValues>(clazz) {
+        this(clazz, resultClassName, new AbstractValuesAdapter(clazz) {
 
             @Override
             protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {

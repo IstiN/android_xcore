@@ -22,7 +22,7 @@ import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
+public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentValues> {
 
     public static final int UNKNOWN_POSITION = -1;
 
@@ -40,11 +40,11 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
     }
 
     @Override
-    public T deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
+    public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
         return deserializeContentValues(null, UNKNOWN_POSITION, jsonElement, type, jsonDeserializationContext);
     }
 
-    public T deserializeContentValues(T parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+    public ContentValues deserializeContentValues(ContentValues parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
         Config classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
         if (classConfig != null) {
             Class<? extends Config.Transformer> transformerClass = classConfig.transformer();
@@ -52,7 +52,7 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
             IConverter<GsonConverter.Meta> converter = transformer.converter();
             if (converter != null) {
                 ContentValues contentValues = new ContentValues();
-                GsonConverter.Meta meta = new GsonConverter.Meta(jsonElement, type, jsonDeserializationContext);
+                GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext);
                 converter.convert(contentValues, null, null, meta);
                 return proceed(parent, position, contentValues);
             }
@@ -146,13 +146,13 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
         return proceed(parent, position, contentValues);
     }
 
-    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, T parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
+    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
         IConverter converter = transformer.converter();
         if (converter == null) {
             return false;
         }
         try {
-            GsonConverter.Meta meta = new GsonConverter.Meta(jsonElement, type, jsonDeserializationContext);
+            GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext);
             converter.convert(contentValues, fieldValue, parent, meta);
         } catch (UnsupportedOperationException e) {
             Log.xe(this, fieldValue + ":" + jsonElement.toString());
@@ -165,6 +165,6 @@ public abstract class AbstractValuesAdapter<T> implements JsonDeserializer<T> {
 
     protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
 
-    protected abstract T proceed(T parent, int position, ContentValues contentValues);
+    protected abstract ContentValues proceed(ContentValues parent, int position, ContentValues contentValues);
 
 }

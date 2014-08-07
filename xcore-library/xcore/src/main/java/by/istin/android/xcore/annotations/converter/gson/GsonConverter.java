@@ -6,6 +6,7 @@ import com.google.gson.JsonElement;
 import java.lang.reflect.Type;
 
 import by.istin.android.xcore.annotations.converter.IConverter;
+import by.istin.android.xcore.gson.AbstractValuesAdapter;
 
 /**
  * GsonConverter provides Meta for gson elements parsing.
@@ -16,6 +17,11 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
      * Meta provides basic information for parsing Gson elements. Used in the AbstractValuesAdapter.
      */
     public static class Meta {
+
+        /**
+         * Current contentValuesAdapter
+         */
+        private final AbstractValuesAdapter abstractValuesAdapter;
 
         /**
          * Current jsonElement
@@ -35,14 +41,16 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         /**
          * Default constructor
          *
+         * @param abstractValuesAdapter current contentValuesAdapter
          * @param jsonElement current jsonElement
          * @param type current reflection type
          * @param jsonDeserializationContext current gson context
          */
-        public Meta(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+        public Meta(AbstractValuesAdapter abstractValuesAdapter, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
             this.jsonElement = jsonElement;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
+            this.abstractValuesAdapter = abstractValuesAdapter;
         }
 
         /**
@@ -67,6 +75,14 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
          */
         public JsonDeserializationContext getJsonDeserializationContext() {
             return jsonDeserializationContext;
+        }
+
+        /**
+         * Return current contentValues adapter
+         * @return contentValuesAdapter
+         */
+        public AbstractValuesAdapter getAbstractValuesAdapter() {
+            return abstractValuesAdapter;
         }
     }
 

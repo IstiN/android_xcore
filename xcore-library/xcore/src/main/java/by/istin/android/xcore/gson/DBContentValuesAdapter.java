@@ -21,7 +21,7 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.ReflectUtils;
 
-public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues> {
+public class DBContentValuesAdapter extends AbstractValuesAdapter {
 
     private final IDBConnection dbConnection;
 
@@ -153,7 +153,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
         Class<?> clazz = entity.clazz();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         Long id = getParentId(contentValues);
-        IGsonEntitiesConverter gsonEntityConverter = DefaultGsonEntitiesConverter.INSTANCE;
+        IGsonEntitiesConverter gsonEntityConverter = GsonEntitiesConverter.INSTANCE;
         gsonEntityConverter.convert(new IGsonEntitiesConverter.Params(
                 beforeListUpdate,
                 type,
@@ -215,6 +215,18 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter<ContentValues>
             count++;
         }
         return contentValues;
+    }
+
+    public DBHelper getDbHelper() {
+        return dbHelper;
+    }
+
+    public DataSourceRequest getDataSourceRequest() {
+        return dataSourceRequest;
+    }
+
+    public int getCount() {
+        return count;
     }
 
 

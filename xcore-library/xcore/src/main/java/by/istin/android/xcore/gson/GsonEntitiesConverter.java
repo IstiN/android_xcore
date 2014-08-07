@@ -13,11 +13,9 @@ import by.istin.android.xcore.source.DataSourceRequest;
 /**
  * Created by IstiN on 6.12.13.
  */
-public class DefaultGsonEntitiesConverter implements IGsonEntitiesConverter {
+class GsonEntitiesConverter implements IGsonEntitiesConverter {
 
-    public static final String KEY_VALUE = "value";
-
-    public static final DefaultGsonEntitiesConverter INSTANCE = new DefaultGsonEntitiesConverter();
+    public static final GsonEntitiesConverter INSTANCE = new GsonEntitiesConverter();
 
     @Override
     public void convert(IGsonEntitiesConverter.Params params) {

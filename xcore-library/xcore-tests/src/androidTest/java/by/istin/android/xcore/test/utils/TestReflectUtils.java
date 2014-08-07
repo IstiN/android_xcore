@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import by.istin.android.xcore.annotations.dbSubEntity;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.db.impl.DBHelper;
@@ -58,14 +57,10 @@ public class TestReflectUtils extends AndroidTestCase {
 
     public static class TestClass {
 
-        //NEED TO MERGE WITH EXISTING ENTITY
-        @dbSubEntity(key = "test_sub1", mergeWithParent = true)
         public static class TestSubClass1 {
 
         }
 
-        //NEED TO CREATE NEW ENTITY
-        @dbSubEntity(key = "test_sub2", mergeWithParent = false)
         public static class TestSubClass2 {
 
             public static final String VALUE = "value";

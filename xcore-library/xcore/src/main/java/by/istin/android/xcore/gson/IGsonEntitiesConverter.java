@@ -17,8 +17,7 @@ import by.istin.android.xcore.utils.ReflectUtils;
 /**
  * Created by IstiN on 6.12.13.
  */
-@Deprecated
-public interface IGsonEntitiesConverter {
+interface IGsonEntitiesConverter {
 
     void convert(Params params);
 

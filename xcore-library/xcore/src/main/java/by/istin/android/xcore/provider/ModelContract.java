@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.BaseColumns;
+
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.StringUtil;
@@ -84,13 +84,6 @@ public class ModelContract {
         }*/
         return null;
     }
-
-    public static final class ModelColumns implements BaseColumns {
-		
-		private ModelColumns() {
-		}
-
-	}
 
     public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
         String dataSourceRequest = ModelContract.getDataSourceRequest(uri);
