@@ -9,6 +9,7 @@ import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.BaseColumns;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -97,14 +98,14 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
                 if (where == null) {
                     where = StringUtil.EMPTY;
                 }
-                where = where + ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                where = where + BaseColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case MODELS_ID_NEGOTIVE:
                 className = pathSegments.get(pathSegments.size()-2);
                 if (where == null) {
                     where = StringUtil.EMPTY;
                 }
-                where = where + ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                where = where + BaseColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             default:
                 throw new IllegalArgumentException("Unknown URI " + uri);
@@ -164,18 +165,18 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
                 pathSegments = uri.getPathSegments();
                 className = pathSegments.get(pathSegments.size()-2);
                 if (StringUtil.isEmpty(selection)) {
-                    selection = ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                    selection = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 } else {
-                    selection = selection + ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                    selection = selection + BaseColumns._ID + " = " + uri.getLastPathSegment();
                 }
                 break;
             case MODELS_ID_NEGOTIVE:
                 pathSegments = uri.getPathSegments();
                 className = pathSegments.get(pathSegments.size()-2);
                 if (StringUtil.isEmpty(selection)) {
-                    selection = ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                    selection = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 } else {
-                    selection = selection + ModelContract.ModelColumns._ID + " = " + uri.getLastPathSegment();
+                    selection = selection + BaseColumns._ID + " = " + uri.getLastPathSegment();
                 }
                 break;
             default:

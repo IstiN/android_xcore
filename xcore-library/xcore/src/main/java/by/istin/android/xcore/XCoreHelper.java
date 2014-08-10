@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import by.istin.android.xcore.plugin.IFragmentPlugin;
+import by.istin.android.xcore.service.manager.IRequestManager;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
@@ -43,6 +44,7 @@ public class XCoreHelper {
 	public void onCreate(Context ctx) {
 		ContextHolder.getInstance().setContext(ctx);
         Log.init(ctx);
+        IRequestManager.Impl.register(this);
         registerAppService(new Core(ctx));
 	}
 	

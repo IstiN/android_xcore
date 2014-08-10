@@ -12,12 +12,10 @@ import android.os.Parcelable;
 import android.os.ResultReceiver;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
-import by.istin.android.xcore.service.RequestExecutor.ExecuteRunnable;
-import by.istin.android.xcore.service.assist.LIFOLinkedBlockingDeque;
+import by.istin.android.xcore.service.manager.IRequestManager;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
@@ -34,9 +32,11 @@ public abstract class AbstractExecutorService extends Service {
     protected static final String PROCESSOR_KEY = "processorKey";
     protected static final String RESULT_RECEIVER = "resultReceiver";
 
-    private RequestExecutor mRequestExecutor;
-
-    public static void stop(Context context, ResultReceiver receiver, Class<? extends AbstractExecutorService> serviceClass) {
+    public static void stop(Context context, ResultReceiver receiver, Class<? extends AbstractExecutorService> serviceClass, boolean isLocalAppService) {
+        if (isLocalAppService) {
+            IRequestManager.Impl.get(serviceClass, context).stop(receiver);
+            return;
+        }
         Intent intent = new Intent(context, serviceClass);
         intent.putExtra(ACTION_STOP, true);
         intent.putExtra(RESULT_RECEIVER, receiver);
@@ -44,15 +44,19 @@ public abstract class AbstractExecutorService extends Service {
     }
 
     protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, Class<?> serviceClass) {
-        execute(context, dataSourceRequest, processorKey, dataSourceKey, null, serviceClass);
+        execute(context, dataSourceRequest, processorKey, dataSourceKey, null, serviceClass, true);
     }
 
-    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
+    protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass, boolean isLocalAppService) {
         if (context == null) {
             context = ContextHolder.getInstance().getContext();
             if (context == null) {
                 return;
             }
+        }
+        if (isLocalAppService) {
+            IRequestManager.Impl.get(serviceClass, context).onHandleRequest(context, dataSourceRequest, processorKey, dataSourceKey, resultReceiver);
+            return;
         }
         Intent intent = createStartIntent(context, dataSourceRequest, processorKey, dataSourceKey, resultReceiver, serviceClass);
         if (intent == null) {
@@ -93,71 +97,18 @@ public abstract class AbstractExecutorService extends Service {
 	}
 	
 	protected void onHandleIntent(final Intent intent) {
+        IRequestManager requestManager = IRequestManager.Impl.get(this.getClass(), this);
         final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
-        if (intent.getBooleanExtra(ACTION_STOP, false)) {
+        boolean isStopAction = intent.getBooleanExtra(ACTION_STOP, false);
+        if (isStopAction) {
             Log.xd(this, "action stop");
-            if (mRequestExecutor != null) {
-                mRequestExecutor.stop(resultReceiver);
-            } else {
-                resultReceiver.send(0, null);
-            }
-            stopSelf();
+            requestManager.stop(resultReceiver);
             Log.xd(this, "action stop executor recreated");
             return;
         }
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
-        final Bundle bundle = new Bundle();
-        dataSourceRequest.toBundle(bundle);
-        if (resultReceiver != null) {
-            resultReceiver.send(StatusResultReceiver.Status.ADD_TO_QUEUE.ordinal(), bundle);
-        }
-        onBeforeExecute(intent, dataSourceRequest, resultReceiver, bundle);
-        final RequestExecutor requestExecutor = getRequestExecutor();
-        requestExecutor.execute(new ExecuteRunnable(resultReceiver) {
-
-            @Override
-            public void run() {
-                AbstractExecutorService.this.run(this, intent, dataSourceRequest, bundle, resultReceiver);
-            }
-
-            @Override
-            public String createKey() {
-                return dataSourceRequest.toUriParams();
-            }
-
-            @Override
-            protected void onDone() {
-                if (requestExecutor.isEmpty()) {
-                    stopSelf();
-                    Log.xd(AbstractExecutorService.this, "stop from run");
-                }
-            }
-
-        });
+        requestManager.onHandleRequest(this, dataSourceRequest, intent.getStringExtra(PROCESSOR_KEY), intent.getStringExtra(DATA_SOURCE_KEY), (StatusResultReceiver) resultReceiver);
 	}
-
-    protected abstract void run(ExecuteRunnable runnable, final Intent intent, final DataSourceRequest dataSourceRequest, final Bundle bundle, final ResultReceiver resultReceiver);
-
-    protected RequestExecutor getRequestExecutor() {
-        if (mRequestExecutor == null) {
-            mRequestExecutor = createExecutorService();
-        }
-        return mRequestExecutor;
-    }
-
-    @Override
-    public void onDestroy() {
-        mRequestExecutor = null;
-        super.onDestroy();
-    }
-
-    protected RequestExecutor createExecutorService() {
-        return new RequestExecutor(RequestExecutor.DEFAULT_POOL_SIZE, new LIFOLinkedBlockingDeque<Runnable>());
-    }
-
-    protected void onBeforeExecute(Intent intent, DataSourceRequest dataSourceRequest, ResultReceiver resultReceiver, Bundle bundle) {
-
-    }
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
