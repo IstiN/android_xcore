@@ -338,4 +338,21 @@ public class UiUtil {
         att.recycle();
         return (int) size;
     }
+
+    public static int getStatusBarHeight(Context context) {
+        int result = 0;
+        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+        if (resourceId > 0) {
+            result = context.getResources().getDimensionPixelSize(resourceId);
+        }
+        return result;
+    }
+
+    @TargetApi(Build.VERSION_CODES.L)
+    public static void setElevation(View view, float value) {
+        if (hasL()) {
+            view.setClipToOutline(true);
+            view.setElevation(value);
+        }
+    }
 }

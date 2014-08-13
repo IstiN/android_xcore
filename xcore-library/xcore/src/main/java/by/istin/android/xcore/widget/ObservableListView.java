@@ -2,21 +2,22 @@ package by.istin.android.xcore.widget;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-
-import java.util.ArrayList;
+import android.widget.AbsListView;
 
 public class ObservableListView extends XListView {
 
-    private ArrayList<Callbacks> mCallbacks = new ArrayList<Callbacks>();
+    private Callbacks mCallback;
+
+    private View mHeaderView;
 
     private ViewTreeObserver.OnGlobalLayoutListener mGlobalLayoutListener
             = new ViewTreeObserver.OnGlobalLayoutListener() {
         @Override
         public void onGlobalLayout() {
-            for (Callbacks c : mCallbacks) {
-                c.recomputeScrollingMetrics(ObservableListView.this);
-            }
+            mCallback.recomputeScrollingMetrics(ObservableListView.this);
         }
     };
 
@@ -33,36 +34,56 @@ public class ObservableListView extends XListView {
     }
 
     public static interface Callbacks {
-        public void onScrollChanged(ObservableListView listView, int deltaX, int deltaY);
-        public void recomputeScrollingMetrics(ObservableListView listView);
+
+        void onScrollChanged(ObservableListView listView, int deltaX, int deltaY);
+
+        void recomputeScrollingMetrics(ObservableListView listView);
+
+        int getHeaderHeight(ObservableListView listView);
     }
 
     @Override
     protected void onScrollChanged(int l, int t, int oldl, int oldt) {
         super.onScrollChanged(l, t, oldl, oldt);
-        for (Callbacks c : mCallbacks) {
-            c.onScrollChanged(this, l - oldl, t - oldt);
-        }
-        ViewTreeObserver vto = getViewTreeObserver();
-        if (vto.isAlive()) {
-            vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+        if (mCallback != null) {
+            mCallback.onScrollChanged(this, l - oldl, t - oldt);
         }
     }
 
     public void addCallbacks(Callbacks listener) {
-        if (!mCallbacks.contains(listener)) {
-            mCallbacks.add(listener);
+        if (mCallback != listener) {
+            mCallback = listener;
+            removeStubHeader();
+            ViewTreeObserver vto = getViewTreeObserver();
+            if (vto.isAlive()) {
+                vto.addOnGlobalLayoutListener(mGlobalLayoutListener);
+            }
+            int headerHeight = mCallback.getHeaderHeight(this);
+            mHeaderView = new View(getContext());
+            AbsListView.LayoutParams layoutParams = new AbsListView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, headerHeight);
+            mHeaderView.setLayoutParams(layoutParams);
+            addHeaderView(mHeaderView, null, false);
         }
 
     }
 
-    public void removeCallbacks(Callbacks listener) {
-        mCallbacks.remove(listener);
-        if (mCallbacks.isEmpty()) {
-            ViewTreeObserver vto = getViewTreeObserver();
-            if (vto.isAlive()) {
-                vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
-            }
+    public int getHeaderTop() {
+        return mHeaderView == null ? 0 : mHeaderView.getTop();
+    }
+
+    private void removeStubHeader() {
+        if (mHeaderView != null) {
+            removeHeaderView(mHeaderView);
+            mHeaderView = null;
+        }
+    }
+
+    public void removeCallback(Callbacks listener) {
+        mCallback = null;
+        removeStubHeader();
+        ViewTreeObserver vto = getViewTreeObserver();
+        if (vto.isAlive()) {
+            vto.removeGlobalOnLayoutListener(mGlobalLayoutListener);
         }
     }
 }
