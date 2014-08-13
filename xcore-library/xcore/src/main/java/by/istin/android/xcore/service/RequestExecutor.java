@@ -186,7 +186,9 @@ public class RequestExecutor {
         }
         if (IS_LOG_ENABLED)
         Log.xd(this, "stop send info to receiver");
-        resultReceiver.send(0, null);
+        if (resultReceiver != null) {
+            resultReceiver.send(0, null);
+        }
         if (IS_LOG_ENABLED)
         Log.xd(this, "stop start recreation");
         recreateExecutor();

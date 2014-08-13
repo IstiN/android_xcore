@@ -4,6 +4,8 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
 import android.content.res.Configuration;
+import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -315,4 +317,25 @@ public class UiUtil {
         setViewName(rootView.findViewById(id), viewName);
     }
 
+    private static final int[] RES_IDS_ACTION_BAR_SIZE = { android.R.attr.actionBarSize };
+
+    public static int getActionBarSize(Activity context) {
+        if (context == null) {
+            return 0;
+        }
+
+        Resources.Theme curTheme = context.getTheme();
+        if (curTheme == null) {
+            return 0;
+        }
+
+        TypedArray att = curTheme.obtainStyledAttributes(RES_IDS_ACTION_BAR_SIZE);
+        if (att == null) {
+            return 0;
+        }
+
+        float size = att.getDimension(0, 0);
+        att.recycle();
+        return (int) size;
+    }
 }

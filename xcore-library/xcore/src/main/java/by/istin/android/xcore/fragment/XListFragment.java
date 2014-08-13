@@ -54,6 +54,7 @@ import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.HashUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
+import by.istin.android.xcore.utils.UiUtil;
 import by.istin.android.xcore.widget.ISetViewBinder;
 
 public abstract class XListFragment extends AdapterViewFragment
@@ -63,7 +64,7 @@ public abstract class XListFragment extends AdapterViewFragment
             DataSourceExecuteHelper.IDataSourceListener,
             CursorModelLoader.ILoading {
 
-    public static final boolean IS_CHECK_STATUS_LOG_ENABLED = false;
+    public static final boolean IS_CHECK_STATUS_LOG_ENABLED = true;
 
     public static final int LOADER_PRIORITY_SERVICE = 1;
 
@@ -444,12 +445,14 @@ public abstract class XListFragment extends AdapterViewFragment
 
     @Override
     public void setServiceWork(boolean isWork) {
-        isServiceWork = isWork;
+        synchronized (mStatusViewLock) {
+            isServiceWork = isWork;
+        }
     }
 
     @Override
     public void onError(Exception exception, DataSourceRequest dataSourceRequest) {
-        isServiceWork = false;
+        setServiceWork(false);
         exception.printStackTrace();
         FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -480,6 +483,8 @@ public abstract class XListFragment extends AdapterViewFragment
 
     private int loaderPriority = 0;
 
+    private final Object mStatusViewLock = new Object();
+
     private boolean isLoaderWork = false;
 
     public boolean isServiceWork() {
@@ -487,11 +492,13 @@ public abstract class XListFragment extends AdapterViewFragment
     }
 
     public void setLoaderWork(boolean isLoaderWork, int priority) {
-        if (loaderPriority == LOADER_PRIORITY_HIGH && this.isLoaderWork && priority == LOADER_PRIORITY_SERVICE) {
-            return;
+        synchronized (mStatusViewLock) {
+            if (loaderPriority == LOADER_PRIORITY_HIGH && this.isLoaderWork && priority == LOADER_PRIORITY_SERVICE) {
+                return;
+            }
+            this.loaderPriority = priority;
+            this.isLoaderWork = isLoaderWork;
         }
-        this.loaderPriority = priority;
-        this.isLoaderWork = isLoaderWork;
     }
 
     public boolean isLoaderWork() {
@@ -557,14 +564,14 @@ public abstract class XListFragment extends AdapterViewFragment
 
     @Override
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
-        isServiceWork = true;
+        setServiceWork(true);
         if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
             public void onAddToQueue(Bundle resultData) {
-                isServiceWork = true;
+                setServiceWork(true);
                 //plugins
                 FragmentActivity activity = getActivity();
                 if (activity == null) return;
@@ -592,7 +599,7 @@ public abstract class XListFragment extends AdapterViewFragment
 
             @Override
             public void onDone(Bundle resultData) {
-                isServiceWork = false;
+                setServiceWork(false);
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
                     return;
@@ -615,7 +622,7 @@ public abstract class XListFragment extends AdapterViewFragment
 
             @Override
             protected void onCached(Bundle resultData) {
-                isServiceWork = false;
+                setServiceWork(false);
                 setLoaderWork(false, LOADER_PRIORITY_SERVICE);
                 super.onCached(resultData);
                 FragmentActivity context = getActivity();
@@ -693,13 +700,15 @@ public abstract class XListFragment extends AdapterViewFragment
         mEndlessScrollListener = null;
         mWatcher = null;
         setLoaderWork(false, LOADER_PRIORITY_HIGH);
-        isServiceWork = false;
+        setServiceWork(false);
         checkStatus("onDestroy");
         super.onDestroy();
     }
 
     @Override
     public void hideProgress() {
+        if (IS_CHECK_STATUS_LOG_ENABLED)
+            Log.d("fragment_status", "hide progress");
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
@@ -708,9 +717,24 @@ public abstract class XListFragment extends AdapterViewFragment
         if (view == null) {
             return;
         }
-        View progressView = view.findViewById(getProgressViewId());
+        hideProgress(view);
+    }
+
+    protected void hideProgress(View view) {
+        final View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
-            progressView.setVisibility(View.GONE);
+            if (IS_CHECK_STATUS_LOG_ENABLED)
+            Log.d("fragment_status", "call progressView.setVisibility(View.GONE)");
+            if (UiUtil.hasL()) {
+                progressView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        progressView.setVisibility(View.GONE);
+                    }
+                }, 100l);
+            } else {
+                progressView.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -720,6 +744,8 @@ public abstract class XListFragment extends AdapterViewFragment
 
     @Override
     public void showProgress() {
+        if (IS_CHECK_STATUS_LOG_ENABLED)
+            Log.d("fragment_status", "show progress");
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
@@ -728,8 +754,14 @@ public abstract class XListFragment extends AdapterViewFragment
         if (view == null) {
             return;
         }
+        showProgress(view);
+    }
+
+    protected void showProgress(View view) {
         View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
+            if (IS_CHECK_STATUS_LOG_ENABLED)
+            Log.d("fragment_status", "call progressView.setVisibility(View.VISIBLE)");
             progressView.setVisibility(View.VISIBLE);
         }
     }
@@ -743,6 +775,10 @@ public abstract class XListFragment extends AdapterViewFragment
         if (view == null) {
             return;
         }
+        showPagingProgress(view);
+    }
+
+    protected void showPagingProgress(View view) {
         View progressView = view.findViewById(getSecondaryProgressId());
         if (progressView != null) {
             progressView.setVisibility(View.VISIBLE);
@@ -762,65 +798,103 @@ public abstract class XListFragment extends AdapterViewFragment
         if (view == null) {
             return;
         }
+        hidePagingProgress(view);
+    }
+
+    protected void hidePagingProgress(View view) {
         View progressView = view.findViewById(getSecondaryProgressId());
         if (progressView != null) {
             progressView.setVisibility(View.GONE);
         }
     }
 
-    protected void checkStatus(String reason) {
-        if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " reason:" + reason);
-        FragmentActivity activity = getActivity();
-        if (activity == null) {
-            return;
-        }
-        View view = getView();
-        if (view == null) {
-            return;
-        }
-        ListAdapter listAdapter = getListAdapter();
-        int size = getRealAdapterCount(listAdapter);
-        boolean isPaging = mEndlessScrollListener != null;
-        if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
-        if (isLoaderWork) {
-            if (size == 0) {
-                showProgress();
-                hideEmptyView(view);
-                hidePagingProgress();
-            } else {
-                if (isPaging) {
-                    showPagingProgress();
-                }
-                hideProgress();
-                hideEmptyView(view);
-            }
-            return;
-        }
-        if (isServiceWork) {
-            if (size == 0) {
-                showProgress();
-                hideEmptyView(view);
-                hidePagingProgress();
-            } else {
-                if (isPaging) {
-                    showPagingProgress();
-                }
-                hideProgress();
-                hideEmptyView(view);
-            }
-            return;
-        }
+    private int currentStatusView = STATUS_CONTENT_VISIBLE;
 
-        if (size == 0) {
-            hidePagingProgress();
-            hideProgress();
-            showEmptyView(view);
-        } else {
-            hideProgress();
-            hidePagingProgress();
-            hideEmptyView(view);
+    private static final int STATUS_UNKNOWN = -1;
+    private static final int STATUS_CONTENT_VISIBLE = 0;
+    private static final int STATUS_PROGRESS_VISIBLE = 1;
+    private static final int STATUS_SECONDARY_PROGRESS_VISIBLE = 2;
+    private static final int STATUS_EMPTY_VISIBLE = 3;
+
+    protected void checkStatus(String reason) {
+        synchronized (mStatusViewLock) {
+            if (IS_CHECK_STATUS_LOG_ENABLED)
+                Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " reason:" + reason);
+            FragmentActivity activity = getActivity();
+            if (activity == null) {
+                return;
+            }
+            View view = getView();
+            if (view == null) {
+                return;
+            }
+            ListAdapter listAdapter = getListAdapter();
+            int size = getRealAdapterCount(listAdapter);
+            boolean isPaging = mEndlessScrollListener != null;
+            if (IS_CHECK_STATUS_LOG_ENABLED)
+                Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " " + isLoaderWork + " " + isServiceWork + " " + size);
+            int newViewStatus = STATUS_UNKNOWN;
+            if (isLoaderWork) {
+                if (size == 0) {
+                    newViewStatus = STATUS_PROGRESS_VISIBLE;
+                } else {
+                    if (isPaging) {
+                        newViewStatus = STATUS_SECONDARY_PROGRESS_VISIBLE;
+                    } else {
+                        newViewStatus = STATUS_CONTENT_VISIBLE;
+                    }
+                }
+            }
+            if (isServiceWork) {
+                if (size == 0) {
+                    newViewStatus = STATUS_PROGRESS_VISIBLE;
+                } else {
+                    if (isPaging) {
+                        newViewStatus = STATUS_SECONDARY_PROGRESS_VISIBLE;
+                    } else {
+                        newViewStatus = STATUS_CONTENT_VISIBLE;
+                    }
+                }
+            }
+            if (newViewStatus == STATUS_UNKNOWN) {
+                if (size == 0) {
+                    newViewStatus = STATUS_EMPTY_VISIBLE;
+                } else {
+                    newViewStatus = STATUS_CONTENT_VISIBLE;
+                }
+            }
+            if (currentStatusView != newViewStatus) {
+                if (IS_CHECK_STATUS_LOG_ENABLED)
+                    Log.d("fragment_status", "status changed from " + currentStatusView  + " to " + newViewStatus);
+                currentStatusView = newViewStatus;
+                switch (currentStatusView) {
+                    case STATUS_CONTENT_VISIBLE:
+                        hideProgress(view);
+                        hidePagingProgress(view);
+                        hideEmptyView(view);
+                        break;
+                    case STATUS_EMPTY_VISIBLE:
+                        hidePagingProgress(view);
+                        hideProgress(view);
+                        showEmptyView(view);
+                        break;
+                    case STATUS_PROGRESS_VISIBLE:
+                        showProgress(view);
+                        hideEmptyView(view);
+                        hidePagingProgress(view);
+                        break;
+                    case STATUS_SECONDARY_PROGRESS_VISIBLE:
+                        showPagingProgress(view);
+                        hideProgress(view);
+                        hideEmptyView(view);
+                        break;
+                    default:
+                        hideProgress(view);
+                        hidePagingProgress(view);
+                        hideEmptyView(view);
+                        break;
+                }
+            }
         }
     }
 
