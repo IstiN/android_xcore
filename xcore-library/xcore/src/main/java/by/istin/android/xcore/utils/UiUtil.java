@@ -11,12 +11,14 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
+import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.Window;
+import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
@@ -252,6 +254,10 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT;
     }
 
+    public static boolean hasKitKatWatch() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
+    }
+
     /**
      * Hide keyboard
      * @param view view, prefer set EditText
@@ -353,6 +359,25 @@ public class UiUtil {
         if (hasL()) {
             view.setClipToOutline(true);
             view.setElevation(value);
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.KITKAT_WATCH)
+    public static void applySystemWindowsBottomInset(final View containerView) {
+        if (hasKitKatWatch()) {
+            containerView.setFitsSystemWindows(true);
+            containerView.setOnApplyWindowInsetsListener(new View.OnApplyWindowInsetsListener() {
+                @Override
+                public WindowInsets onApplyWindowInsets(View view, WindowInsets windowInsets) {
+                    DisplayMetrics metrics = containerView.getResources().getDisplayMetrics();
+                    if (metrics.widthPixels < metrics.heightPixels) {
+                        view.setPadding(0, 0, 0, windowInsets.getSystemWindowInsetBottom());
+                    } else {
+                        view.setPadding(0, 0, windowInsets.getSystemWindowInsetRight(), 0);
+                    }
+                    return windowInsets.consumeSystemWindowInsets();
+                }
+            });
         }
     }
 }
