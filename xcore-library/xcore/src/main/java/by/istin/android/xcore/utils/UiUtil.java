@@ -380,4 +380,8 @@ public class UiUtil {
             });
         }
     }
+
+    public static int getDensity(Context context) {
+        return context.getResources().getDisplayMetrics().densityDpi;
+    }
 }
