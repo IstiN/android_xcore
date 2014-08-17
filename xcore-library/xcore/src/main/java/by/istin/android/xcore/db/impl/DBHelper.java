@@ -371,7 +371,9 @@ public class DBHelper {
                 } else if (value instanceof Integer) {
                     newValues.put(key, (Integer)value);
                 } else if (value instanceof String) {
-                    newValues.put(key, (String)value);
+                    if (!StringUtil.isEmpty(value)) {
+                        newValues.put(key, (String) value);
+                    }
                 } else if (value instanceof Byte) {
                     newValues.put(key, (Byte)value);
                 } else if (value instanceof byte[]) {
