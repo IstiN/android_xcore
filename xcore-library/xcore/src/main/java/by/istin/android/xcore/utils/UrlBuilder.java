@@ -51,11 +51,16 @@ public class UrlBuilder {
     }
 
     public static UrlBuilder scheme(String scheme, String host) {
-        return new UrlBuilder(scheme + host);
+        String path = scheme + host;
+        return uri(path);
+    }
+
+    public static UrlBuilder uri(String path) {
+        return new UrlBuilder(path);
     }
 
     public static UrlBuilder parent(UrlBuilder urlBuilder) {
-        UrlBuilder builder = new UrlBuilder(urlBuilder.mPath);
+        UrlBuilder builder = uri(urlBuilder.mPath);
         builder.mListParams.addAll(urlBuilder.mListParams);
         builder.mListParamsUnknown.addAll(urlBuilder.mListParamsUnknown);
         return builder;
