@@ -193,6 +193,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
     }
 
     protected void dataSourceExecute(Context context, final DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
+        showProgress();
         DataSourceService.execute(context, dataSourceRequest, processorKey, dataSourceKey, new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
 
             @Override
