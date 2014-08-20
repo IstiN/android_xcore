@@ -15,8 +15,10 @@ import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
+import by.istin.android.xcore.db.entity.IBeforeUpdate;
 import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.impl.DBHelper;
+import by.istin.android.xcore.processor.IOnProceedEntity;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.ReflectUtils;
@@ -34,6 +36,8 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
     private int count = 0;
 
     private final IBeforeArrayUpdate beforeListUpdate;
+
+    private final IOnProceedEntity onProceedEntity;
 
     private IGenerateID generateID;
 
@@ -128,6 +132,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.onProceedEntity = ReflectUtils.getInstanceInterface(contentValuesClass, IOnProceedEntity.class);
         this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
         this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
     }
@@ -139,6 +144,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         this.dbHelper = dbHelper;
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.onProceedEntity = ReflectUtils.getInstanceInterface(contentValuesClass, IOnProceedEntity.class);
         this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
         this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
     }
@@ -179,7 +185,10 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
         Long id = getParentId(contentValues);
         values.put(foreignKey, id);
-        dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
+        IOnProceedEntity onProceedEntity = ReflectUtils.getInstanceInterface(clazz, IOnProceedEntity.class);
+        if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, contentValues, values, -1)) {
+            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
+        }
     }
 
     private Long getParentId(ContentValues contentValues) {
@@ -203,7 +212,9 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
             if (beforeListUpdate != null) {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
             }
-            dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
+            if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position)) {
+                dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
+            }
             if (transactionCreationController != null) {
                 if (transactionCreationController.isCreateNewTransaction(count)) {
                     if (dbConnection instanceof WritableConnectionWrapper) {
