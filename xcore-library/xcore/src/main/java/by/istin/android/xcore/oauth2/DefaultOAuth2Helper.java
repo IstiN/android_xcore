@@ -121,4 +121,18 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
     public boolean isRefreshTokenExpired(Credentials credentials) throws Exception {
         return (System.currentTimeMillis() - credentials.getSavedTime()) > 60 * DateUtils.DAY_IN_MILLIS;
     }
+
+    @Override
+    public Credentials getCredentials() {
+        if (mCredentials != null) {
+            return mCredentials;
+        }
+        restore();
+        return mCredentials;
+    }
+
+    @Override
+    public boolean isLogged() {
+        return getCredentials() != null;
+    }
 }

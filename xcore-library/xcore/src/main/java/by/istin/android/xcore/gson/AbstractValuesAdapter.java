@@ -31,6 +31,8 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
 
     private List<ReflectUtils.XField> mEntityKeys;
 
+    private int mCurrentPosition = 0;
+
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
     }
@@ -41,7 +43,9 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
 
     @Override
     public ContentValues deserialize(JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) throws JsonParseException {
-        return deserializeContentValues(null, UNKNOWN_POSITION, jsonElement, type, jsonDeserializationContext);
+        ContentValues contentValues = deserializeContentValues(null, mCurrentPosition, jsonElement, type, jsonDeserializationContext);
+        mCurrentPosition++;
+        return contentValues;
     }
 
     public ContentValues deserializeContentValues(ContentValues parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {

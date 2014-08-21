@@ -458,12 +458,7 @@ public abstract class XListFragment extends AdapterViewFragment
         if (activity == null) {
             return;
         }
-        IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
-        if (errorHandler != null) {
-            errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
-        } else {
-            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        handleException(exception, dataSourceRequest, activity);
         checkStatus("onError");
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
@@ -473,6 +468,15 @@ public abstract class XListFragment extends AdapterViewFragment
             }
         }
         hidePagingProgress();
+    }
+
+    public void handleException(Exception exception, DataSourceRequest dataSourceRequest, FragmentActivity activity) {
+        IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
+        if (errorHandler != null) {
+            errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
+        } else {
+            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     protected ViewBinder getAdapterViewBinder() {
@@ -567,7 +571,7 @@ public abstract class XListFragment extends AdapterViewFragment
         setServiceWork(true);
         if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
-        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler(Looper.getMainLooper())) {
+        DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler()) {
 
             @Override
             public void onAddToQueue(Bundle resultData) {

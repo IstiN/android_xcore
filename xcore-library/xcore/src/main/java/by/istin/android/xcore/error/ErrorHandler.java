@@ -127,6 +127,10 @@ public class ErrorHandler implements IErrorHandler {
                     return;
                 case DEVELOPER_ERROR:
                     onDeveloperError(activity, dataSourceRequest, exception, type, mDeveloperErrorMessage, clearRunnable);
+                    return;
+                case AUTHORIZATION:
+                    onAuthorizationError(activity, dataSourceRequest, exception, type, clearRunnable);
+                    return;
             }
         }
     }
@@ -160,6 +164,13 @@ public class ErrorHandler implements IErrorHandler {
     }
 
     protected void onUnknownError(final FragmentActivity activity, final DataSourceRequest dataSourceRequest, final Exception exception, ErrorType type, Runnable clearRunnable) {
+        StringBuilder builder = buildExceptionInfo(exception, dataSourceRequest);
+        Log.xe(activity, type + " type exception ", exception);
+        Log.xe(activity, builder.toString());
+        clearRunnable.run();
+    }
+
+    protected void onAuthorizationError(final FragmentActivity activity, final DataSourceRequest dataSourceRequest, final Exception exception, ErrorType type, Runnable clearRunnable) {
         StringBuilder builder = buildExceptionInfo(exception, dataSourceRequest);
         Log.xe(activity, type + " type exception ", exception);
         Log.xe(activity, builder.toString());

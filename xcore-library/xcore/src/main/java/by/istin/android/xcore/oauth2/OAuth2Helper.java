@@ -14,6 +14,10 @@ public interface OAuth2Helper {
 
     boolean isRefreshTokenExpired(Credentials credentials) throws Exception;
 
+    Credentials getCredentials();
+
+    boolean isLogged();
+
     public static class Impl {
 
         public static OAuth2Helper create(Configuration configuration){

@@ -1,5 +1,7 @@
 package by.istin.android.xcore.utils;
 
+import android.content.ContentValues;
+
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -17,6 +19,15 @@ public class HashUtils {
         }
     }
 
+    public static long generateId(ContentValues contentValues, String ... keys) {
+        Object[] values = new Object[keys.length];
+        int i = 0;
+        for (String k : keys) {
+            values[i] = contentValues.get(k);
+            i++;
+        }
+        return generateId(values);
+    }
 
 	public static long generateId(Object... value) {
         if (md == null) {
