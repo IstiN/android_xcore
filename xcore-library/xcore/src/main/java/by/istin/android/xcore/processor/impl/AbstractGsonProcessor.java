@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonObject;
 
@@ -49,7 +50,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
             }
 
             @Override
-            protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues) {
+            protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues, JsonElement jsonElement) {
                 return contentValues;
             }
         });

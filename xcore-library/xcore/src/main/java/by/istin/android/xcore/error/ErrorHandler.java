@@ -19,6 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 import by.istin.android.xcore.fragment.IDataSourceHelper;
+import by.istin.android.xcore.oauth2.AuthorizationRequiredException;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.ui.DialogBuilder;
@@ -225,6 +226,8 @@ public class ErrorHandler implements IErrorHandler {
         ErrorType type;
         if (exception instanceof IOStatusException) {
             type = ErrorType.SERVER_UNAVAILABLE;
+        } else if (exception instanceof AuthorizationRequiredException) {
+            type = ErrorType.AUTHORIZATION;
         } else if (exception instanceof IOException) {
             type = ErrorType.INTERNET;
         } else {
@@ -236,7 +239,7 @@ public class ErrorHandler implements IErrorHandler {
     @Override
     public boolean isCanBeReSent(Exception exception) {
         ErrorType errorType = getErrorType(exception);
-        return errorType != ErrorType.DEVELOPER_ERROR && errorType != ErrorType.UNKNOWN;
+        return errorType != ErrorType.DEVELOPER_ERROR && errorType != ErrorType.UNKNOWN && errorType != ErrorType.AUTHORIZATION;
     }
 
     public static String joinStackTrace(Throwable e) {

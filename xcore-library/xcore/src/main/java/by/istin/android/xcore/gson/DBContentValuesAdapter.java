@@ -6,6 +6,7 @@ import android.provider.BaseColumns;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.lang.reflect.Type;
@@ -186,7 +187,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         Long id = getParentId(contentValues);
         values.put(foreignKey, id);
         IOnProceedEntity onProceedEntity = ReflectUtils.getInstanceInterface(clazz, IOnProceedEntity.class);
-        if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, contentValues, values, -1)) {
+        if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, contentValues, values, -1, subEntityJsonObject)) {
             dbHelper.updateOrInsert(dataSourceRequest, dbConnection, clazz, values);
         }
     }
@@ -204,7 +205,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
     }
 
     @Override
-    protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues) {
+    protected ContentValues proceed(ContentValues parent, int position, ContentValues contentValues, JsonElement jsonElement) {
         if (parent == null) {
             if (contentValues == null) {
                 return null;
@@ -212,7 +213,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
             if (beforeListUpdate != null) {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
             }
-            if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position)) {
+            if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position, jsonElement)) {
                 dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
             }
             if (transactionCreationController != null) {

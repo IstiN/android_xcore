@@ -16,7 +16,7 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
-abstract class AbstractRequestManager implements IRequestManager {
+public abstract class AbstractRequestManager implements IRequestManager {
 
     private RequestExecutor mRequestExecutor;
 

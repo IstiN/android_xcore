@@ -58,7 +58,7 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
                 ContentValues contentValues = new ContentValues();
                 GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext);
                 converter.convert(contentValues, null, null, meta);
-                return proceed(parent, position, contentValues);
+                return proceed(parent, position, contentValues, jsonElement);
             }
         }
         if (mEntityKeys == null) {
@@ -66,7 +66,7 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
         }
         ContentValues contentValues = new ContentValues();
         if (mEntityKeys == null) {
-            return proceed(parent, position, contentValues);
+            return proceed(parent, position, contentValues, jsonElement);
         }
         if (!jsonElement.isJsonObject()) {
             return null;
@@ -147,7 +147,7 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
                 }
             }
         }
-        return proceed(parent, position, contentValues);
+        return proceed(parent, position, contentValues, jsonElement);
     }
 
     private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
@@ -169,6 +169,6 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
 
     protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
 
-    protected abstract ContentValues proceed(ContentValues parent, int position, ContentValues contentValues);
+    protected abstract ContentValues proceed(ContentValues parent, int position, ContentValues contentValues, JsonElement jsonElement);
 
 }

@@ -4,6 +4,9 @@ import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+/**
+ * example https://github.com/wrt-mobi/OReader-Android/blob/f461b3961e5a4a282eae356fb936848090071f6c/app/src/main/java/mobi/wrt/oreader/app/clients/feedly/processor/ContentProcessor.java
+ */
 public abstract class ParcelableModel implements Parcelable {
 
     @Override
@@ -24,7 +27,20 @@ public abstract class ParcelableModel implements Parcelable {
         }
         return items;
     }
+
+    public static ContentValues readContentValues(final Parcel source) {
+        Parcelable parcelables = source.readParcelable(ContentValues.class.getClassLoader());
+        if (parcelables == null) {
+            return null;
+        }
+        return (ContentValues) parcelables;
+    }
+
     public static void writeContentValuesArray(Parcel dest, ContentValues[] contentValueses) {
         dest.writeParcelableArray(contentValueses, 0);
+    }
+
+    public static void writeContentValues(Parcel dest, ContentValues contentValueses) {
+        dest.writeParcelable(contentValueses, 0);
     }
 }

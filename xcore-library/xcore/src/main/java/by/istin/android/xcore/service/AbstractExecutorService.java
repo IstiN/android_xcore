@@ -15,6 +15,7 @@ import java.io.Serializable;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.processor.IProcessor;
+import by.istin.android.xcore.service.manager.AbstractRequestManager;
 import by.istin.android.xcore.service.manager.IRequestManager;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
@@ -112,34 +113,7 @@ public abstract class AbstractExecutorService extends Service {
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
-        final IProcessor processor = AppUtils.get(context, processorKey);
-        final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
-        Object result = processor.execute(dataSourceRequest, dataSource, dataSource.getSource(dataSourceRequest));
-        if (cacheable) {
-            processor.cache(context, dataSourceRequest, result);
-            if (bundle == null) {
-                return result;
-            }
-            if (result instanceof Parcelable) {
-                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
-            } else if (result instanceof Parcelable[]) {
-                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
-            } else if (result instanceof Serializable) {
-                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            }
-        } else {
-            if (bundle == null) {
-                return result;
-            }
-            if (result instanceof Parcelable) {
-                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
-            } else if (result instanceof Parcelable[]) {
-                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
-            } else if (result instanceof Serializable) {
-                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            }
-        }
-        return result;
+        return AbstractRequestManager.execute(context, cacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
     }
 
 }
