@@ -178,7 +178,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, HttpUriRequest request, HttpResponse response) throws ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response) throws ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
@@ -238,7 +238,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         return mResponseStatusHandler;
     }
 
-    public InputStream getInputSteam(HttpUriRequest request) throws IllegalStateException, IOException {
+    public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpUriRequest request) throws IllegalStateException, IOException {
 		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
@@ -254,12 +254,12 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
                 if (firstHeader != null) {
                     String value = firstHeader.getValue();
                     if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
-                        return createRedirectRequest(request, response, value);
+                        return createRedirectRequest(dataSourceRequest, request, response, value);
                     }
                 }
             }
             if (mResponseStatusHandler != null) {
-                mResponseStatusHandler.statusHandle(this, request, response);
+                mResponseStatusHandler.statusHandle(this, dataSourceRequest, request, response);
             }
             HttpEntity httpEntity = response.getEntity();
             InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
@@ -269,7 +269,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
 	}
 
-    protected InputStream createRedirectRequest(HttpUriRequest request, HttpResponse response, String value) throws IOException {
+    protected InputStream createRedirectRequest(DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, String value) throws IOException {
         Log.xd(this, "redirect " + value);
         if (!URLUtil.isNetworkUrl(value)) {
             Log.xd(this, "redirect current request ");
@@ -278,7 +278,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
         HttpGet redirectUri = new HttpGet(value);
         request.abort();
-        return getInputSteam(redirectUri);
+        return getInputSteam(dataSourceRequest, redirectUri);
     }
 
     protected boolean isRedirect(int statusCode) {
@@ -287,7 +287,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 
     @Override
 	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
-		return getInputSteam(createRequest(dataSourceRequest));
+		return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest));
 	}
 
 	@Override
