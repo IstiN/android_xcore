@@ -190,6 +190,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 			if (statusCode != HttpStatus.SC_OK) {
 				String entityValue = EntityUtils.toString(httpEntity);
 				Log.e(TAG, response.getStatusLine().getReasonPhrase() + " " + entityValue);
+				Log.xd(this, request);
 				throw new IOStatusException(response.getStatusLine().getReasonPhrase(), statusCode, entityValue);
 			}
 		}

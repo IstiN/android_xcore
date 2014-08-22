@@ -38,6 +38,8 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
 
     private final IBeforeArrayUpdate beforeListUpdate;
 
+    private final IBeforeUpdate beforeUpdate;
+
     private final IOnProceedEntity onProceedEntity;
 
     private IGenerateID generateID;
@@ -133,6 +135,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.beforeUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeUpdate.class);
         this.onProceedEntity = ReflectUtils.getInstanceInterface(contentValuesClass, IOnProceedEntity.class);
         this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
         this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
@@ -145,6 +148,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         this.dbHelper = dbHelper;
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
+        this.beforeUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeUpdate.class);
         this.onProceedEntity = ReflectUtils.getInstanceInterface(contentValuesClass, IOnProceedEntity.class);
         this.generateID = ReflectUtils.getInstanceInterface(getContentValuesEntityClazz(), IGenerateID.class);
         this.foreignKey = DBHelper.getForeignKey(getContentValuesEntityClazz());
@@ -212,6 +216,9 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
             }
             if (beforeListUpdate != null) {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
+            }
+            if (beforeUpdate != null) {
+                beforeUpdate.onBeforeUpdate(dbHelper, dbConnection, dataSourceRequest, contentValues);
             }
             if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position, jsonElement)) {
                 dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
