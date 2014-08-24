@@ -8,18 +8,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.os.Parcelable;
 import android.os.ResultReceiver;
 
-import java.io.Serializable;
-
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.service.manager.AbstractRequestManager;
 import by.istin.android.xcore.service.manager.IRequestManager;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.IDataSource;
-import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
 /**
@@ -112,8 +106,8 @@ public abstract class AbstractExecutorService extends Service {
 	}
 
     @SuppressWarnings("unchecked")
-    public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
-        return AbstractRequestManager.execute(context, cacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
+    public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+        return AbstractRequestManager.execute(context, processorKey, dataSourceKey, dataSourceRequest, bundle);
     }
 
 }

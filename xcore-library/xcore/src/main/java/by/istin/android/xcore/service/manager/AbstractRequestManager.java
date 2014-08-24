@@ -8,12 +8,16 @@ import android.os.ResultReceiver;
 import java.io.Serializable;
 
 import by.istin.android.xcore.processor.IProcessor;
+import by.istin.android.xcore.provider.ModelContract;
+import by.istin.android.xcore.service.CacheRequestHelper;
 import by.istin.android.xcore.service.RequestExecutor;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.service.assist.LIFOLinkedBlockingDeque;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 
 public abstract class AbstractRequestManager implements IRequestManager {
@@ -81,8 +85,55 @@ public abstract class AbstractRequestManager implements IRequestManager {
         return IRequestManager.APP_SERVICE_KEY;
     }
 
+    private static final Object mDbLockFlag = new Object();
+
     @SuppressWarnings("unchecked")
-    public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+    public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest) throws Exception {
+        return execute(context, processorKey, dataSourceKey, dataSourceRequest, null, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+        return execute(context, processorKey, dataSourceKey, dataSourceRequest, bundle, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle, Runnable cachedRunnable) throws Exception {
+        boolean isCacheable = dataSourceRequest.isCacheable();
+        boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
+        boolean isAlreadyCached = false;
+        Holder<Long> requestIdHolder = new Holder<Long>();
+        synchronized (mDbLockFlag) {
+            if (isCacheable && !isForceUpdateData) {
+                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
+                requestIdHolder.set(requestId);
+                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId);
+            }
+            if (!isAlreadyCached) {
+                context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+            }
+        }
+        if (isAlreadyCached) {
+            if (cachedRunnable != null) {
+                cachedRunnable.run();
+            }
+            return null;
+        }
+        try {
+            return internalExecute(context, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
+        } catch (Exception e) {
+            if (!requestIdHolder.isNull()) {
+                synchronized (mDbLockFlag) {
+                    context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
+                }
+            }
+            throw e;
+        }
+
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Object internalExecute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
         final IProcessor processor = AppUtils.get(context, processorKey);
         final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
         Object result = processor.execute(dataSourceRequest, dataSource, dataSource.getSource(dataSourceRequest));

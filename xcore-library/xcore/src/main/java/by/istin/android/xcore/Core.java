@@ -7,6 +7,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
@@ -15,9 +19,6 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
-
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * Created by IstiN on 14.8.13.
@@ -207,17 +208,18 @@ public class Core implements XCoreHelper.IAppServiceKey {
         return (Core) AppUtils.get(context, APP_SERVICE_KEY);
     }
 
-    public void executeSync(final IExecuteOperation<?> executeOperation) throws Exception {
+    public Object executeSync(final IExecuteOperation<?> executeOperation) throws Exception {
         final SimpleDataSourceServiceListener dataSourceListener = executeOperation.getDataSourceListener();
         Bundle bundle = new Bundle();
         sendOnStartEvent(bundle, dataSourceListener);
         DataSourceRequest dataSourceRequest = executeOperation.getDataSourceRequest();
         try {
-            Object result = DataSourceService.execute(ContextHolder.get(), dataSourceRequest.isCacheable(), executeOperation.getProcessorKey(), executeOperation.getDataSourceKey(), dataSourceRequest, bundle);
+            Object result = DataSourceService.execute(ContextHolder.get(), executeOperation.getProcessorKey(), executeOperation.getDataSourceKey(), dataSourceRequest, bundle);
             if (dataSourceListener != null) {
                 dataSourceListener.onDone(bundle);
             }
             sendResult(bundle, result, executeOperation, false);
+            return result;
         } catch (Exception e) {
             sendOnErrorEvent(e, dataSourceListener);
             throw e;

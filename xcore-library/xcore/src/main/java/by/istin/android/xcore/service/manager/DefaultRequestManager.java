@@ -6,18 +6,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 
-import by.istin.android.xcore.provider.ModelContract;
-import by.istin.android.xcore.service.CacheRequestHelper;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.RequestExecutor;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.DataSourceRequestEntity;
-import by.istin.android.xcore.utils.Holder;
 
 public class DefaultRequestManager extends AbstractRequestManager {
-
-    private final Object mDbLockFlag = new Object();
 
     private static final String SERVICE_KEY = IRequestManager.APP_SERVICE_KEY + DataSourceService.class.getName();
 
@@ -27,39 +21,21 @@ public class DefaultRequestManager extends AbstractRequestManager {
     }
 
     @Override
-    public void run(Context context, String processorKey, String dataSourceKey, RequestExecutor.ExecuteRunnable executeRunnable, DataSourceRequest dataSourceRequest, Bundle dataSourceRequestBundle, ResultReceiver resultReceiver) {
+    public void run(final Context context, String processorKey, String dataSourceKey, final RequestExecutor.ExecuteRunnable executeRunnable, final DataSourceRequest dataSourceRequest, final Bundle dataSourceRequestBundle, ResultReceiver resultReceiver) {
         executeRunnable.sendStatus(StatusResultReceiver.Status.START, dataSourceRequestBundle);
-        boolean isCacheable = dataSourceRequest.isCacheable();
-        boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-        boolean isAlreadyCached = false;
-        Holder<Long> requestIdHolder = new Holder<Long>();
-        synchronized (mDbLockFlag) {
-            if (isCacheable && !isForceUpdateData) {
-                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
-                requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId);
-            }
-            if (!isAlreadyCached) {
-                context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
-            }
-        }
-        if (isAlreadyCached) {
-            if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
-                executeRunnable.sendStatus(StatusResultReceiver.Status.CACHED, dataSourceRequestBundle);
-            }
-            return;
-        }
         try {
-            execute(context, isCacheable, processorKey, dataSourceKey, dataSourceRequest, dataSourceRequestBundle);
+            execute(context, processorKey, dataSourceKey, dataSourceRequest, dataSourceRequestBundle, new Runnable() {
+                @Override
+                public void run() {
+                    if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
+                        executeRunnable.sendStatus(StatusResultReceiver.Status.CACHED, dataSourceRequestBundle);
+                    }
+                }
+            });
             if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
                 executeRunnable.sendStatus(StatusResultReceiver.Status.DONE, dataSourceRequestBundle);
             }
         } catch (Exception e) {
-            if (!requestIdHolder.isNull()) {
-                synchronized (mDbLockFlag) {
-                    context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
-                }
-            }
             try {
                 dataSourceRequestBundle.putSerializable(StatusResultReceiver.ERROR_KEY, e);
                 executeRunnable.sendStatus(StatusResultReceiver.Status.ERROR, dataSourceRequestBundle);
