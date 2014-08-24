@@ -155,6 +155,7 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
     }
 
     protected void onSuccess(Credentials result) {
+        setResult(RESULT_OK);
         finish();
     }
 
