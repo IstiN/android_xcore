@@ -105,9 +105,9 @@ public abstract class AbstractRequestManager implements IRequestManager {
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
             if (isCacheable && !isForceUpdateData) {
-                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
+                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId);
+                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
             if (!isAlreadyCached) {
                 context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
