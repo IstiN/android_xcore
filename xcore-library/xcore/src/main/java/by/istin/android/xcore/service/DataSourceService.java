@@ -44,7 +44,7 @@ public class DataSourceService extends AbstractExecutorService {
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
             if (isCacheable && !isForceUpdateData) {
-                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
+                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
                 isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
