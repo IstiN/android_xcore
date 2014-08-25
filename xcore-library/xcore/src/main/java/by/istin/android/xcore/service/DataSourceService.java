@@ -5,16 +5,13 @@ package by.istin.android.xcore.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
-import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Holder;
-import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author IstiN
@@ -38,6 +35,8 @@ public class DataSourceService extends AbstractExecutorService {
 
     @Override
     protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
+        final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
+        final String dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
         runnable.sendStatus(StatusResultReceiver.Status.START, bundle);
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
@@ -47,7 +46,7 @@ public class DataSourceService extends AbstractExecutorService {
             if (isCacheable && !isForceUpdateData) {
                 long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
                 requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId);
+                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
             if (!isAlreadyCached) {
                 //String requestParentUri = dataSourceRequest.getRequestParentUri();
@@ -66,8 +65,6 @@ public class DataSourceService extends AbstractExecutorService {
             return;
         }
         try {
-            final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
-            final String dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
             execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
                 runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);

@@ -13,17 +13,17 @@ import by.istin.android.xcore.utils.CursorUtils;
  */
 public class CacheRequestHelper {
 
-    public static boolean cacheIfNotCached(Context context, DataSourceRequest dataSourceRequest, long requestId) {
+    public static boolean cacheIfNotCached(Context context, DataSourceRequest dataSourceRequest, long requestId, String processorKey, String dataSourceKey) {
         Cursor cursor = context.getContentResolver().query(ModelContract.getUri(DataSourceRequestEntity.class, requestId), new String[]{DataSourceRequestEntity.LAST_UPDATE}, null, null, null);
         try {
             if (cursor == null || !cursor.moveToFirst()) {
-                context.getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.prepare(dataSourceRequest));
+                context.getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
             } else {
                 Long lastUpdate = CursorUtils.getLong(DataSourceRequestEntity.LAST_UPDATE, cursor);
                 if (System.currentTimeMillis() - dataSourceRequest.getCacheExpiration() < lastUpdate) {
                     return true;
                 } else {
-                    context.getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.prepare(dataSourceRequest));
+                    context.getContentResolver().insert(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
                 }
             }
         } finally {
