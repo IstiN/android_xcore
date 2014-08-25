@@ -14,6 +14,9 @@ public final class ContextHolder {
 	/** The context. */
 	private Context mContext;
 
+    /** The singletone lock. */
+    private static final Object mLock = new Object();
+
 	/**
 	 * Instantiates a new context holder.
 	 */
@@ -26,9 +29,13 @@ public final class ContextHolder {
 	 * 
 	 * @return single instance of ContextHolder
 	 */
-	public static synchronized ContextHolder getInstance() {
+	public static ContextHolder getInstance() {
 		if (sInstance == null) {
-            sInstance = new ContextHolder();
+            synchronized (mLock) {
+                if (sInstance == null) {
+                    sInstance = new ContextHolder();
+                }
+            }
 		}
 		return sInstance;
 	}

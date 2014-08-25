@@ -55,7 +55,19 @@ public class DBHelper {
         DBAssociationCache associationCache = DBAssociationCache.get();
         String tableName = associationCache.getTableName(clazz);
         if (tableName == null) {
-            tableName = clazz.getCanonicalName().replace(".", "_");
+            String canonicalName = clazz.getCanonicalName();
+            String[] split = canonicalName.split("\\.");
+            int length = split.length;
+            StringBuilder builder = new StringBuilder();
+            for (int i = 0; i < length; i++) {
+                String s = split[i];
+                if (i == length - 1) {
+                    builder.append("_").append(s);
+                } else {
+                    builder.append(s.charAt(0));
+                }
+            }
+            tableName = builder.toString();
             associationCache.setTableName(clazz, tableName);
         }
         return tableName;
@@ -334,11 +346,6 @@ public class DBHelper {
         }
         return foreignKey;
     }
-
-    private void putForeignIdAndClear(long id, String contentValuesKey, String foreignId, ContentValues entityValues) {
-		entityValues.remove(contentValuesKey);
-		entityValues.put(foreignId, id);
-	}
 
 	public Cursor query(Class<?> clazz, String[] projection,
 			String selection, String[] selectionArgs, String groupBy,

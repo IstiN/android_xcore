@@ -1,21 +1,24 @@
-package by.istin.android.xcore.test.db;
+package by.istin.android.xcore.db.impl.sqlite;
 
 import android.app.Application;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.test.ApplicationTestCase;
-import by.istin.android.xcore.db.impl.DBHelper;
+
 import by.istin.android.xcore.db.IDBConnector;
-import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.model.BigTestEntity;
 import by.istin.android.xcore.model.BigTestSubEntity;
+import by.istin.android.xcore.test.db.MockStorage;
 import by.istin.android.xcore.utils.CursorUtils;
 
-public class TestDbHelper extends ApplicationTestCase<Application> {
+public class DbHelperTest extends ApplicationTestCase<Application> {
+
+    private static final String TABLE_NAME = "biaxm_BigTestEntity";
 
     private DBHelper dbHelper;
 
-    public TestDbHelper() {
+    public DbHelperTest() {
 		super(Application.class);
 	}
 
@@ -26,6 +29,10 @@ public class TestDbHelper extends ApplicationTestCase<Application> {
         IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
         dbHelper = new DBHelper(connector);
 	}
+
+    public void testTableName() throws Exception {
+        assertEquals(TABLE_NAME, DBHelper.getTableName(BigTestEntity.class));
+    }
 
     public void testInsert() throws Exception {
         ContentValues contentValues = MockStorage.generateSingleEntity(0);

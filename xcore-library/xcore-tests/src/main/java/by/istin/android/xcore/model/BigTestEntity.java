@@ -3,8 +3,6 @@ package by.istin.android.xcore.model;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.UUID;
 
 import by.istin.android.xcore.annotations.dbBoolean;
@@ -21,7 +19,6 @@ import by.istin.android.xcore.db.entity.IGenerateID;
 import by.istin.android.xcore.db.entity.IMerge;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.utils.HashUtils;
 
 public class BigTestEntity implements BaseColumns, IMerge, IBeforeArrayUpdate, IGenerateID {
 

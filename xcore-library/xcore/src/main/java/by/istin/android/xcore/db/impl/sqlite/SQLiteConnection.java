@@ -8,12 +8,19 @@ import android.os.Build;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.utils.CursorUtils;
 
-/**
- * Created with IntelliJ IDEA.
- * User: IstiN
- * Date: 19.10.13
- */
 class SQLiteConnection implements IDBConnection {
+
+    interface SqliteMasterContract {
+
+        static final String TABLE_NAME = "sqlite_master";
+
+        static final String TYPE_TABLE = "table";
+
+        interface Columns {
+            static final String NAME = "name";
+            static final String TYPE = "type";
+        }
+    }
 
     private final SQLiteDatabase mDatabase;
 
@@ -36,7 +43,11 @@ class SQLiteConnection implements IDBConnection {
         boolean isExists = false;
         Cursor cursor = null;
         try {
-            cursor = mDatabase.query("sqlite_master", new String[]{"name"}, "type=? AND name=?", new String[]{"table", tableName}, null, null, null);
+            cursor = mDatabase.query(SqliteMasterContract.TABLE_NAME,
+                    new String[]{SqliteMasterContract.Columns.NAME},
+                    SqliteMasterContract.Columns.TYPE + "=? AND "+SqliteMasterContract.Columns.NAME+"=?",
+                    new String[]{SqliteMasterContract.TYPE_TABLE, tableName},
+                    null, null, null);
             isExists = !CursorUtils.isEmpty(cursor);
         } finally {
             CursorUtils.close(cursor);
@@ -53,58 +64,6 @@ class SQLiteConnection implements IDBConnection {
     public long insert(String tableName, ContentValues contentValues) {
         return mDatabase.insert(tableName, null, contentValues);
     }
-
-    //TODO maybe it improve insert in future
-    /*private void insertWithStatement(IDBConnection db, Class<?> clazz, ContentValues contentValues, String tableName) {
-        SQLiteStatement insertStatement = dbAssociationCache.getInsertStatement(clazz);
-        if (insertStatement == null) {
-            List<Field> fields = ReflectUtils.getEntityKeys(clazz);
-            List<String> columns = new ArrayList<String>();
-            for (Field field : fields) {
-                if (field.isAnnotationPresent(dbEntity.class)) {
-                    continue;
-                }
-                if (field.isAnnotationPresent(dbEntities.class)) {
-                    continue;
-                }
-                String name = ReflectUtils.getStaticStringValue(field);
-                columns.add(name);
-            }
-            insertStatement = db.compileStatement(createInsert(tableName, columns.toArray(new String[columns.size()])));
-            dbAssociationCache.setInsertStatement(clazz, insertStatement);
-        }
-        insertStatement.clearBindings();
-        Set<String> keys = contentValues.keySet();
-        String[] values = new String[keys.size()];
-        int i = 0;
-        for (String key : keys) {
-            values[i] = contentValues.getAsString(key);
-            i++;
-        }
-        insertStatement.bindAllArgsAsStrings(values);
-        insertStatement.execute();
-    }
-
-    static public String createInsert(final String tableName, final String[] columnNames) {
-        if (tableName == null || columnNames == null || columnNames.length == 0) {
-            throw new IllegalArgumentException();
-        }
-        final StringBuilder s = new StringBuilder();
-        s.append("INSERT OR REPLACE INTO ").append(tableName).append(" (");
-        for (String column : columnNames) {
-            s.append(column).append(" ,");
-        }
-        int length = s.length();
-        s.delete(length - 2, length);
-        s.append(") VALUES( ");
-        for (int i = 0; i < columnNames.length; i++) {
-            s.append(" ? ,");
-        }
-        length = s.length();
-        s.delete(length - 2, length);
-        s.append(")");
-        return s.toString();
-    }*/
 
     @Override
     public int update(String tableName, ContentValues contentValues, String selection, String[] selectionArgs) {

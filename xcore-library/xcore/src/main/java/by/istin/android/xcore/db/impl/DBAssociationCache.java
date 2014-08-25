@@ -1,12 +1,18 @@
 package by.istin.android.xcore.db.impl;
 
-import android.database.sqlite.SQLiteStatement;
-import by.istin.android.xcore.annotations.*;
-import by.istin.android.xcore.utils.ReflectUtils;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.dbBoolean;
+import by.istin.android.xcore.annotations.dbByte;
+import by.istin.android.xcore.annotations.dbByteArray;
+import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.dbInteger;
+import by.istin.android.xcore.annotations.dbLong;
+import by.istin.android.xcore.annotations.dbString;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 /**
  * Created with IntelliJ IDEA.
@@ -49,8 +55,6 @@ class DBAssociationCache {
 
     private final ConcurrentHashMap<Class<?>, String> mCacheTableNames = new ConcurrentHashMap<Class<?>, String>();
 
-    private final ConcurrentHashMap<Class<?>, SQLiteStatement> mCacheInsertStatements = new ConcurrentHashMap<Class<?>, SQLiteStatement>();
-
     private final ConcurrentHashMap<Class<?>, String> mForeignKeys = new ConcurrentHashMap<Class<?>, String>();
 
     private DBAssociationCache() {
@@ -79,10 +83,6 @@ class DBAssociationCache {
         mDbEntitiesFieldsCache.put(classOfModel, list);
     }
 
-    public void setTableCreated(String tableName) {
-        setTableCreated(tableName, true);
-    }
-
     public void setTableCreated(String tableName, Boolean isCreated) {
         if (isCreated == null) {
             mCacheTable.remove(tableName);
@@ -101,14 +101,6 @@ class DBAssociationCache {
 
     public void setTableName(Class<?> clazz, String tableName) {
         mCacheTableNames.put(clazz, tableName);
-    }
-
-    public SQLiteStatement getInsertStatement(Class<?> clazz) {
-        return mCacheInsertStatements.get(clazz);
-    }
-
-    public void setInsertStatement(Class<?> clazz, SQLiteStatement insertStatement) {
-        mCacheInsertStatements.put(clazz, insertStatement);
     }
 
     public String getForeignKey(Class<?> clazz) {

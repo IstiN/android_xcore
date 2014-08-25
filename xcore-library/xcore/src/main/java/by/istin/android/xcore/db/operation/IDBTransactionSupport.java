@@ -1,15 +1,22 @@
 package by.istin.android.xcore.db.operation;
 
 /**
- * Created with IntelliJ IDEA.
- * User: IstiN
- * Date: 12.10.13
+ * Interface used to control transactions during work with db
  */
 public interface IDBTransactionSupport {
 
+    /**
+     * Start new transaction
+     */
     void beginTransaction();
 
+    /**
+     * Set transaction successful
+     */
     void setTransactionSuccessful();
 
+    /**
+     * End transaction
+     */
     void endTransaction();
 }

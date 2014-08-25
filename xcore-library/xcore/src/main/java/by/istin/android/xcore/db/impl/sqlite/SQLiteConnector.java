@@ -33,10 +33,6 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     public static final String CREATE_COLUMN_SQL = "ALTER TABLE %1$s ADD %2$s %3$s;";
 
-    public static final String FOREIGN_KEY_TEMPLATE = "ALTER TABLE %1$s ADD CONSTRAINT fk_%1$s_%2$s " +
-            " FOREIGN KEY (%3$s_id) " +
-            " REFERENCES %2$s(id);";
-
     public SQLiteConnector(Context context) {
         super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
     }

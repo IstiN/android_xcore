@@ -42,6 +42,9 @@ public abstract class AbstractDBSupport implements IDBSupport {
     }
 
     public DBHelper getOrCreateDBHelper(Context context) {
+        if (sDbHelper != null) {
+            return sDbHelper;
+        }
         synchronized (sLock) {
             if (sDbHelper == null) {
                 sDbHelper = new DBHelper(createConnector(context));

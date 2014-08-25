@@ -22,7 +22,7 @@ public abstract class DBContentProvider extends ContentProvider {
 
     @Override
 	public boolean onCreate() {
-        Context context = ContextHolder.getInstance().getContext();
+        Context context = ContextHolder.get();
         if (context == null) {
             ContextHolder.getInstance().setContext(getContext());
         }
