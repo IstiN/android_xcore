@@ -19,6 +19,7 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class AbstractRequestManager implements IRequestManager {
 
@@ -99,6 +100,21 @@ public abstract class AbstractRequestManager implements IRequestManager {
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle, Runnable cachedRunnable) throws Exception {
+        String pKey = dataSourceRequest.getProcessorKey();
+        String dsKey = dataSourceRequest.getDataSourceKey();
+        if (StringUtil.isEmpty(pKey)) {
+            dataSourceRequest.setProcessorKey(processorKey);
+        } else {
+            processorKey = pKey;
+        }
+        if (StringUtil.isEmpty(dsKey)) {
+            dataSourceRequest.setProcessorKey(dataSourceKey);
+        } else {
+            dataSourceKey = dsKey;
+        }
+        if (StringUtil.isEmpty(processorKey) || StringUtil.isEmpty(dataSourceKey)) {
+            throw new IllegalArgumentException("processorKey dataSourceKey can't be empty");
+        }
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
         boolean isAlreadyCached = false;
