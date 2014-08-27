@@ -12,6 +12,7 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.StringUtil;
 
 /**
  * @author IstiN
@@ -35,8 +36,19 @@ public class DataSourceService extends AbstractExecutorService {
 
     @Override
     protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
-        final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
-        final String dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
+        String processorKey = dataSourceRequest.getProcessorKey();
+        String dataSourceKey = dataSourceRequest.getDataSourceKey();
+        if (StringUtil.isEmpty(processorKey)) {
+            processorKey = intent.getStringExtra(PROCESSOR_KEY);
+            dataSourceRequest.setProcessorKey(processorKey);
+        }
+        if (StringUtil.isEmpty(dataSourceKey)) {
+            dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
+            dataSourceRequest.setProcessorKey(dataSourceKey);
+        }
+        if (StringUtil.isEmpty(processorKey) || StringUtil.isEmpty(dataSourceKey)) {
+            throw new IllegalArgumentException("processorKey dataSourceKey can't be empty");
+        }
         runnable.sendStatus(StatusResultReceiver.Status.START, bundle);
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();

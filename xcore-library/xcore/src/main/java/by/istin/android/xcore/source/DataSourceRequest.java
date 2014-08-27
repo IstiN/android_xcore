@@ -39,12 +39,18 @@ public class DataSourceRequest {
 
 	private static final String JOIN_DATASOURCE_KEY = "___joindatasource";
 
+	private static final String REQUEST_PROCESSOR_KEY = "___processorkey";
+
+	private static final String REQUEST_DATA_SOURCE_KEY = "___datasourcekey";
+
 	private static final String[] KEYS = new String[] {
 		REQUEST_URI,
         REQUEST_PARENT_URI,
 		REQUEST_CACHEABLE, 
 		REQUEST_FORCE_UPDATE_DATA, 
-		REQUEST_CACHE_EXPIRATION
+		REQUEST_CACHE_EXPIRATION,
+        REQUEST_PROCESSOR_KEY,
+        REQUEST_DATA_SOURCE_KEY
 	};
 	
 	private Bundle mBundle = new Bundle();
@@ -84,6 +90,22 @@ public class DataSourceRequest {
 	public boolean isCacheable() {
 		String value = mBundle.getString(REQUEST_CACHEABLE);
 		return Boolean.valueOf(value);
+	}
+
+	public void setProcessorKey(String processorKey) {
+		mBundle.putString(REQUEST_PROCESSOR_KEY, processorKey);
+	}
+
+	public String getProcessorKey() {
+		return mBundle.getString(REQUEST_PROCESSOR_KEY);
+	}
+
+	public void setDataSourceKey(String dataSourceKey) {
+		mBundle.putString(REQUEST_DATA_SOURCE_KEY, dataSourceKey);
+	}
+
+	public String getDataSourceKey() {
+		return mBundle.getString(REQUEST_DATA_SOURCE_KEY);
 	}
 
 	public void setParentUri(String parentUri) {
