@@ -21,6 +21,7 @@ import by.istin.android.xcore.service.assist.LIFOLinkedBlockingDeque;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 
 /**
@@ -161,9 +162,27 @@ public abstract class AbstractExecutorService extends Service {
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+        return execute(context, cacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public static Object execute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle, CacheRequestHelper.CacheRequestResult cacheRequestResult) throws Exception {
         final IProcessor processor = AppUtils.get(context, processorKey);
         final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
-        Object result = processor.execute(dataSourceRequest, dataSource, dataSource.getSource(dataSourceRequest));
+        Object source;
+        if (CacheRequestHelper.isDataSourceSupportCacheValidation(context, dataSourceKey)) {
+            Holder<Boolean> isCached = new Holder<Boolean>(false);
+            source = dataSource.getSource(dataSourceRequest, isCached);
+            if (isCached.get()) {
+                if (cacheRequestResult != null) {
+                    cacheRequestResult.setDataSourceCached(true);
+                }
+                return null;
+            }
+        } else {
+            source = dataSource.getSource(dataSourceRequest, null);
+        }
+        Object result = processor.execute(dataSourceRequest, dataSource, source);
         if (cacheable) {
             processor.cache(context, dataSourceRequest, result);
             if (bundle == null) {

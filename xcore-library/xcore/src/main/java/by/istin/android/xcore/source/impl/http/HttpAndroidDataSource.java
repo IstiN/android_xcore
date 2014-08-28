@@ -40,6 +40,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
@@ -286,7 +287,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
     }
 
     @Override
-	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
+	public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
 		return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest));
 	}
 

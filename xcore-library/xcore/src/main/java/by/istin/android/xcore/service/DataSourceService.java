@@ -35,7 +35,7 @@ public class DataSourceService extends AbstractExecutorService {
     }
 
     @Override
-    protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
+    protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, final DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
         String processorKey = dataSourceRequest.getProcessorKey();
         String dataSourceKey = dataSourceRequest.getDataSourceKey();
         if (StringUtil.isEmpty(processorKey)) {
@@ -52,34 +52,41 @@ public class DataSourceService extends AbstractExecutorService {
         runnable.sendStatus(StatusResultReceiver.Status.START, bundle);
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-        boolean isAlreadyCached = false;
+        CacheRequestHelper.CacheRequestResult cacheRequestResult = new CacheRequestHelper.CacheRequestResult();
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
             if (isCacheable && !isForceUpdateData) {
                 long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId, processorKey, dataSourceKey);
+                cacheRequestResult = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
-            if (!isAlreadyCached) {
-                //String requestParentUri = dataSourceRequest.getRequestParentUri();
-                //TODO something wrong, idea was check current request uri
-                /*if (!StringUtil.isEmpty(requestParentUri)) {
-                    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{requestParentUri});
-                }*/
-                //is it right?
-                getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+            if (!cacheRequestResult.isAlreadyCached()) {
+                if (!CacheRequestHelper.isDataSourceSupportCacheValidation(this, dataSourceKey)) {
+                    cacheRequestResult.getListRunnable().add(new Runnable() {
+                        @Override
+                        public void run() {
+                            getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                        }
+                    });
+                } else {
+                    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                }
             }
         }
-        if (isAlreadyCached) {
+        if (cacheRequestResult.isAlreadyCached()) {
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
                 runnable.sendStatus(StatusResultReceiver.Status.CACHED, bundle);
             }
             return;
         }
         try {
-            execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
+            execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, cacheRequestResult);
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
-                runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
+                if (cacheRequestResult.isDataSourceCached()) {
+                    runnable.sendStatus(StatusResultReceiver.Status.CACHED, bundle);
+                } else {
+                    runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
+                }
             }
         } catch (Exception e) {
             if (!requestIdHolder.isNull()) {
