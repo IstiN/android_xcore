@@ -3,7 +3,6 @@ package by.istin.android.xcore.oauth2;
 import android.net.Uri;
 import android.text.format.DateUtils;
 
-import org.apache.http.client.methods.HttpUriRequest;
 import org.json.JSONException;
 
 import java.io.InputStream;
@@ -78,7 +77,7 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
     }
 
     @Override
-    public void sign(HttpUriRequest httpUriRequest) throws Exception {
+    public void sign(OAuth2Request request) throws Exception {
         if (mCredentials == null) {
             restore();
             if (mCredentials == null) {
@@ -98,7 +97,7 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
                 throw new AuthorizationRequiredException();
             }
         }
-        httpUriRequest.addHeader("Authorization", "Bearer " + mCredentials.getAccessToken());
+        request.sign(request.getRequest(), "Authorization", "Bearer " + mCredentials.getAccessToken());
     }
 
     private void restore() {

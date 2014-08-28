@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:20.0.0'
     compile 'com.github.chrisbanes.actionbarpulltorefresh:extra-abc:+'
     compile project(':xcore')
 }

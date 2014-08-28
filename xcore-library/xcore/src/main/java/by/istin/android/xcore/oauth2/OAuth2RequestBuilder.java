@@ -27,7 +27,12 @@ public class OAuth2RequestBuilder extends HttpAndroidDataSource.DefaultHttpReque
     public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
         HttpRequestBase httpRequestBase = super.build(dataSourceRequest);
         try {
-            mOAuth2Helper.sign(httpRequestBase);
+            mOAuth2Helper.sign(new OAuth2Request<HttpRequestBase>(httpRequestBase) {
+                @Override
+                public void sign(HttpRequestBase requestBase, String header, String value) {
+                    requestBase.addHeader(header, value);
+                }
+            });
         } catch (AuthorizationRequiredException e) {
             throw e;
         } catch (Exception e) {

@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:20.0.0'
     compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.+'
     compile project(':xcore')
 }

@@ -28,7 +28,7 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:19.1.0'
+    compile 'com.android.support:support-v4:20.0.0'
     compile project(':xcore')
     compile project(':plugin_pull_to_refresh:pull_to_refresh:library')
 }
