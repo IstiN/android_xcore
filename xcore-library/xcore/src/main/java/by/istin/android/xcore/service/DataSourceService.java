@@ -90,7 +90,7 @@ public class DataSourceService extends AbstractExecutorService {
                     runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
                 }
             }
-           getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
+            getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
                     DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
                             + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
                             + "? - " + DataSourceRequestEntity.EXPIRATION + ") < " + DataSourceRequestEntity.LAST_UPDATE, new String[]{

@@ -40,8 +40,10 @@ public class CacheRequestHelper {
 
         public void setDataSourceCached(boolean isDataSourceCached) {
             this.isDataSourceCached = isDataSourceCached;
-            for (Runnable runnable : listRunnable) {
-                runnable.run();
+            if (!isDataSourceCached) {
+                for (Runnable runnable : listRunnable) {
+                    runnable.run();
+                }
             }
         }
     }
