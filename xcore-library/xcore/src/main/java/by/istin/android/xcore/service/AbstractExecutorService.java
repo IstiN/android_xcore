@@ -170,8 +170,8 @@ public abstract class AbstractExecutorService extends Service {
         final IProcessor processor = AppUtils.get(context, processorKey);
         final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
         Object source;
+        Holder<Boolean> isCached = new Holder<Boolean>(false);
         if (CacheRequestHelper.isDataSourceSupportCacheValidation(context, dataSourceKey)) {
-            Holder<Boolean> isCached = new Holder<Boolean>(false);
             source = dataSource.getSource(dataSourceRequest, isCached);
             if (isCached.get()) {
                 if (cacheRequestResult != null) {
@@ -180,7 +180,7 @@ public abstract class AbstractExecutorService extends Service {
                 return null;
             }
         } else {
-            source = dataSource.getSource(dataSourceRequest, null);
+            source = dataSource.getSource(dataSourceRequest, isCached);
         }
         Object result = processor.execute(dataSourceRequest, dataSource, source);
         if (cacheable) {
