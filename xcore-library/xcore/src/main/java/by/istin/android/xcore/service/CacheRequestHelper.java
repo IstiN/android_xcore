@@ -50,13 +50,9 @@ public class CacheRequestHelper {
         long currentTimeMillis = System.currentTimeMillis();
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = ModelContract.getUri(DataSourceRequestEntity.class);
-        Log.xd(context, "request cache " + currentTimeMillis);
-        /*TODO contentResolver.delete(uri,
-                DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
-                + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
-                + "? - " + DataSourceRequestEntity.EXPIRATION + ") < " + DataSourceRequestEntity.LAST_UPDATE , new String[]{
-                String.valueOf(currentTimeMillis)
-        });*/
+        Log.xd(context, "request cache " + currentTimeMillis+ " " + requestId);
+        Log.xd(context, "request cache cacheIfNotCached requestId " + requestId);
+        Log.xd(context, "request cache getCacheExpiration " + dataSourceRequest.getCacheExpiration() + " " + requestId);
         Uri requestUri = ModelContract.getUri(DataSourceRequestEntity.class, requestId);
         Cursor cursor = contentResolver.query(requestUri, new String[]{DataSourceRequestEntity.LAST_UPDATE}, null, null, null);
         CacheRequestResult cacheRequestResult = new CacheRequestResult();

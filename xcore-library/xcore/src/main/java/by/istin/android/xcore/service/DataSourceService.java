@@ -12,6 +12,7 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -44,7 +45,7 @@ public class DataSourceService extends AbstractExecutorService {
         }
         if (StringUtil.isEmpty(dataSourceKey)) {
             dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
-            dataSourceRequest.setProcessorKey(dataSourceKey);
+            dataSourceRequest.setDataSourceKey(dataSourceKey);
         }
         if (StringUtil.isEmpty(processorKey) || StringUtil.isEmpty(dataSourceKey)) {
             throw new IllegalArgumentException("processorKey dataSourceKey can't be empty");
@@ -55,6 +56,7 @@ public class DataSourceService extends AbstractExecutorService {
         CacheRequestHelper.CacheRequestResult cacheRequestResult = new CacheRequestHelper.CacheRequestResult();
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
+            Log.xd(this, "request cache isCacheable " + isCacheable + " isForceUpdateData " + isForceUpdateData + " " + DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey));
             if (isCacheable && !isForceUpdateData) {
                 long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
@@ -88,6 +90,12 @@ public class DataSourceService extends AbstractExecutorService {
                     runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
                 }
             }
+           getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
+                    DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
+                            + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
+                            + "? - " + DataSourceRequestEntity.EXPIRATION + ") < " + DataSourceRequestEntity.LAST_UPDATE, new String[]{
+                            String.valueOf(System.currentTimeMillis())
+                    });
         } catch (Exception e) {
             if (!requestIdHolder.isNull()) {
                 synchronized (mDbLockFlag) {
