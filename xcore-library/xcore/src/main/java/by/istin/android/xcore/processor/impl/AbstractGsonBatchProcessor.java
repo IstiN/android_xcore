@@ -89,7 +89,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
         //remove old data
     }
 
-    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result) {
+    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Result result) throws Exception {
         //notify about finish or do more db operations
     }
 
