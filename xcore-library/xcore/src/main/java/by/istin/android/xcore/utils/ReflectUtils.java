@@ -1,5 +1,7 @@
 package by.istin.android.xcore.utils;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -11,15 +13,44 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
+import by.istin.android.xcore.annotations.dbFormattedDate;
 import by.istin.android.xcore.annotations.dbIndex;
 
 public class ReflectUtils {
 
     private static final Object STUB = new Object();
 
-    public static Config getClassConfig(Class<?> clazz) {
+    public static class ConfigWrapper {
+
+        private String key;
+
+        private Config.DBType dbType;
+
+        private Config.Transformer transformer;
+
+        public ConfigWrapper(Config value) {
+            key = value.key();
+            dbType = value.dbType();
+            transformer = ReflectUtils.newSingleInstance(value.transformer());
+        }
+
+        public Config.Transformer transformer() {
+            return transformer;
+        }
+
+        public String key() {
+            return key;
+        }
+
+        public Config.DBType dbType() {
+            return dbType;
+        }
+    }
+
+    public static ConfigWrapper getClassConfig(Class<?> clazz) {
         return getXClass(clazz).getConfig();
     }
 
@@ -29,17 +60,17 @@ public class ReflectUtils {
 
         private Object instance;
 
-        private Config config;
+        private ConfigWrapper config;
 
         private XClass(Class<?> clazz) {
             this.clazz = clazz;
             dbEntity annotation = this.clazz.getAnnotation(dbEntity.class);
             if (annotation != null) {
-                config = annotation.value();
+                config = new ConfigWrapper(annotation.value());
             }
         }
 
-        public Config getConfig() {
+        public ConfigWrapper getConfig() {
             return config;
         }
 
@@ -123,7 +154,25 @@ public class ReflectUtils {
 
         private final Map<Class<? extends Annotation>, Annotation> mClassAnnotationHashMap;
 
-        private Config mConfig;
+        private ConfigWrapper mConfig;
+
+        private String mSerializedNameValue;
+
+        private boolean isSerializedNameValueInited = false;
+
+        private Class<?> mDbEntityClass;
+
+        private boolean isDbEntityClassInited = false;
+
+        private Class<?> mDbEntitiesClass;
+
+        private boolean isDbEntitiesClassInited = false;
+
+        private boolean isDbFormatInited = false;
+
+        private String mDbFormatValue;
+
+        private String mDbFormatContentValuesKey;
 
         XField(Field field) {
             mField = field;
@@ -153,7 +202,7 @@ public class ReflectUtils {
                     if (name.startsWith(DB_ANNOTATION_PREFIX)) {
                         try {
                             Method method = annotation.getClass().getMethod("value");
-                            mConfig = (Config) method.invoke(annotation);
+                            mConfig = new ConfigWrapper((Config) method.invoke(annotation));
                         } catch (Exception e) {
                             Log.e("ReflectUtils", mField.toString() + " " + annotation.toString());
                             throw new IllegalArgumentException(e);
@@ -175,7 +224,7 @@ public class ReflectUtils {
             return mNameOfField;
         }
 
-        public Config getConfig() {
+        public ConfigWrapper getConfig() {
             return mConfig;
         }
 
@@ -185,6 +234,94 @@ public class ReflectUtils {
 
         public <T extends Annotation> T getAnnotation(Class<? extends Annotation> annotationClass) {
             return (T) mClassAnnotationHashMap.get(annotationClass);
+        }
+
+        public String getSerializedNameValue(String defaultValue) {
+            if (isSerializedNameValueInited) {
+                if (mSerializedNameValue != null) {
+                    return mSerializedNameValue;
+                } else {
+                    return defaultValue;
+                }
+            }
+            try {
+                if (ReflectUtils.isAnnotationPresent(this, SerializedName.class)) {
+                    SerializedName serializedAnnotation = ReflectUtils.getAnnotation(this, SerializedName.class);
+                    if (serializedAnnotation != null) {
+                        mSerializedNameValue = serializedAnnotation.value();
+                        return mSerializedNameValue;
+                    }
+                }
+                return defaultValue;
+            } finally {
+                isSerializedNameValueInited = true;
+            }
+        }
+
+        public Class<?> getDbEntityClass() {
+            if (isDbEntityClassInited) {
+                return mDbEntityClass;
+            }
+            try {
+                dbEntity entity = ReflectUtils.getAnnotation(this, dbEntity.class);
+                if (entity != null) {
+                    mDbEntityClass = entity.clazz();
+                }
+                return mDbEntityClass;
+            } finally {
+                isDbEntityClassInited = true;
+            }
+        }
+
+        public Class<?> getDbEntitiesClass() {
+            if (isDbEntitiesClassInited) {
+                return mDbEntitiesClass;
+            }
+            try {
+                dbEntities entity = ReflectUtils.getAnnotation(this, dbEntities.class);
+                if (entity != null) {
+                    mDbEntitiesClass = entity.clazz();
+                }
+                return mDbEntitiesClass;
+            } finally {
+                isDbEntitiesClassInited = true;
+            }
+        }
+
+        public String getFormat() {
+            if (isDbFormatInited) {
+                return mDbFormatValue;
+            }
+            try {
+                if (initDateFormatMeta()) return mDbFormatValue;
+                return null;
+            } finally {
+                isDbFormatInited = true;
+            }
+        }
+
+        public String getFormatContentValuesKey() {
+            if (isDbFormatInited) {
+                return mDbFormatContentValuesKey;
+            }
+            try {
+                if (initDateFormatMeta()) return mDbFormatContentValuesKey;
+                return null;
+            } finally {
+                isDbFormatInited = true;
+            }
+        }
+
+        protected boolean initDateFormatMeta() {
+            if (ReflectUtils.isAnnotationPresent(this, dbFormattedDate.class)) {
+                dbFormattedDate dbFormattedDate = ReflectUtils.getAnnotation(this, dbFormattedDate.class);
+                if (dbFormattedDate != null) {
+                    mDbFormatValue = dbFormattedDate.format();
+                    mDbFormatContentValuesKey = dbFormattedDate.contentValuesKey();
+                    return true;
+                }
+            }
+            return false;
         }
     }
 

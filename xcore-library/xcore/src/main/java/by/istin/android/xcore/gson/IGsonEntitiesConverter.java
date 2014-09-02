@@ -35,10 +35,9 @@ interface IGsonEntitiesConverter {
         private final JsonArray jsonArray;
         private final String foreignKey;
         private final Long id;
-        private final dbEntities entity;
         private final int count;
 
-        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, dbEntities entity, int count) {
+        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, int count) {
             this.beforeListUpdate = beforeListUpdate;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -52,7 +51,6 @@ interface IGsonEntitiesConverter {
             this.jsonArray = jsonArray;
             this.foreignKey = foreignKey;
             this.id = id;
-            this.entity = entity;
             this.count = count;
         }
 
@@ -106,10 +104,6 @@ interface IGsonEntitiesConverter {
 
         public Long getId() {
             return id;
-        }
-
-        public dbEntities getEntity() {
-            return entity;
         }
 
         public int getCount() {

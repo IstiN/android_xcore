@@ -17,7 +17,13 @@
         android:name="by.istin.android.xcore.app.Application"
         android:theme="@style/AppTheme" >
 
-        <activity android:name="by.istin.android.xcore.app.MainActivity"/>
+        <activity android:name="by.istin.android.xcore.app.MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
 
         <meta-data
             android:name="log"

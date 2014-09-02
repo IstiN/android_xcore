@@ -12,7 +12,6 @@ import com.google.gson.JsonObject;
 import java.lang.reflect.Type;
 
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
@@ -160,8 +159,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
 
     @Override
     protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
-        dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
-        Class<?> clazz = entity.clazz();
+        Class<?> clazz = field.getDbEntitiesClass();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         Long id = getParentId(contentValues);
         IGsonEntitiesConverter gsonEntityConverter = GsonEntitiesConverter.INSTANCE;
@@ -179,7 +177,6 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
                 jsonArray,
                 foreignKey,
                 id,
-                entity,
                 count)
         );
     }

@@ -9,6 +9,7 @@ import by.istin.android.xcore.annotations.dbBoolean;
 import by.istin.android.xcore.annotations.dbByte;
 import by.istin.android.xcore.annotations.dbByteArray;
 import by.istin.android.xcore.annotations.dbDouble;
+import by.istin.android.xcore.annotations.dbFormattedDate;
 import by.istin.android.xcore.annotations.dbInteger;
 import by.istin.android.xcore.annotations.dbLong;
 import by.istin.android.xcore.annotations.dbString;
@@ -30,6 +31,7 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbString.class, "LONGTEXT");
         TYPE_ASSOCIATION.put(dbInteger.class, "INTEGER");
         TYPE_ASSOCIATION.put(dbLong.class, "BIGINT");
+        TYPE_ASSOCIATION.put(dbFormattedDate.class, "BIGINT");
         TYPE_ASSOCIATION.put(dbDouble.class, "DOUBLE");
         TYPE_ASSOCIATION.put(dbBoolean.class, "BOOLEAN");
         TYPE_ASSOCIATION.put(dbByte.class, "INTEGER");

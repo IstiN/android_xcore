@@ -7,6 +7,7 @@ import java.lang.reflect.Type;
 
 import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.gson.AbstractValuesAdapter;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 /**
  * GsonConverter provides Meta for gson elements parsing.
@@ -22,6 +23,11 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
          * Current contentValuesAdapter
          */
         private final AbstractValuesAdapter abstractValuesAdapter;
+
+        /**
+         * Current field wrapper
+         */
+        private final ReflectUtils.XField field;
 
         /**
          * Current jsonElement
@@ -40,17 +46,18 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Default constructor
-         *
-         * @param abstractValuesAdapter current contentValuesAdapter
+         *  @param abstractValuesAdapter current contentValuesAdapter
          * @param jsonElement current jsonElement
          * @param type current reflection type
          * @param jsonDeserializationContext current gson context
+         * @param field current field wrapper
          */
-        public Meta(AbstractValuesAdapter abstractValuesAdapter, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
+        public Meta(AbstractValuesAdapter abstractValuesAdapter, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, ReflectUtils.XField field) {
             this.jsonElement = jsonElement;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
             this.abstractValuesAdapter = abstractValuesAdapter;
+            this.field = field;
         }
 
         /**
@@ -83,6 +90,14 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
          */
         public AbstractValuesAdapter getAbstractValuesAdapter() {
             return abstractValuesAdapter;
+        }
+
+        /**
+         * Return current field wrapper
+         * @return field
+         */
+        public ReflectUtils.XField getField() {
+            return field;
         }
     }
 

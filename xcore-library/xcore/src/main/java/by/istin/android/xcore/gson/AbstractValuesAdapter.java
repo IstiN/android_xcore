@@ -8,15 +8,12 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
-import com.google.gson.annotations.SerializedName;
 
 import java.lang.reflect.Type;
 import java.util.List;
 
 import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
-import by.istin.android.xcore.annotations.dbEntities;
-import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
@@ -49,14 +46,13 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
     }
 
     public ContentValues deserializeContentValues(ContentValues parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
-        Config classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
+        ReflectUtils.ConfigWrapper classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
         if (classConfig != null) {
-            Class<? extends Config.Transformer> transformerClass = classConfig.transformer();
-            Config.Transformer<GsonConverter.Meta> transformer = ReflectUtils.newSingleInstance(transformerClass);
+            Config.Transformer<GsonConverter.Meta> transformer = classConfig.transformer();
             IConverter<GsonConverter.Meta> converter = transformer.converter();
             if (converter != null) {
                 ContentValues contentValues = new ContentValues();
-                GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext);
+                GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext, null);
                 converter.convert(contentValues, null, null, meta);
                 return proceed(parent, position, contentValues, jsonElement);
             }
@@ -76,19 +72,13 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
             JsonElement jsonValue = null;
             String fieldValue = ReflectUtils.getStaticStringValue(field);
             String serializedName = fieldValue;
-            if (ReflectUtils.isAnnotationPresent(field, SerializedName.class)) {
-                SerializedName serializedAnnotation = ReflectUtils.getAnnotation(field, SerializedName.class);
-                if (serializedAnnotation != null) {
-                    serializedName = serializedAnnotation.value();
-                }
-            }
-            Config config = field.getConfig();
+            serializedName = field.getSerializedNameValue(serializedName);
+            ReflectUtils.ConfigWrapper config = field.getConfig();
             String configKey = config.key();
             if (!StringUtil.isEmpty(configKey)) {
                 serializedName = configKey;
             }
-            Class<? extends Config.Transformer> transformerClass = config.transformer();
-            Config.Transformer<GsonConverter.Meta> transformer = ReflectUtils.newSingleInstance(transformerClass);
+            Config.Transformer<GsonConverter.Meta> transformer = config.transformer();
             String separator = transformer.subElementSeparator();
             boolean isFirstObjectForJsonArray = transformer.isFirstObjectForArray();
             if (separator != null && serializedName.contains(separator)) {
@@ -127,12 +117,11 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
                 continue;
             }
             Config.DBType dbType = config.dbType();
-            if (isCustomConverter(transformer, contentValues, parent, jsonValue, type, jsonDeserializationContext, fieldValue)) {
+            if (isCustomConverter(transformer, contentValues, parent, jsonValue, type, jsonDeserializationContext, fieldValue, field)) {
                 continue;
             }
             if (dbType == Config.DBType.ENTITY) {
-                dbEntity entity = ReflectUtils.getAnnotation(field, dbEntity.class);
-                Class<?> clazz = entity.clazz();
+                Class<?> clazz = field.getDbEntityClass();
                 JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                 proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
             } else if (dbType == Config.DBType.ENTITIES) {
@@ -140,8 +129,7 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
                     JsonArray jsonArray = jsonValue.getAsJsonArray();
                     proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
                 } else {
-                    dbEntities entity = ReflectUtils.getAnnotation(field, dbEntities.class);
-                    Class<?> clazz = entity.clazz();
+                    Class<?> clazz = field.getDbEntitiesClass();
                     JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
                     proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
                 }
@@ -150,13 +138,13 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
         return proceed(parent, position, contentValues, jsonElement);
     }
 
-    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue) {
+    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue, ReflectUtils.XField field) {
         IConverter converter = transformer.converter();
         if (converter == null) {
             return false;
         }
         try {
-            GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext);
+            GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext, field);
             converter.convert(contentValues, fieldValue, parent, meta);
         } catch (UnsupportedOperationException e) {
             Log.xe(this, fieldValue + ":" + jsonElement.toString());

@@ -95,7 +95,7 @@ public class DBHelper {
                             continue;
                         }
                         Annotation[] annotations = field.getField().getAnnotations();
-                        Config config = field.getConfig();
+                        ReflectUtils.ConfigWrapper config = field.getConfig();
                         String type = null;
                         for (Annotation annotation : annotations) {
                             Class<? extends Annotation> classOfAnnotation = annotation.annotationType();

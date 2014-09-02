@@ -9,6 +9,7 @@ import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 /**
  * Created by IstiN on 6.12.13.
@@ -21,7 +22,8 @@ class GsonEntitiesConverter implements IGsonEntitiesConverter {
     public void convert(IGsonEntitiesConverter.Params params) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(params.getClazz(), params.getDataSourceRequest(), params.getDbConnection(), params.getDbHelper());
         int size = params.getJsonArray().size();
-        dbEntities entity = params.getEntity();
+        dbEntities entity = null;
+        Boolean ignorePrimitive = null;
         IBeforeArrayUpdate beforeListUpdate = params.getBeforeListUpdate();
         DBHelper dbHelper = params.getDbHelper();
         DataSourceRequest dataSourceRequest = params.getDataSourceRequest();
@@ -31,7 +33,11 @@ class GsonEntitiesConverter implements IGsonEntitiesConverter {
             JsonElement item = params.getJsonArray().get(i);
             ContentValues subEntity;
             if (item.isJsonPrimitive()) {
-                if (entity.ignorePrimitive()) continue;
+                if (entity == null) {
+                    entity = ReflectUtils.getAnnotation(params.getField(), dbEntities.class);
+                    ignorePrimitive = entity.ignorePrimitive();
+                }
+                if (ignorePrimitive) continue;
                 JsonParser parser = new JsonParser();
                 String itemAsString = item.getAsString();
                 if (itemAsString.contains("\"")) {

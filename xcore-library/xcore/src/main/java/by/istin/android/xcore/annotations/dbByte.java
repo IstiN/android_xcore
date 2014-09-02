@@ -24,7 +24,7 @@ public @interface dbByte {
             @Override
             public void convert(ContentValues contentValues, String fieldValue, Object parent, Meta meta) {
                 JsonElement jsonValue = meta.getJsonElement();
-                if (jsonValue.isJsonNull() || !jsonValue.isJsonPrimitive()) {
+                if (!jsonValue.isJsonPrimitive()) {
                     return;
                 }
                 contentValues.put(fieldValue, jsonValue.getAsByte());

@@ -25,7 +25,7 @@ public @interface dbInteger {
             @Override
             public void convert(ContentValues contentValues, String fieldValue, Object parent, GsonConverter.Meta meta) {
                 JsonElement jsonValue = meta.getJsonElement();
-                if (jsonValue.isJsonNull() || !jsonValue.isJsonPrimitive()) {
+                if (!jsonValue.isJsonPrimitive()) {
                     return;
                 }
                 contentValues.put(fieldValue, jsonValue.getAsInt());
