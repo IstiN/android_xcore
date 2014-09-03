@@ -176,7 +176,12 @@ public abstract class XListFragment extends AdapterViewFragment
     };
 
     private EndlessScrollListener mEndlessScrollListener;
-	
+
+    @Override
+    public LoaderManager getSupportLoaderManager() {
+        return getLoaderManager();
+    }
+
 	@Override
 	public int getLoaderId() {
 		return (int)HashUtils.generateId(((Object) this).getClass(), getArguments());

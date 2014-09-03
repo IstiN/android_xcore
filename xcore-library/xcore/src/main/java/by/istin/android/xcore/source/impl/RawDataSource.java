@@ -10,6 +10,7 @@ import java.io.InputStream;
 
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
+import by.istin.android.xcore.utils.Holder;
 
 
 /**
@@ -29,7 +30,7 @@ public class RawDataSource implements IDataSource<InputStream> {
     }
 
     @Override
-    public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
+    public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
         return mContext.getResources().openRawResource(Integer.valueOf(dataSourceRequest.getUri()));
     }
 

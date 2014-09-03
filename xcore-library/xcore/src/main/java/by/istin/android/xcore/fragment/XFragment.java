@@ -101,8 +101,13 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	public abstract String getUrl();
 	
 	public abstract String getProcessorKey();
-	
-	@Override
+
+    @Override
+    public LoaderManager getSupportLoaderManager() {
+        return getLoaderManager();
+    }
+
+    @Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
 	}
