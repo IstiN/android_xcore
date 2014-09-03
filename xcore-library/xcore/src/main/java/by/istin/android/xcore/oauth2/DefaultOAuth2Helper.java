@@ -12,6 +12,7 @@ import by.istin.android.xcore.preference.PreferenceHelper;
 import by.istin.android.xcore.processor.impl.AbstractStringProcessor;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UrlBuilder;
 
@@ -56,7 +57,7 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
         dataSourceRequest.setCacheable(false);
         dataSourceRequest.setForceUpdateData(true);
         HttpAndroidDataSource httpAndroidDataSource = HttpAndroidDataSource.get(ContextHolder.get());
-        InputStream source = httpAndroidDataSource.getSource(dataSourceRequest);
+        InputStream source = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>());
         Credentials credentials = new AbstractStringProcessor<Credentials>() {
 
             @Override

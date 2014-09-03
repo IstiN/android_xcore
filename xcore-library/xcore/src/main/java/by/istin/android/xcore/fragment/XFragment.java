@@ -325,8 +325,4 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
         return ResponderUtils.findFirstResponderFor(this, clazz);
     }
 
-    @Override
-    public LoaderManager getSupportLoaderManager() {
-        return getLoaderManager();
-    }
 }

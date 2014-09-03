@@ -976,8 +976,4 @@ public abstract class XListFragment extends AdapterViewFragment
 
     }
 
-    @Override
-    public LoaderManager getSupportLoaderManager() {
-        return getLoaderManager();
-    }
 }

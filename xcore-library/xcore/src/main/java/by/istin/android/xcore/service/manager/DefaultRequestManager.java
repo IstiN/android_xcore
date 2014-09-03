@@ -6,10 +6,12 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.RequestExecutor;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.source.DataSourceRequestEntity;
 
 public class DefaultRequestManager extends AbstractRequestManager {
 
@@ -34,6 +36,12 @@ public class DefaultRequestManager extends AbstractRequestManager {
             });
             if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
                 executeRunnable.sendStatus(StatusResultReceiver.Status.DONE, dataSourceRequestBundle);
+                context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
+                        DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
+                                + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
+                                + "? - " + DataSourceRequestEntity.EXPIRATION + ") < " + DataSourceRequestEntity.LAST_UPDATE, new String[]{
+                                String.valueOf(System.currentTimeMillis())
+                        });
             }
         } catch (Exception e) {
             try {

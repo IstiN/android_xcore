@@ -33,7 +33,9 @@ public abstract class AbstractRequestManager implements IRequestManager {
             requestExecutor.stop(resultReceiver);
             mRequestExecutor = null;
         } else {
-            resultReceiver.send(0, null);
+            if (resultReceiver != null) {
+                resultReceiver.send(0, null);
+            }
         }
     }
 
@@ -99,7 +101,7 @@ public abstract class AbstractRequestManager implements IRequestManager {
     }
 
     @SuppressWarnings("unchecked")
-    public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle, Runnable cachedRunnable) throws Exception {
+    public static Object execute(final Context context, String processorKey, String dataSourceKey, final DataSourceRequest dataSourceRequest, Bundle bundle, Runnable cachedRunnable) throws Exception {
         String pKey = dataSourceRequest.getProcessorKey();
         String dsKey = dataSourceRequest.getDataSourceKey();
         if (StringUtil.isEmpty(pKey)) {
@@ -108,7 +110,7 @@ public abstract class AbstractRequestManager implements IRequestManager {
             processorKey = pKey;
         }
         if (StringUtil.isEmpty(dsKey)) {
-            dataSourceRequest.setProcessorKey(dataSourceKey);
+            dataSourceRequest.setDataSourceKey(dataSourceKey);
         } else {
             dataSourceKey = dsKey;
         }
@@ -117,27 +119,43 @@ public abstract class AbstractRequestManager implements IRequestManager {
         }
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-        boolean isAlreadyCached = false;
+        CacheRequestHelper.CacheRequestResult cacheRequestResult = new CacheRequestHelper.CacheRequestResult();
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
             if (isCacheable && !isForceUpdateData) {
                 long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId, processorKey, dataSourceKey);
+                cacheRequestResult = CacheRequestHelper.cacheIfNotCached(context, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
-            if (!isAlreadyCached) {
-                context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+            if (!cacheRequestResult.isAlreadyCached()) {
+                if (!CacheRequestHelper.isDataSourceSupportCacheValidation(context, dataSourceKey)) {
+                    cacheRequestResult.getListRunnable().add(new Runnable() {
+                        @Override
+                        public void run() {
+                            context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                        }
+                    });
+                } else {
+                    context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                }
             }
         }
-        if (isAlreadyCached) {
+        if (cacheRequestResult.isAlreadyCached()) {
             if (cachedRunnable != null) {
                 cachedRunnable.run();
             }
             return null;
         }
         try {
-            return internalExecute(context, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
+            Object result = internalExecute(context, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, cacheRequestResult);
+            if (cacheRequestResult.isDataSourceCached()) {
+                if (cachedRunnable != null) {
+                    cachedRunnable.run();
+                }
+            }
+            return result;
         } catch (Exception e) {
+            Log.xd(context, "processorKey " + processorKey + " dataSourceKey " + dataSourceKey + " dataSourceKey " + dataSourceRequest.getUri());
             if (!requestIdHolder.isNull()) {
                 synchronized (mDbLockFlag) {
                     context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
@@ -149,10 +167,23 @@ public abstract class AbstractRequestManager implements IRequestManager {
     }
 
     @SuppressWarnings("unchecked")
-    private static Object internalExecute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {
+    private static Object internalExecute(Context context, boolean cacheable, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle, CacheRequestHelper.CacheRequestResult cacheRequestResult) throws Exception {
         final IProcessor processor = AppUtils.get(context, processorKey);
         final IDataSource dataSource = AppUtils.get(context, dataSourceKey);
-        Object result = processor.execute(dataSourceRequest, dataSource, dataSource.getSource(dataSourceRequest));
+        Object source;
+        Holder<Boolean> isCached = new Holder<Boolean>(false);
+        if (CacheRequestHelper.isDataSourceSupportCacheValidation(context, dataSourceKey)) {
+            source = dataSource.getSource(dataSourceRequest, isCached);
+            if (isCached.get()) {
+                if (cacheRequestResult != null) {
+                    cacheRequestResult.setDataSourceCached(true);
+                }
+                return null;
+            }
+        } else {
+            source = dataSource.getSource(dataSourceRequest, isCached);
+        }
+        Object result = processor.execute(dataSourceRequest, dataSource, source);
         if (cacheable) {
             processor.cache(context, dataSourceRequest, result);
             if (bundle == null) {
