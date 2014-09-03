@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -317,5 +318,10 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
     protected <T> T findFirstResponderFor(Class<T> clazz) {
         return ResponderUtils.findFirstResponderFor(this, clazz);
+    }
+
+    @Override
+    public LoaderManager getSupportLoaderManager() {
+        return getLoaderManager();
     }
 }

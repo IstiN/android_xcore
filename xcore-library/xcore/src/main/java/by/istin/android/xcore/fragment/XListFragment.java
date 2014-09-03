@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
@@ -968,5 +969,10 @@ public abstract class XListFragment extends AdapterViewFragment
             }
         }
 
+    }
+
+    @Override
+    public LoaderManager getSupportLoaderManager() {
+        return getLoaderManager();
     }
 }

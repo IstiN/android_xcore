@@ -40,6 +40,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
@@ -183,7 +184,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response) throws ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, Holder<Boolean> isCached) throws ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
