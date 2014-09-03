@@ -267,7 +267,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
             }
             if (mResponseStatusHandler != null) {
                 mResponseStatusHandler.statusHandle(this, dataSourceRequest, request, response, isCached);
-                if (isCached.get()) {
+                if (isCached != null && !isCached.isNull() && isCached.get()) {
                     return null;
                 }
             }
