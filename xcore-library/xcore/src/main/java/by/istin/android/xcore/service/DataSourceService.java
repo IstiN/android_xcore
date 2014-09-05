@@ -5,15 +5,14 @@ package by.istin.android.xcore.service;
 
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.ResultReceiver;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
-import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -37,41 +36,67 @@ public class DataSourceService extends AbstractExecutorService {
     }
 
     @Override
-    protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
+    protected void run(final RequestExecutor.ExecuteRunnable runnable, Intent intent, final DataSourceRequest dataSourceRequest, Bundle bundle, ResultReceiver resultReceiver) {
+        String processorKey = dataSourceRequest.getProcessorKey();
+        String dataSourceKey = dataSourceRequest.getDataSourceKey();
+        if (StringUtil.isEmpty(processorKey)) {
+            processorKey = intent.getStringExtra(PROCESSOR_KEY);
+            dataSourceRequest.setProcessorKey(processorKey);
+        }
+        if (StringUtil.isEmpty(dataSourceKey)) {
+            dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
+            dataSourceRequest.setDataSourceKey(dataSourceKey);
+        }
+        if (StringUtil.isEmpty(processorKey) || StringUtil.isEmpty(dataSourceKey)) {
+            throw new IllegalArgumentException("processorKey dataSourceKey can't be empty");
+        }
         runnable.sendStatus(StatusResultReceiver.Status.START, bundle);
         boolean isCacheable = dataSourceRequest.isCacheable();
         boolean isForceUpdateData = dataSourceRequest.isForceUpdateData();
-        boolean isAlreadyCached = false;
+        CacheRequestHelper.CacheRequestResult cacheRequestResult = new CacheRequestHelper.CacheRequestResult();
         Holder<Long> requestIdHolder = new Holder<Long>();
         synchronized (mDbLockFlag) {
+            Log.xd(this, "request cache isCacheable " + isCacheable + " isForceUpdateData " + isForceUpdateData + " " + DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey));
             if (isCacheable && !isForceUpdateData) {
-                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest);
+                long requestId = DataSourceRequestEntity.generateId(dataSourceRequest, processorKey, dataSourceKey);
                 requestIdHolder.set(requestId);
-                isAlreadyCached = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId);
+                cacheRequestResult = CacheRequestHelper.cacheIfNotCached(this, dataSourceRequest, requestId, processorKey, dataSourceKey);
             }
-            if (!isAlreadyCached) {
-                //String requestParentUri = dataSourceRequest.getRequestParentUri();
-                //TODO something wrong, idea was check current request uri
-                /*if (!StringUtil.isEmpty(requestParentUri)) {
-                    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{requestParentUri});
-                }*/
-                //is it right?
-                getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+            if (!cacheRequestResult.isAlreadyCached()) {
+                if (!CacheRequestHelper.isDataSourceSupportCacheValidation(this, dataSourceKey)) {
+                    cacheRequestResult.getListRunnable().add(new Runnable() {
+                        @Override
+                        public void run() {
+                            getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                        }
+                    });
+                } else {
+                    getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                }
             }
         }
-        if (isAlreadyCached) {
+        if (cacheRequestResult.isAlreadyCached()) {
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
                 runnable.sendStatus(StatusResultReceiver.Status.CACHED, bundle);
             }
             return;
         }
         try {
-            final String processorKey = intent.getStringExtra(PROCESSOR_KEY);
-            final String dataSourceKey = intent.getStringExtra(DATA_SOURCE_KEY);
-            execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle);
+            execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, cacheRequestResult);
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
-                runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
+                if (cacheRequestResult.isDataSourceCached()) {
+                    runnable.sendStatus(StatusResultReceiver.Status.CACHED, bundle);
+                } else {
+                    runnable.sendStatus(StatusResultReceiver.Status.DONE, bundle);
+                }
             }
+            int deleteRowCount = getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
+                    DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
+                            + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
+                            + "? - " + DataSourceRequestEntity.LAST_UPDATE + ") > " + DataSourceRequestEntity.EXPIRATION, new String[]{
+                            String.valueOf(System.currentTimeMillis())
+                    });
+            Log.xd(this, "deleted expired requests count " + deleteRowCount);
         } catch (Exception e) {
             if (!requestIdHolder.isNull()) {
                 synchronized (mDbLockFlag) {

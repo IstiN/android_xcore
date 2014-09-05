@@ -37,7 +37,7 @@ public class CursorLoaderFragmentHelper {
 
         CursorModel.CursorModelCreator getCursorModelCreator();
 
-        LoaderManager getLoaderManager();
+        LoaderManager getSupportLoaderManager();
 	}
 
     public static Loader<Cursor> onCreateLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment, int id, Bundle args) {
@@ -64,7 +64,7 @@ public class CursorLoaderFragmentHelper {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity) {
 			if (cursorLoaderFragment.getUri() != null) {
-                LoaderManager lm = cursorLoaderFragment.getLoaderManager();
+                LoaderManager lm = cursorLoaderFragment.getSupportLoaderManager();
                 if (lm == null) {
                     if (cursorLoaderFragment instanceof FragmentActivity){
                         lm = ((FragmentActivity) activity).getSupportLoaderManager();

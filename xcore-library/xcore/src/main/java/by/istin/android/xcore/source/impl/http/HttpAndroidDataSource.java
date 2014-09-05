@@ -40,6 +40,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UriUtils;
@@ -178,7 +179,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
 		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response) throws ParseException,
+		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, Holder<Boolean> isCached) throws ParseException,
 				IOException {
 			int statusCode = response.getStatusLine().getStatusCode();
 			HttpEntity httpEntity = response.getEntity();
@@ -238,7 +239,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         return mResponseStatusHandler;
     }
 
-    public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpUriRequest request) throws IllegalStateException, IOException {
+    public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpUriRequest request, Holder<Boolean> isCached) throws IllegalStateException, IOException {
 		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
 		request.setHeader(USER_AGENT_KEY, sUserAgent);
 		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
@@ -254,12 +255,15 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
                 if (firstHeader != null) {
                     String value = firstHeader.getValue();
                     if (!StringUtil.isEmpty(value) && !value.equals(request.getURI().toString())) {
-                        return createRedirectRequest(dataSourceRequest, request, response, value);
+                        return createRedirectRequest(dataSourceRequest, request, response, value, isCached);
                     }
                 }
             }
             if (mResponseStatusHandler != null) {
-                mResponseStatusHandler.statusHandle(this, dataSourceRequest, request, response);
+                mResponseStatusHandler.statusHandle(this, dataSourceRequest, request, response, isCached);
+                if (isCached.get()) {
+                    return null;
+                }
             }
             HttpEntity httpEntity = response.getEntity();
             InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
@@ -269,7 +273,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
 	}
 
-    protected InputStream createRedirectRequest(DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, String value) throws IOException {
+    protected InputStream createRedirectRequest(DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, String value, Holder<Boolean> isCached) throws IOException {
         Log.xd(this, "redirect " + value);
         if (!URLUtil.isNetworkUrl(value)) {
             Log.xd(this, "redirect current request ");
@@ -278,7 +282,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
         HttpGet redirectUri = new HttpGet(value);
         request.abort();
-        return getInputSteam(dataSourceRequest, redirectUri);
+        return getInputSteam(dataSourceRequest, redirectUri, isCached);
     }
 
     protected boolean isRedirect(int statusCode) {
@@ -286,8 +290,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
     }
 
     @Override
-	public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
-		return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest));
+	public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
+		return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest), isCached);
 	}
 
 	@Override
