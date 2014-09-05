@@ -3,6 +3,7 @@ package by.istin.android.xcore.fragment;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,5 +64,10 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
     @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
+    }
+
+    @Override
+    public LoaderManager getSupportLoaderManager() {
+        return getLoaderManager();
     }
 }

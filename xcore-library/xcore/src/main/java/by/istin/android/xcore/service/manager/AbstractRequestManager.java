@@ -53,7 +53,7 @@ public abstract class AbstractRequestManager implements IRequestManager {
     }
 
     @Override
-    public void onHandleRequest(final Context context, final DataSourceRequest dataSourceRequest, final String processorKey, final String dataSourceKey, final StatusResultReceiver resultReceiver) {
+    public void onHandleRequest(final Context context, final DataSourceRequest dataSourceRequest, final String processorKey, final String dataSourceKey, final ResultReceiver resultReceiver) {
         final Bundle bundle = new Bundle();
         dataSourceRequest.toBundle(bundle);
         if (resultReceiver != null) {

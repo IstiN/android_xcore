@@ -20,7 +20,7 @@ public interface IRequestManager extends XCoreHelper.IAppServiceKey {
 
     RequestExecutor createExecutorService();
 
-    void onHandleRequest(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver);
+    void onHandleRequest(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, ResultReceiver resultReceiver);
 
     public void run(Context context, String processorKey, String dataSourceKey, RequestExecutor.ExecuteRunnable executeRunnable, DataSourceRequest dataSourceRequest, Bundle dataSourceRequestBundle, ResultReceiver resultReceiver);
 

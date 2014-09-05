@@ -102,7 +102,7 @@ public abstract class AbstractExecutorService extends Service {
             return;
         }
 		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
-        requestManager.onHandleRequest(this, dataSourceRequest, intent.getStringExtra(PROCESSOR_KEY), intent.getStringExtra(DATA_SOURCE_KEY), (StatusResultReceiver) resultReceiver);
+        requestManager.onHandleRequest(this, dataSourceRequest, intent.getStringExtra(PROCESSOR_KEY), intent.getStringExtra(DATA_SOURCE_KEY), resultReceiver);
 	}
 
     @SuppressWarnings("unchecked")
