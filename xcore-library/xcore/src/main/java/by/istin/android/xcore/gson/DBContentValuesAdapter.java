@@ -220,11 +220,9 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
             if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position, jsonElement)) {
                 dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
             }
-            if (transactionCreationController != null) {
-                if (transactionCreationController.isCreateNewTransaction(count) && dbConnection instanceof WritableConnectionWrapper) {
-                    ((WritableConnectionWrapper) dbConnection).doneAndCreateNewTransaction();
-                    transactionCreationController.onTransactionRecreated();
-                }
+            if (transactionCreationController != null && transactionCreationController.isCreateNewTransaction(count) && dbConnection instanceof WritableConnectionWrapper) {
+                ((WritableConnectionWrapper) dbConnection).doneAndCreateNewTransaction();
+                transactionCreationController.onTransactionRecreated();
             }
             count++;
         }
