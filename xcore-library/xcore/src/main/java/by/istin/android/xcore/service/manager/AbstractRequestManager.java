@@ -148,10 +148,8 @@ public abstract class AbstractRequestManager implements IRequestManager {
         }
         try {
             Object result = internalExecute(context, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, cacheRequestResult);
-            if (cacheRequestResult.isDataSourceCached()) {
-                if (cachedRunnable != null) {
-                    cachedRunnable.run();
-                }
+            if (cacheRequestResult.isDataSourceCached() && cachedRunnable != null) {
+                cachedRunnable.run();
             }
             return result;
         } catch (Exception e) {

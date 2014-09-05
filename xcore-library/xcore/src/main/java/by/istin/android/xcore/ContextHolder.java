@@ -9,13 +9,10 @@ import android.content.Context;
 public final class ContextHolder {
 
 	/** The instance. */
-	private static ContextHolder sInstance;
+	private static ContextHolder sInstance = new ContextHolder();
 
 	/** The context. */
 	private Context mContext;
-
-    /** The singletone lock. */
-    private static final Object mLock = new Object();
 
 	/**
 	 * Instantiates a new context holder.
@@ -26,22 +23,16 @@ public final class ContextHolder {
 
 	/**
 	 * Gets the single instance of ContextHolder.
-	 * 
+	 * @deprecated use get method
 	 * @return single instance of ContextHolder
 	 */
+    @Deprecated()
 	public static ContextHolder getInstance() {
-		if (sInstance == null) {
-            synchronized (mLock) {
-                if (sInstance == null) {
-                    sInstance = new ContextHolder();
-                }
-            }
-		}
 		return sInstance;
 	}
 
     public static Context get() {
-        return getInstance().getContext();
+        return sInstance.getContext();
     }
 
 	/*

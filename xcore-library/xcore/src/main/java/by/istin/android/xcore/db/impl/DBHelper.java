@@ -327,8 +327,7 @@ public class DBHelper {
             if (newObject == null && oldObject == null) {
                 continue;
             }
-            if (newObject != null && newObject.equals(oldObject)) {
-            } else {
+            if (newObject == null || !newObject.equals(oldObject)) {
                 return false;
             }
         }

@@ -157,30 +157,26 @@ public abstract class LazyLoader<View, Params, Result> {
                 final Listener<View, Params, Result> doneCallback = bindParam.getDoneCallback();
                 try {
                     final BindParam storedBindParam = mViewMap.get(view);
-                    if (storedBindParam != null) {
-                        if (storedBindParam.equals(bindParam)) {
-                            final Result result = load(params);
-                            Handler handler = mHandler;
-                            if (handler == null) {
-                                return;
-                            }
-                            mStorage.put(params, result);
-                            handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                    synchronized (mLock) {
-                                        final BindParam storedBindParam = mViewMap.get(view);
-                                        if (storedBindParam != null) {
-                                            if (storedBindParam.equals(bindParam)) {
-                                                doneCallback.success(view, params, result);
-                                                mViewMap.remove(view);
-                                                mQueue.remove(bindParam);
-                                            }
-                                        }
+                    if (storedBindParam != null && storedBindParam.equals(bindParam)) {
+                        final Result result = load(params);
+                        Handler handler = mHandler;
+                        if (handler == null) {
+                            return;
+                        }
+                        mStorage.put(params, result);
+                        handler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                synchronized (mLock) {
+                                    final BindParam storedBindParam = mViewMap.get(view);
+                                    if (storedBindParam != null && storedBindParam.equals(bindParam)) {
+                                        doneCallback.success(view, params, result);
+                                        mViewMap.remove(view);
+                                        mQueue.remove(bindParam);
                                     }
                                 }
-                            });
-                        }
+                            }
+                        });
                     }
                 } catch (final Throwable throwable) {
                     Handler handler = mHandler;
@@ -193,12 +189,10 @@ public abstract class LazyLoader<View, Params, Result> {
                         public void run() {
                             synchronized (mLock) {
                                 final BindParam storedBindParam = mViewMap.get(view);
-                                if (storedBindParam != null) {
-                                    if (storedBindParam.equals(bindParam)) {
-                                        doneCallback.fail(view, params, throwable);
-                                        mViewMap.remove(view);
-                                        mQueue.remove(bindParam);
-                                    }
+                                if (storedBindParam != null && storedBindParam.equals(bindParam)) {
+                                    doneCallback.fail(view, params, throwable);
+                                    mViewMap.remove(view);
+                                    mQueue.remove(bindParam);
                                 }
                             }
                         }

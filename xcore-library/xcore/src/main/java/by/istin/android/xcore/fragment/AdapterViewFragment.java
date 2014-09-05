@@ -243,9 +243,9 @@ public class AdapterViewFragment extends Fragment {
             throw new IllegalStateException("Can't be used with a custom content view");
         }
         mStandardEmptyView.setText(text);
-        if (mEmptyText == null) {
+        //if (mEmptyText == null) {
             //TODO mAdapterView.setEmptyView(mStandardEmptyView);
-        }
+        //}
         mEmptyText = text;
     }
     

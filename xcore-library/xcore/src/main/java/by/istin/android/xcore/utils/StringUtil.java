@@ -211,7 +211,7 @@ public final class StringUtil {
 	 *            source
 	 * @return translited value
 	 */
-	public static final String translit(String source) {
+	public static String translit(String source) {
 		Set<String> keySet = russianAlternative.keySet();
 		for (String key : keySet) {
 			source = source.replaceAll(key, russianAlternative.get(key));
@@ -269,10 +269,8 @@ public final class StringUtil {
 		StringBuilder builder = new StringBuilder();
 		for (int i = 0; i < name.length(); i++) {
 			char ch = name.charAt(i);
-			if (Character.isUpperCase(ch)) {
-				if (builder.length() != 0) {
-					builder.append(_);
-				}
+			if (Character.isUpperCase(ch) && builder.length() != 0) {
+                builder.append(_);
 			}
 			builder.append(Character.toLowerCase(ch));
 		}

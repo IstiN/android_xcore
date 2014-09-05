@@ -145,10 +145,8 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
     public int bulkInsertOrUpdate(Uri uri, ContentValues[] values) {
         String className = uri.getLastPathSegment();
         int count = mDbSupport.updateOrInsert(ModelContract.getDataSourceRequestFromUri(uri), className, values);
-        if (count > 0) {
-            if (ModelContract.isNotify(uri)) {
-                getContext().getContentResolver().notifyChange(uri, null);
-            }
+        if (count > 0 && ModelContract.isNotify(uri)) {
+            getContext().getContentResolver().notifyChange(uri, null);
         }
         return count;
     }

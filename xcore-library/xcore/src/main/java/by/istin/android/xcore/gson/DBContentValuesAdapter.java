@@ -221,11 +221,9 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
                 dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
             }
             if (transactionCreationController != null) {
-                if (transactionCreationController.isCreateNewTransaction(count)) {
-                    if (dbConnection instanceof WritableConnectionWrapper) {
-                        ((WritableConnectionWrapper) dbConnection).doneAndCreateNewTransaction();
-                        transactionCreationController.onTransactionRecreated();
-                    }
+                if (transactionCreationController.isCreateNewTransaction(count) && dbConnection instanceof WritableConnectionWrapper) {
+                    ((WritableConnectionWrapper) dbConnection).doneAndCreateNewTransaction();
+                    transactionCreationController.onTransactionRecreated();
                 }
             }
             count++;

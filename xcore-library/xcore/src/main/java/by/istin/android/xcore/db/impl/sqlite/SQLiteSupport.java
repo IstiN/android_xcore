@@ -11,21 +11,21 @@ import by.istin.android.xcore.db.impl.AbstractDBSupport;
  */
 public class SQLiteSupport extends AbstractDBSupport {
 
-    private static IDBConnector sDbConnector;
-
-    private static final Object sLock = new Object();
+    private volatile IDBConnector mDbConnector;
 
     @Override
     public IDBConnector createConnector(Context context) {
-        if (sDbConnector == null) {
-            synchronized (sLock) {
+        IDBConnector dbConnector = mDbConnector;
+        if (dbConnector == null) {
+            synchronized (this) {
                 //we need be sure, that have only one sqlite connector
-                if (sDbConnector == null) {
-                    sDbConnector = new SQLiteConnector(context);
+                dbConnector = mDbConnector;
+                if (dbConnector == null) {
+                    mDbConnector = dbConnector = new SQLiteConnector(context);
                 }
             }
         }
-        return sDbConnector;
+        return dbConnector;
     }
 
 }
