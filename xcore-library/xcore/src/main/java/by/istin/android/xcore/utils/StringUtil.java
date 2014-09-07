@@ -12,6 +12,7 @@ import org.apache.commons.codec.internal.DecoderException;
 import org.apache.commons.codec.internal.net.URLCodec;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -407,15 +408,17 @@ public final class StringUtil {
 	}
 
     public static String join(CharSequence delimiter, boolean skipNull, Object ... values) {
-        List<Object> objects = new ArrayList<Object>();
         if (skipNull) {
+            List<Object> objects = new ArrayList<Object>();
             for (Object o : values) {
                 if (!StringUtil.isEmpty(o)) {
                     objects.add(o);
                 }
             }
+            return joinAll(delimiter, objects.toArray(new Object[objects.size()]));
+        } else {
+            return joinAll(delimiter, values);
         }
-        return joinAll(delimiter, objects.toArray(new Object[objects.size()]));
     }
 
     public static String joinAll(CharSequence delimiter, Object... values) {
