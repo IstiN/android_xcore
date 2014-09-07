@@ -45,16 +45,24 @@ public class DBHelper {
 
     public static final boolean IS_LOG_ENABLED = false;
 
-    public DBHelper(IDBConnector dbConnector) {
-        super();
-        mDbConnector = dbConnector;
-        dbAssociationCache = DBAssociationCache.get();
-	}
+    public static interface ITableNameGenerator {
 
-	public static String getTableName(Class<?> clazz) {
-        DBAssociationCache associationCache = DBAssociationCache.get();
-        String tableName = associationCache.getTableName(clazz);
-        if (tableName == null) {
+        String generateTableName(Class clazz);
+
+    }
+
+    public static class Xcore1TableNameGenerator implements ITableNameGenerator {
+
+        @Override
+        public String generateTableName(Class clazz) {
+            return clazz.getCanonicalName().replace(".", "_");
+        }
+    }
+
+    public static class Xcore2TableNameGenerator implements ITableNameGenerator {
+
+        @Override
+        public String generateTableName(Class clazz) {
             String canonicalName = clazz.getCanonicalName();
             String[] split = canonicalName.split("\\.");
             int length = split.length;
@@ -67,7 +75,23 @@ public class DBHelper {
                     builder.append(s.charAt(0));
                 }
             }
-            tableName = builder.toString();
+            return builder.toString();
+        }
+    }
+
+    public static ITableNameGenerator sTableNameGenerator = new Xcore2TableNameGenerator();
+
+    public DBHelper(IDBConnector dbConnector) {
+        super();
+        mDbConnector = dbConnector;
+        dbAssociationCache = DBAssociationCache.get();
+	}
+
+	public static String getTableName(Class<?> clazz) {
+        DBAssociationCache associationCache = DBAssociationCache.get();
+        String tableName = associationCache.getTableName(clazz);
+        if (tableName == null) {
+            tableName = sTableNameGenerator.generateTableName(clazz);
             associationCache.setTableName(clazz, tableName);
         }
         return tableName;
