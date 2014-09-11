@@ -239,6 +239,12 @@ abstract class FormatCache<F extends Format> {
          */
         @Override
         public boolean equals(final Object obj) {
+            if (obj == null) {
+                return false;
+            }
+            if (getClass() != obj.getClass()) {
+                return false;
+            }
             // Eliminate the usual boilerplate because
             // this inner static class is only used in a generic ConcurrentHashMap
             // which will not compare against other Object types

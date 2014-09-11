@@ -152,7 +152,7 @@ public class DataSourceRequest {
 	}
 
 	private void checkIfParamIsNotRestricted(String key) {
-        if (Log.isOff) return;
+        if (Log.isOff()) return;
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
 				throw new IllegalArgumentException(key + " is reserved by DataSourceRequest class and can't be used.");
@@ -264,7 +264,7 @@ public class DataSourceRequest {
 
     public static class JoinedRequestBuilder {
 
-        private class RequestConfig {
+        private static class RequestConfig {
 
             private String processorKey;
 

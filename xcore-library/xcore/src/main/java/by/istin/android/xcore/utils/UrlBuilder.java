@@ -11,7 +11,7 @@ public class UrlBuilder {
     public static final String AMP = "&";
     public static final String Q = "?";
 
-    private class ParamValue {
+    private static class ParamValue {
 
         private ParamValue(String param, String value, boolean autoEncode) {
             this.param = param;

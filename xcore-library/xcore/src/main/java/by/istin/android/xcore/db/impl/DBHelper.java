@@ -79,7 +79,11 @@ public class DBHelper {
         }
     }
 
-    public static ITableNameGenerator sTableNameGenerator = new Xcore2TableNameGenerator();
+    private static ITableNameGenerator sTableNameGenerator = new Xcore2TableNameGenerator();
+
+    public static void setTableNameGenerator(ITableNameGenerator tableNameGenerator) {
+        sTableNameGenerator = tableNameGenerator;
+    }
 
     public DBHelper(IDBConnector dbConnector) {
         super();

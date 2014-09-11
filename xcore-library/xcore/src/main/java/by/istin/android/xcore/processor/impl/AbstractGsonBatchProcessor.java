@@ -23,13 +23,14 @@ import by.istin.android.xcore.utils.IOUtils;
 
 public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
-	private final Class<?> clazz;
+    public static final String DEFAULT_ENCODING = "UTF-8";
+    private final Class<?> clazz;
 
 	private final Class<? extends Result> resultClassName;
 
     private final IDBContentProviderSupport dbContentProviderSupport;
 
-	public AbstractGsonBatchProcessor(Class<?> clazz, Class<? extends Result> resultClassName, IDBContentProviderSupport contentProviderSupport) {
+    public AbstractGsonBatchProcessor(Class<?> clazz, Class<? extends Result> resultClassName, IDBContentProviderSupport contentProviderSupport) {
 		super();
 		this.clazz = clazz;
 		this.resultClassName = resultClassName;
@@ -37,36 +38,36 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 	}
 
 
-	@Override
-	public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
-		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
-		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
+    @Override
+    public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, getEncoding());
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbContentProviderSupport, createTransactionCreationController(dataSourceRequest));
         Gson gson = buildGson(contentValuesAdapter);
         IDBConnection dbConnection = contentValuesAdapter.getDbConnection();
         dbConnection.beginTransaction();
         Result result = null;
-		try {
+        try {
             onStartProcessing(dataSourceRequest, dbConnection);
             result = process(gson, bufferedReader);
             onBeforeTransactionCommit(dataSourceRequest, result, dbConnection);
             dbConnection.setTransactionSuccessful();
-		} catch (JsonSyntaxException exception){
+        } catch (JsonSyntaxException exception) {
             Throwable cause = exception.getCause();
             if (cause instanceof SocketTimeoutException) {
                 throw new IOException(exception);
             }
-		} catch (JsonIOException exception){
+        } catch (JsonIOException exception) {
             throw new IOException(exception);
         } finally {
-			IOUtils.close(inputStream);
-			IOUtils.close(inputStreamReader);
-			IOUtils.close(bufferedReader);
+            IOUtils.close(inputStream);
+            IOUtils.close(inputStreamReader);
+            IOUtils.close(bufferedReader);
             dbConnection.endTransaction();
             onProcessingFinish(dataSourceRequest, result);
-		}
+        }
         return result;
-	}
+    }
 
     protected DBContentValuesAdapter.ITransactionCreationController createTransactionCreationController(DataSourceRequest dataSourceRequest) {
         //can be overrided in future if needs
@@ -105,4 +106,9 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
     public final void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception {
         //this processor can be used only for caching
     }
+
+    public String getEncoding() {
+        return DEFAULT_ENCODING;
+    }
+
 }

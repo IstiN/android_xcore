@@ -14,7 +14,7 @@ import java.util.ArrayList;
  */
 public interface IDBContentProviderSupport {
 
-    Class<?>[] getEntities();
+    //Class<?>[] getEntities();
 
     String getType(Uri uri);
 

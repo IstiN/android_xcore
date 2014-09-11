@@ -38,7 +38,7 @@ public class ErrorHandler implements IErrorHandler {
 
     private final String mDeveloperErrorMessage;
 
-    private class ErrorInfo {
+    private static class ErrorInfo {
 
         private FragmentActivity mFragmentActivity;
 
@@ -53,9 +53,15 @@ public class ErrorHandler implements IErrorHandler {
 
         @Override
         public boolean equals(Object o) {
+            if (o == null) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
             ErrorInfo errorInfo = (ErrorInfo) o;
             return errorInfo.mDataSourceRequest.equals(mDataSourceRequest) &&
-                    errorInfo.mDataSourceHelper.equals(mDataSourceRequest) &&
+                    errorInfo.mDataSourceHelper.equals(mDataSourceHelper) &&
                     errorInfo.mFragmentActivity.equals(mFragmentActivity);
         }
     }

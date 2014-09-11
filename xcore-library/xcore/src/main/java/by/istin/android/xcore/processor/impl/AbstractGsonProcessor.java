@@ -24,6 +24,8 @@ import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
 	private final Class<?> clazz;
 	
 	private final Class<? extends Result> resultClassName;
@@ -71,7 +73,7 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 
 	@Override
 	public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
-		InputStreamReader inputStreamReader = new InputStreamReader(inputStream);
+		InputStreamReader inputStreamReader = new InputStreamReader(inputStream, getEncoding());
 		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
 		try {
 			return process(dataSourceRequest, getGson(), bufferedReader);
@@ -83,8 +85,12 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
 			IOUtils.close(bufferedReader);
 		}
 	}
-	
-	protected Result process(DataSourceRequest dataSourceRequest,Gson gson, BufferedReader bufferedReader) {
+
+    protected String getEncoding() {
+        return DEFAULT_ENCODING;
+    };
+
+    protected Result process(DataSourceRequest dataSourceRequest,Gson gson, BufferedReader bufferedReader) {
 		return getGson().fromJson(bufferedReader, resultClassName);
 	}
 	

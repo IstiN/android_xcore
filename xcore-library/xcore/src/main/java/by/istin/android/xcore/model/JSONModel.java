@@ -213,7 +213,7 @@ public class JSONModel implements Parcelable {
 	 * 
 	 * @param key
 	 *            the key
-	 * @return the boolean
+	 * @return the boolean, default Boolean.FALSE
 	 */
 	protected final Boolean getBoolean(final String key) {
 		try {
@@ -223,7 +223,7 @@ public class JSONModel implements Parcelable {
 		} catch (JSONException e) {
 			Log.e(TAG, e);
 		}
-		return null;
+		return Boolean.FALSE;
 	}
 
 	/**

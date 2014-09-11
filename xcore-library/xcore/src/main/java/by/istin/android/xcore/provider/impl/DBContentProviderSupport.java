@@ -66,10 +66,10 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         }
     }
 
-    @Override
+    /*@Override
     public Class<?>[] getEntities() {
         return mEntities;
-    }
+    }*/
 
     @Override
     public String getType(Uri uri) {

@@ -29,7 +29,7 @@ public class RequestExecutor {
 
     public static abstract class ExecuteRunnable implements Runnable {
 
-        private class StatusBundle {
+        private static class StatusBundle {
             private StatusResultReceiver.Status mStatus;
             private Bundle mBundle;
         }
@@ -62,7 +62,14 @@ public class RequestExecutor {
 
 		@Override
 		public boolean equals(Object o) {
-			return getKey().equals(((ExecuteRunnable)o).getKey());
+            if (o == null) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
+            ExecuteRunnable executeRunnable = (ExecuteRunnable) o;
+            return getKey().equals(executeRunnable.getKey());
 		}
 
 		@Override

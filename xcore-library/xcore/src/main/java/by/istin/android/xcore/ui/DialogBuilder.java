@@ -292,6 +292,7 @@ public class DialogBuilder {
 						imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 						dialog.dismiss();
 					} catch (Exception e) {
+                        Log.e("dialog", e);
 						//quick back issue
 					}
 		     		if (!StringUtil.isEmpty(message)) {
@@ -308,6 +309,7 @@ public class DialogBuilder {
 									imm.hideSoftInputFromWindow(input.getWindowToken(), 0);
 									dialog.dismiss();
 								} catch (Exception e) {
+                                    Log.e("dialog", e);
                                     // quick back issue for old android version
 								}
 		         }
