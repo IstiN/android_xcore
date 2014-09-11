@@ -118,6 +118,7 @@ public class DialogBuilder {
 					dialog.dismiss();					
 				} catch (Exception e) {
 					// quick back issue for old android version
+                    Log.e("DialogBuilder", e);
 				}
 			}
 		} : disagreeListener);
@@ -324,6 +325,7 @@ public class DialogBuilder {
             alertDialog.show();
 		} catch (Exception e) {
             // quick back issue for old android version
+            Log.e("DialogBuilder", e);
 		}
         input.setSelection(input.getText().length());
         new Handler().postDelayed(new Runnable() {

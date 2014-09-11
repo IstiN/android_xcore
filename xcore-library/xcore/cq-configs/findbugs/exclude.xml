@@ -1,14 +1,8 @@
 <FindBugsFilter>
     <Match>
-        <Class name="~.*\.R\$.*"/>
-    </Match>
-    <Match>
-    	<Class name="~.*\.Manifest\$.*"/>
-    </Match>
-    <Match>
-        <Or>
-            <Class name="~*.R.*" />
-        </Or>
+	<Or>
+	        <Class name="~.*\.R\$.*"/>
+	</Or>
         <Bug category="PERFORMANCE,MALICIOUS_CODE,STYLE,SECURITY,CORRECTNESS,MT_CORRECTNESS,BAD_PRACTICE,I18N" />
     </Match>
 </FindBugsFilter>

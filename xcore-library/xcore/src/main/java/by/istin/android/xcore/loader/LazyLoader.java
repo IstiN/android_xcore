@@ -12,6 +12,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 
 import by.istin.android.xcore.loader.assist.LazyExecutorService;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class LazyLoader<View, Params, Result> {
@@ -127,6 +128,7 @@ public abstract class LazyLoader<View, Params, Result> {
                                 cancel(storedBindParam.params);
                             } catch (Throwable throwable) {
                                 //do we realy need this?
+                                Log.e("LazyLoader", throwable);
                             }
                         }
                     });

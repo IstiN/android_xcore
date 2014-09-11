@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.util.AttributeSet;
 import android.widget.ListView;
 
+import by.istin.android.xcore.utils.Log;
+
 public class XListView extends ListView {
 
     public XListView(Context context) {
@@ -25,6 +27,7 @@ public class XListView extends ListView {
             super.dispatchDraw(canvas);
         } catch (IndexOutOfBoundsException e) {
             // on some samsung error
+            Log.xe(this, e);
         }
     }
 }

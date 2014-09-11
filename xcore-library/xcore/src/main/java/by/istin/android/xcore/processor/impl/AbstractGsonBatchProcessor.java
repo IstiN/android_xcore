@@ -20,10 +20,10 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
+import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
 
-    public static final String DEFAULT_ENCODING = "UTF-8";
     private final Class<?> clazz;
 
 	private final Class<? extends Result> resultClassName;
@@ -108,7 +108,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
     }
 
     public String getEncoding() {
-        return DEFAULT_ENCODING;
+        return StringUtil.DEFAULT_ENCODING;
     }
 
 }

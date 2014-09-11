@@ -13,6 +13,7 @@ import by.istin.android.xcore.processor.impl.AbstractStringProcessor;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.Holder;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UrlBuilder;
 
@@ -108,6 +109,7 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
                 mCredentials = new Credentials(savedValue);
             } catch (JSONException e) {
                 //can be ignored
+                Log.e("DefaultOAuth2Helper", e);
             }
         }
     }

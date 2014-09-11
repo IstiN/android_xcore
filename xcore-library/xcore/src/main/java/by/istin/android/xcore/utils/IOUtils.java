@@ -17,6 +17,7 @@ public class IOUtils {
 				closeable.close();
 			} catch (IOException e) {
 				//can be ignored
+                Log.e("IOUtils", e);
 			}
 		}
 	}
@@ -27,6 +28,7 @@ public class IOUtils {
 				closeable.close();
 			} catch (Exception e) {
                 //can be ignored
+                Log.e("IOUtils", e);
             }
         }
 	}
@@ -37,6 +39,7 @@ public class IOUtils {
 				closeable.close();
 			} catch (Exception e) {
                 //can be ignored
+                Log.e("IOUtils", e);
             }
         }
 	}

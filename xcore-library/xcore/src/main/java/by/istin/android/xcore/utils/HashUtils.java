@@ -42,7 +42,8 @@ public class HashUtils {
         synchronized (sLock) {
             md.reset();
             //convert the string value to a byte array and pass it into the hash algorithm
-            md.update(builder.toString().getBytes());
+            String s = builder.toString();
+            md.update(StringUtil.getBytes(s));
 
             //retrieve a byte array containing the digest
             hashValBytes = md.digest();

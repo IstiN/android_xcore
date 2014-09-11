@@ -24,6 +24,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.exception.IOStatusException;
 import by.istin.android.xcore.ui.DialogBuilder;
 import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.utils.IOUtils;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -256,12 +257,7 @@ public class ErrorHandler implements IErrorHandler {
             return writer.toString();
         }
         finally {
-            if (writer != null)
-                try {
-                    writer.close();
-                } catch (IOException e1) {
-                    // ignore
-                }
+            IOUtils.close(writer);
         }
     }
 

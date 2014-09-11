@@ -11,6 +11,7 @@ import com.google.common.internal.net.PercentEscaper;
 import org.apache.commons.codec.internal.DecoderException;
 import org.apache.commons.codec.internal.net.URLCodec;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,7 +27,9 @@ import by.istin.android.xcore.ContextHolder;
  */
 public final class StringUtil {
 
-    private static final URLCodec URL_CODEC = new URLCodec("utf-8");
+    public static final String DEFAULT_ENCODING = "UTF-8";
+
+    private static final URLCodec URL_CODEC = new URLCodec(DEFAULT_ENCODING);
 
     private static final PercentEscaper PERCENT_ESCAPER = new PercentEscaper("-_.*", false);
 
@@ -449,5 +452,21 @@ public final class StringUtil {
             i++;
         }
         return strings;
+    }
+
+    public static byte[] getBytes(String s) {
+        try {
+            return s.getBytes(DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static String newString(byte[] byteArray) {
+        try {
+            return new String(byteArray, DEFAULT_ENCODING);
+        } catch (UnsupportedEncodingException e) {
+            throw new IllegalArgumentException(e);
+        }
     }
 }
