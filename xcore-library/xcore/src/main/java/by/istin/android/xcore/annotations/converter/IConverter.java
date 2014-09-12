@@ -9,7 +9,7 @@ import android.content.ContentValues;
 public interface IConverter<Meta> {
 
     /**
-     * As result need to add some additional values to the ContentValues, or doesn't do anything if not need it
+     * As result need to add some additional values to the ContentValues, or doesn't do anything if not need it.
      * @param contentValues current contentValues
      * @param fieldValue current field value that specified in ModelContract entity
      * @param parent parent entity, in most cases need to be ContentValues

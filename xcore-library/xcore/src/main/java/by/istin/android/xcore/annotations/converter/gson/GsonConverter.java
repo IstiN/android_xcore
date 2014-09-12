@@ -20,39 +20,45 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
     public static class Meta {
 
         /**
-         * Current contentValuesAdapter
+         * Current contentValuesAdapter.
          */
         private final AbstractValuesAdapter abstractValuesAdapter;
 
         /**
-         * Current field wrapper
+         * Current field wrapper.
          */
         private final ReflectUtils.XField field;
 
         /**
-         * Current jsonElement
+         * Current jsonElement.
          */
         private JsonElement jsonElement;
 
         /**
-         * Current reflection type
+         * Current reflection type.
          */
         private Type type;
 
         /**
-         * Curreng gson context
+         * Curreng gson context.
          */
         private JsonDeserializationContext jsonDeserializationContext;
 
         /**
-         * Default constructor
-         *  @param abstractValuesAdapter current contentValuesAdapter
+         * Default constructor.
+         * @param abstractValuesAdapter current contentValuesAdapter
          * @param jsonElement current jsonElement
          * @param type current reflection type
          * @param jsonDeserializationContext current gson context
          * @param field current field wrapper
          */
-        public Meta(AbstractValuesAdapter abstractValuesAdapter, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, ReflectUtils.XField field) {
+        public Meta(
+                AbstractValuesAdapter abstractValuesAdapter,
+                JsonElement jsonElement,
+                Type type,
+                JsonDeserializationContext jsonDeserializationContext,
+                ReflectUtils.XField field
+        ) {
             this.jsonElement = jsonElement;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -61,7 +67,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         }
 
         /**
-         * Returns JsonElement
+         * Returns JsonElement.
          * @return jsonElement
          */
         public JsonElement getJsonElement() {
@@ -69,7 +75,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         }
 
         /**
-         * Return reflection type of field
+         * Return reflection type of field.
          * @return reflection type
          */
         public Type getType() {
@@ -77,7 +83,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         }
 
         /**
-         * Return gson context
+         * Return gson context.
          * @return gson context
          */
         public JsonDeserializationContext getJsonDeserializationContext() {
@@ -85,7 +91,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         }
 
         /**
-         * Return current contentValues adapter
+         * Return current contentValues adapter.
          * @return contentValuesAdapter
          */
         public AbstractValuesAdapter getAbstractValuesAdapter() {
@@ -93,7 +99,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
         }
 
         /**
-         * Return current field wrapper
+         * Return current field wrapper.
          * @return field
          */
         public ReflectUtils.XField getField() {
