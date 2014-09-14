@@ -208,6 +208,10 @@ public class Core implements XCoreHelper.IAppServiceKey {
         mContext = context;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     public static Core get(Context context) {
         return (Core) AppUtils.get(context, APP_SERVICE_KEY);
     }
