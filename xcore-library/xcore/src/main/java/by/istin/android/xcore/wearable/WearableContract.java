@@ -5,7 +5,9 @@ package by.istin.android.xcore.wearable;
  */
 public class WearableContract {
 
-    public static final String URI = "/xcoreexecute";
+    public static final String URI_SEGMENT = "xcoreexecute";
+
+    public static final String URI = "/" + URI_SEGMENT;
 
     public static final String PARAM_DATA_SOURCE_KEY = "p_data_source_key";
 

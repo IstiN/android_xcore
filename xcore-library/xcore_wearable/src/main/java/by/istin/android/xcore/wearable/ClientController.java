@@ -100,6 +100,15 @@ class ClientController {
         }
     };
 
+    public void cancel(Core.IExecuteOperation<?> executeOperation) {
+        synchronized (mLock) {
+            mExecuteOperations.remove(executeOperation);
+            if (mExecuteOperations.isEmpty()) {
+                close();
+            }
+        }
+    }
+
     private void proceedErrorConnectionSuspended(int i) {
         synchronized (mLock) {
             //todo notify execute operations
@@ -192,6 +201,7 @@ class ClientController {
         dataMap.putString(WearableContract.PARAM_PROCESSOR_KEY, processorKey);
         String dataSourceRequestAsString = dataSourceRequest.toUriParams();
         dataMap.putString(WearableContract.PARAM_DATA_SOURCE_REQUEST, dataSourceRequestAsString);
+        dataMap.putLong("stub", System.currentTimeMillis());
         if (selectionArgs != null) {
             dataMap.putStringArray(WearableContract.PARAM_SELECTION_ARGS_KEY, selectionArgs);
         }

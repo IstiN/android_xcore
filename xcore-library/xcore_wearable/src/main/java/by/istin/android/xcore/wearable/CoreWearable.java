@@ -30,8 +30,8 @@ public class CoreWearable extends Core {
         mClientController = new ClientController(context);
     }
 
-    public static Core get(Context context) {
-        return (Core) AppUtils.get(context, APP_SERVICE_KEY);
+    public static CoreWearable get(Context context) {
+        return (CoreWearable) AppUtils.get(context, APP_SERVICE_KEY);
     }
 
     @Override
@@ -47,7 +47,10 @@ public class CoreWearable extends Core {
     @Override
     public void execute(IExecuteOperation<?> executeOperation) {
         mClientController.execute(executeOperation);
-        super.execute(executeOperation);
+    }
+
+    public void cancel(IExecuteOperation<?> executeOperation) {
+        mClientController.cancel(executeOperation);
     }
 
 }

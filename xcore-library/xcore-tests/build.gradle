@@ -18,6 +18,8 @@ android {
 
 dependencies {
     compile project(':xcore')
+    compile 'com.google.android.gms:play-services:5.0.+@aar'
+    wearApp project(':xcore-tests-wearable')
     compile 'com.android.support:support-v4:21.+'
     compile 'com.google.code.gson:gson:2.2.4'
 }
