@@ -88,12 +88,16 @@ public class ModelContract {
     public static DataSourceRequest getDataSourceRequestFromUri(Uri uri) {
         String dataSourceRequest = ModelContract.getDataSourceRequest(uri);
         if (!StringUtil.isEmpty(dataSourceRequest)) {
-            return DataSourceRequest.fromUri(Uri.parse("content://temp?"+StringUtil.decode(dataSourceRequest)));
+            return getDataSourceRequestFromUriParam(dataSourceRequest);
         }
         return null;
     }
 
-	public static String getAuthority(Context ctx) {
+    public static DataSourceRequest getDataSourceRequestFromUriParam(String dataSourceRequest) {
+        return DataSourceRequest.fromUri(Uri.parse("content://temp?" + StringUtil.decode(dataSourceRequest)));
+    }
+
+    public static String getAuthority(Context ctx) {
 		return StringUtil.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
 	}
 	

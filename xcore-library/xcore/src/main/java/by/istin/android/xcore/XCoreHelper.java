@@ -10,6 +10,7 @@ import java.util.Map;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.processor.impl.EmptyProcessor;
 import by.istin.android.xcore.service.manager.IRequestManager;
+import by.istin.android.xcore.source.impl.EmptyDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
@@ -48,6 +49,7 @@ public class XCoreHelper {
         IRequestManager.Impl.register(this);
         registerAppService(new Core(ctx));
         registerAppService(new EmptyProcessor());
+        registerAppService(new EmptyDataSource());
 	}
 	
 	public void registerAppService(IAppServiceKey appService) {

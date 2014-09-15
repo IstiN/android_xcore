@@ -20,6 +20,6 @@ android {
 }
 
 dependencies {
-    compile 'com.google.android.gms:play-services-wearable:+'
+    compile 'com.google.android.gms:play-services:5.0.+@aar'
     compile project(':xcore_wearable')
 }

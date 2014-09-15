@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import by.istin.android.xcore.Core;
-import by.istin.android.xcore.service.AbstractExecutorService;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.Holder;
 
@@ -206,7 +205,7 @@ class ClientController {
             dataMap.putStringArray(WearableContract.PARAM_SELECTION_ARGS_KEY, selectionArgs);
         }
         if (resultQueryUri != null) {
-            dataMap.putString(WearableContract.PARAM_URI_KEY, resultQueryUri.toString());
+            dataMap.putString(WearableContract.PARAM_RESULT_URI_KEY, resultQueryUri.toString());
         }
     }
 

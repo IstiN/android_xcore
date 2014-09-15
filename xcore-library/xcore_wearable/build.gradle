@@ -29,7 +29,9 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:20.0.0'
-    compile 'com.google.android.gms:play-services-wearable:+'
+    /*compile ('com.google.android.gms:play-services-wearable:+') {
+        exclude group: 'com.google.android.gms'
+    }*/
     compile project(':xcore')
 }
 

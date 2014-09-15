@@ -17,5 +17,5 @@ public class WearableContract {
 
     public static final String PARAM_SELECTION_ARGS_KEY = "p_selection_args";
 
-    public static final String PARAM_URI_KEY = "p_uri";
+    public static final String PARAM_RESULT_URI_KEY = "p_uri";
 }

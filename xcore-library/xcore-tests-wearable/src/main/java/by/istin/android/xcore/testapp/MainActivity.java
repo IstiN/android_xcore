@@ -25,7 +25,9 @@ import android.view.View;
 import android.view.WindowManager;
 
 import by.istin.android.xcore.Core;
+import by.istin.android.xcore.processor.impl.EmptyProcessor;
 import by.istin.android.xcore.source.DataSourceRequest;
+import by.istin.android.xcore.source.impl.EmptyDataSource;
 import by.istin.android.xcore.wearable.CoreWearable;
 
 /**
@@ -64,8 +66,8 @@ public class MainActivity extends Activity {
         executeOperationBuilder
                 .setDataSourceRequest(pDataSourceRequest)
                 .setActivity(this)
-                .setDataSourceKey("sampledatasourcekey")
-                .setProcessorKey("sampleprocessorkey")
+                .setDataSourceKey(EmptyDataSource.APP_SERVICE_KEY)
+                .setProcessorKey(EmptyProcessor.APP_SERVICE_KEY)
                 .setResultQueryUri(Uri.parse("content://sampleresulturi"))
                 .setSelectionArgs(new String[]{"arg1", "arg2"});
         mExecuteOperation = executeOperationBuilder.build();
