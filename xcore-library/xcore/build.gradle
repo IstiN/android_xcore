@@ -1,6 +1,6 @@
 apply plugin: 'com.android.library'
 //./gradlew clean findbugs pmd cpd checkstyle
-apply plugin: 'android-cq'
+//apply plugin: 'android-cq'
 
 repositories {
     mavenCentral()
