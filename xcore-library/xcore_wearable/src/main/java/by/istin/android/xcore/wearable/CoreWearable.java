@@ -41,7 +41,7 @@ public class CoreWearable extends Core {
 
     @Override
     public Object executeSync(IExecuteOperation<?> executeOperation) throws Exception {
-        throw new UnsupportedOperationException("executeSync unsupported yet");
+        return mClientController.executeSync(executeOperation);
     }
 
     @Override

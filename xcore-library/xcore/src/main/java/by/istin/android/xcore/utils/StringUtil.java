@@ -1,5 +1,6 @@
 package by.istin.android.xcore.utils;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.text.Html;
 import android.text.Spanned;
@@ -424,6 +425,14 @@ public final class StringUtil {
 
     public static String joinAll(CharSequence delimiter, Object... values) {
         return TextUtils.join(delimiter, values);
+    }
+
+    public static String joinAll(CharSequence delimiter, List<ContentValues> values, String column) {
+        List<String> arrayList = new ArrayList<String>();
+        for (ContentValues contentValues : values) {
+            arrayList.add(contentValues.getAsString(column));
+        }
+        return TextUtils.join(delimiter, arrayList);
     }
 
     public static String makeJoinedPlaceholders(String value, String delimiter, int len) {
