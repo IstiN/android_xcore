@@ -1,4 +1,4 @@
-package by.istin.android.xcore;
+package by.istin.android.xcore.wearable;
 
 import android.net.Uri;
 import android.os.Bundle;
@@ -17,12 +17,12 @@ import com.google.android.gms.wearable.WearableListenerService;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import by.istin.android.xcore.Core;
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
-import by.istin.android.xcore.wearable.WearableContract;
 
 /**
  * Created by Uladzimir_Klyshevich on 9/15/2014.

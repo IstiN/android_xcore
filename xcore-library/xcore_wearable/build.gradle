@@ -29,14 +29,13 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:20.0.0'
-    /*compile ('com.google.android.gms:play-services-wearable:+') {
-        exclude group: 'com.google.android.gms'
-    }*/
-    compile project(':xcore')
+    compile 'com.google.android.gms:play-services-wearable:5.0.77'
+    //compile project(':xcore')
+    compile project(':android_xcore:xcore-library:xcore')
 }
 
 task clearJar(type: Delete) {
-    delete '../../../../download/xcore-wear.jar'
+    delete '../../../../download/xcore-wearable.jar'
 }
 
 
@@ -44,7 +43,7 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
-    rename ('classes.jar', '../../../../download/xcore-wear.jar')
+    rename ('classes.jar', '../../../../download/xcore-wearable.jar')
 }
 
 makeJar.dependsOn(clearJar, build)
