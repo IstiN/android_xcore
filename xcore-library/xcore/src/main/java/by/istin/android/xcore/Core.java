@@ -87,6 +87,21 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         private Core.SimpleDataSourceServiceListener mDataSourceServiceListener;
 
+        public ExecuteOperationBuilder() {
+        }
+
+        public ExecuteOperationBuilder(IExecuteOperation executeOperation) {
+            mDataSourceRequest = executeOperation.getDataSourceRequest();
+            mProcessorKey = executeOperation.getProcessorKey();
+            mDataSourceKey = executeOperation.getDataSourceKey();
+            mResultQueryUri = executeOperation.getResultQueryUri();
+            mActivity = executeOperation.getActivity();
+            mSuccess = executeOperation.getSuccess();
+            mSelectionArgs = executeOperation.getSelectionArgs();
+            mCursorModelCreator = executeOperation.getCursorModelCreator();
+            mDataSourceServiceListener = executeOperation.getDataSourceListener();
+        }
+
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
             return this;

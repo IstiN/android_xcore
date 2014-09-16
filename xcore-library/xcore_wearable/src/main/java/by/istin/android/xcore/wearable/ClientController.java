@@ -4,6 +4,8 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -49,15 +51,6 @@ class ClientController {
 
         private long mPutRequestId;
 
-        private boolean isSync = false;
-
-        private Object mResult;
-
-        ExecuteOperationStatus(Core.IExecuteOperation mExecuteOperation, boolean isSync) {
-            this.mExecuteOperation = mExecuteOperation;
-            this.isSync = isSync;
-        }
-
         ExecuteOperationStatus(Core.IExecuteOperation executeOperation) {
             this.mExecuteOperation = executeOperation;
         }
@@ -82,17 +75,6 @@ class ClientController {
             return mPutRequestId;
         }
 
-        public boolean isSync() {
-            return isSync;
-        }
-
-        public Object getResult() {
-            return mResult;
-        }
-
-        public void setResult(Object mResult) {
-            this.mResult = mResult;
-        }
     }
 
     private GoogleApiClient mGoogleApiClient;
@@ -103,8 +85,11 @@ class ClientController {
 
     private List<ExecuteOperationStatus> mExecuteOperations = new ArrayList<ExecuteOperationStatus>();
 
+    private Handler mHandler;
+
     ClientController(Context context) {
         this.mContext = context;
+        this.mHandler = new Handler(Looper.getMainLooper());
     }
 
 
@@ -145,6 +130,7 @@ class ClientController {
                                 ISuccess success = result.getExecuteOperation().getSuccess();
                                 int resultType = dataMap.getInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_UNKNOWN);
                                 if (resultType != WearableContract.TYPE_ASSET) {
+                                    Log.xd(this, "result is not asset " + resultType);
                                     byte[] byteArray = dataMap.getByteArray(WearableContract.PARAM_RESULT);
                                     switch (resultType) {
                                         case WearableContract.TYPE_CONTENT_VALUES:
@@ -152,42 +138,43 @@ class ClientController {
                                             if (success != null) {
                                                 success.success(contentValues);
                                             }
-                                            setSyncResult(executeOperationStatus, contentValues);
                                             break;
                                         case WearableContract.TYPE_CONTENT_VALUES_ARRAY:
                                             ContentValues[] arrayContentValues = BytesUtils.arrayContentValuesFromByteArray(byteArray);
                                             if (success != null) {
                                                 success.success(arrayContentValues);
                                             }
-                                            setSyncResult(executeOperationStatus, arrayContentValues);
                                             break;
                                         case WearableContract.TYPE_SERIALIZABLE:
                                             Serializable serializable = BytesUtils.serializableFromByteArray(byteArray);
                                             if (success != null) {
                                                 success.success(serializable);
                                             }
-                                            setSyncResult(executeOperationStatus, serializable);
                                             break;
                                         case WearableContract.TYPE_UNKNOWN:
                                             if (success != null) {
                                                 success.success(null);
                                             }
-                                            setSyncResult(executeOperationStatus, null);
                                             break;
                                     }
                                 } else {
+                                    Log.xd(this, "result is asset");
                                     Asset asset = dataMap.getAsset(WearableContract.PARAM_RESULT);
+                                    Log.xd(this, "asset got " + asset);
                                     GoogleApiClient googleClient = getGoogleClient();
                                     Object assetStream = null;
                                     if (googleClient.isConnected()) {
+                                        Log.xd(this, "try got asset stream client is connected " + asset);
                                         assetStream = Wearable.DataApi.getFdForAsset(
                                                 googleClient, asset).await().getInputStream();
-
+                                        Log.xd(this, "asset stream got");
+                                    } else {
+                                        Log.xd(this, "client disconnected, throw error ?");
                                     }
                                     if (success != null) {
+                                        Log.xd(this, "return asset stream");
                                         success.success(assetStream);
                                     }
-                                    setSyncResult(executeOperationStatus, assetStream);
                                 }
                                 break;
                             }
@@ -199,29 +186,25 @@ class ClientController {
                             close();
                         }
                     }
-                    Log.xd(this, "end locking");
+                    Log.xd(this, "finish iterate sync block");
                 }
             }
         }
 
     };
 
-    private void setSyncResult(ExecuteOperationStatus executeOperationStatus, Object object) {
-        if (executeOperationStatus.isSync()) {
-            Core.IExecuteOperation executeOperation = executeOperationStatus.getExecuteOperation();
-            synchronized (executeOperation) {
-                executeOperationStatus.setResult(object);
-                executeOperation.notify();
-            }
-        }
-    }
-
     private GoogleApiClient.ConnectionCallbacks mConnectionCallbacks = new GoogleApiClient.ConnectionCallbacks() {
 
         @Override
         public void onConnected(Bundle bundle) {
-            Wearable.DataApi.addListener(mGoogleApiClient, mDataListener);
-            proceed();
+            Wearable.DataApi.addListener(getGoogleClient(), mDataListener);
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    Log.xd(this, "execute start proceed from onConnected");
+                    proceed();
+                }
+            });
         }
 
         @Override
@@ -238,6 +221,7 @@ class ClientController {
             if (mExecuteOperations.isEmpty()) {
                 close();
             }
+            Log.xd(this, "finish cancel sync block");
         }
     }
 
@@ -265,40 +249,14 @@ class ClientController {
             mExecuteOperations.add(executeOperationStatus);
             GoogleApiClient googleApiClient = getGoogleClient();
             if (!googleApiClient.isConnected()) {
+                Log.xd(this, "finish execute sync block client is not connected");
                 //TODO send error status
                 return;
             }
+            Log.xd(this, "finish execute sync block");
         }
+        Log.xd(this, "execute start proceed from execute");
         proceed();
-    }
-
-    public Object executeSync(Core.IExecuteOperation executeOperation) throws Exception {
-        Log.xd(this, "execute sync");
-        ExecuteOperationStatus executeOperationStatus;
-        Log.xd(this, "executeSync synchronize lock");
-        synchronized (mLock) {
-            Log.xd(this, "inside executeSync synchronize lock");
-            executeOperationStatus = new ExecuteOperationStatus(executeOperation, true);
-            mExecuteOperations.add(executeOperationStatus);
-            GoogleApiClient googleApiClient = getGoogleClient();
-            if (!googleApiClient.isConnected()) {
-                Log.xd(this, "is not connected");
-                //TODO send error status
-                return null;
-            }
-            Log.xd(this, "is connected");
-        }
-        proceed();
-        Log.xd(this, "start waiting");
-        synchronized (executeOperation) {
-            try {
-                executeOperation.wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
-        return executeOperationStatus.getResult();
-
     }
 
     private void proceed() {
@@ -353,11 +311,12 @@ class ClientController {
                                     if (mExecuteOperations.isEmpty()) {
                                         close();
                                     }
-                                    Log.xd(this, "delete");
+                                    Log.xd(this, "finish delete with error sync block");
                                 }
                             }
                         }
                     });
+            Log.xd(this, "finish proceed sync block");
         }
     }
 
@@ -389,26 +348,28 @@ class ClientController {
     }
 
     private void close() {
-        Log.xd(this, "close synchronize lock");
-        synchronized (mLock) {
-            Log.xd(this, "inside synchronize lock");
-            if (mGoogleApiClient != null) {
-                Wearable.DataApi.removeListener(mGoogleApiClient, mDataListener);
-                mGoogleApiClient.disconnect();
-                mExecuteOperations.clear();
-                mGoogleApiClient = null;
-            }
+        if (mGoogleApiClient != null) {
+            Wearable.DataApi.removeListener(mGoogleApiClient, mDataListener);
+            mGoogleApiClient.disconnect();
+            mExecuteOperations.clear();
+            mGoogleApiClient = null;
         }
+        Log.xd(this, "closed");
     }
 
     private GoogleApiClient getGoogleClient() {
         if (mGoogleApiClient == null) {
+            Log.xd(this, "client is null - will be created");
             mGoogleApiClient = new GoogleApiClient.Builder(mContext)
                     .addApi(Wearable.API)
                     .addConnectionCallbacks(mConnectionCallbacks)
                     .addOnConnectionFailedListener(mOnConnectionFailedListener)
                     .build();
+            Log.xd(this, "client created - will be connect");
             mGoogleApiClient.connect();
+            Log.xd(this, "connected and return");
+        } else {
+            Log.xd(this, "return existing client");
         }
         return mGoogleApiClient;
     }
