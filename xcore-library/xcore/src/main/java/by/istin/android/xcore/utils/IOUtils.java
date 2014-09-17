@@ -1,10 +1,12 @@
 package by.istin.android.xcore.utils;
 
+import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.io.OutputStream;
@@ -70,7 +72,22 @@ public class IOUtils {
         return count;
     }
 
-    public static String getCorrectFileName(String fileName) {
-        return fileName;
+    public static String toString(InputStream inputStream) throws IOException {
+        InputStreamReader inputStreamReader = null;
+        BufferedReader reader = null;
+        StringBuilder sb = new StringBuilder();
+        String line = null;
+        try {
+            inputStreamReader = new InputStreamReader(inputStream);
+            reader = new BufferedReader(inputStreamReader);
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+            }
+        } finally {
+            close(inputStream);
+            close(inputStreamReader);
+            close(reader);
+        }
+        return sb.toString();
     }
 }
