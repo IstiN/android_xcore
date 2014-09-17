@@ -21,6 +21,7 @@ import com.google.android.gms.wearable.PutDataMapRequest;
 import com.google.android.gms.wearable.PutDataRequest;
 import com.google.android.gms.wearable.Wearable;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -38,11 +39,28 @@ import by.istin.android.xcore.utils.Log;
 class ClientController {
 
     public static final String PUT_DATA_MAP_REQUEST_ID = "pdmr_id";
+    public static final int TIMEOUT = 20000;
 
-    static class ExecuteOperationStatus {
+    private Handler mHandler;
 
-        static enum Status {
-            NOT_STARTED, WAIT_RESULT;
+    enum Status {
+        NOT_STARTED, WAIT_RESULT, DONE, ERROR;
+    }
+
+    class ExecuteOperationStatus implements Runnable {
+
+        @Override
+        public void run() {
+            synchronized (mLock) {
+                if (mStatus == Status.WAIT_RESULT) {
+                    setStatus(Status.ERROR);
+                    sendError(mExecuteOperation.getDataSourceListener(), new IOException("timeout"));
+                    mExecuteOperations.remove(this);
+                    if (mExecuteOperations.isEmpty()) {
+                        close();
+                    }
+                }
+            }
         }
 
         private Core.IExecuteOperation mExecuteOperation;
@@ -65,6 +83,11 @@ class ClientController {
 
         public void setStatus(Status status) {
             this.mStatus = status;
+            if (status == Status.WAIT_RESULT) {
+                mHandler.postDelayed(this, TIMEOUT);
+            } else {
+                mHandler.removeCallbacks(this);
+            }
         }
 
         public void setPutRequestId(long mPutRequestId) {
@@ -84,8 +107,6 @@ class ClientController {
     private Context mContext;
 
     private List<ExecuteOperationStatus> mExecuteOperations = new ArrayList<ExecuteOperationStatus>();
-
-    private Handler mHandler;
 
     ClientController(Context context) {
         this.mContext = context;
@@ -126,6 +147,7 @@ class ClientController {
                             long putRequestId = executeOperationStatus.getPutRequestId();
                             Log.xd(this, "putRequestId " + putRequestId);
                             if (putRequestId == id) {
+                                executeOperationStatus.setStatus(Status.DONE);
                                 result = executeOperationStatus;
                                 ISuccess success = result.getExecuteOperation().getSuccess();
                                 int resultType = dataMap.getInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_UNKNOWN);
@@ -208,8 +230,13 @@ class ClientController {
         }
 
         @Override
-        public void onConnectionSuspended(int i) {
-            proceedErrorConnectionSuspended(i);
+        public void onConnectionSuspended(final int i) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    proceedErrorConnectionSuspended(i);
+                }
+            });
         }
     };
 
@@ -227,7 +254,11 @@ class ClientController {
 
     private void proceedErrorConnectionSuspended(int i) {
         synchronized (mLock) {
-            //todo notify execute operations
+            IOException e = new IOException("error connection suspended: " + i);
+            for (ExecuteOperationStatus executeOperationStatus : mExecuteOperations) {
+                executeOperationStatus.setStatus(Status.ERROR);
+                sendError(executeOperationStatus.getExecuteOperation().getDataSourceListener(), e);
+            }
             close();
         }
     }
@@ -236,7 +267,11 @@ class ClientController {
         Log.xd(this, "proceedErrorConnectionFailed synchronize lock");
         synchronized (mLock) {
             Log.xd(this, "inside proceedErrorConnectionFailed synchronize lock");
-            //todo notify execute operations
+            IOException e = new IOException("error connection failed: " + connectionResult);
+            for (ExecuteOperationStatus executeOperationStatus : mExecuteOperations) {
+                executeOperationStatus.setStatus(Status.ERROR);
+                sendError(executeOperationStatus.getExecuteOperation().getDataSourceListener(), e);
+            }
             close();
         }
     }
@@ -249,14 +284,18 @@ class ClientController {
             mExecuteOperations.add(executeOperationStatus);
             GoogleApiClient googleApiClient = getGoogleClient();
             if (!googleApiClient.isConnected()) {
-                Log.xd(this, "finish execute sync block client is not connected");
-                //TODO send error status
                 return;
             }
             Log.xd(this, "finish execute sync block");
         }
         Log.xd(this, "execute start proceed from execute");
         proceed();
+    }
+
+    private void sendError(Core.SimpleDataSourceServiceListener dataSourceListener, IOException e) {
+        if (dataSourceListener != null) {
+            dataSourceListener.onError(e);
+        }
     }
 
     private void proceed() {
@@ -275,9 +314,9 @@ class ClientController {
             final Holder<ExecuteOperationStatus> executeOperationStatusHolder = new Holder<ExecuteOperationStatus>();
             Log.xd(this, "find new operations");
             for (ExecuteOperationStatus executeOperationStatus : mExecuteOperations) {
-                if (executeOperationStatus.getStatus() != ExecuteOperationStatus.Status.WAIT_RESULT) {
+                if (executeOperationStatus.getStatus() != Status.WAIT_RESULT) {
                     executeOperationStatusHolder.set(executeOperationStatus);
-                    executeOperationStatus.setStatus(ExecuteOperationStatus.Status.WAIT_RESULT);
+                    executeOperationStatus.setStatus(Status.WAIT_RESULT);
                     break;
                 }
             }
@@ -289,7 +328,7 @@ class ClientController {
             Log.xd(this, "execute new operations");
 
             final ExecuteOperationStatus executeOperationStatus = executeOperationStatusHolder.get();
-            Core.IExecuteOperation executeOperation = executeOperationStatus.getExecuteOperation();
+            final Core.IExecuteOperation executeOperation = executeOperationStatus.getExecuteOperation();
             PutDataMapRequest putDataMapRequest = PutDataMapRequest.create(WearableContract.URI_EXECUTE);
 
             long putRequestId = initDataMapRequest(putDataMapRequest, executeOperation);
@@ -298,6 +337,7 @@ class ClientController {
             Log.xd(this, "put dataapi request");
             Wearable.DataApi.putDataItem(googleClient, request)
                     .setResultCallback(new ResultCallback<DataApi.DataItemResult>() {
+
                         @Override
                         public void onResult(DataApi.DataItemResult dataItemResult) {
                             Log.xd(this, "got request result");
@@ -306,6 +346,7 @@ class ClientController {
                                 Log.xd(this, "not success synchronize lock");
                                 synchronized (mLock) {
                                     Log.xd(this, "inside not success synchronize lock");
+                                    executeOperationStatus.setStatus(Status.ERROR);
                                     proceedErrorStatus(dataItemResult.getStatus().getStatusCode(), executeOperationStatus.getExecuteOperation());
                                     mExecuteOperations.remove(executeOperationStatus);
                                     if (mExecuteOperations.isEmpty()) {
@@ -344,7 +385,7 @@ class ClientController {
     }
 
     private void proceedErrorStatus(int statusCode, Core.IExecuteOperation executeOperation) {
-        //TODO send error code to the runnable and remove runnable from cache array
+        sendError(executeOperation.getDataSourceListener(), new IOException("error result status: " + statusCode));
     }
 
     private void close() {

@@ -37,6 +37,7 @@ public class CoreWearable extends Core {
         Log.xd(this, "executeSync");
         final Object lock = new Object();
         final Holder<Object> resultHolder = new Holder<Object>();
+        final Holder<Exception> errorHolder = new Holder<Exception>();
         ExecuteOperationBuilder executeOperationBuilder = new ExecuteOperationBuilder(executeOperation);
         final ISuccess success = executeOperation.getSuccess();
         final SimpleDataSourceServiceListener dataSourceListener = executeOperation.getDataSourceListener();
@@ -56,6 +57,7 @@ public class CoreWearable extends Core {
                 if (dataSourceListener != null) {
                     dataSourceListener.onError(exception);
                 }
+                errorHolder.set(exception);
                 synchronized (lock) {
                     Log.xd(this, "onError:notify");
                     lock.notify();
@@ -109,7 +111,11 @@ public class CoreWearable extends Core {
 
         }
         Log.xd(this, "execute:return result");
-        return resultHolder.get();
+        if (errorHolder.isNull()) {
+            return resultHolder.get();
+        } else {
+            throw errorHolder.get();
+        }
     }
 
     @Override
