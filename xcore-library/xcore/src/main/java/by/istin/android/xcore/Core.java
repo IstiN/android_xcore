@@ -7,11 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import by.istin.android.xcore.callable.ISuccess;
+import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
@@ -86,6 +88,20 @@ public class Core implements XCoreHelper.IAppServiceKey {
         private CursorModel.CursorModelCreator mCursorModelCreator;
 
         private Core.SimpleDataSourceServiceListener mDataSourceServiceListener;
+
+        public ExecuteOperationBuilder() {
+
+        }
+
+        public ExecuteOperationBuilder(FragmentActivity activity, XListFragment fragment) {
+            setDataSourceKey(fragment.getDataSourceKey())
+            .setProcessorKey(fragment.getProcessorKey())
+            .setActivity(activity)
+            .setCursorModelCreator(fragment.getCursorModelCreator())
+            .setResultQueryUri(fragment.getUri())
+            .setSelectionArgs(fragment.getSelectionArgs())
+            .setDataSourceRequest(fragment.createDataSourceRequest(fragment.getUrl(), fragment.isForceUpdateData(), null));
+        }
 
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
@@ -321,7 +337,9 @@ public class Core implements XCoreHelper.IAppServiceKey {
     private void sendResult(IExecuteOperation<?> executeOperation, Object result, ISuccess success, Bundle resultData) {
         CursorModel.CursorModelCreator cursorModelCreator = executeOperation.getCursorModelCreator();
         if (cursorModelCreator != null && result instanceof Cursor) {
-            success.success(cursorModelCreator.create((Cursor) result));
+            CursorModel cursorModel = cursorModelCreator.create((Cursor) result);
+            cursorModel.doInBackground(ContextHolder.get());
+            success.success(cursorModel);
         } else {
             success.success(result);
         }
