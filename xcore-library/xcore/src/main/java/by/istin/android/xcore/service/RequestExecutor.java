@@ -165,10 +165,10 @@ public class RequestExecutor {
                     finalRunnable.run();
                     synchronized (mLock) {
                         queue.remove(finalRunnable);
-                        if (IS_LOG_ENABLED)
-                        Log.xd(RequestExecutor.this, "queue: finish and remove, size: " + queue.size() + " " + finalRunnable.getKey());
-                        finalRunnable.onDone();
                     }
+                    if (IS_LOG_ENABLED)
+                        Log.xd(RequestExecutor.this, "queue: finish and remove, size: " + queue.size() + " " + finalRunnable.getKey());
+                    finalRunnable.onDone();
                 }
             });
         }
@@ -176,7 +176,9 @@ public class RequestExecutor {
 	}
 
     public boolean isEmpty() {
-        return queue.isEmpty();
+        synchronized (mLock) {
+            return queue.isEmpty();
+        }
     }
 
     public void stop(ResultReceiver resultReceiver) {

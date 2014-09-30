@@ -75,7 +75,14 @@ public abstract class AbstractRequestManager implements IRequestManager {
             @Override
             protected void onDone() {
                 if (requestExecutor.isEmpty()) {
-                    stop(null);
+                    //TODO stop(null);
+                    /*
+                    9-23 16:21:21.031  16270-16270/? E/AndroidRuntime﹕ FATAL EXCEPTION: main
+    java.util.concurrent.RejectedExecutionException: Task xh@42ad27f0 rejected from java.util.concurrent.ThreadPoolExecutor@423605d0[Shutting down, pool size = 1, active threads = 1, queued tasks = 0, completed tasks = 0]
+            at java.util.concurrent.ThreadPoolExecutor$AbortPolicy.rejectedExecution(ThreadPoolExecutor.java:1979)
+            at java.util.concurrent.ThreadPoolExecutor.reject(ThreadPoolExecutor.java:786)
+            at java.util.concurrent.ThreadPoolExecutor.execute(ThreadPoolExecutor.java:1307)
+                     */
                     Log.xd(AbstractRequestManager.this, "stop from run");
                 }
             }
