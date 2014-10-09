@@ -252,7 +252,18 @@ public class Core implements XCoreHelper.IAppServiceKey {
             if (dataSourceListener != null) {
                 dataSourceListener.onDone(bundle);
             }
-            sendResult(bundle, result, executeOperation, false);
+            final Uri uri = executeOperation.getResultQueryUri();
+            if (uri == null) {
+                sendResult(bundle, result, executeOperation, false);
+                return result;
+            }
+            final Cursor cursor = mContext.getContentResolver().query(uri, null, null, executeOperation.getSelectionArgs(), null);
+            if (cursor != null) {
+                cursor.getCount();
+            }
+            if (!sendResult(bundle, cursor, executeOperation, false)) {
+                CursorUtils.close(cursor);
+            }
             return result;
         } catch (Exception e) {
             sendOnErrorEvent(e, dataSourceListener);

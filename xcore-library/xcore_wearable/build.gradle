@@ -31,7 +31,7 @@ dependencies {
     compile 'com.android.support:support-v4:20.0.0'
     compile 'com.google.android.gms:play-services-wearable:5.0.77'
     //compile project(':xcore')
-    compile project(':android_xcore:xcore-library:xcore')
+    compile project(':module_android_xcore:xcore-library:xcore')
 }
 
 task clearJar(type: Delete) {
