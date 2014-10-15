@@ -82,7 +82,9 @@ public class DataSourceService extends AbstractExecutorService {
             return;
         }
         try {
+            Log.startAction("execute_processor_"+processorKey);
             execute(this, isCacheable, processorKey, dataSourceKey, dataSourceRequest, bundle, cacheRequestResult);
+            Log.endAction("execute_processor_"+processorKey);
             if (isExecuteJoinedRequestsSuccessful(runnable, intent, dataSourceRequest, bundle)) {
                 if (cacheRequestResult.isDataSourceCached()) {
                     runnable.sendStatus(StatusResultReceiver.Status.CACHED, bundle);
