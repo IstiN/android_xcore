@@ -14,7 +14,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import by.istin.android.xcore.annotations.Config;
 import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
@@ -79,7 +78,11 @@ public class DBHelper {
         }
     }
 
-    public static ITableNameGenerator sTableNameGenerator = new Xcore2TableNameGenerator();
+    private static ITableNameGenerator sTableNameGenerator = new Xcore2TableNameGenerator();
+
+    public static void setTableNameGenerator(ITableNameGenerator tableNameGenerator) {
+        sTableNameGenerator = tableNameGenerator;
+    }
 
     public DBHelper(IDBConnector dbConnector) {
         super();

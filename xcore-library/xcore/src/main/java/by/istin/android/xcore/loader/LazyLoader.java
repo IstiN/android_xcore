@@ -12,6 +12,8 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ExecutorService;
 
 import by.istin.android.xcore.loader.assist.LazyExecutorService;
+import by.istin.android.xcore.utils.Log;
+import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class LazyLoader<View, Params, Result> {
 
@@ -35,8 +37,15 @@ public abstract class LazyLoader<View, Params, Result> {
 
         @Override
         public boolean equals(Object o) {
-            Listener<View, Params, Result> oCallback = ((BindParam) o).doneCallback;
-            Params oParams = ((BindParam) o).params;
+            if (o == null) {
+                return false;
+            }
+            if (getClass() != o.getClass()) {
+                return false;
+            }
+            BindParam bindParam = (BindParam) o;
+            Listener<View, Params, Result> oCallback = bindParam.doneCallback;
+            Params oParams = bindParam.params;
             return oCallback.equals(doneCallback) && oParams.equals(params);
         }
 
@@ -119,6 +128,7 @@ public abstract class LazyLoader<View, Params, Result> {
                                 cancel(storedBindParam.params);
                             } catch (Throwable throwable) {
                                 //do we realy need this?
+                                Log.e("LazyLoader", throwable);
                             }
                         }
                     });

@@ -76,15 +76,17 @@ public class ReflectUtils {
 
         private final Object lock = new Object();
 
-        private List<XField> listFields;
+        private volatile List<XField> listFields;
 
         private final Map<XClass, Holder> instancesOfInterface = new ConcurrentHashMap<XClass, Holder>();
 
         public List<XField> getFields() {
-            if (listFields == null) {
+            List<XField> result = listFields;
+            if (result == null) {
                 synchronized (lock) {
-                    if (listFields == null) {
-                        listFields = new ArrayList<XField>();
+                    result = listFields;
+                    if (result == null) {
+                        listFields = result = new ArrayList<XField>();
                         Field[] fields = clazz.getFields();
                         for (Field field : fields) {
                             Annotation[] annotations = field.getAnnotations();
@@ -92,16 +94,16 @@ public class ReflectUtils {
                                 //we need be sure that all sub entities insert after parent
                                 XField xField = new XField(field);
                                 if (ReflectUtils.isAnnotationPresent(xField, dbEntity.class) || ReflectUtils.isAnnotationPresent(xField, dbEntities.class)) {
-                                    listFields.add(xField);
+                                    result.add(xField);
                                 } else {
-                                    listFields.add(0, xField);
+                                    result.add(0, xField);
                                 }
                             }
                         }
                     }
                 }
             }
-            return listFields;
+            return result;
         }
 
         public <T> T getInstanceInterface(Class<T> interfaceTargetClazz) {
@@ -131,7 +133,7 @@ public class ReflectUtils {
                 }
                 return result.get();
             } catch (Exception e) {
-                return null;
+                throw new IllegalArgumentException(e);
             }
         }
 

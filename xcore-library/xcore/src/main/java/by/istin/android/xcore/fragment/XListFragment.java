@@ -478,11 +478,7 @@ public abstract class XListFragment extends AdapterViewFragment
 
     public void handleException(Exception exception, DataSourceRequest dataSourceRequest, FragmentActivity activity) {
         IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
-        if (errorHandler != null) {
-            errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
-        } else {
-            Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-        }
+        errorHandler.onError(activity, XListFragment.this, dataSourceRequest, exception);
     }
 
     protected ViewBinder getAdapterViewBinder() {
@@ -665,8 +661,8 @@ public abstract class XListFragment extends AdapterViewFragment
 
     }
 
-    protected boolean isForceUpdateData() {
-		return false;
+    public boolean isForceUpdateData() {
+		return true;
 	}
 
 	@Override

@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 
-@Target(value=ElementType.FIELD)
-@Retention(value= RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface dbLong {
 
     Config value() default @Config(dbType = Config.DBType.LONG, transformer = Transformer.class);

@@ -106,7 +106,7 @@ public class PreferenceHelper {
 	public static void set(String key, byte[] byteArray) {
 		Editor editor = editor();
 		if (byteArray != null) {
-			editor.putString(key, new String(byteArray));
+			editor.putString(key, StringUtil.newString(byteArray));
 		} else {
 			editor.putString(key, null);
 		}
@@ -121,7 +121,7 @@ public class PreferenceHelper {
 		if (value == null) {
 			return defValue;
 		}
-		return value.getBytes();
+		return StringUtil.getBytes(value);
 	}
 	
 	public static void set(String key, Bundle bundle) {
@@ -137,7 +137,7 @@ public class PreferenceHelper {
 		if (value == null) {
 			return bundle;
 		}
-		return BytesUtils.bundleFromByteArray(value.getBytes());
+		return BytesUtils.bundleFromByteArray(StringUtil.getBytes(value));
 	}
 
     public static String[] getStringArray(String key, String[] defValue) {

@@ -176,6 +176,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
 				postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, UTF_8));
 			} catch (UnsupportedEncodingException e) {
 				// can be ignored
+                Log.e("HttpAndroidDataSource", e);
 			}
 		}
 

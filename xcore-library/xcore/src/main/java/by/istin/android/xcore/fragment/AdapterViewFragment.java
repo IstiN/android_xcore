@@ -1,4 +1,4 @@
-/*
+    /*
  * Copyright (C) 2011 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -359,9 +359,9 @@ public class AdapterViewFragment extends Fragment {
                         + "that is not a ListView class");
             }
             mAdapterView = (AdapterView)rawListView;
-            if (mEmptyView != null) {
+            /*if (mEmptyView != null) {
                 //TODO mAdapterView.setEmptyView(mEmptyView);
-            } else if (mEmptyText != null) {
+            } else */if (mEmptyText != null) {
                 mStandardEmptyView.setText(mEmptyText);
                 //TODO mAdapterView.setEmptyView(mStandardEmptyView);
             }

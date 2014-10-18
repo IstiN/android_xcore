@@ -11,8 +11,8 @@ import by.istin.android.xcore.utils.StringUtil;
 /**
  * Config annotation used for configuration db* annotation during data parsing to db.
  */
-@Target(value=ElementType.METHOD)
-@Retention(value= RetentionPolicy.RUNTIME)
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface Config {
 
     /**
@@ -29,7 +29,7 @@ public @interface Config {
     }
 
     /**
-     * Returns dbType
+     * Returns dbType.
      * @return dbType of data element that will be insert to DB.
      */
     DBType dbType();
@@ -41,15 +41,16 @@ public @interface Config {
     String key() default StringUtil.EMPTY;
 
     /**
-     * Transformer used for extends parsing logic. Like join sub elements to one entity or add some magic to the parsing
+     * Transformer used for extends parsing logic. Like join sub elements to one entity or add some magic
+     * to the parsing.
      * @return DefaultTransformer by default. If you need some special implements Transformer interface
      */
     Class<? extends Transformer> transformer() default DefaultTransformer.class;
 
     /**
-     * Transformer interface provides functionality to customize parsing logic
+     * Transformer interface provides functionality to customize parsing logic.
      */
-    public static interface Transformer<Meta> {
+    public interface Transformer<Meta> {
 
         /**
          * Returns element separator for parsing data like
@@ -63,31 +64,34 @@ public @interface Config {
          *                  }
          *          }
          *     }
-         * </code>
+         * </code>.
          * @return  String value in DefaultTransformer this is ":"
          */
-        public String subElementSeparator();
+        String subElementSeparator();
 
 
         /**
-         * If your dataArray contains only one element you can set this flag to "true" and use @dbEntity annotation to parse this element
+         * If your dataArray contains only one element you can set this flag to "true" and
+         * use @dbEntity annotation to parse this element.
          * @return true or false, in the DefaultTransformer true
          */
-        public boolean isFirstObjectForArray();
+        boolean isFirstObjectForArray();
 
         /**
-         * You can specify parsing by your needs. Default implementation of converter you can see in the db* annotations.
+         * You can specify parsing by your needs. Default implementation of converter
+         * you can see in the db* annotations.
          * @return IConverter implementation that convert data element to the DBType
          */
-        public IConverter<Meta> converter();
+        IConverter<Meta> converter();
     }
 
-    public static class DefaultTransformer extends AbstractTransformer<Object>{
+    public static class DefaultTransformer extends AbstractTransformer<Object> {
 
         @Override
         public IConverter<Object> converter() {
             return null;
         }
+
     }
     /**
      * Default transformer uses in most cases to transform data elements to the DB ContentValues.
@@ -96,13 +100,13 @@ public @interface Config {
     public abstract static class AbstractTransformer<Meta> implements Transformer<Meta> {
 
         /**
-         * Default separator for sub elements ignoring ":"
+         * Default separator for sub elements ignoring ":".
          */
         public static final String SEPARATOR = ":";
 
         /**
-         * Returns sub element separator
-         * @return ":"
+         * Returns sub element separator.
+         * @return default ":"
          */
         @Override
         public String subElementSeparator() {
@@ -110,7 +114,7 @@ public @interface Config {
         }
 
         /**
-         * By default if we will use @dbEntity annotation and will have dataArray it will be parsed like @dbEntity
+         * By default if we will use @dbEntity annotation and will have dataArray it will be parsed like @dbEntity.
          * @return true
          */
         @Override

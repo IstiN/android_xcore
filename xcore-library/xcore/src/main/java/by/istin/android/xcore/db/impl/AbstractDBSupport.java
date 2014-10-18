@@ -20,7 +20,7 @@ import by.istin.android.xcore.utils.ReflectUtils;
 public abstract class AbstractDBSupport implements IDBSupport {
 
     //we need only one instance of helper
-    private static DBHelper sDbHelper;
+    private volatile static DBHelper sDbHelper;
 
     private static final Object sLock = new Object();
 
@@ -38,19 +38,24 @@ public abstract class AbstractDBSupport implements IDBSupport {
     @Override
     public void create(Context context, Class<?>[] entities) {
         getOrCreateDBHelper(context);
-        mEntities = entities;
+        if (entities != null) {
+            mEntities = entities.clone();
+        } else {
+            mEntities = null;
+        }
     }
 
     public DBHelper getOrCreateDBHelper(Context context) {
-        if (sDbHelper != null) {
-            return sDbHelper;
-        }
-        synchronized (sLock) {
-            if (sDbHelper == null) {
-                sDbHelper = new DBHelper(createConnector(context));
+        DBHelper result = sDbHelper;
+        if (result == null) {
+            synchronized (sLock) {
+                result = sDbHelper;
+                if (result == null) {
+                    sDbHelper = result = new DBHelper(createConnector(context));
+                }
             }
         }
-        return sDbHelper;
+        return result;
     }
 
     @Override

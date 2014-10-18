@@ -21,14 +21,18 @@ public class Log {
 
 	private static final String MANIFEST_METADATA_LOG_KEY = "log";
 
-	public enum Level {
+    public enum Level {
 		INFO, DEBUG, ERROR, WARNING, OFF
 	}
 	
-	public static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR, Level.WARNING};
+	private static Level[] level = new Level[]{Level.INFO, Level.DEBUG, Level.ERROR, Level.WARNING};
 	
-	public static boolean isOff = false;
-	
+	private static boolean isOff = false;
+
+    public static boolean isOff() {
+        return isOff;
+    }
+
 	public static synchronized void init(Context context) {
 		String logLevel = ManifestMetadataUtils.getString(context, MANIFEST_METADATA_LOG_KEY);
 		if (logLevel == null || logLevel.length() == 0) {
@@ -50,6 +54,10 @@ public class Log {
 			}
 		}
 	}
+
+    public static void setOff(boolean isOffValue) {
+        isOff = isOffValue;
+    }
 	
 	private static boolean need(Level lev) {
 		if (isOff) {

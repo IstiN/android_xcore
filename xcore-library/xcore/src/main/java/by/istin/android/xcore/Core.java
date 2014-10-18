@@ -118,7 +118,11 @@ public class Core implements XCoreHelper.IAppServiceKey {
         }
 
         public ExecuteOperationBuilder setSelectionArgs(String[] selectionArgs) {
-            this.mSelectionArgs = selectionArgs;
+            if (selectionArgs != null) {
+                this.mSelectionArgs = selectionArgs.clone();
+            } else {
+                this.mSelectionArgs = null;
+            }
             return this;
         }
 
@@ -202,6 +206,10 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
     public Core(Context context) {
         mContext = context;
+    }
+
+    public Context getContext() {
+        return mContext;
     }
 
     public static Core get(Context context) {

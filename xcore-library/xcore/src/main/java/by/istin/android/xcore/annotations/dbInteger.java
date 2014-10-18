@@ -12,8 +12,8 @@ import java.lang.annotation.Target;
 import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 
-@Target(value=ElementType.FIELD)
-@Retention(value= RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface dbInteger {
 
     Config value() default @Config(dbType = Config.DBType.INTEGER, transformer = Transformer.class);
@@ -23,7 +23,12 @@ public @interface dbInteger {
         public static final IConverter<GsonConverter.Meta> CONVERTER = new GsonConverter() {
 
             @Override
-            public void convert(ContentValues contentValues, String fieldValue, Object parent, GsonConverter.Meta meta) {
+            public void convert(
+                    ContentValues contentValues,
+                    String fieldValue,
+                    Object parent,
+                    GsonConverter.Meta meta
+            ) {
                 JsonElement jsonValue = meta.getJsonElement();
                 if (!jsonValue.isJsonPrimitive()) {
                     return;

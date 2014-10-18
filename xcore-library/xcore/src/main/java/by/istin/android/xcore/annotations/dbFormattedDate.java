@@ -15,8 +15,8 @@ import by.istin.android.xcore.annotations.converter.IConverter;
 import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.utils.ReflectUtils;
 
-@Target(value=ElementType.FIELD)
-@Retention(value= RetentionPolicy.RUNTIME)
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
 public @interface dbFormattedDate {
 
     Config value() default @Config(dbType = Config.DBType.LONG, transformer = Transformer.class);

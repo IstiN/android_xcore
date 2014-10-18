@@ -215,11 +215,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
                     return;
                 }
                 IErrorHandler errorHandler = AppUtils.get(activity, IErrorHandler.SYSTEM_SERVICE_KEY);
-                if (errorHandler != null) {
-                    errorHandler.onError(activity, XFragment.this, dataSourceRequest, exception);
-                } else {
-                    Toast.makeText(activity, exception.getMessage(), Toast.LENGTH_SHORT).show();
-                }
+                errorHandler.onError(activity, XFragment.this, dataSourceRequest, exception);
                 hideProgress();
             }
 

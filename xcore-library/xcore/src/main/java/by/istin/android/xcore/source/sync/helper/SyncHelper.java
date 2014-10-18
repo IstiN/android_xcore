@@ -58,6 +58,7 @@ public class SyncHelper implements ISyncHelper {
         try {
 		    am.addAccountExplicitly(account, null, null);
         } catch (SecurityException ex) {
+            Log.e("SyncHelper", ex);
             //TODO handle
         }
 	}
@@ -88,6 +89,7 @@ public class SyncHelper implements ISyncHelper {
         try {
 		    am.addAccountExplicitly(account, null, null);
         } catch (SecurityException ex) {
+            Log.e("SyncHelper", ex);
             //TODO handle
         }
 	}
