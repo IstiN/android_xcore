@@ -315,7 +315,7 @@ public class UiUtil {
     @TargetApi(Build.VERSION_CODES.L)
     public static void setViewName(View view, String viewName) {
         if (hasL()) {
-            view.setViewName(viewName);
+            //TODO view.setViewName(viewName);
         }
     }
 
