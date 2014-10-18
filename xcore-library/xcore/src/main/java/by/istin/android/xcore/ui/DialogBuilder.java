@@ -39,7 +39,9 @@ public class DialogBuilder {
 	private static int getTheme() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return android.R.style.Theme_Dialog;
-		} else if (Build.VERSION.SDK_INT < ANDROID_L) {
+		} else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT_WATCH ) {
+            return android.R.style.Theme_DeviceDefault_Dialog;
+        } else if (Build.VERSION.SDK_INT < ANDROID_L) {
 			return android.R.style.Theme_Holo_Light_Dialog;
 		} else {
             try {

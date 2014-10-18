@@ -7,11 +7,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.v4.app.FragmentActivity;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import by.istin.android.xcore.callable.ISuccess;
+import by.istin.android.xcore.fragment.XListFragment;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
@@ -87,6 +89,30 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         private Core.SimpleDataSourceServiceListener mDataSourceServiceListener;
 
+        public ExecuteOperationBuilder() {
+
+        }
+        public ExecuteOperationBuilder(IExecuteOperation executeOperation) {
+            mDataSourceRequest = executeOperation.getDataSourceRequest();
+            mProcessorKey = executeOperation.getProcessorKey();
+            mDataSourceKey = executeOperation.getDataSourceKey();
+            mResultQueryUri = executeOperation.getResultQueryUri();
+            mActivity = executeOperation.getActivity();
+            mSuccess = executeOperation.getSuccess();
+            mSelectionArgs = executeOperation.getSelectionArgs();
+            mCursorModelCreator = executeOperation.getCursorModelCreator();
+            mDataSourceServiceListener = executeOperation.getDataSourceListener();
+        }
+
+        public ExecuteOperationBuilder(FragmentActivity activity, XListFragment fragment) {
+            setDataSourceKey(fragment.getDataSourceKey())
+            .setProcessorKey(fragment.getProcessorKey())
+            .setActivity(activity)
+            .setCursorModelCreator(fragment.getCursorModelCreator())
+            .setResultQueryUri(fragment.getUri())
+            .setSelectionArgs(fragment.getSelectionArgs())
+            .setDataSourceRequest(fragment.createDataSourceRequest(fragment.getUrl(), fragment.isForceUpdateData(), null));
+        }
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
             return this;
@@ -226,7 +252,18 @@ public class Core implements XCoreHelper.IAppServiceKey {
             if (dataSourceListener != null) {
                 dataSourceListener.onDone(bundle);
             }
-            sendResult(bundle, result, executeOperation, false);
+            final Uri uri = executeOperation.getResultQueryUri();
+            if (uri == null) {
+                sendResult(bundle, result, executeOperation, false);
+                return result;
+            }
+            final Cursor cursor = mContext.getContentResolver().query(uri, null, null, executeOperation.getSelectionArgs(), null);
+            if (cursor != null) {
+                cursor.getCount();
+            }
+            if (!sendResult(bundle, cursor, executeOperation, false)) {
+                CursorUtils.close(cursor);
+            }
             return result;
         } catch (Exception e) {
             sendOnErrorEvent(e, dataSourceListener);
@@ -321,7 +358,9 @@ public class Core implements XCoreHelper.IAppServiceKey {
     private void sendResult(IExecuteOperation<?> executeOperation, Object result, ISuccess success, Bundle resultData) {
         CursorModel.CursorModelCreator cursorModelCreator = executeOperation.getCursorModelCreator();
         if (cursorModelCreator != null && result instanceof Cursor) {
-            success.success(cursorModelCreator.create((Cursor) result));
+            CursorModel cursorModel = cursorModelCreator.create((Cursor) result);
+            cursorModel.doInBackground(ContextHolder.get());
+            success.success(cursorModel);
         } else {
             success.success(result);
         }

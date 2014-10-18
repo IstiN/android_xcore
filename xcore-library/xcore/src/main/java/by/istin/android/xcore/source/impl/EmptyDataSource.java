@@ -17,7 +17,7 @@ import by.istin.android.xcore.utils.Holder;
  */
 public class EmptyDataSource implements IDataSource<Object> {
 
-	public static final String SYSTEM_SERVICE_KEY = "xcore:emptydatasource";
+	public static final String APP_SERVICE_KEY = "xcore:emptydatasource";
 
 	@Override
 	public Object getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
@@ -26,7 +26,7 @@ public class EmptyDataSource implements IDataSource<Object> {
 
 	@Override
 	public String getAppServiceKey() {
-		return SYSTEM_SERVICE_KEY;
+		return APP_SERVICE_KEY;
 	}
 	
 }

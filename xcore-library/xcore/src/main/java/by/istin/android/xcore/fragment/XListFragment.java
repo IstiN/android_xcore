@@ -422,11 +422,11 @@ public abstract class XListFragment extends AdapterViewFragment
         return this;
     }
 
-    protected abstract String[] getAdapterColumns();
+    public abstract String[] getAdapterColumns();
 
-	protected abstract int[] getAdapterControlIds();
+    public abstract int[] getAdapterControlIds();
 
-	protected abstract int getAdapterLayout();
+    public abstract int getAdapterLayout();
 
 	protected boolean setAdapterViewImage(ImageView v, String value) {
         //plugins
