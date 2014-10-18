@@ -33,21 +33,18 @@ public class DialogBuilder {
 	private static final String CANCEL = "cancel";
 	
 	private static final String TAG = DialogBuilder.class.getSimpleName();
-    public static final int ANDROID_L = 10000;
 
-    @TargetApi(value = ANDROID_L)
+    @TargetApi(value = Build.VERSION_CODES.LOLLIPOP)
 	private static int getTheme() {
 		if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
 			return android.R.style.Theme_Dialog;
 		} else if (Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT_WATCH ) {
             return android.R.style.Theme_DeviceDefault_Dialog;
-        } else if (Build.VERSION.SDK_INT < ANDROID_L) {
+        } else if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
 			return android.R.style.Theme_Holo_Light_Dialog;
 		} else {
             try {
-                Class c =  Class.forName("com.startpage.mobile.R$style");
-                Field field = c.getDeclaredField("Theme_Material_Light_Dialog");
-                return (Integer)field.get(null);
+                return android.R.style.Theme_Material_Light_Dialog;
             } catch (Exception e) {
                 return android.R.style.Theme_Holo_Light_Dialog;
             }
@@ -136,7 +133,9 @@ public class DialogBuilder {
 
     public static void applyBackground(AlertDialog alertDialog) {
         if (Build.VERSION.SDK_INT > 10) {
-            alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            if (!UiUtil.hasL()) {
+                alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+            }
         }
     }
 

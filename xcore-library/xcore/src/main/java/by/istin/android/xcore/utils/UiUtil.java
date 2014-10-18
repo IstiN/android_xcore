@@ -235,7 +235,7 @@ public class UiUtil {
     }
 
     public static boolean hasL() {
-        return VERSION.CODENAME.equalsIgnoreCase("L");
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
     public static boolean hasHoneycombMR1() {
