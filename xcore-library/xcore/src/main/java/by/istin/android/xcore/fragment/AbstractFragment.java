@@ -1,6 +1,8 @@
 package by.istin.android.xcore.fragment;
 
+import android.app.Activity;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +25,15 @@ public abstract class AbstractFragment extends Fragment {
 
     public void onViewCreated(View view) {
 
+    }
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        IFragmentViewCreated fragmentViewCreated = findFirstResponderFor(IFragmentViewCreated.class);
+        if (fragmentViewCreated != null) {
+            fragmentViewCreated.onFragmentViewCreated(this);
+        }
     }
 
     public abstract int getViewLayout();

@@ -17,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
@@ -111,8 +110,17 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
         return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
 	}
-	
-	@Override
+
+    @Override
+    public void onViewCreated(View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        IFragmentViewCreated fragmentViewCreated = findFirstResponderFor(IFragmentViewCreated.class);
+        if (fragmentViewCreated != null) {
+            fragmentViewCreated.onFragmentViewCreated(this);
+        }
+    }
+
+    @Override
 	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
