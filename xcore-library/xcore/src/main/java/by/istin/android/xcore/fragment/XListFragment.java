@@ -512,13 +512,17 @@ public abstract class XListFragment extends AdapterViewFragment
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
 		if (CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState)) {
             setLoaderWork(true, LOADER_PRIORITY_HIGH);
         }
 		String url = getUrl();
-        loadData(getActivity(), url, isForceUpdateData(), null);
+        loadData(activity, url, isForceUpdateData(), null);
         //plugins
-        List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
+        List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
             for(IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onActivityCreated(this, savedInstanceState);
