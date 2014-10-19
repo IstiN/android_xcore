@@ -192,13 +192,17 @@ public class AdapterViewFragment extends Fragment {
         boolean hadAdapter = mAdapter != null;
         mAdapter = adapter;
         if (mAdapterView != null) {
-            mAdapterView.setAdapter(adapter);
+            setAdapterToAdapterView(adapter);
             if (!mListShown && !hadAdapter) {
                 // The list was hidden, and previously didn't have an
                 // adapter.  It is now time to show it.
                 setListShown(true, getView().getWindowToken() != null);
             }
         }
+    }
+
+    protected void setAdapterToAdapterView(ListAdapter adapter) {
+        mAdapterView.setAdapter(adapter);
     }
 
     /**
@@ -351,7 +355,7 @@ public class AdapterViewFragment extends Fragment {
             }
             mProgressContainer = root.findViewById(INTERNAL_PROGRESS_CONTAINER_ID);
             mAdapterViewContainer = root.findViewById(INTERNAL_LIST_CONTAINER_ID);
-            View rawListView = root.findViewById(android.R.id.list);
+            View rawListView = initAdapterView(root);
             if (!(rawListView instanceof AdapterView)) {
                 if (rawListView == null) {
                     throw new RuntimeException(
@@ -384,6 +388,10 @@ public class AdapterViewFragment extends Fragment {
             }
         }
         mHandler.post(mRequestFocus);
+    }
+
+    protected View initAdapterView(View root) {
+        return root.findViewById(android.R.id.list);
     }
 
     protected <T> T findFirstResponderFor(Class<T> clazz) {

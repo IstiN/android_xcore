@@ -946,7 +946,7 @@ public abstract class XListFragment extends AdapterViewFragment
         checkStatus("onCursorLoaderStopLoading");
     }
 
-    private class DefaultAdapter extends SimpleCursorAdapter implements ISetViewBinder {
+    protected class DefaultAdapter extends SimpleCursorAdapter implements ISetViewBinder {
 
         public DefaultAdapter(FragmentActivity activity, int adapterLayout, Cursor cursor, String[] adapterColumns, int[] adapterControlIds) {
             super(activity, adapterLayout, cursor, adapterColumns, adapterControlIds, 2);
