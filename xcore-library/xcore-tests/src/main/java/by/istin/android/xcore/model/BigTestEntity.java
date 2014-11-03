@@ -3,6 +3,8 @@ package by.istin.android.xcore.model;
 import android.content.ContentValues;
 import android.provider.BaseColumns;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.UUID;
 
 import by.istin.android.xcore.annotations.dbBoolean;

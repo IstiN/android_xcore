@@ -16,6 +16,7 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class AbstractTestProcessor<A extends Application> extends ApplicationTestCase<A> {
@@ -123,7 +124,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
     public Object testExecute(Context context, String processorKey, String feedUri) throws Exception {
         IProcessor processor = (IProcessor) AppUtils.get(context, processorKey);
         DataSourceRequest dataSourceRequest = new DataSourceRequest(feedUri);
-        InputStream inputStream = testDataSource.getSource(dataSourceRequest);
+        InputStream inputStream = testDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
         Object executeResult = processor.execute(dataSourceRequest, testDataSource, inputStream);
         processor.cache(context, dataSourceRequest, executeResult);
         return executeResult;
