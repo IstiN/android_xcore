@@ -64,12 +64,12 @@ public class CursorLoaderFragmentHelper {
 		Activity activity = cursorLoaderFragment.getActivity();
 		if (activity instanceof FragmentActivity && cursorLoaderFragment.getUri() != null) {
             LoaderManager lm = cursorLoaderFragment.getSupportLoaderManager();
-            if (lm == null && cursorLoaderFragment instanceof FragmentActivity) {
-                lm = ((FragmentActivity) activity).getSupportLoaderManager();
-            } else {
-                Log.xe("lm", "loader manager is not specified");
+            if (lm == null) {
+                if (cursorLoaderFragment instanceof FragmentActivity) {
+                    lm = ((FragmentActivity) activity).getSupportLoaderManager();
+                }
             }
-            Log.xd("lm", lm);
+            Log.xd(cursorLoaderFragment, lm);
             if (lm == null) {
                 throw new IllegalArgumentException("you need return LoaderManger from activity or fragment in the getSupportLoaderManager method");
             }
