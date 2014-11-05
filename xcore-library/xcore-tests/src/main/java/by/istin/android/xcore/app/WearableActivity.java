@@ -177,7 +177,7 @@ public class WearableActivity extends Activity implements DataApi.DataListener,
                     DataItem dataItem = event.getDataItem();
                     DataMapItem dataMapItem = DataMapItem.fromDataItem(dataItem);
                     if (event.getType() == DataEvent.TYPE_CHANGED) {
-                        if (dataItem.getUri().getLastPathSegment().equals(WearableContract.URI_SEGMENT)) {
+                        if (dataItem.getUri().getLastPathSegment().equals(WearableContract.URI_EXECUTE)) {
                             Toast.makeText(WearableActivity.this, "Got It!", Toast.LENGTH_SHORT).show();
                             mDataItemListAdapter.add(
                                     new Event("DataItem Xcore Changed", dataItem.toString()));

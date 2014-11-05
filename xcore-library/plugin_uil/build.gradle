@@ -6,7 +6,7 @@ repositories {
 
 android {
     compileSdkVersion 21
-    buildToolsVersion "21.0.1"
+    buildToolsVersion "21.0.2"
 
     defaultConfig {
         minSdkVersion 10
@@ -29,7 +29,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.+'
+    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
     compile project(':xcore')
 }
 

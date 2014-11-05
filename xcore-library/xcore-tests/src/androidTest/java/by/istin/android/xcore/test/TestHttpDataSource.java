@@ -9,6 +9,7 @@ import android.test.ApplicationTestCase;
 import android.util.Log;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.Holder;
 
 public class TestHttpDataSource extends ApplicationTestCase<Application> {
 
@@ -23,7 +24,7 @@ public class TestHttpDataSource extends ApplicationTestCase<Application> {
 	}
 
 	public void testLoad() throws Exception {
-		InputStream inputStream = new HttpAndroidDataSource().getSource(new DataSourceRequest("http://yandex.ru"));
+		InputStream inputStream = new HttpAndroidDataSource().getSource(new DataSourceRequest("http://yandex.ru"), new Holder<Boolean>(false));
 		BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream), 8192);
 		StringBuilder sb = new StringBuilder();
 		String line = null;

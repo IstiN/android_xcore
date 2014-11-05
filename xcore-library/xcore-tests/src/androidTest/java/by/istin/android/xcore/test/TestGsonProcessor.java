@@ -18,6 +18,7 @@ import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Holder;
 
 public class TestGsonProcessor extends ApplicationTestCase<Application> {
 
@@ -41,7 +42,7 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
 		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_object.json");
-		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest);
+		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
 		inputStream.close();
 	}
 	
@@ -49,7 +50,7 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
         ContextHolder.getInstance().setContext(getApplication());
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
 		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_array_big.json");
-		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest);
+		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
         IDBContentProviderSupport defaultDBContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), BigTestEntity.class, BigTestSubEntity.class);
         Uri testEntityUri = ModelContract.getUri(BigTestEntity.class);
         defaultDBContentProvider.delete(testEntityUri, null, null);

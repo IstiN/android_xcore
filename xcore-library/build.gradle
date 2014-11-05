@@ -6,7 +6,7 @@ buildscript {
 
     dependencies {
         classpath 'com.android.tools.build:gradle:0.13.2'
-        classpath 'com.github.nrudenko:gradle-android-cq-plugin:0.1+'
+ //       classpath 'com.github.nrudenko:gradle-android-cq-plugin:0.1+'
     }
 }
 allprojects {
@@ -14,17 +14,3 @@ allprojects {
         jcenter()
     }
 }
-/*def isReleaseBuild() {
-    return version.contains("SNAPSHOT") == false
-}
-
-allprojects {
-    version = VERSION_NAME
-    group = GROUP
-
-    repositories {
-        mavenCentral()
-    }
-}*/
-
-//apply plugin: 'android-reporting'

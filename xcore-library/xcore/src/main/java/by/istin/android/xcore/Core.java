@@ -312,7 +312,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 if (dataSourceListener != null) {
                     dataSourceListener.onCached(resultData);
                 }
-                onDone(resultData);
+                //onDone(resultData);
             }
 
             @Override

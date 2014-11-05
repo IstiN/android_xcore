@@ -101,15 +101,24 @@ public class DBHelper {
 	}
 
 	public synchronized void createTablesForModels(Class<?>... models) {
+        if (IS_LOG_ENABLED)
+            Log.xd(this, "mDbConnector.getWritableConnection()");
 		IDBConnection dbWriter = mDbConnector.getWritableConnection();
+        if (IS_LOG_ENABLED)
+            Log.xd(this, "dbWriter.beginTransaction();");
         dbWriter.beginTransaction();
         StringBuilder builder = new StringBuilder();
         for (Class<?> classOfModel : models) {
 			String table = getTableName(classOfModel);
             dbAssociationCache.setTableCreated(table, null);
-			dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table));
+            String createTableSQLTemplate = mDbConnector.getCreateTableSQLTemplate(table);
+            if (IS_LOG_ENABLED)
+                Log.xd(this, "dbWriter.execSQL(mDbConnector.getCreateTableSQLTemplate(table)); " + createTableSQLTemplate);
+            dbWriter.execSQL(createTableSQLTemplate);
             Cursor columns = null;
             try {
+                if (IS_LOG_ENABLED)
+                    Log.xd(this, "columns = dbWriter.query(table, null, null, null, null, null, null, \"0,1\");");
                 columns = dbWriter.query(table, null, null, null, null, null, null, "0,1");
                 List<ReflectUtils.XField> fields = ReflectUtils.getEntityKeys(classOfModel);
                 for (ReflectUtils.XField field : fields) {
@@ -151,6 +160,8 @@ public class DBHelper {
                         if (type == null) {
                             continue;
                         }
+                        if (IS_LOG_ENABLED)
+                            Log.xd(this, "dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));");
                         dbWriter.execSQL(mDbConnector.getCreateColumnSQLTemplate(table, name, type));
                     } catch (SQLException e) {
                         if (IS_LOG_ENABLED)
@@ -165,6 +176,8 @@ public class DBHelper {
             if (!StringUtil.isEmpty(sql)) {
                 try {
                     dbWriter.execSQL(sql);
+                    if (IS_LOG_ENABLED)
+                        Log.xd(this, "dbWriter.execSQL(sql);");
                 } catch (SQLException e) {
                     if (IS_LOG_ENABLED)
                     Log.w(TAG, e);

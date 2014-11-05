@@ -6,6 +6,7 @@ import java.io.InputStream;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.Holder;
 
 /**
  * Created by IstiN on 3.11.13.
@@ -13,7 +14,7 @@ import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 public class TestDataSource implements IDataSource<InputStream> {
 
     @Override
-    public InputStream getSource(DataSourceRequest dataSourceRequest) throws IOException {
+    public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
         String path = dataSourceRequest.getUri().split("\\?")[0];
         return getInputStream("assets/feeds/"+ path);
     }
