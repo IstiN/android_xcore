@@ -9,7 +9,9 @@ import android.provider.BaseColumns;
 
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
+import by.istin.android.xcore.utils.UiUtil;
 
 /**
  * Created with IntelliJ IDEA.
@@ -33,8 +35,12 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     public static final String CREATE_COLUMN_SQL = "ALTER TABLE %1$s ADD %2$s %3$s;";
 
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public SQLiteConnector(Context context) {
         super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+        if (UiUtil.hasJellyBean()) {
+            setWriteAheadLoggingEnabled(true);
+        }
     }
 
     @Override
@@ -48,7 +54,6 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     }
 
     @Override
-    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
         if (writableDatabase != null) {
@@ -63,26 +68,25 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     }
 
     @Override
-    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
     public SQLiteDatabase getReadableDatabase() {
         SQLiteDatabase readableDatabase = super.getReadableDatabase();
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
             readableDatabase.setLockingEnabled(false);
         }
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
+        /*if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
             readableDatabase.enableWriteAheadLogging();
-        }
+        }*/
         return readableDatabase;
     }
 
     @Override
     public IDBConnection getWritableConnection() {
-        return new SQLiteConnection(getReadableDatabase());
+        return new SQLiteConnection(getWritableDatabase());
     }
 
     @Override
     public IDBConnection getReadableConnection() {
-        return new SQLiteConnection(getWritableDatabase());
+        return new SQLiteConnection(getReadableDatabase());
     }
 
     @Override

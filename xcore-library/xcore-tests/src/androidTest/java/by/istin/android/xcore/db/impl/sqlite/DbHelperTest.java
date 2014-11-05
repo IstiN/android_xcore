@@ -11,6 +11,7 @@ import by.istin.android.xcore.model.BigTestEntity;
 import by.istin.android.xcore.model.BigTestSubEntity;
 import by.istin.android.xcore.test.db.MockStorage;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Log;
 
 public class DbHelperTest extends ApplicationTestCase<Application> {
 
@@ -62,11 +63,14 @@ public class DbHelperTest extends ApplicationTestCase<Application> {
     }
 
 	public void testBulkInsert() throws Exception {
+        Log.xd(this, "testBulkInsert");
         ContentValues[] contentValues = MockStorage.generateArray();
+        Log.xd(this, "createAndClearTables");
         createAndClearTables();
 
+        Log.xd(this, "dbHelper.updateOrInsert");
 		dbHelper.updateOrInsert(BigTestEntity.class, contentValues);
-
+        Log.xd(this, "checkResults");
         checkResults(MockStorage.SIZE);
 	}
 
@@ -81,8 +85,12 @@ public class DbHelperTest extends ApplicationTestCase<Application> {
     }
 
     private void createAndClearTables() {
+        Log.xd(this, "createAndClearTables");
+        Log.xd(this, "createTablesForModels");
         dbHelper.createTablesForModels(BigTestSubEntity.class, BigTestEntity.class);
+        Log.xd(this, "delete:BigTestSubEntity");
         dbHelper.delete(BigTestSubEntity.class, null, null);
+        Log.xd(this, "delete:BigTestEntity");
         dbHelper.delete(BigTestEntity.class, null, null);
     }
 

@@ -3,10 +3,12 @@ package by.istin.android.xcore.db.impl.sqlite;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.UiUtil;
 
 class SQLiteConnection implements IDBConnection {
 
@@ -45,7 +47,7 @@ class SQLiteConnection implements IDBConnection {
         try {
             cursor = mDatabase.query(SqliteMasterContract.TABLE_NAME,
                     new String[]{SqliteMasterContract.Columns.NAME},
-                    SqliteMasterContract.Columns.TYPE + "=? AND "+SqliteMasterContract.Columns.NAME+"=?",
+                    SqliteMasterContract.Columns.TYPE + "=? AND " + SqliteMasterContract.Columns.NAME + "=?",
                     new String[]{SqliteMasterContract.TYPE_TABLE, tableName},
                     null, null, null);
             isExists = !CursorUtils.isEmpty(cursor);
@@ -86,6 +88,7 @@ class SQLiteConnection implements IDBConnection {
     }
 
     @Override
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public void endTransaction() {
         mDatabase.endTransaction();
     }
