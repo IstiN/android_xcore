@@ -63,7 +63,9 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
     }
 
     private void handleException(Exception e) {
+        dismissProgress();
         Log.xe(this, e);
+        e.printStackTrace();
     }
 
     protected OAuth2Helper createOAuth2Helper() {

@@ -26,7 +26,9 @@ public class Configuration {
 
     private String grandTypeRefreshToken = "refresh_token";
 
-    public Configuration(String apiKey, String apiSecret, String redirectUrl, String tokenServerUrl, String authorizationServerUrl, boolean isSave, String preferenceKey) {
+    private String scope;
+
+    public Configuration(String apiKey, String apiSecret, String redirectUrl, String tokenServerUrl, String authorizationServerUrl, String scope, boolean isSave, String preferenceKey) {
         this.apiKey = apiKey;
         this.apiSecret = apiSecret;
         this.redirectUrl = redirectUrl;
@@ -34,6 +36,7 @@ public class Configuration {
         this.authorizationServerUrl = authorizationServerUrl;
         this.preferenceKey = preferenceKey;
         this.isSave = isSave;
+        this.scope = scope;
     }
 
     public String getApiKey() {
@@ -78,5 +81,9 @@ public class Configuration {
 
     public String getGrandTypeRefreshToken() {
         return grandTypeRefreshToken;
+    }
+
+    public String getScope() {
+        return scope;
     }
 }

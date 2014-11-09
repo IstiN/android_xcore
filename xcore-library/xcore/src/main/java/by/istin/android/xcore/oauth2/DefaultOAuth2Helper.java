@@ -34,7 +34,9 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
     public String getUrl() throws Exception {
         return UrlBuilder.uri(mConfiguration.getAuthorizationServerUrl()).
                 param("response_type", mConfiguration.getResponseType()).
-                param("client_id", mConfiguration.getApiKey()).build();
+                param("client_id", mConfiguration.getApiKey()).
+                param("redirect_uri", mConfiguration.getRedirectUrl()).
+                param("scope", mConfiguration.getScope()).build();
     }
 
     @Override
