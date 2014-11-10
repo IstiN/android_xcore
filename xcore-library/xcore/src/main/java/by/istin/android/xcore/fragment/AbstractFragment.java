@@ -1,12 +1,11 @@
 package by.istin.android.xcore.fragment;
 
-import android.app.Activity;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
 import by.istin.android.xcore.utils.ResponderUtils;
 
 /**
@@ -17,7 +16,7 @@ public abstract class AbstractFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View view = inflater.inflate(getViewLayout(), container, false);
+        final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
         onViewCreated(view);
         return view;
     }
