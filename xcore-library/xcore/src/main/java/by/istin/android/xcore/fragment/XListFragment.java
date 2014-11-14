@@ -664,7 +664,7 @@ public abstract class XListFragment extends AdapterViewFragment
     }
 
     public boolean isForceUpdateData() {
-		return true;
+		return false;
 	}
 
 	@Override
