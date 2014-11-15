@@ -534,7 +534,7 @@ public abstract class XListFragment extends AdapterViewFragment
         if (IS_CHECK_STATUS_LOG_ENABLED)
         Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
-        if (isPagingSupport()) {
+        if (isPagingSupport() && mEndlessScrollListener != null) {
             mEndlessScrollListener.currentPage = 0;
             mEndlessScrollListener.previousTotal = 0;
         }
