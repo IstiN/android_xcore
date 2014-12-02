@@ -12,6 +12,8 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 21
+        //versionName project.VERSION_NAME
+       // versionCode Integer.parseInt(project.VERSION_CODE)
     }
     buildTypes {
         release {
@@ -33,7 +35,6 @@ dependencies {
 task clearJar(type: Delete) {
     delete '../../../../download/xcore.jar'
 }
-
 
 task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')

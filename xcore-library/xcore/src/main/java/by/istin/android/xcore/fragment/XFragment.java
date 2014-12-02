@@ -41,7 +41,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = inflater.inflate(getViewLayout(), container, false);
+		final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
         onViewCreated(view);
 		return view;
 	}

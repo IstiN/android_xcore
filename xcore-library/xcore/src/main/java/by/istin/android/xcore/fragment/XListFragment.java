@@ -193,7 +193,7 @@ public abstract class XListFragment extends AdapterViewFragment
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = inflater.inflate(getViewLayout(), container, false);
+		final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
         onViewCreated(view);
 
         //plugins
@@ -664,7 +664,7 @@ public abstract class XListFragment extends AdapterViewFragment
     }
 
     public boolean isForceUpdateData() {
-		return true;
+		return false;
 	}
 
 	@Override
