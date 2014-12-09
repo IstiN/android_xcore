@@ -184,7 +184,11 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	}
 
     public void refresh() {
-        loadData(getActivity(), getUrl(), true);
+        refresh(getActivity());
+    }
+
+    public void refresh(Activity activity) {
+        loadData(activity, getUrl(), true);
     }
 
     protected void loadData(Activity activity, String url) {
