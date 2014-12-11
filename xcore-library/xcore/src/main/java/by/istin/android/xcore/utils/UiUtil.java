@@ -316,17 +316,6 @@ public class UiUtil {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.L)
-    public static void setViewName(View view, String viewName) {
-        if (hasL()) {
-            //TODO view.setViewName(viewName);
-        }
-    }
-
-    public static void setViewName(View rootView, int id, String viewName) {
-        setViewName(rootView.findViewById(id), viewName);
-    }
-
     private static final int[] RES_IDS_ACTION_BAR_SIZE = { android.R.attr.actionBarSize };
 
     public static int getActionBarSize(Activity context) {
@@ -358,7 +347,7 @@ public class UiUtil {
         return result;
     }
 
-    @TargetApi(Build.VERSION_CODES.L)
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public static void setElevation(View view, float value) {
         if (hasL()) {
             view.setClipToOutline(true);
