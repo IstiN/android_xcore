@@ -30,6 +30,10 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     public static interface CursorModelCreator {
 
+        public static interface NullSupport {
+
+        }
+
         CursorModel create(Cursor cursor);
 
         public static CursorModelCreator DEFAULT = new CursorModelCreator() {
@@ -60,7 +64,7 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     public CursorModel(Cursor cursor, boolean isMoveToFirst) {
         this.mCursor = cursor;
-        if (isMoveToFirst) {
+        if (isMoveToFirst && mCursor != null) {
             this.mCursor.moveToFirst();
         }
     }

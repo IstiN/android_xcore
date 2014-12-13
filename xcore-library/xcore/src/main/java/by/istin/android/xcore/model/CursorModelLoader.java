@@ -30,7 +30,7 @@ public class CursorModelLoader extends CursorLoader {
     @Override
     public Cursor loadInBackground() {
         Cursor cursor = super.loadInBackground();
-        if (cursor != null) {
+        if (cursor != null || mCursorModelCreator instanceof CursorModel.CursorModelCreator.NullSupport) {
             CursorModel cursorModel = mCursorModelCreator.create(cursor);
             cursor = cursorModel;
             cursorModel.doInBackground(getContext());
