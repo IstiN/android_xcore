@@ -250,6 +250,9 @@ public class CursorModel implements Cursor, List<Cursor> {
 
     @Override
     public boolean isClosed() {
+        if (mCursor == null) {
+            return true;
+        }
         return mCursor.isClosed();
     }
 
