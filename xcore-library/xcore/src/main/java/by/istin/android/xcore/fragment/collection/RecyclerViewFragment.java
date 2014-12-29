@@ -8,11 +8,13 @@ import android.view.View;
 import java.util.HashSet;
 import java.util.Set;
 
+import by.istin.android.xcore.model.CursorModel;
+
 /**
  * Created by IstiN on 21.12.2014.
  */
-public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, CollectionAdapter extends RecyclerView.Adapter<VH>>
-        extends AbstractCollectionFragment<RecyclerView, CollectionAdapter> {
+public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, CollectionAdapter extends RecyclerView.Adapter<VH>, Model extends CursorModel>
+        extends AbstractCollectionFragment<RecyclerView, CollectionAdapter, Model> {
 
     private class EndlessScrollListener extends RecyclerView.OnScrollListener {
 

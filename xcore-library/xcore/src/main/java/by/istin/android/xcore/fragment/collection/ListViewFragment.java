@@ -9,12 +9,13 @@ import java.util.HashSet;
 import java.util.Set;
 
 import by.istin.android.xcore.fragment.XListFragment;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.utils.Log;
 
 /**
  * Created by IstiN on 21.12.2014.
  */
-public abstract class ListViewFragment<CollectionAdapter extends ListAdapter> extends AbstractCollectionFragment<ListView, CollectionAdapter> {
+public abstract class ListViewFragment<CollectionAdapter extends ListAdapter, Model extends CursorModel> extends AbstractCollectionFragment<ListView, CollectionAdapter, Model> {
 
     private class EndlessScrollListener implements AbsListView.OnScrollListener {
 

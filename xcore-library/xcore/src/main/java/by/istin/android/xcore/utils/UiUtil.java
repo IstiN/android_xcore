@@ -7,6 +7,8 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Point;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.StateListDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -22,6 +24,7 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.TextView;
 
 import by.istin.android.xcore.ContextHolder;
 
@@ -376,5 +379,14 @@ public class UiUtil {
 
     public static int getDensity(Context context) {
         return context.getResources().getDisplayMetrics().densityDpi;
+    }
+
+    @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+    public static void setBackground(View view, Drawable drawable) {
+        if (hasJellyBean()) {
+            view.setBackground(drawable);
+        } else {
+            view.setBackgroundDrawable(drawable);
+        }
     }
 }

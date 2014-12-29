@@ -22,6 +22,10 @@ public class Configuration {
 
     private String grandType = "authorization_code";
 
+    public String getGrandType() {
+        return grandType;
+    }
+
     private HttpAndroidDataSource.DefaultHttpRequestBuilder.Type tokenRequestType = HttpAndroidDataSource.DefaultHttpRequestBuilder.Type.POST;
 
     private String grandTypeRefreshToken = "refresh_token";
@@ -86,4 +90,5 @@ public class Configuration {
     public String getScope() {
         return scope;
     }
+
 }

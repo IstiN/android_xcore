@@ -92,7 +92,7 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
             if (!isRefreshTokenExpired(mCredentials)) {
                 String tokenServerUrl = mConfiguration.getTokenServerUrl();
                 String tokenUrl = UrlBuilder.uri(tokenServerUrl).
-                        param("grant_type", mConfiguration.getGrandTypeRefreshToken()).
+                        param("grant_type", mCredentials == null ? mConfiguration.getGrandType() : mConfiguration.getGrandTypeRefreshToken()).
                         param("client_id", mConfiguration.getApiKey()).
                         param("client_secret", mConfiguration.getApiSecret()).
                         param("refresh_token", mCredentials.getRefreshToken()).build();

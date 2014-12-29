@@ -37,7 +37,7 @@ import by.istin.android.xcore.utils.UiUtil;
 /**
  * Created by IstiN on 21.12.2014.
  */
-public abstract class AbstractCollectionFragment<CollectionView, CollectionViewAdapter> extends AbstractFragment
+public abstract class AbstractCollectionFragment<CollectionView, CollectionViewAdapter, Model extends CursorModel> extends AbstractFragment
         implements IRefresh,
         CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper,
         IDataSourceHelper,
@@ -139,9 +139,9 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         return cursorLoader;
     }
 
-    public abstract CollectionViewAdapter createAdapter(FragmentActivity fragmentActivity, Cursor cursor);
+    public abstract CollectionViewAdapter createAdapter(FragmentActivity fragmentActivity, Model cursor);
     public abstract void setAdapter(CollectionView collectionView, CollectionViewAdapter collectionViewAdapter);
-    public abstract void swap(CollectionViewAdapter collectionViewAdapter, Cursor cursor);
+    public abstract void swap(CollectionViewAdapter collectionViewAdapter, Model cursor);
     protected abstract int getAdapterCount(CollectionViewAdapter listAdapter);
 
     @Override
@@ -152,11 +152,11 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             return;
         }
         if (adapter == null || !(adapter instanceof CursorAdapter)) {
-            mAdapter = createAdapter(activity, cursor);
+            mAdapter = createAdapter(activity, (Model)cursor);
             adapter = mAdapter;
             setAdapter(mCollectionView, adapter);
         } else {
-            swap(adapter, cursor);
+            swap(adapter, (Model)cursor);
         }
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -390,6 +390,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             if (IS_CHECK_STATUS_LOG_ENABLED)
                 Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
         }
+        swap(mAdapter, null);
         checkStatus("onLoaderReset");
     }
 
