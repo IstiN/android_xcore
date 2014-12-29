@@ -1,5 +1,6 @@
 package by.istin.android.xcore.fragment.collection;
 
+import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,6 +17,8 @@ import by.istin.android.xcore.model.CursorModel;
 public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, CollectionAdapter extends RecyclerView.Adapter<VH>, Model extends CursorModel>
         extends AbstractCollectionFragment<RecyclerView, CollectionAdapter, Model> {
 
+    private volatile boolean pagingLoading = false;
+
     private class EndlessScrollListener extends RecyclerView.OnScrollListener {
 
         private int visibleThreshold = 5;
@@ -23,8 +26,6 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
         private int currentPage = 0;
 
         private int previousTotal = 0;
-
-        private volatile boolean pagingLoading = false;
 
         public EndlessScrollListener() {
 
@@ -53,6 +54,14 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
             }
         }
 
+    }
+
+    @Override
+    public void onReceiverOnDone(Bundle resultData) {
+        super.onReceiverOnDone(resultData);
+        if (isPagingSupport()) {
+            pagingLoading = false;
+        }
     }
 
     private final Set<RecyclerView.OnScrollListener> onScrollListenerSet = new HashSet<>();

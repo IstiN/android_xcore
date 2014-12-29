@@ -151,7 +151,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         if (activity == null) {
             return;
         }
-        if (adapter == null || !(adapter instanceof CursorAdapter)) {
+        if (adapter == null) {
             mAdapter = createAdapter(activity, (Model)cursor);
             adapter = mAdapter;
             setAdapter(mCollectionView, adapter);
