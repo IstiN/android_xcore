@@ -50,11 +50,10 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
                 param("client_secret", mConfiguration.getApiSecret()).
                 param("redirect_uri", mConfiguration.getRedirectUrl()).
                 param("code", code).build();
-        Credentials credentials = getCredentials(tokenUrl);
-        return credentials;
+        return getCredentials(tokenUrl, null);
     }
 
-    public Credentials getCredentials(String tokenUrl) throws Exception {
+    public Credentials getCredentials(String tokenUrl, String refreshToken) throws Exception {
         String typeUrl = HttpAndroidDataSource.DefaultHttpRequestBuilder.getUrl(tokenUrl, mConfiguration.getTokenRequestType());
         DataSourceRequest dataSourceRequest = new DataSourceRequest(typeUrl);
         dataSourceRequest.setCacheable(false);
@@ -75,7 +74,13 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
         }.execute(dataSourceRequest, httpAndroidDataSource, source);
         if (mConfiguration.isSave()) {
             credentials.setSavedTime(System.currentTimeMillis());
+            if (refreshToken != null) {
+                credentials.setRefreshToken(refreshToken);
+            }
             PreferenceHelper.set(mConfiguration.getPreferenceKey(), credentials.toString());
+            if (mCredentials != null) {
+                mCredentials = credentials;
+            }
         }
         return credentials;
     }
@@ -85,20 +90,25 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
         if (mCredentials == null) {
             restore();
             if (mCredentials == null) {
-                throw new AuthorizationRequiredException();
+                throw new AuthorizationRequiredException("credentials is null");
             }
         }
         if (isExpired(mCredentials)) {
             if (!isRefreshTokenExpired(mCredentials)) {
                 String tokenServerUrl = mConfiguration.getTokenServerUrl();
-                String tokenUrl = UrlBuilder.uri(tokenServerUrl).
-                        param("grant_type", mCredentials == null ? mConfiguration.getGrandType() : mConfiguration.getGrandTypeRefreshToken()).
-                        param("client_id", mConfiguration.getApiKey()).
-                        param("client_secret", mConfiguration.getApiSecret()).
-                        param("refresh_token", mCredentials.getRefreshToken()).build();
-                mCredentials = getCredentials(tokenUrl);
+                String refreshToken = mCredentials.getRefreshToken();
+                if (refreshToken != null) {
+                    String tokenUrl = UrlBuilder.uri(tokenServerUrl).
+                            param("grant_type", mConfiguration.getGrandTypeRefreshToken()).
+                            param("client_id", mConfiguration.getApiKey()).
+                            param("client_secret", mConfiguration.getApiSecret()).
+                            param("refresh_token", refreshToken).build();
+                    mCredentials = getCredentials(tokenUrl, refreshToken);
+                } else {
+                    throw new AuthorizationRequiredException("refresh token is null");
+                }
             } else {
-                throw new AuthorizationRequiredException();
+                throw new AuthorizationRequiredException("refresh token expired");
             }
         }
         request.sign(request.getRequest(), "Authorization", "Bearer " + mCredentials.getAccessToken());

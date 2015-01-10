@@ -5,5 +5,7 @@ import java.io.IOException;
 public class AuthorizationRequiredException extends IOException {
 
 
-
+    public AuthorizationRequiredException(String detailMessage) {
+        super(detailMessage);
+    }
 }

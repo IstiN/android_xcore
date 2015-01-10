@@ -57,4 +57,8 @@ public class Credentials extends JSONModel {
     public void setSavedTime(long savedTimeInMillis) {
         set(SAVED_TIME, savedTimeInMillis);
     }
+
+    public void setRefreshToken(String refreshToken) {
+        set(REFRESH_TOKEN, refreshToken);
+    }
 }

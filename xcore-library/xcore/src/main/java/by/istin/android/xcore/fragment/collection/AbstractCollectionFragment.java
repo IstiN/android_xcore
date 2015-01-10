@@ -404,6 +404,8 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         return DateUtils.DAY_IN_MILLIS;
     }
 
+
+
     @Override
     public boolean isCacheable() {
         return true;
