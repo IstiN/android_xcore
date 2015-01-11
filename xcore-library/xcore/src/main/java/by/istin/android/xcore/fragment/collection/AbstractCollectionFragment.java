@@ -253,7 +253,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         }
         if (IS_CHECK_STATUS_LOG_ENABLED)
             Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " onActivityCreated ");
-        checkStatus("onActivityCreated");
+        //checkStatus("onActivityCreated");
     }
 
     public void refresh() {
