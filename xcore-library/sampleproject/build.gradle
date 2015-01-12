@@ -11,12 +11,11 @@ android {
     defaultConfig {
         minSdkVersion 10
         targetSdkVersion 21
-        testInstrumentationRunner 'by.istin.android.xcore.test.Runner'
     }
 }
 
 dependencies {
     compile project(':xcore')
-    compile project(':xcore_wearable')
-    wearApp project(':xcore-tests-wearable')
+    compile project(':plugin_uil')
+    compile 'com.android.support:appcompat-v7:21.0.3'
 }

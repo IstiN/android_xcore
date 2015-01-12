@@ -5,4 +5,5 @@ include ':xcore',
         ':plugin_pull_to_refresh',
         'plugin_pull_to_refresh:pull_to_refresh:library',
         ':xcore_wearable',
-        ':xcore-tests-wearable'
+        ':xcore-tests-wearable',
+	':sampleproject'
