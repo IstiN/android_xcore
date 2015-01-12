@@ -19,6 +19,8 @@ public class Credentials extends JSONModel {
 
     private static final String SAVED_TIME = "saved_time";
 
+    private static final String CODE = "code";
+
     public Credentials() {
     }
 
@@ -60,5 +62,13 @@ public class Credentials extends JSONModel {
 
     public void setRefreshToken(String refreshToken) {
         set(REFRESH_TOKEN, refreshToken);
+    }
+
+    public void setCode(String code) {
+        set(CODE, code);
+    }
+
+    public String getCode() {
+        return getString(CODE);
     }
 }
