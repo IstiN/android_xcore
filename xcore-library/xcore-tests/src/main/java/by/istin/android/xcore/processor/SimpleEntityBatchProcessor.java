@@ -3,6 +3,7 @@ package by.istin.android.xcore.processor;
 import android.content.ContentValues;
 
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.model.SimpleEntity;
 import by.istin.android.xcore.processor.impl.AbstractGsonBatchProcessor;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
@@ -28,7 +29,7 @@ public class SimpleEntityBatchProcessor extends AbstractGsonBatchProcessor<Conte
     @Override
     protected void onStartProcessing(DataSourceRequest dataSourceRequest, IDBConnection dbConnection) {
         if (dataSourceRequest.getParam("page").equals("1")) {
-            getHolderContext().getContentResolver().delete(ModelContract.getUri(SimpleEntity.class), null, null);
+            dbConnection.delete(DBHelper.getTableName(SimpleEntity.class), null, null);
         }
         super.onStartProcessing(dataSourceRequest, dbConnection);
     }

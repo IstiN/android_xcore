@@ -264,16 +264,19 @@ public class DBHelper {
 
 	public long updateOrInsert(DataSourceRequest dataSourceRequest, IDBConnection db, Class<?> classOfModel, ContentValues contentValues) {
 		boolean requestWithoutTransaction = false;
-		if (db == null) {
+        boolean isNewDbConnection = db == null;
+		if (isNewDbConnection) {
 			db = mDbConnector.getWritableConnection();
 			requestWithoutTransaction = true;
             beginTransaction(db);
 		}
 		try {
-			IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
-			if (beforeUpdate != null) {
-				beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
-			}
+            if (isNewDbConnection) {
+                IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
+                if (beforeUpdate != null) {
+                    beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
+                }
+            }
 			String idAsString = contentValues.getAsString(BaseColumns._ID);
             Long id = null;
 			if (idAsString == null) {
@@ -283,9 +286,9 @@ public class DBHelper {
                     contentValues.put(BaseColumns._ID, id);
                 }
                 if (id == null) {
-                    Log.xd(this, "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
+                    Log.xd(this, "error to insert ContentValues[" + classOfModel + "]: " + contentValues.toString());
                     throw new IllegalArgumentException("content values needs to contains _ID. Details: " +
-                            "error to insert ContentValues["+classOfModel+"]: " + contentValues.toString());
+                            "error to insert ContentValues[" + classOfModel + "]: " + contentValues.toString());
                 }
 			} else {
                 id = Long.valueOf(idAsString);
@@ -298,7 +301,7 @@ public class DBHelper {
 				if (rowCount == 0) {
 					rowId = internalInsert(db, contentValues, tableName);
 					if (rowId == -1l) {
-						throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
+						throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel + ". Check keys in ContentValues and fields in model.");
 					}
 				} else {
 					rowId = id;
@@ -310,7 +313,7 @@ public class DBHelper {
 					if (cursor == null || !cursor.moveToFirst()) {
 						rowId = internalInsert(db, contentValues, tableName);
 						if (rowId == -1l) {
-							throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel+". Check keys in contentvalues and fields in model.");
+							throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel + ". Check keys in ContentValues and fields in model.");
 						}
 					} else {
 						ContentValues oldContentValues = new ContentValues();

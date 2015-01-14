@@ -211,13 +211,15 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
             if (contentValues == null) {
                 return null;
             }
+
             if (beforeListUpdate != null) {
                 beforeListUpdate.onBeforeListUpdate(dbHelper, dbConnection, dataSourceRequest, count, contentValues);
             }
             if (beforeUpdate != null) {
                 beforeUpdate.onBeforeUpdate(dbHelper, dbConnection, dataSourceRequest, contentValues);
             }
-            if (onProceedEntity == null || !onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position, jsonElement)) {
+            boolean isCustomeEntityProceed = onProceedEntity != null && onProceedEntity.onProceedEntity(dbHelper, dbConnection, dataSourceRequest, null, contentValues, position, jsonElement);
+            if (!isCustomeEntityProceed) {
                 dbHelper.updateOrInsert(dataSourceRequest, dbConnection, getContentValuesEntityClazz(), contentValues);
             }
             if (transactionCreationController != null && transactionCreationController.isCreateNewTransaction(count) && dbConnection instanceof WritableConnectionWrapper) {
