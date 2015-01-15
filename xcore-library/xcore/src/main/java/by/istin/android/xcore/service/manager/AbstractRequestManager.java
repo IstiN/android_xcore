@@ -90,11 +90,6 @@ public abstract class AbstractRequestManager implements IRequestManager {
         });
     }
 
-    @Override
-    public String getAppServiceKey() {
-        return IRequestManager.APP_SERVICE_KEY;
-    }
-
     private static final Object mDbLockFlag = new Object();
 
     @SuppressWarnings("unchecked")

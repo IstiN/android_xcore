@@ -1,13 +1,10 @@
 package by.istin.android.xcore.service.manager;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
-
-import java.util.List;
 
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
@@ -15,7 +12,6 @@ import by.istin.android.xcore.service.RequestExecutor;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
-import by.istin.android.xcore.utils.ContentUtils;
 import by.istin.android.xcore.utils.Log;
 
 public class DefaultRequestManager extends AbstractRequestManager {
@@ -41,22 +37,6 @@ public class DefaultRequestManager extends AbstractRequestManager {
             });
             if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
                 executeRunnable.sendStatus(StatusResultReceiver.Status.DONE, dataSourceRequestBundle);
-                /*List<ContentValues> entities = ContentUtils.getEntities(context, DataSourceRequestEntity.class, DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
-                        + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
-                        + "? - " + DataSourceRequestEntity.LAST_UPDATE + ") > " + DataSourceRequestEntity.EXPIRATION, new String[]{
-                        String.valueOf(System.currentTimeMillis())
-                });
-                if (entities != null) {
-                    for (ContentValues contentValues : entities) {
-                        Long expiration = contentValues.getAsLong(DataSourceRequestEntity.EXPIRATION);
-                        Long lastUpdate = contentValues.getAsLong(DataSourceRequestEntity.LAST_UPDATE);
-                        Log.xd(this, "deleted expired requests " + expiration);
-                        Log.xd(this, "deleted expired requests " + lastUpdate);
-                        Log.xd(this, "deleted expired requests " + System.currentTimeMillis());
-                        Log.xd(this, "deleted expired requests " + System.nanoTime());
-                        Log.xd(this, "deleted expired requests " + (System.currentTimeMillis() - lastUpdate > expiration));
-                    }
-                }*/
                 int deleteRowCount = context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
                         DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
                                 + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("

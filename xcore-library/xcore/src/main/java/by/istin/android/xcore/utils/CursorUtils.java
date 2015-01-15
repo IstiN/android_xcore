@@ -11,6 +11,10 @@ import java.util.List;
 
 public final class CursorUtils {
 
+    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String ... defaultColumnsIfNull) {
+        return ContentUtils.listContentValuesToCursor(listContentValues, defaultColumnsIfNull);
+    }
+
 	public static String getString(String columnName, Cursor cursor) {
 		int columnIndex = cursor.getColumnIndex(columnName);
 		if (columnIndex == -1) {
