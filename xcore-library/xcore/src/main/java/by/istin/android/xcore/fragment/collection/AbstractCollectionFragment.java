@@ -9,6 +9,7 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.CursorAdapter;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateUtils;
 import android.view.View;
 
@@ -60,6 +61,8 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
     private View mSecondaryProgressView;
 
+    private SwipeRefreshLayout mSwipeRefreshView;
+
     @Override
     public void onViewCreated(View view) {
         super.onViewCreated(view);
@@ -67,6 +70,16 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         mEmptyView = view.findViewById(getEmptyViewId());
         mProgressView = view.findViewById(getProgressViewId());
         mSecondaryProgressView = view.findViewById(getProgressViewId());
+        Integer swipeRefreshLayoutId = getSwipeRefreshLayoutId();
+        if (swipeRefreshLayoutId != null) {
+            mSwipeRefreshView = (SwipeRefreshLayout) view.findViewById(swipeRefreshLayoutId);
+            mSwipeRefreshView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    loadData(getActivity(), getUrl(), true, null);
+                }
+            });
+        }
         if (isPagingSupport()) {
             addPagingSupport(view);
         }
@@ -84,6 +97,10 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
     protected int getProgressViewId() {
         return android.R.id.progress;
+    }
+
+    protected Integer getSwipeRefreshLayoutId() {
+        return null;
     }
 
     protected int getSecondaryProgressViewId() {
@@ -320,12 +337,18 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
             @Override
             public void onError(Exception exception) {
+                if (mSwipeRefreshView != null) {
+                    mSwipeRefreshView.setRefreshing(false);
+                }
                 AbstractCollectionFragment.this.onError(exception, dataSourceRequest);
                 setLoaderWork(false, LOADER_PRIORITY_SERVICE);
             }
 
             @Override
             public void onDone(Bundle resultData) {
+                if (mSwipeRefreshView != null) {
+                    mSwipeRefreshView.setRefreshing(false);
+                }
                 setServiceWork(false);
                 FragmentActivity fragmentActivity = getActivity();
                 if (fragmentActivity == null) {
@@ -346,6 +369,9 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
             @Override
             protected void onCached(Bundle resultData) {
+                if (mSwipeRefreshView != null) {
+                    mSwipeRefreshView.setRefreshing(false);
+                }
                 setServiceWork(false);
                 setLoaderWork(false, LOADER_PRIORITY_SERVICE);
                 super.onCached(resultData);
@@ -569,7 +595,11 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
                         hideSecondaryProgress(view);
                         break;
                     case STATUS_SECONDARY_PROGRESS_VISIBLE:
-                        showSecondaryProgress(view);
+                        if (mSwipeRefreshView != null && mSwipeRefreshView.isRefreshing()) {
+                            hideSecondaryProgress(view);
+                        } else {
+                            showSecondaryProgress(view);
+                        }
                         hideProgress(view);
                         hideEmptyView(view);
                         break;
