@@ -72,6 +72,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         mSecondaryProgressView = view.findViewById(getProgressViewId());
         Integer swipeRefreshLayoutId = getSwipeRefreshLayoutId();
         if (swipeRefreshLayoutId != null) {
+            //http://developer.android.com/intl/ru/training/implementing-navigation/nav-drawer.html
             mSwipeRefreshView = (SwipeRefreshLayout) view.findViewById(swipeRefreshLayoutId);
             mSwipeRefreshView.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
