@@ -21,6 +21,8 @@ public @interface dbFormattedDate {
 
     Config value() default @Config(dbType = Config.DBType.LONG, transformer = Transformer.class);
 
+    boolean isUnix() default false;
+
     String format();
 
     String contentValuesKey();
@@ -31,13 +33,15 @@ public @interface dbFormattedDate {
             @Override
             public void convert(ContentValues contentValues, String fieldValue, Object parent, Meta meta) {
                 JsonElement jsonValue = meta.getJsonElement();
-                long asLong = jsonValue.getAsLong();
+                long dateTime = jsonValue.getAsLong();
                 ReflectUtils.XField field = meta.getField();
                 String format = field.getFormat();
                 String formatContentValuesKey = field.getFormatContentValuesKey();
+                boolean formatIsUnix = field.getFormatIsUnix();
                 FastDateFormat dateFormat = FastDateFormat.getInstance(format);
-                contentValues.put(fieldValue, asLong);
-                contentValues.put(formatContentValuesKey, dateFormat.format(asLong));
+                long adaptive = formatIsUnix ? dateTime * 1000l : dateTime;
+                contentValues.put(fieldValue, adaptive);
+                contentValues.put(formatContentValuesKey, dateFormat.format(adaptive));
             }
         };
 

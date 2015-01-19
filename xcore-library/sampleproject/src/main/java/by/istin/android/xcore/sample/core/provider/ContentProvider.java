@@ -5,6 +5,7 @@ import android.content.Context;
 import by.istin.android.xcore.provider.DBContentProvider;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
+import by.istin.android.xcore.sample.core.model.Content;
 import by.istin.android.xcore.sample.core.model.SampleEntity;
 
 /**
@@ -14,7 +15,9 @@ public class ContentProvider extends DBContentProvider {
 
     private static final Class<?>[] ENTITIES = new Class<?>[]{
 
-            SampleEntity.class
+            SampleEntity.class,
+
+            Content.class
 
     };
 

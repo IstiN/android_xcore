@@ -174,6 +174,8 @@ public class ReflectUtils {
 
         private String mDbFormatValue;
 
+        private boolean mDbFormatIsUnix = false;
+
         private String mDbFormatContentValuesKey;
 
         XField(Field field) {
@@ -314,12 +316,25 @@ public class ReflectUtils {
             }
         }
 
+        public boolean getFormatIsUnix() {
+            if (isDbFormatInited) {
+                return mDbFormatIsUnix;
+            }
+            try {
+                if (initDateFormatMeta()) return mDbFormatIsUnix;
+                return false;
+            } finally {
+                isDbFormatInited = true;
+            }
+        }
+
         protected boolean initDateFormatMeta() {
             if (ReflectUtils.isAnnotationPresent(this, dbFormattedDate.class)) {
                 dbFormattedDate dbFormattedDate = ReflectUtils.getAnnotation(this, dbFormattedDate.class);
                 if (dbFormattedDate != null) {
                     mDbFormatValue = dbFormattedDate.format();
                     mDbFormatContentValuesKey = dbFormattedDate.contentValuesKey();
+                    mDbFormatIsUnix = dbFormattedDate.isUnix();
                     return true;
                 }
             }

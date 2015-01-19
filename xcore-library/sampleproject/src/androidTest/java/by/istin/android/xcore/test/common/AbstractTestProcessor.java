@@ -7,10 +7,14 @@ import android.test.ApplicationTestCase;
 
 import java.io.InputStream;
 
+import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.processor.IProcessor;
+import by.istin.android.xcore.provider.DBContentProvider;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.sample.Application;
+import by.istin.android.xcore.sample.core.provider.ContentProvider;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
@@ -30,6 +34,15 @@ public class AbstractTestProcessor extends ApplicationTestCase<Application> {
         super.setUp();
         createApplication();
         testDataSource = new TestDataSource();
+        init();
+    }
+
+    private void init() {
+        IDBContentProviderSupport dbContentProviderSupport = ContentProvider.getDBContentProviderSupport(getApplication());
+        IDBConnection writableConnection = dbContentProviderSupport.getDbSupport().createConnector(getApplication()).getWritableConnection();
+        writableConnection.beginTransaction();
+        writableConnection.setTransactionSuccessful();
+        writableConnection.endTransaction();
     }
 
     public void clear(Class<?> ... entities) {

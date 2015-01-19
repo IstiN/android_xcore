@@ -56,6 +56,8 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
             Throwable cause = exception.getCause();
             if (cause instanceof SocketTimeoutException) {
                 throw new IOException(exception);
+            } else {
+                onSyntaxException(cause);
             }
         } catch (JsonIOException exception) {
             throw new IOException(exception);
@@ -67,6 +69,10 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
             onProcessingFinish(dataSourceRequest, result);
         }
         return result;
+    }
+
+    protected Result onSyntaxException(Throwable cause) throws Exception {
+        throw new Exception(cause);
     }
 
     protected DBContentValuesAdapter.ITransactionCreationController createTransactionCreationController(DataSourceRequest dataSourceRequest) {

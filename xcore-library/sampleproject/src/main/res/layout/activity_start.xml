@@ -1,0 +1,19 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StartActivity"
+    tools:ignore="MergeRootFrame"
+    android:orientation="vertical">
+    <Button
+        android:layout_width="match_parent"
+        android:text="Simple"
+        android:layout_height="wrap_content"
+        android:onClick="onSimpleClick"/>
+    <Button
+        android:layout_width="match_parent"
+        android:text="Advanced"
+        android:layout_height="wrap_content"
+        android:onClick="onAdvancedClick"/>
+</LinearLayout>

@@ -10,7 +10,7 @@ import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.sample.core.model.SampleEntity;
 import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
 
-public class MainActivity extends AbstractActivity {
+public class SimpleActivity extends AbstractActivity {
 
     @Override
     protected Fragment createFragment() {

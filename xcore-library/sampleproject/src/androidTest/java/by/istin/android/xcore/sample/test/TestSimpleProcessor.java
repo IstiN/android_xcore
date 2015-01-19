@@ -5,7 +5,7 @@ import by.istin.android.xcore.sample.core.model.SampleEntity;
 import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
 import by.istin.android.xcore.test.common.AbstractTestProcessor;
 
-public class TestStatusProcessor extends AbstractTestProcessor {
+public class TestSimpleProcessor extends AbstractTestProcessor {
 
     public void testSampleProcessor() throws Exception {
         testExecute(SampleEntityProcessor.APP_SERVICE_KEY, "sample_page_1.json?page=1");

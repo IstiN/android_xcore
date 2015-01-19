@@ -7,6 +7,8 @@ import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.error.ErrorHandler;
 import by.istin.android.xcore.plugin.uil.ImageLoaderPlugin;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.sample.core.processor.ContentEntityProcessor;
 import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
 import by.istin.android.xcore.sample.core.provider.ContentProvider;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
@@ -27,11 +29,13 @@ public class Application extends CoreApplication {
     @Override
     public void onCreate() {
         super.onCreate();
-        registerAppService(new SampleEntityProcessor(ContentProvider.getDBContentProviderSupport(this)));
+        IDBContentProviderSupport dbContentProviderSupport = ContentProvider.getDBContentProviderSupport(this);
+        registerAppService(new SampleEntityProcessor(dbContentProviderSupport));
         registerAppService(new HttpAndroidDataSource(
                 new HttpAndroidDataSource.DefaultHttpRequestBuilder(),
                 new HttpAndroidDataSource.DefaultResponseStatusHandler())
         );
+        registerAppService(new ContentEntityProcessor(dbContentProviderSupport));
         registerAppService(new ErrorHandler(
                 "Error",
                 "Check your internet connection",
