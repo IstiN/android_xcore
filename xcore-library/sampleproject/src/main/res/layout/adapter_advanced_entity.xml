@@ -46,4 +46,12 @@
         android:layout_below="@id/date"
         />
 
+    <TextView
+        android:id="@+id/attachs_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/thumbnail"
+        android:layout_below="@id/main_image"
+        />
+
 </RelativeLayout>

@@ -63,6 +63,9 @@ public class Content implements BaseColumns, IBeforeArrayUpdate {
     @dbFormattedDate(isUnix = true, format = "yyyy-MM-dd HH:mm", contentValuesKey = TIMESTAMP_FORMATTED)
     public static final String TIMESTAMP = "timestamp";
 
+    @dbInteger
+    public static final String ATTACHS_COUNT = "attachs_count";
+
     @db(@Config(dbType = Config.DBType.STRING, transformer = Transformer.class, key = "content:media"))
     public static final String MAIN_CONTENT_IMAGE = "main_content_image";
 
@@ -88,6 +91,8 @@ public class Content implements BaseColumns, IBeforeArrayUpdate {
                 JsonObject photoAsObject = jsonElement.getAsJsonObject();
                 JsonElement url = photoAsObject.get("url");
                 contentValues.put(fieldValue, url.getAsString());
+
+                contentValues.put(ATTACHS_COUNT, photos.size());
             }
         };
 
