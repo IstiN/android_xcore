@@ -24,8 +24,8 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mConfiguration = createConfiguration();
-        mOAuth2Helper = createOAuth2Helper();
+        mConfiguration = getConfiguration();
+        mOAuth2Helper = getOAuth2Helper();
         mWebView = initView();
         if (UiUtil.hasHoneycomb()) {
             mWebView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
@@ -68,11 +68,11 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
         e.printStackTrace();
     }
 
-    protected OAuth2Helper createOAuth2Helper() {
-        return OAuth2Helper.Impl.create(mConfiguration);
+    protected OAuth2Helper getOAuth2Helper() {
+        return OAuth2Helper.Impl.getInstance(mConfiguration);
     };
 
-    protected abstract Configuration createConfiguration();
+    protected abstract Configuration getConfiguration();
 
     private class CustomWebViewClient extends WebViewClient {
 

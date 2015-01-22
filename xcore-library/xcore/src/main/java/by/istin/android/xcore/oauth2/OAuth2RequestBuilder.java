@@ -12,15 +12,15 @@ public class OAuth2RequestBuilder extends HttpAndroidDataSource.DefaultHttpReque
     private OAuth2Helper mOAuth2Helper;
 
     public OAuth2RequestBuilder(Configuration configuration) {
-        this.mOAuth2Helper = createOAuth2Helper(configuration);
+        this.mOAuth2Helper = getOAuth2Helper(configuration);
     }
 
     public OAuth2RequestBuilder(OAuth2Helper oauth2Helper) {
         this.mOAuth2Helper = oauth2Helper;
     }
 
-    protected OAuth2Helper createOAuth2Helper(Configuration configuration) {
-        return OAuth2Helper.Impl.create(configuration);
+    protected OAuth2Helper getOAuth2Helper(Configuration configuration) {
+        return OAuth2Helper.Impl.getInstance(configuration);
     }
 
     @Override
