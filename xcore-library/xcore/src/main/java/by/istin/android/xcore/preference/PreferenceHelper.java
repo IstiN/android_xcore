@@ -16,7 +16,7 @@ public class PreferenceHelper {
     public static final String STRING_ARRAY_DELIM = "====DELIM====";
 
     public static Editor editor() {
-        Context ctx = ContextHolder.getInstance().getContext();
+        Context ctx = ContextHolder.get();
         return ctx.getSharedPreferences(SETTINGS, Context.MODE_PRIVATE).edit();
     }
 
@@ -27,7 +27,7 @@ public class PreferenceHelper {
 	}
 	
 	public static boolean getBoolean(String key, boolean def) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		return savedSession.getBoolean(key, def);
@@ -40,7 +40,7 @@ public class PreferenceHelper {
 	}
 	
 	public static int getInt(String key, int def) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		return savedSession.getInt(key, def);
@@ -59,7 +59,7 @@ public class PreferenceHelper {
 	}
 	
 	public static long getLong(String key, long def) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		return savedSession.getLong(key, def);
@@ -72,7 +72,7 @@ public class PreferenceHelper {
 	}
 	
 	public static float getFloat(String key, float def) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		return savedSession.getFloat(key, def);
@@ -85,7 +85,7 @@ public class PreferenceHelper {
 	}
 	
 	public static String getString(String key, String def) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		return savedSession.getString(key, def);
@@ -114,7 +114,7 @@ public class PreferenceHelper {
 	}
 	
 	public static byte[] getByteArray(String key, byte[] defValue) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		String value = savedSession.getString(key, null);
@@ -130,7 +130,7 @@ public class PreferenceHelper {
 	}
 	
 	public static Bundle getBundle(String key, Bundle bundle) {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		SharedPreferences savedSession = ctx.getSharedPreferences(SETTINGS,
 				Context.MODE_PRIVATE);
 		String value = savedSession.getString(key, null);

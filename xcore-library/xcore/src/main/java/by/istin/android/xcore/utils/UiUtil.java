@@ -67,7 +67,7 @@ public class UiUtil {
 
     @TargetApi(value = Build.VERSION_CODES.HONEYCOMB_MR2)
 	private static void initDisplayDimensions() {
-		Context ctx = ContextHolder.getInstance().getContext();
+		Context ctx = ContextHolder.get();
 		WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
 		Display display = wm.getDefaultDisplay();
 		if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {

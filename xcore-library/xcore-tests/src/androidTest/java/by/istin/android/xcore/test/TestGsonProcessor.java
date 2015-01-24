@@ -33,7 +33,7 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 	}
 
 	public void testObjectLoad() throws Exception {
-        ContextHolder.getInstance().setContext(getApplication());
+        ContextHolder.set(getApplication());
         IDBContentProviderSupport defaultDBContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), BigTestEntity.class, BigTestSubEntity.class);
         Uri testEntityUri = ModelContract.getUri(BigTestEntity.class);
         defaultDBContentProvider.delete(testEntityUri, null, null);
@@ -47,7 +47,7 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
 	}
 	
 	public void testArrayLoadAndInsert() throws Exception {
-        ContextHolder.getInstance().setContext(getApplication());
+        ContextHolder.set(getApplication());
 		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
 		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_array_big.json");
 		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));

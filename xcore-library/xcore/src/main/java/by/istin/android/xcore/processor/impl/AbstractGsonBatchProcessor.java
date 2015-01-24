@@ -85,7 +85,7 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
     }
 
     public DBHelper getDbHelper() {
-        return dbContentProviderSupport.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
+        return dbContentProviderSupport.getDbSupport().getOrCreateDBHelper(ContextHolder.get());
     }
 
     protected void onBeforeTransactionCommit(DataSourceRequest dataSourceRequest, Result result, IDBConnection dbConnection) {

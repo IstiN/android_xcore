@@ -44,7 +44,7 @@ public abstract class AbstractExecutorService extends Service {
 
     protected static void execute(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass, boolean isLocalAppService) {
         if (context == null) {
-            context = ContextHolder.getInstance().getContext();
+            context = ContextHolder.get();
             if (context == null) {
                 return;
             }
@@ -62,7 +62,7 @@ public abstract class AbstractExecutorService extends Service {
 
     protected static Intent createStartIntent(Context context, DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey, StatusResultReceiver resultReceiver, Class<?> serviceClass) {
         if (context == null) {
-            context = ContextHolder.getInstance().getContext();
+            context = ContextHolder.get();
             if (context == null) {
                 return null;
             }

@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import com.squareup.picasso.Picasso;
 import com.squareup.picasso.RequestCreator;
 
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -32,16 +33,6 @@ public abstract class ImageLoaderPlugin implements IFragmentPlugin {
 
     @Override
     public void onCreateView(final Fragment fragment, View view, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-    }
-
-    @Override
-    public void onCreateLoader(Fragment fragment, Loader<Cursor> loader, int id, Bundle args) {
-
-    }
-
-    @Override
-    public void onLoadFinished(Fragment fragment, android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
 
     }
 
@@ -88,4 +79,13 @@ public abstract class ImageLoaderPlugin implements IFragmentPlugin {
 
     }
 
+    @Override
+    public void onCreateLoader(Fragment fragment, Loader loader, int id, Bundle args) {
+
+    }
+
+    @Override
+    public void onLoadFinished(Fragment fragment, Loader loader, CursorModel cursor) {
+
+    }
 }

@@ -109,7 +109,7 @@ public class ContentUtils {
         try {
             entityCursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
-                result = new ArrayList<ContentValues>();
+                result = new ArrayList<>();
                 CursorUtils.convertToContentValuesAndClose(entityCursor, result);
             }
         } finally {

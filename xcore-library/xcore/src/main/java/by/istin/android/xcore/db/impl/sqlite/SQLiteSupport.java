@@ -13,6 +13,10 @@ public class SQLiteSupport extends AbstractDBSupport {
 
     private volatile IDBConnector mDbConnector;
 
+    public SQLiteSupport(String name) {
+        super(name);
+    }
+
     @Override
     public IDBConnector createConnector(Context context) {
         IDBConnector dbConnector = mDbConnector;
@@ -21,7 +25,7 @@ public class SQLiteSupport extends AbstractDBSupport {
                 //we need be sure, that have only one sqlite connector
                 dbConnector = mDbConnector;
                 if (dbConnector == null) {
-                    mDbConnector = dbConnector = new SQLiteConnector(context);
+                    mDbConnector = dbConnector = new SQLiteConnector(context, getName());
                 }
             }
         }

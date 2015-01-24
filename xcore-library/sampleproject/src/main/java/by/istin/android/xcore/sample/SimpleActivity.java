@@ -6,6 +6,7 @@ import android.support.v4.app.Fragment;
 import android.view.View;
 
 import by.istin.android.xcore.fragment.XListFragment;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.sample.core.model.SampleEntity;
 import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
@@ -17,7 +18,7 @@ public class SimpleActivity extends AbstractActivity {
         return new SampleListFragment();
     }
 
-    public static class SampleListFragment extends XListFragment {
+    public static class SampleListFragment extends XListFragment<CursorModel> {
 
         private static final String PAGE1 = "https://dl.dropboxusercontent.com/u/16403954/xcore/sample_page_1.json?page=1";
 

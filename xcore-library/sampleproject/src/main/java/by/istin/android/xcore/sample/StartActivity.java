@@ -23,4 +23,8 @@ public class StartActivity extends ActionBarActivity {
     public void onAdvancedClick(View view) {
         startActivity(new Intent(this, AdvancedActivity.class));
     }
+
+    public void onLoaderTestClick(View view) {
+        startActivity(new Intent(this, LoaderTestActivity.class));
+    }
 }

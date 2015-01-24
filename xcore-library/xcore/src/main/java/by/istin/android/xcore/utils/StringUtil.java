@@ -374,7 +374,7 @@ public final class StringUtil {
 	 * @return String value
 	 */
 	public static String getStringResource(String key) {
-		return getStringResource(key, ContextHolder.getInstance().getContext());
+		return getStringResource(key, ContextHolder.get());
 	}
 
 	public static String encode(String value, String defaultValue) {

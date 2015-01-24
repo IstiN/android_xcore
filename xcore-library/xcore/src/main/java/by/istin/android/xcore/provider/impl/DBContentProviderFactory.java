@@ -27,33 +27,27 @@ public class DBContentProviderFactory {
 
     public static IDBContentProviderSupport getDefaultDBContentProvider(Context context, Class<?> ... entities) {
         DBContentProviderFactory dbContentProviderFactory = getInstance();
-        return dbContentProviderFactory.getDbContentProvider(context, DBContentProviderFactory.Type.SQLite, entities);
-    }
-
-    public static enum Type {
-        SQLite
-        //in future add more db types
+        return dbContentProviderFactory.getDbContentProvider(context, context.getPackageName(), entities);
     }
 
     private final Object mLock = new Object();
 
-    private final Map<Type, IDBContentProviderSupport> mProviders = new HashMap<Type, IDBContentProviderSupport>();
+    private final Map<String, IDBContentProviderSupport> mProviders = new HashMap<>();
 
-    public IDBContentProviderSupport getDbContentProvider(Context context, Type type, Class<?> ... entities) {
-        if (mProviders.containsKey(type)) {
-            return mProviders.get(type);
-        }
-        synchronized (mLock) {
-            if (mProviders.containsKey(type)) {
-                return mProviders.get(type);
+    public IDBContentProviderSupport getDbContentProvider(Context context, String name, Class<?> ... entities) {
+        IDBContentProviderSupport dbContentProviderSupport = mProviders.get(name);
+        if (dbContentProviderSupport == null) {
+            synchronized (mLock) {
+                dbContentProviderSupport = mProviders.get(name);
+                if (dbContentProviderSupport != null) {
+                    return dbContentProviderSupport;
+                }
+                dbContentProviderSupport = new DBContentProviderSupport(context, new SQLiteSupport(name), entities);
+                mProviders.put(name, dbContentProviderSupport);
+                return dbContentProviderSupport;
             }
-            DBContentProviderSupport dbContentProviderSupport = null;
-            if (type == Type.SQLite) {
-                dbContentProviderSupport = new DBContentProviderSupport(context, new SQLiteSupport(), entities);
-                mProviders.put(type, dbContentProviderSupport);
-            }
-            return dbContentProviderSupport;
         }
+        return dbContentProviderSupport;
     }
 
 }

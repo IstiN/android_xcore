@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
+import by.istin.android.xcore.model.CursorModel;
+
 
 /**
  * Created by IstiN on 28.6.13.
@@ -19,9 +21,9 @@ public interface IFragmentPlugin {
 
     void onCreateView(Fragment fragment, View view, LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
 
-    void onCreateLoader(Fragment fragment, Loader<Cursor> loader, int id, Bundle args);
+    void onCreateLoader(Fragment fragment, Loader loader, int id, Bundle args);
 
-    void onLoadFinished(Fragment fragment, Loader<Cursor> loader, Cursor cursor);
+    void onLoadFinished(Fragment fragment, Loader loader, CursorModel cursor);
 
     void createAdapter(Fragment fragment, BaseAdapter baseAdapter, FragmentActivity activity, Cursor cursor);
 

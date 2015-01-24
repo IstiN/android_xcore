@@ -15,6 +15,7 @@ import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
+import by.istin.android.xcore.utils.Log;
 
 public abstract class DBContentProvider extends ContentProvider {
 
@@ -23,16 +24,16 @@ public abstract class DBContentProvider extends ContentProvider {
     @Override
 	public boolean onCreate() {
         Context context = ContextHolder.get();
+        Log.xd(this, "ContentProvider onCreate " + context + " " + getContext());
         if (context == null) {
-            ContextHolder.getInstance().setContext(getContext());
+            ContextHolder.set(getContext());
         }
         dbContentProviderSupport = getContentProviderSupport(getContext());
         return true;
 	}
 
     protected IDBContentProviderSupport getContentProviderSupport(Context context) {
-        DBContentProviderFactory dbContentProviderFactory = DBContentProviderFactory.getInstance();
-        return dbContentProviderFactory.getDbContentProvider(context, DBContentProviderFactory.Type.SQLite, getEntities());
+        return DBContentProviderFactory.getDefaultDBContentProvider(context, getEntities());
     }
 
     @Override

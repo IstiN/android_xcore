@@ -28,12 +28,12 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
     protected abstract int getViewLayout();
 
 	public void restart(Bundle savedInstanceState) {
-		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
+		CursorLoaderFragmentHelper.restartLoader(this);
 	}
 	
 	@Override
 	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
+		return CursorLoaderFragmentHelper.createLoader(this, id);
 	}
 
 	@Override

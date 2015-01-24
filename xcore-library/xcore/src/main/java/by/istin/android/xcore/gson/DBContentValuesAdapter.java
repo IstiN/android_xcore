@@ -1,6 +1,7 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
@@ -127,11 +128,12 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
 
     public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBContentProviderSupport dbContentProvider, ITransactionCreationController contentValuesAdapterTransactionListener) {
         super(contentValuesClass);
-        IDBConnector connector = dbContentProvider.getDbSupport().createConnector(ContextHolder.getInstance().getContext());
+        Context context = ContextHolder.get();
+        IDBConnector connector = dbContentProvider.getDbSupport().createConnector(context);
         IDBConnection writableConnection = connector.getWritableConnection();
         this.transactionCreationController = contentValuesAdapterTransactionListener;
         this.dbConnection = new WritableConnectionWrapper(connector, writableConnection);
-        this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(ContextHolder.getInstance().getContext());
+        this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
         this.beforeUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeUpdate.class);

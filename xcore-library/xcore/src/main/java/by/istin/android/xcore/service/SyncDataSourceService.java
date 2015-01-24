@@ -93,7 +93,7 @@ public class SyncDataSourceService extends DataSourceService {
                 if (resultReceiver != null) {
                     resultReceiver.onError(exception);
                 }
-                IErrorHandler errorHandler = AppUtils.get(ContextHolder.getInstance().getContext(), IErrorHandler.SYSTEM_SERVICE_KEY);
+                IErrorHandler errorHandler = AppUtils.get(ContextHolder.get(), IErrorHandler.SYSTEM_SERVICE_KEY);
                 if (errorHandler.isCanBeReSent(exception)) {
                     Log.xe(context, "save request for resubmit", exception);
                     markSyncEntityAsError(context, dataSourceRequest, dataSourceKey, processorKey, exception);

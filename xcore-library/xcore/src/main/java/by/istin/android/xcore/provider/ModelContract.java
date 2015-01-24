@@ -106,11 +106,11 @@ public class ModelContract {
 	}
 
 	public static Uri getUri(String modelName) {
-		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), modelName));
+		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.get()), modelName));
 	}
 	
 	public static Uri getUri(Class<?> clazz, Long id) {
-		return Uri.parse(StringUtil.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.getInstance().getContext()), clazz.getCanonicalName(), id));
+		return Uri.parse(StringUtil.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.get()), clazz.getCanonicalName(), id));
 	}
 	
 	public static String getContentType(Class<?> clazz) {
@@ -138,7 +138,7 @@ public class ModelContract {
     }
 
     public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
-        String authority = getAuthority(ContextHolder.getInstance().getContext());
+        String authority = getAuthority(ContextHolder.get());
         String refreshUriAsString = StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY);
         String sqlParameter = StringUtil.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), refreshUriAsString);
         return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, authority, sqlParameter));

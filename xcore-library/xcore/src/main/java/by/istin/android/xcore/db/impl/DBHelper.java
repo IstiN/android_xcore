@@ -140,14 +140,14 @@ public class DBHelper {
                             } else if (classOfAnnotation.equals(dbEntity.class)) {
                                 List<ReflectUtils.XField> list = dbAssociationCache.getEntityFields(classOfModel);
                                 if (list == null) {
-                                    list = new ArrayList<ReflectUtils.XField>();
+                                    list = new ArrayList<>();
                                 }
                                 list.add(field);
                                 dbAssociationCache.putEntityFields(classOfModel, list);
                             } else if (classOfAnnotation.equals(dbEntities.class)) {
                                 List<ReflectUtils.XField> list = dbAssociationCache.getEntitiesFields(classOfModel);
                                 if (list == null) {
-                                    list = new ArrayList<ReflectUtils.XField>();
+                                    list = new ArrayList<>();
                                 }
                                 list.add(field);
                                 dbAssociationCache.putEntitiesFields(classOfModel, list);

@@ -42,7 +42,6 @@ import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.IErrorHandler;
 import by.istin.android.xcore.fragment.CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper;
 import by.istin.android.xcore.model.CursorModel;
-import by.istin.android.xcore.model.CursorModelLoader;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
@@ -56,12 +55,11 @@ import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UiUtil;
 import by.istin.android.xcore.widget.ISetViewBinder;
 
-public abstract class XListFragment extends AdapterViewFragment
+public abstract class XListFragment <T extends CursorModel> extends AdapterViewFragment
         implements IRefresh,
-            ICursorLoaderFragmentHelper,
+            ICursorLoaderFragmentHelper<T>,
             IDataSourceHelper,
-            DataSourceExecuteHelper.IDataSourceListener,
-            CursorModelLoader.ILoading {
+            DataSourceExecuteHelper.IDataSourceListener {
 
     public static final boolean IS_CHECK_STATUS_LOG_ENABLED = true;
 
@@ -312,9 +310,9 @@ public abstract class XListFragment extends AdapterViewFragment
 	public abstract String getProcessorKey();
 	
 	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+	public Loader<T> onCreateLoader(int id, Bundle args) {
         setLoaderWork(true, LOADER_PRIORITY_HIGH);
-        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, this, id, args);
+        Loader<T> cursorLoader = CursorLoaderFragmentHelper.createLoader(this, id);
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -322,12 +320,12 @@ public abstract class XListFragment extends AdapterViewFragment
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
-        checkStatus("onCreateLoader");
+        checkStatus("createLoader");
         return cursorLoader;
 	}
 	
 	@Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(Loader<T> loader, T cursor) {
         ListAdapter adapter = getListAdapter();
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
@@ -516,7 +514,7 @@ public abstract class XListFragment extends AdapterViewFragment
         if (activity == null) {
             return;
         }
-		if (CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState)) {
+		if (CursorLoaderFragmentHelper.restartLoader(this)) {
             setLoaderWork(true, LOADER_PRIORITY_HIGH);
         }
 		String url = getUrl();
@@ -529,8 +527,8 @@ public abstract class XListFragment extends AdapterViewFragment
             }
         }
         if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " onActivityCreated ");
-        checkStatus("onActivityCreated");
+        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " restartLoader ");
+        checkStatus("restartLoader");
 	}
 
     public void refresh() {
@@ -668,7 +666,7 @@ public abstract class XListFragment extends AdapterViewFragment
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(Loader<T> loader) {
         //isLoaderWork = false;
 		if (getView() != null) {
             if (IS_CHECK_STATUS_LOG_ENABLED)
@@ -699,7 +697,7 @@ public abstract class XListFragment extends AdapterViewFragment
 	}
 
     @Override
-    public CursorModel.CursorModelCreator getCursorModelCreator() {
+    public CursorModel.CursorModelCreator<T> getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
     }
 
@@ -932,18 +930,6 @@ public abstract class XListFragment extends AdapterViewFragment
         if (emptyView != null) {
             emptyView.setVisibility(View.VISIBLE);
         }
-    }
-
-    @Override
-    public void onCursorLoaderStartLoading() {
-        setLoaderWork(true, LOADER_PRIORITY_HIGH);
-        checkStatus("onCursorLoaderStartLoading");
-    }
-
-    @Override
-    public void onCursorLoaderStopLoading() {
-        setLoaderWork(false, LOADER_PRIORITY_HIGH);
-        checkStatus("onCursorLoaderStopLoading");
     }
 
     protected class DefaultAdapter extends SimpleCursorAdapter implements ISetViewBinder {

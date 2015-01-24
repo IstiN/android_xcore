@@ -39,6 +39,9 @@
         <activity
             android:name=".AdvancedActivity"
             android:label="@string/app_name"/>
+        <activity
+            android:name=".LoaderTestActivity"
+            android:label="@string/app_name"/>
     </application>
 
 </manifest>

@@ -48,7 +48,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         SUB_ENTITY_CLASS = BigTestSubEntity.class.getCanonicalName();
         DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
         dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{BigTestEntity.class, BigTestSubEntity.class});
-        ContextHolder.getInstance().setContext(getApplication());
+        ContextHolder.set(getApplication());
 	}
 
     public void testInsert() throws Exception {

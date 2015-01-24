@@ -26,7 +26,7 @@ public abstract class AbstractGsonDBProcessor<Result, DataSourceResult> extends 
     }
 
     public static Context getHolderContext() {
-        return ContextHolder.getInstance().getContext();
+        return ContextHolder.get();
     }
 
 }

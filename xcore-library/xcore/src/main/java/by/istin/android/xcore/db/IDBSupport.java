@@ -29,4 +29,6 @@ public interface IDBSupport extends IDBInsertOrUpdateOperationSupport, IDBDelete
     IDBConnector createConnector(Context context);
 
     DBHelper getOrCreateDBHelper(Context context);
+
+    String getName();
 }

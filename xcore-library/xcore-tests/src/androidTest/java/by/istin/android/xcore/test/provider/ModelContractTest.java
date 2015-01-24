@@ -25,7 +25,7 @@ public class ModelContractTest extends ApplicationTestCase<Application> {
 	public void testSqlUri() throws Exception {
 		Application application = getApplication();
 		assertNotNull(application);
-		ContextHolder.getInstance().setContext(application);
+		ContextHolder.set(application);
 		final Uri REFRESH_URI = ModelContract.getUri(BigTestEntity.class);
 		Uri sqlQueryUri = ModelContract.getSQLQueryUri(SELECT_FROM_TABLE, REFRESH_URI);
 		String sqlParam = ModelContract.getSqlParam(sqlQueryUri);
@@ -35,7 +35,7 @@ public class ModelContractTest extends ApplicationTestCase<Application> {
 	public void testNotNotify() throws Exception {
 		Application application = getApplication();
 		assertNotNull(application);
-		ContextHolder.getInstance().setContext(application);
+		ContextHolder.set(application);
 		final Uri REFRESH_URI = ModelContract.getUri(BigTestEntity.class);
 		Uri sqlQueryUri = ModelContract.getSQLQueryUri(SELECT_FROM_TABLE, REFRESH_URI);
 		final Uri resultUri = new ModelContract.UriBuilder(sqlQueryUri).notNotifyChanges().build();

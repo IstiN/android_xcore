@@ -43,13 +43,10 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     private final Context mContext;
 
-    private final Class<?>[] mEntities;
-
     private final IDBSupport mDbSupport;
 
     public DBContentProviderSupport(Context context, IDBSupport dbSupport, Class<?> ... entities) {
         mContext = context;
-        mEntities = entities;
         mDbSupport = dbSupport;
         mDbSupport.create(context, entities);
         initUriMatcher();
@@ -65,11 +62,6 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
             sUriMatcher.addURI(authority, "*/*", MODELS_ID_NEGOTIVE);
         }
     }
-
-    /*@Override
-    public Class<?>[] getEntities() {
-        return mEntities;
-    }*/
 
     @Override
     public String getType(Uri uri) {
@@ -206,7 +198,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
     @Override
     public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
         ContentProviderResult[] result = new ContentProviderResult[operations.size()];
-        Set<Uri> set = new HashSet<Uri>();
+        Set<Uri> set = new HashSet<>();
         IDBBatchOperationSupport batchOperationConnection = mDbSupport.getConnectionForBatchOperation();
         try {
             batchOperationConnection.beginTransaction();

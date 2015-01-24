@@ -21,18 +21,18 @@ public final class ContextHolder {
 
 	}
 
-	/**
-	 * Gets the single instance of ContextHolder.
-	 * @deprecated use get method
-	 * @return single instance of ContextHolder
-	 */
-    @Deprecated()
-	public static ContextHolder getInstance() {
-		return sInstance;
-	}
-
     public static Context get() {
         return sInstance.getContext();
+    }
+
+    /**
+     * Sets the context.
+     *
+     * @param context
+     *            the new context
+     */
+    public static void set(Context context) {
+        sInstance.mContext = context;
     }
 
 	/*
@@ -54,14 +54,5 @@ public final class ContextHolder {
 		return mContext;
 	}
 
-	/**
-	 * Sets the context.
-	 * 
-	 * @param pContext
-	 *            the new context
-	 */
-	public void setContext(final Context pContext) {
-		this.mContext = pContext;
-	}
 
 }

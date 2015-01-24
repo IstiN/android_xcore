@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
 import by.istin.android.xcore.fragment.IRefresh;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 import uk.co.senab.actionbarpulltorefresh.extras.actionbarcompat.PullToRefreshLayout;
 import uk.co.senab.actionbarpulltorefresh.library.ActionBarPullToRefresh;
@@ -62,12 +63,12 @@ public class ActionBarPullToRefreshFragmentPlugin implements IFragmentPlugin {
     }
 
     @Override
-    public void onCreateLoader(Fragment fragment, Loader<Cursor> loader, int id, Bundle args) {
+    public void onCreateLoader(Fragment fragment, Loader loader, int id, Bundle args) {
 
     }
 
     @Override
-    public void onLoadFinished(Fragment fragment, Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Fragment fragment, Loader loader, CursorModel cursor) {
 
     }
 

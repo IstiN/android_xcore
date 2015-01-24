@@ -28,6 +28,17 @@ public abstract class AbstractDBSupport implements IDBSupport {
 
     private Class<?>[] mEntities;
 
+    private String mName;
+
+    public AbstractDBSupport(String name) {
+        this.mName = name;
+    }
+
+    @Override
+    public String getName() {
+        return mName;
+    }
+
     private void initTables() {
         sDbHelper.createTablesForModels(DataSourceRequestEntity.class);
         sDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);

@@ -30,7 +30,7 @@ import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XFragment extends Fragment implements IRefresh, ICursorLoaderFragmentHelper,IDataSourceHelper,
+public abstract class XFragment<T extends CursorModel> extends Fragment implements IRefresh, ICursorLoaderFragmentHelper<T>,IDataSourceHelper,
         DataSourceExecuteHelper.IDataSourceListener {
 
 	@Override
@@ -107,8 +107,8 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
     }
 
     @Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return CursorLoaderFragmentHelper.onCreateLoader(this, id, args);
+	public Loader<T> onCreateLoader(int id, Bundle args) {
+        return CursorLoaderFragmentHelper.createLoader(this, id);
 	}
 
     @Override
@@ -121,7 +121,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
     }
 
     @Override
-	public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+	public void onLoadFinished(Loader<T> loader, T cursor) {
 		FragmentActivity activity = getActivity();
 		if (activity == null) {
 			return;
@@ -184,7 +184,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	@Override
 	public void onActivityCreated(Bundle savedInstanceState) {
 		super.onActivityCreated(savedInstanceState);
-		CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState);
+		CursorLoaderFragmentHelper.restartLoader(this);
 		String url = getUrl();
 		if (!StringUtil.isEmpty(url)) {
 			loadData(getActivity(), url, isForceUpdateData());
@@ -266,7 +266,7 @@ public abstract class XFragment extends Fragment implements IRefresh, ICursorLoa
 	}
 
 	@Override
-	public void onLoaderReset(Loader<Cursor> loader) {
+	public void onLoaderReset(Loader<T> loader) {
 		if (getView() != null) {
 			onLoaderReset();
 			hideProgress();

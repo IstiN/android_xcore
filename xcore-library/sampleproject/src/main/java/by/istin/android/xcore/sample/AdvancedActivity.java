@@ -6,12 +6,10 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.Loader;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Html;
 import android.text.Spanned;
-import android.util.SparseLongArray;
 import android.view.View;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
@@ -25,7 +23,6 @@ import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.sample.core.model.Content;
 import by.istin.android.xcore.sample.core.processor.ContentEntityProcessor;
-import by.istin.android.xcore.utils.ContentUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
@@ -80,9 +77,9 @@ public class AdvancedActivity extends AbstractActivity {
         }
     }
 
-    public static CursorModel.CursorModelCreator STREAM_CURSOR_CREATOR = new CursorModel.CursorModelCreator() {
+    public static CursorModel.CursorModelCreator<StreamCursorModel> STREAM_CURSOR_CREATOR = new CursorModel.CursorModelCreator<StreamCursorModel>() {
         @Override
-        public CursorModel create(Cursor cursor) {
+        public StreamCursorModel create(Cursor cursor) {
             return new StreamCursorModel(cursor);
         }
     };
@@ -93,7 +90,7 @@ public class AdvancedActivity extends AbstractActivity {
     }
 
 
-    public static class StreamerFragment extends XListFragment {
+    public static class StreamerFragment extends XListFragment<StreamCursorModel> {
 
         @Override
         public void onListItemClick(Cursor cursor, View v, int position, long id) {
@@ -127,7 +124,7 @@ public class AdvancedActivity extends AbstractActivity {
         }
 
         @Override
-        public CursorModel.CursorModelCreator getCursorModelCreator() {
+        public CursorModel.CursorModelCreator<StreamCursorModel> getCursorModelCreator() {
             return STREAM_CURSOR_CREATOR;
         }
 
@@ -159,11 +156,6 @@ public class AdvancedActivity extends AbstractActivity {
         @Override
         public int getAdapterLayout() {
             return R.layout.adapter_advanced_entity;
-        }
-
-        @Override
-        public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-            super.onLoadFinished(loader, cursor);
         }
 
         @Override

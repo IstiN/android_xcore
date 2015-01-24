@@ -44,7 +44,7 @@ public class XCoreHelper {
     }
 
 	public void onCreate(Context ctx) {
-		ContextHolder.getInstance().setContext(ctx);
+		ContextHolder.set(ctx);
         Log.init(ctx);
         IRequestManager.Impl.register(this);
         registerAppService(new Core(ctx));

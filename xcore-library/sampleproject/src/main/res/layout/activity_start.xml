@@ -16,4 +16,9 @@
         android:text="Advanced"
         android:layout_height="wrap_content"
         android:onClick="onAdvancedClick"/>
+    <Button
+        android:layout_width="match_parent"
+        android:text="Loader Test"
+        android:layout_height="wrap_content"
+        android:onClick="onLoaderTestClick"/>
 </LinearLayout>

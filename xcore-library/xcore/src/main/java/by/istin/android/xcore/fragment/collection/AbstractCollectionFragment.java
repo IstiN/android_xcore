@@ -2,13 +2,11 @@ package by.istin.android.xcore.fragment.collection;
 
 import android.app.Activity;
 import android.content.Context;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.format.DateUtils;
 import android.view.View;
@@ -23,7 +21,6 @@ import by.istin.android.xcore.fragment.DataSourceExecuteHelper;
 import by.istin.android.xcore.fragment.IDataSourceHelper;
 import by.istin.android.xcore.fragment.IRefresh;
 import by.istin.android.xcore.model.CursorModel;
-import by.istin.android.xcore.model.CursorModelLoader;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
@@ -40,10 +37,9 @@ import by.istin.android.xcore.utils.UiUtil;
  */
 public abstract class AbstractCollectionFragment<CollectionView, CollectionViewAdapter, Model extends CursorModel> extends AbstractFragment
         implements IRefresh,
-        CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper,
+        CursorLoaderFragmentHelper.ICursorLoaderFragmentHelper<Model>,
         IDataSourceHelper,
-        DataSourceExecuteHelper.IDataSourceListener,
-            CursorModelLoader.ILoading {
+        DataSourceExecuteHelper.IDataSourceListener {
 
     public static final boolean IS_CHECK_STATUS_LOG_ENABLED = true;
 
@@ -143,9 +139,9 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     }
 
     @Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    public Loader<Model> onCreateLoader(int id, Bundle args) {
         setLoaderWork(true, LOADER_PRIORITY_HIGH);
-        Loader<Cursor> cursorLoader = CursorLoaderFragmentHelper.onCreateLoader(this, this, id, args);
+        Loader<Model> cursorLoader = CursorLoaderFragmentHelper.createLoader(this, id);
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
@@ -153,7 +149,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
-        checkStatus("onCreateLoader");
+        checkStatus("createLoader");
         return cursorLoader;
     }
 
@@ -163,18 +159,18 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     protected abstract int getAdapterCount(CollectionViewAdapter listAdapter);
 
     @Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Loader<Model> loader, Model cursor) {
         CollectionViewAdapter adapter = mAdapter;
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
         }
         if (adapter == null) {
-            mAdapter = createAdapter(activity, (Model)cursor);
+            mAdapter = createAdapter(activity, cursor);
             adapter = mAdapter;
             setAdapter(mCollectionView, adapter);
         } else {
-            swap(adapter, (Model)cursor);
+            swap(adapter, cursor);
         }
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
@@ -257,7 +253,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         if (activity == null) {
             return;
         }
-        if (CursorLoaderFragmentHelper.onActivityCreated(this, savedInstanceState)) {
+        if (CursorLoaderFragmentHelper.restartLoader(this)) {
             setLoaderWork(true, LOADER_PRIORITY_HIGH);
         }
         String url = getUrl();
@@ -270,8 +266,8 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             }
         }
         if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " onActivityCreated ");
-        //checkStatus("onActivityCreated");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " restartLoader ");
+        //checkStatus("restartLoader");
     }
 
     public void refresh() {
@@ -411,7 +407,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) {
+    public void onLoaderReset(Loader<Model> loader) {
         //isLoaderWork = false;
         if (getView() != null) {
             if (IS_CHECK_STATUS_LOG_ENABLED)
@@ -439,7 +435,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     }
 
     @Override
-    public CursorModel.CursorModelCreator getCursorModelCreator() {
+    public CursorModel.CursorModelCreator<Model> getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
     }
 
@@ -675,15 +671,4 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         }
     }
 
-    @Override
-    public void onCursorLoaderStartLoading() {
-        setLoaderWork(true, LOADER_PRIORITY_HIGH);
-        checkStatus("onCursorLoaderStartLoading");
-    }
-
-    @Override
-    public void onCursorLoaderStopLoading() {
-        setLoaderWork(false, LOADER_PRIORITY_HIGH);
-        checkStatus("onCursorLoaderStopLoading");
-    }
 }

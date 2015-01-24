@@ -28,13 +28,13 @@ import by.istin.android.xcore.utils.CursorUtils;
  */
 public class CursorModel implements Cursor, List<Cursor> {
 
-    public static interface CursorModelCreator {
+    public static interface CursorModelCreator<T extends CursorModel> {
 
         public static interface NullSupport {
 
         }
 
-        CursorModel create(Cursor cursor);
+        T create(Cursor cursor);
 
         public static CursorModelCreator DEFAULT = new CursorModelCreator() {
             @Override

@@ -16,6 +16,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.listener.PauseOnScrollListener;
 
 import by.istin.android.xcore.fragment.XListFragment;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 
 /**
@@ -35,12 +36,12 @@ public class ImageLoaderPlugin implements IFragmentPlugin {
     }
 
     @Override
-    public void onCreateLoader(Fragment fragment, Loader<Cursor> loader, int id, Bundle args) {
+    public void onCreateLoader(Fragment fragment, Loader loader, int id, Bundle args) {
 
     }
 
     @Override
-    public void onLoadFinished(Fragment fragment, android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Fragment fragment, Loader loader, CursorModel cursor) {
 
     }
 

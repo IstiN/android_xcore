@@ -9,7 +9,6 @@ import android.provider.BaseColumns;
 
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
-import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UiUtil;
 
@@ -36,8 +35,8 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     public static final String CREATE_COLUMN_SQL = "ALTER TABLE %1$s ADD %2$s %3$s;";
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
-    public SQLiteConnector(Context context) {
-        super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, context.getPackageName()), null, DATABASE_VERSION);
+    public SQLiteConnector(Context context, String name) {
+        super(context, StringUtil.format(DATABASE_NAME_TEMPLATE, name), null, DATABASE_VERSION);
         if (UiUtil.hasJellyBean()) {
             setWriteAheadLoggingEnabled(true);
         }

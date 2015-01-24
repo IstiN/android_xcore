@@ -15,6 +15,7 @@ import com.handmark.pulltorefresh.library.PullToRefreshAdapterViewBase;
 import com.handmark.pulltorefresh.library.PullToRefreshBase;
 
 import by.istin.android.xcore.fragment.IRefresh;
+import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
 
 /**
@@ -47,12 +48,12 @@ public class PullToRefreshListFragmentPlugin implements IFragmentPlugin {
     }
 
     @Override
-    public void onCreateLoader(Fragment fragment, Loader<Cursor> loader, int id, Bundle args) {
+    public void onCreateLoader(Fragment fragment, Loader loader, int id, Bundle args) {
 
     }
 
     @Override
-    public void onLoadFinished(Fragment fragment, android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
+    public void onLoadFinished(Fragment fragment, Loader loader, CursorModel cursor) {
 
     }
 
