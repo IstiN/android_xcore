@@ -31,6 +31,7 @@ public class ContentUtils {
     }
 
     public static ContentValues getEntity(Context context, Uri uri, String[] projection, String selection, String[] selectionArgs) {
+        UiUtil.checkMain();
         Cursor entityCursor = null;
         ContentValues values = null;
         try {
@@ -46,6 +47,7 @@ public class ContentUtils {
     }
 
     public static void putEntity(Context context, Class<?> entityClass, ContentValues entity) {
+        UiUtil.checkMain();
         context.getContentResolver().insert(ModelContract.getUri(entityClass), entity);
     }
 
@@ -55,6 +57,7 @@ public class ContentUtils {
     }
 
     public static void putEntities(Context context, Class<?> entityClass, ContentValues... entity) {
+        UiUtil.checkMain();
         context.getContentResolver().bulkInsert(ModelContract.getUri(entityClass), entity);
     }
 
@@ -69,6 +72,7 @@ public class ContentUtils {
     }
 
     public static void removeEntities(Context context, Uri uri, String where, String[] selectionArgs) {
+        UiUtil.checkMain();
         context.getContentResolver().delete(uri, where, selectionArgs);
     }
 
@@ -99,6 +103,7 @@ public class ContentUtils {
     }
 
     public static List<ContentValues> getEntities(Context context, String[] projection, Uri uri, String sortOrder, String selection, String[] selectionArgs) {
+        UiUtil.checkMain();
         Cursor entityCursor = null;
         List<ContentValues> result = null;
         try {

@@ -15,10 +15,6 @@
         android:name=".Application"
         >
 
-        <meta-data
-            android:name="log"
-            android:value="DEBUG" />
-
         <service
             android:name="by.istin.android.xcore.service.DataSourceService"
             android:exported="false" />

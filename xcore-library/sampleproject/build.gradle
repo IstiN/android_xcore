@@ -17,5 +17,6 @@ android {
 dependencies {
     compile project(':xcore')
     compile project(':plugin_uil')
+    compile project(':plugin_picasso')
     compile 'com.android.support:appcompat-v7:21.0.3'
 }

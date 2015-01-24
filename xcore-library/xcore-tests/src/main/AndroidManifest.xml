@@ -1,6 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="by.istin.android.xcore.testapp"
-    xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="1"
     android:versionName="1.0" >
 
@@ -35,10 +34,6 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <meta-data
-            android:name="log"
-            android:value="DEBUG" />
 
         <service
             android:name="by.istin.android.xcore.service.DataSourceService"

@@ -1,23 +1,12 @@
 package by.istin.android.xcore.sample;
 
-import android.database.Cursor;
-import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.Loader;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.ImageView;
-
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
+import com.squareup.picasso.RequestCreator;
 
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.error.ErrorHandler;
-import by.istin.android.xcore.plugin.IFragmentPlugin;
 import by.istin.android.xcore.plugin.uil.ImageLoaderPlugin;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.sample.core.processor.ContentEntityProcessor;
@@ -57,7 +46,15 @@ public class Application extends CoreApplication {
         ));
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .defaultDisplayImageOptions(BITMAP_DISPLAYER_OPTIONS).build();
-        addPlugin(new ImageLoaderPlugin(config));
+        //addPlugin(new ImageLoaderPlugin(config));
+        addPlugin(new by.istin.android.xcore.plugin.picasso.ImageLoaderPlugin(this) {
+
+            @Override
+            public void onRequestCreated(RequestCreator requestCreator) {
+                //customize if needs
+            }
+
+        });
     }
 
 }

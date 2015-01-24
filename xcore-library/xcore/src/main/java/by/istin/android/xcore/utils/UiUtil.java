@@ -13,6 +13,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
+import android.os.Looper;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -387,6 +388,16 @@ public class UiUtil {
             view.setBackground(drawable);
         } else {
             view.setBackgroundDrawable(drawable);
+        }
+    }
+
+    public static void checkMain() {
+        if (!Log.isDebug()) {
+            return;
+        }
+        boolean isMain = Looper.getMainLooper().getThread() == Thread.currentThread();
+        if (isMain) {
+            throw new IllegalStateException("This is main UI thread, what are you doing there?");
         }
     }
 }

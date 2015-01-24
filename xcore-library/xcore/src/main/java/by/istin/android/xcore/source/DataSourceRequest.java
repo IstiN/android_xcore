@@ -55,7 +55,7 @@ public class DataSourceRequest {
 	
 	private Bundle mBundle = new Bundle();
 
-    private Map<String, Holder<String>> mParamsCache = new ConcurrentHashMap<String, Holder<String>>();
+    private Map<String, Holder<String>> mParamsCache = new ConcurrentHashMap<>();
 
     private Uri mCacheUri = null;
 
@@ -152,7 +152,7 @@ public class DataSourceRequest {
 	}
 
 	private void checkIfParamIsNotRestricted(String key) {
-        if (Log.isOff()) return;
+        if (!Log.isDebug()) return;
 		for (String privateKey : KEYS) {
 			if (privateKey.equalsIgnoreCase(key)) {
 				throw new IllegalArgumentException(key + " is reserved by DataSourceRequest class and can't be used.");
@@ -167,7 +167,7 @@ public class DataSourceRequest {
             value = stringHolder == null ? null : stringHolder.get();
             if (value == null) {
                 String queryParameter = getRequestUri().getQueryParameter(key);
-                mParamsCache.put(key, new Holder<String>(queryParameter));
+                mParamsCache.put(key, new Holder<>(queryParameter));
                 return queryParameter;
             }
         }
@@ -177,7 +177,7 @@ public class DataSourceRequest {
     public String toUriParams() {
 		StringBuilder buffer = new StringBuilder();
 		Set<String> keySet = mBundle.keySet();
-        List<String> sortedKeys = new ArrayList<String>();
+        List<String> sortedKeys = new ArrayList<>();
         sortedKeys.addAll(keySet);
         Collections.sort(sortedKeys);
 		for (Iterator<String> iterator = sortedKeys.iterator(); iterator.hasNext();) {
@@ -273,7 +273,7 @@ public class DataSourceRequest {
             private DataSourceRequest dataSourceRequest;
         }
 
-        private final List<RequestConfig> dataSourceRequests = new ArrayList<RequestConfig>();
+        private final List<RequestConfig> dataSourceRequests = new ArrayList<>();
 
         private String dataSourceKey;
 

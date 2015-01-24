@@ -1,9 +1,10 @@
 include ':xcore',
         ':xcore-tests',
         ':plugin_uil',
+        ':plugin_picasso',
         ':plugin_ab_pull_to_refresh',
         ':plugin_pull_to_refresh',
         'plugin_pull_to_refresh:pull_to_refresh:library',
         ':xcore_wearable',
         ':xcore-tests-wearable',
-	':sampleproject'
+  	    ':sampleproject'
