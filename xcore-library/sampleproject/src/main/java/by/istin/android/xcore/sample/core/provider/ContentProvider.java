@@ -2,9 +2,13 @@ package by.istin.android.xcore.sample.core.provider;
 
 import android.content.Context;
 
+import java.util.List;
+
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.provider.DBContentProvider;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
+import by.istin.android.xcore.sample.Application;
 import by.istin.android.xcore.sample.core.model.Content;
 import by.istin.android.xcore.sample.core.model.SampleEntity;
 
@@ -20,6 +24,11 @@ public class ContentProvider extends DBContentProvider {
             Content.class
 
     };
+
+    @Override
+    protected List<Class<? extends XCoreHelper.Module>> getModules() {
+        return Application.APP_MODULES;
+    }
 
     @Override
     public Class<?>[] getEntities() {

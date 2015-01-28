@@ -1,60 +1,25 @@
 package by.istin.android.xcore.sample;
 
-import com.nostra13.universalimageloader.core.DisplayImageOptions;
-import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
-import com.nostra13.universalimageloader.core.display.SimpleBitmapDisplayer;
-import com.squareup.picasso.RequestCreator;
+import java.util.ArrayList;
+import java.util.List;
 
 import by.istin.android.xcore.CoreApplication;
-import by.istin.android.xcore.error.ErrorHandler;
-import by.istin.android.xcore.plugin.uil.ImageLoaderPlugin;
-import by.istin.android.xcore.provider.IDBContentProviderSupport;
-import by.istin.android.xcore.sample.core.processor.ContentEntityProcessor;
-import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
-import by.istin.android.xcore.sample.core.provider.ContentProvider;
-import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.XCoreHelper;
 
 /**
  * Created by IstiN on 13.11.13.
  */
 public class Application extends CoreApplication {
 
-    public static DisplayImageOptions BITMAP_DISPLAYER_OPTIONS = new DisplayImageOptions.Builder()
-            .resetViewBeforeLoading(true)
-            .delayBeforeLoading(300)
-            .cacheInMemory(true)
-            .cacheOnDisk(true)
-            .displayer(new SimpleBitmapDisplayer())
-            .build();
+    public static final List<Class<? extends XCoreHelper.Module>> APP_MODULES;
 
-    @Override
-    public void onCreate() {
-        super.onCreate();
-        IDBContentProviderSupport dbContentProviderSupport = ContentProvider.getDBContentProviderSupport(this);
-        registerAppService(new SampleEntityProcessor(dbContentProviderSupport));
-        registerAppService(new HttpAndroidDataSource(
-                new HttpAndroidDataSource.DefaultHttpRequestBuilder(),
-                new HttpAndroidDataSource.DefaultResponseStatusHandler())
-        );
-        registerAppService(new ContentEntityProcessor(dbContentProviderSupport));
-        registerAppService(new ErrorHandler(
-                "Error",
-                "Check your internet connection",
-                "Server error",
-                "Developer error",
-                "istin2007@gmail.com"
-        ));
-        ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
-                .defaultDisplayImageOptions(BITMAP_DISPLAYER_OPTIONS).build();
-        //addPlugin(new ImageLoaderPlugin(config));
-        addPlugin(new by.istin.android.xcore.plugin.picasso.ImageLoaderPlugin(this) {
-
-            @Override
-            public void onRequestCreated(RequestCreator requestCreator) {
-                //customize if needs
-            }
-
-        });
+    static {
+        APP_MODULES = new ArrayList<>();
+        APP_MODULES.add(SimpleAppModule.class);
     }
 
+    @Override
+    public List<Class<? extends XCoreHelper.Module>> getModules() {
+        return APP_MODULES;
+    }
 }

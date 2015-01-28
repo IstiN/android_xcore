@@ -5,6 +5,7 @@ import android.content.Context;
 import java.util.HashMap;
 import java.util.Map;
 
+import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.impl.sqlite.SQLiteSupport;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
 
@@ -27,26 +28,32 @@ public class DBContentProviderFactory {
 
     public static IDBContentProviderSupport getDefaultDBContentProvider(Context context, Class<?> ... entities) {
         DBContentProviderFactory dbContentProviderFactory = getInstance();
-        return dbContentProviderFactory.getDbContentProvider(context, context.getPackageName(), entities);
+        String name = context.getPackageName();
+        return dbContentProviderFactory.getDbContentProvider(context, name, new SQLiteSupport(name), entities);
     }
 
     private final Object mLock = new Object();
 
     private final Map<String, IDBContentProviderSupport> mProviders = new HashMap<>();
 
-    public IDBContentProviderSupport getDbContentProvider(Context context, String name, Class<?> ... entities) {
+    public IDBContentProviderSupport getDbContentProvider(Context context, String name, IDBSupport dbSupport, Class<?> ... entities) {
         IDBContentProviderSupport dbContentProviderSupport = mProviders.get(name);
         if (dbContentProviderSupport == null) {
             synchronized (mLock) {
-                dbContentProviderSupport = mProviders.get(name);
-                if (dbContentProviderSupport != null) {
-                    return dbContentProviderSupport;
-                }
-                dbContentProviderSupport = new DBContentProviderSupport(context, new SQLiteSupport(name), entities);
-                mProviders.put(name, dbContentProviderSupport);
-                return dbContentProviderSupport;
+                return registerContentProvider(context, name, dbSupport, entities);
             }
         }
+        return dbContentProviderSupport;
+    }
+
+    private IDBContentProviderSupport registerContentProvider(Context context, String name, IDBSupport dbSupport, Class<?>[] entities) {
+        IDBContentProviderSupport dbContentProviderSupport;
+        dbContentProviderSupport = mProviders.get(name);
+        if (dbContentProviderSupport != null) {
+            return dbContentProviderSupport;
+        }
+        dbContentProviderSupport = new DBContentProviderSupport(context, dbSupport, entities);
+        mProviders.put(name, dbContentProviderSupport);
         return dbContentProviderSupport;
     }
 

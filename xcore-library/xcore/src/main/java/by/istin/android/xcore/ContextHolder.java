@@ -8,12 +8,6 @@ import android.content.Context;
  */
 public final class ContextHolder {
 
-	/** The instance. */
-	private static ContextHolder sInstance = new ContextHolder();
-
-	/** The context. */
-	private Context mContext;
-
 	/**
 	 * Instantiates a new context holder.
 	 */
@@ -21,38 +15,12 @@ public final class ContextHolder {
 
 	}
 
-    public static Context get() {
-        return sInstance.getContext();
-    }
-
     /**
-     * Sets the context.
-     *
-     * @param context
-     *            the new context
+     * Gets Application context from XCoreHelper
+     * @return context of application
      */
-    public static void set(Context context) {
-        sInstance.mContext = context;
+    public static Context get() {
+        return XCoreHelper.get().getContext();
     }
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see java.lang.Object#clone()
-	 */
-	@Override
-	protected Object clone() throws CloneNotSupportedException {
-		throw new CloneNotSupportedException("Singleton");
-	}
-
-	/**
-	 * Gets the context.
-	 * 
-	 * @return the context
-	 */
-	public Context getContext() {
-		return mContext;
-	}
-
 
 }

@@ -10,8 +10,9 @@ import android.database.Cursor;
 import android.net.Uri;
 
 import java.util.ArrayList;
+import java.util.List;
 
-import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
@@ -23,14 +24,15 @@ public abstract class DBContentProvider extends ContentProvider {
 
     @Override
 	public boolean onCreate() {
-        Context context = ContextHolder.get();
-        Log.xd(this, "ContentProvider onCreate " + context + " " + getContext());
-        if (context == null) {
-            ContextHolder.set(getContext());
-        }
-        dbContentProviderSupport = getContentProviderSupport(getContext());
+        Context context = getContext();
+        XCoreHelper xCoreHelper = XCoreHelper.get();
+        Log.xd(this, "xCoreHelper onCreate");
+        xCoreHelper.onCreate(context, getModules());
+        dbContentProviderSupport = getContentProviderSupport(context);
         return true;
 	}
+
+    protected abstract List<Class<? extends XCoreHelper.Module>> getModules();
 
     protected IDBContentProviderSupport getContentProviderSupport(Context context) {
         return DBContentProviderFactory.getDefaultDBContentProvider(context, getEntities());

@@ -189,25 +189,25 @@ public abstract class AbstractRequestManager implements IRequestManager {
             if (bundle == null) {
                 return result;
             }
-            if (result instanceof Parcelable) {
-                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
-            } else if (result instanceof Parcelable[]) {
-                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
-            } else if (result instanceof Serializable) {
-                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            }
+            initResult(bundle, result);
         } else {
             if (bundle == null) {
                 return result;
             }
-            if (result instanceof Parcelable) {
-                bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
-            } else if (result instanceof Parcelable[]) {
-                bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
-            } else if (result instanceof Serializable) {
-                bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
-            }
+            initResult(bundle, result);
         }
         return result;
+    }
+
+    private static void initResult(Bundle bundle, Object result) {
+        if (result instanceof Parcelable) {
+            bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
+        } else if (result instanceof Parcelable[]) {
+            bundle.putParcelableArray(StatusResultReceiver.RESULT_KEY, (Parcelable[]) result);
+        } else if (result instanceof Serializable) {
+            bundle.putSerializable(StatusResultReceiver.RESULT_KEY, (Serializable) result);
+        } else {
+            throw new IllegalArgumentException("result of processor need to be Parcelable, Parcelable[] or Serializable");
+        }
     }
 }
