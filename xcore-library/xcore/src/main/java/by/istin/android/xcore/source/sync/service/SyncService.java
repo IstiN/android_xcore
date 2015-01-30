@@ -60,9 +60,9 @@ public abstract class SyncService extends Service {
     public IBinder onBind(Intent intent) {
         return sSyncAdapter.getSyncAdapterBinder();
     }
-    
+
     public AbstractThreadedSyncAdapter getSyncAdapter(Context context, boolean autoInitialize) {
-        return new AbstractThreadedSyncAdapter(context, autoInitialize){
+        return new AbstractThreadedSyncAdapter(context, autoInitialize) {
 
             @Override
             public void onPerformSync(Account account, Bundle extras, String authority,

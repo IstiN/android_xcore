@@ -37,6 +37,7 @@ class DBAssociationCache {
         TYPE_ASSOCIATION.put(dbByte.class, "INTEGER");
         TYPE_ASSOCIATION.put(dbByteArray.class, "BLOB");
     }
+
     public final static Map<Config.DBType, String> DB_TYPE_ASSOCIATION = new ConcurrentHashMap<Config.DBType, String>();
 
     static {

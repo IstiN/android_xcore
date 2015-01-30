@@ -23,14 +23,14 @@ public abstract class DBContentProvider extends ContentProvider {
     private IDBContentProviderSupport dbContentProviderSupport;
 
     @Override
-	public boolean onCreate() {
+    public boolean onCreate() {
         Context context = getContext();
         XCoreHelper xCoreHelper = XCoreHelper.get();
         Log.xd(this, "xCoreHelper onCreate");
         xCoreHelper.onCreate(context, getModules());
         dbContentProviderSupport = getContentProviderSupport(context);
         return true;
-	}
+    }
 
     protected abstract List<Class<? extends XCoreHelper.Module>> getModules();
 
@@ -53,22 +53,22 @@ public abstract class DBContentProvider extends ContentProvider {
         return dbContentProviderSupport.insertOrUpdate(uri, initialValues);
     }
 
-	@Override
-	public final int bulkInsert(Uri uri, ContentValues[] values) {
+    @Override
+    public final int bulkInsert(Uri uri, ContentValues[] values) {
         return dbContentProviderSupport.bulkInsertOrUpdate(uri, values);
-	}
+    }
 
     @Override
     public final Cursor query(Uri uri, String[] projection, String selection,
-                        String[] selectionArgs, String sortOrder) {
+                              String[] selectionArgs, String sortOrder) {
         return dbContentProviderSupport.query(uri, projection, selection, selectionArgs, sortOrder);
     }
 
     @Override
-	public final int update(Uri uri, ContentValues initialValues, String where,
-			String[] whereArgs) {
-		throw new UnsupportedOperationException("unsupported operation, please use insert method");
-	}
+    public final int update(Uri uri, ContentValues initialValues, String where,
+                            String[] whereArgs) {
+        throw new UnsupportedOperationException("unsupported operation, please use insert method");
+    }
 
     @Override
     public final ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {

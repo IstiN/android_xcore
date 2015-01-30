@@ -20,16 +20,16 @@ public class DbHelperTest extends ApplicationTestCase<Application> {
     private DBHelper dbHelper;
 
     public DbHelperTest() {
-		super(Application.class);
-	}
+        super(Application.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		createApplication();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        createApplication();
         IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
         dbHelper = new DBHelper(connector);
-	}
+    }
 
     public void testTableName() throws Exception {
         assertEquals(TABLE_NAME, DBHelper.getTableName(BigTestEntity.class));
@@ -59,20 +59,20 @@ public class DbHelperTest extends ApplicationTestCase<Application> {
 
         dbHelper.delete(BigTestEntity.class, BigTestEntity.ID + "= ?", new String[]{"0"});
 
-        checkResults(MockStorage.SIZE-1);
+        checkResults(MockStorage.SIZE - 1);
     }
 
-	public void testBulkInsert() throws Exception {
+    public void testBulkInsert() throws Exception {
         Log.xd(this, "testBulkInsert");
         ContentValues[] contentValues = MockStorage.generateArray();
         Log.xd(this, "createAndClearTables");
         createAndClearTables();
 
         Log.xd(this, "dbHelper.updateOrInsert");
-		dbHelper.updateOrInsert(BigTestEntity.class, contentValues);
+        dbHelper.updateOrInsert(BigTestEntity.class, contentValues);
         Log.xd(this, "checkResults");
         checkResults(MockStorage.SIZE);
-	}
+    }
 
     private void checkResults(int count) {
         Cursor cursor = dbHelper.query(BigTestEntity.class, new String[]{BigTestEntity.ID}, null, null, null, null, null, null);

@@ -1,6 +1,7 @@
 package by.istin.android.xcore.db.entity;
 
 import android.content.ContentValues;
+
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -16,12 +17,12 @@ public interface IMerge {
     /**
      * Calls every time if we already have entity in the database with the same id.
      *
-     * @param dbHelper instance of DBHelper
-     * @param db current WritableTransaction
+     * @param dbHelper          instance of DBHelper
+     * @param db                current WritableTransaction
      * @param dataSourceRequest current dataSourceRequest
-     * @param oldValues old ContentValues that exists in the DataBase
-     * @param newValues new ContentValues that will override oldContentValues
+     * @param oldValues         old ContentValues that exists in the DataBase
+     * @param newValues         new ContentValues that will override oldContentValues
      */
-	void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues);
-	
+    void merge(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues oldValues, ContentValues newValues);
+
 }

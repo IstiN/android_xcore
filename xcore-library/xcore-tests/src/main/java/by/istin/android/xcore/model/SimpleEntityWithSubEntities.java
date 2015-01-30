@@ -38,5 +38,4 @@ public class SimpleEntityWithSubEntities implements BaseColumns {
     public static final String SUB_ENTITIES2 = "sub_entities2";
 
 
-
 }

@@ -54,7 +54,7 @@ public abstract class XArrayAdapter<T> extends ArrayAdapter<T> {
         return view;
     }
 
-    protected View createView(ViewGroup parent,  int resource, int position, T item, ViewGroup viewGroup) {
+    protected View createView(ViewGroup parent, int resource, int position, T item, ViewGroup viewGroup) {
         return View.inflate(parent.getContext(), resource, null);
     }
 

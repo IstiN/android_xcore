@@ -23,9 +23,11 @@ public interface OAuth2Helper {
 
         private static Map<Configuration, OAuth2Helper> sCache = new ConcurrentHashMap<>();
 
-        public static OAuth2Helper create(Configuration configuration){
+        public static OAuth2Helper create(Configuration configuration) {
             return new DefaultOAuth2Helper(configuration);
-        };
+        }
+
+        ;
 
         public static OAuth2Helper getInstance(Configuration configuration) {
             OAuth2Helper oAuth2Helper = sCache.get(configuration);

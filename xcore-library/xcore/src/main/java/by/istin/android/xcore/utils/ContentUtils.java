@@ -21,12 +21,12 @@ import by.istin.android.xcore.provider.ModelContract;
 @SuppressWarnings("unchecked")
 public class ContentUtils {
 
-    public static ContentValues getEntity(Context context, Class<?> entityClass, Long id, String ... projection) {
+    public static ContentValues getEntity(Context context, Class<?> entityClass, Long id, String... projection) {
         Uri uri = ModelContract.getUri(entityClass, id);
         return getEntity(context, uri, projection);
     }
 
-    public static ContentValues getEntity(Context context, Uri uri, String ... projection) {
+    public static ContentValues getEntity(Context context, Uri uri, String... projection) {
         return getEntity(context, uri, projection, null, null);
     }
 
@@ -66,7 +66,7 @@ public class ContentUtils {
         removeEntities(context, entityClass, where, String.valueOf(id));
     }
 
-    public static void removeEntities(Context context, Class<?> entityClass, String where, String ... selectionArgs) {
+    public static void removeEntities(Context context, Class<?> entityClass, String where, String... selectionArgs) {
         Uri uri = ModelContract.getUri(entityClass);
         removeEntities(context, uri, where, selectionArgs);
     }
@@ -76,7 +76,7 @@ public class ContentUtils {
         context.getContentResolver().delete(uri, where, selectionArgs);
     }
 
-    public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
+    public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String... selectionArgs) {
         List<ContentValues> entities = getEntities(context, entityClass, selection, selectionArgs);
         if (entities == null || entities.isEmpty()) {
             return null;
@@ -84,7 +84,7 @@ public class ContentUtils {
         return entities.get(0);
     }
 
-    public static ContentValues getEntity(Context context, Class<?> entityClass, String[] projection, String selection, String ... selectionArgs) {
+    public static ContentValues getEntity(Context context, Class<?> entityClass, String[] projection, String selection, String... selectionArgs) {
         List<ContentValues> entities = getEntities(context, projection, entityClass, selection, selectionArgs);
         if (entities == null || entities.isEmpty()) {
             return null;
@@ -97,7 +97,7 @@ public class ContentUtils {
         return getEntities(context, uri, sortOrder, selection, selectionArgs);
     }
 
-    public static List<ContentValues> getEntitiesFromSQL(Context context, String sql, String ... args) {
+    public static List<ContentValues> getEntitiesFromSQL(Context context, String sql, String... args) {
         Uri uri = ModelContract.getSQLQueryUri(sql, null);
         return getEntities(context, uri, null, null, args);
     }
@@ -122,11 +122,11 @@ public class ContentUtils {
         return getEntities(context, null, uri, sortOrder, selection, selectionArgs);
     }
 
-    public static List<ContentValues> getEntities(Context context, String[] projection, Class<?> entityClass, String selection, String ... selectionArgs) {
+    public static List<ContentValues> getEntities(Context context, String[] projection, Class<?> entityClass, String selection, String... selectionArgs) {
         return getEntities(context, projection, ModelContract.getUri(entityClass), null, selection, selectionArgs);
     }
 
-    public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String ... selectionArgs) {
+    public static List<ContentValues> getEntities(Context context, Class<?> entityClass, String selection, String... selectionArgs) {
         return getEntitiesWithOrder(context, entityClass, null, selection, selectionArgs);
     }
 
@@ -144,7 +144,7 @@ public class ContentUtils {
         }
     }
 
-    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String ... defaultColumnsIfNull) {
+    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String... defaultColumnsIfNull) {
         if (listContentValues == null || listContentValues.isEmpty()) {
             if (defaultColumnsIfNull == null) {
                 defaultColumnsIfNull = new String[]{};

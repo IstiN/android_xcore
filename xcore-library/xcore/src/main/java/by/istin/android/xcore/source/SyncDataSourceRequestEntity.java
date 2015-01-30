@@ -10,52 +10,52 @@ import by.istin.android.xcore.utils.HashUtils;
 
 public class SyncDataSourceRequestEntity implements BaseColumns {
 
-	@dbLong
-	public static final String ID = _ID;
-	
-	@dbLong
-	public static final String LAST_UPDATE = "last_update";
-	
-	@dbLong
-	public static final String EXPIRATION = "expiration";
-	
-	@dbString
-	public static final String URI = "uri";
+    @dbLong
+    public static final String ID = _ID;
 
-	@dbString
-	public static final String URI_PARAM = "uri_param";
+    @dbLong
+    public static final String LAST_UPDATE = "last_update";
 
-	@dbString
-	public static final String PARENT_URI = "parent_uri";
+    @dbLong
+    public static final String EXPIRATION = "expiration";
 
-	@dbString
-	public static final String DATASOURCE_KEY = "datasource_key";
+    @dbString
+    public static final String URI = "uri";
 
-	@dbString
-	public static final String PROCESSOR_KEY = "processor_key";
+    @dbString
+    public static final String URI_PARAM = "uri_param";
 
-	@dbBoolean
-	public static final String IS_ERROR = "is_error";
+    @dbString
+    public static final String PARENT_URI = "parent_uri";
 
-	@dbBoolean
-	public static final String CACHEABLE = "cacheable";
+    @dbString
+    public static final String DATASOURCE_KEY = "datasource_key";
 
-	@dbLong
-	public static final String LAST_CHANGED = "last_changed";
+    @dbString
+    public static final String PROCESSOR_KEY = "processor_key";
 
-	public static ContentValues prepare(DataSourceRequest dataSourceRequest) {
-		ContentValues contentValues = new ContentValues();
-		contentValues.put(ID, generateId(dataSourceRequest));
-		contentValues.put(LAST_UPDATE, System.currentTimeMillis());
-		contentValues.put(EXPIRATION, dataSourceRequest.getCacheExpiration());
-		contentValues.put(CACHEABLE, dataSourceRequest.isCacheable());
-		contentValues.put(URI, dataSourceRequest.getUri());
-		contentValues.put(URI_PARAM, dataSourceRequest.toUriParams());
-		contentValues.put(PARENT_URI, dataSourceRequest.getRequestParentUri());
-		contentValues.put(IS_ERROR, false);
-		contentValues.put(LAST_CHANGED, System.currentTimeMillis());
-		return contentValues;
-	}
+    @dbBoolean
+    public static final String IS_ERROR = "is_error";
+
+    @dbBoolean
+    public static final String CACHEABLE = "cacheable";
+
+    @dbLong
+    public static final String LAST_CHANGED = "last_changed";
+
+    public static ContentValues prepare(DataSourceRequest dataSourceRequest) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(ID, generateId(dataSourceRequest));
+        contentValues.put(LAST_UPDATE, System.currentTimeMillis());
+        contentValues.put(EXPIRATION, dataSourceRequest.getCacheExpiration());
+        contentValues.put(CACHEABLE, dataSourceRequest.isCacheable());
+        contentValues.put(URI, dataSourceRequest.getUri());
+        contentValues.put(URI_PARAM, dataSourceRequest.toUriParams());
+        contentValues.put(PARENT_URI, dataSourceRequest.getRequestParentUri());
+        contentValues.put(IS_ERROR, false);
+        contentValues.put(LAST_CHANGED, System.currentTimeMillis());
+        return contentValues;
+    }
 
     public static long generateId(DataSourceRequest dataSourceRequest) {
         return HashUtils.generateId(dataSourceRequest.getUri());

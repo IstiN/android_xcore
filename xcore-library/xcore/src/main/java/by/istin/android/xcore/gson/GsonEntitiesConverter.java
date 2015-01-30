@@ -1,6 +1,7 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+
 import com.google.gson.JsonElement;
 import com.google.gson.JsonParser;
 

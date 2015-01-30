@@ -10,28 +10,28 @@ import by.istin.android.xcore.test.vk.User;
 
 public class DialogsResponse implements Serializable {
 
-	private static final long serialVersionUID = 577009158147303735L;
+    private static final long serialVersionUID = 577009158147303735L;
 
     @dbEntity(clazz = Dialog.class)
-	private ContentValues[] dialogs;
+    private ContentValues[] dialogs;
 
     @dbEntity(clazz = User.class)
-	private ContentValues[] users;
+    private ContentValues[] users;
 
-	public ContentValues[] getDialogs() {
-		return dialogs;
-	}
+    public ContentValues[] getDialogs() {
+        return dialogs;
+    }
 
-	public ContentValues[] getUsers() {
-		return users;
-	}
+    public ContentValues[] getUsers() {
+        return users;
+    }
 
-	public void setDialogs(ContentValues[] dialogs) {
-		this.dialogs = dialogs;
-	}
+    public void setDialogs(ContentValues[] dialogs) {
+        this.dialogs = dialogs;
+    }
 
-	public void setUsers(ContentValues[] users) {
-		this.users = users;
-	}
+    public void setUsers(ContentValues[] users) {
+        this.users = users;
+    }
 
 }

@@ -57,7 +57,7 @@ public class SimpleEntityWithCustomPrimitiveConverter implements BaseColumns {
                     for (int i = 0; i < size; i++) {
                         JsonElement item = jsonArray.get(i);
                         tagsBuilder.append(item.getAsString());
-                        if (i != size -1) {
+                        if (i != size - 1) {
                             tagsBuilder.append(", ");
                         }
                     }

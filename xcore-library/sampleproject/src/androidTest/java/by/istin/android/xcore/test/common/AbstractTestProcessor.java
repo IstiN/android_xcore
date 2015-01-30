@@ -45,13 +45,13 @@ public class AbstractTestProcessor extends ApplicationTestCase<Application> {
         writableConnection.endTransaction();
     }
 
-    public void clear(Class<?> ... entities) {
+    public void clear(Class<?>... entities) {
         for (Class<?> entity : entities) {
             getApplication().getContentResolver().delete(ModelContract.getUri(entity), null, null);
         }
     }
 
-    protected void checkRequiredFields(Class<?> classEntity, String ... fields) {
+    protected void checkRequiredFields(Class<?> classEntity, String... fields) {
         Uri uri = ModelContract.getUri(classEntity);
         String[] projection = null;
         String selection = null;
@@ -68,8 +68,8 @@ public class AbstractTestProcessor extends ApplicationTestCase<Application> {
             for (int j = 0; j < fields.length; j++) {
                 String field = fields[j];
                 String value = entity.getString(field);
-                assertNotNull(field+ " is required",value);
-                assertFalse(field+ " is required", StringUtil.isEmpty(value));
+                assertNotNull(field + " is required", value);
+                assertFalse(field + " is required", StringUtil.isEmpty(value));
             }
         }
         CursorUtils.close(cursor);

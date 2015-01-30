@@ -8,13 +8,13 @@ import android.content.ContentValues;
 
 public class FriendsResponse implements Serializable {
 
-	private static final long serialVersionUID = 577009158147303735L;
-	
-	@SerializedName(value="response")
-	private ContentValues[] results;
+    private static final long serialVersionUID = 577009158147303735L;
 
-	public ContentValues[] getResults() {
-		return results;
-	}
-	
+    @SerializedName(value = "response")
+    private ContentValues[] results;
+
+    public ContentValues[] getResults() {
+        return results;
+    }
+
 }

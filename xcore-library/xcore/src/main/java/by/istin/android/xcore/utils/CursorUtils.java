@@ -11,76 +11,79 @@ import java.util.List;
 
 public final class CursorUtils {
 
-    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String ... defaultColumnsIfNull) {
+    public static Cursor listContentValuesToCursor(List<ContentValues> listContentValues, String... defaultColumnsIfNull) {
         return ContentUtils.listContentValuesToCursor(listContentValues, defaultColumnsIfNull);
     }
 
-	public static String getString(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getString(columnIndex);
-	}
-	
-	public static Integer getInt(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		return cursor.getInt(columnIndex);
-	}
-	
-	public static byte getByte(String columnName, Cursor cursor) {
-		return getInt(columnName, cursor).byteValue();
-	}
-	
-	public static Double getDouble(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getDouble(columnIndex);
-	}
-	
-	public static Float getFloat(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getFloat(columnIndex);
-	}
-	
-	public static Long getLong(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getLong(columnIndex);
-	}
-	
-	public static Short getShort(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getShort(columnIndex);
-	}
-	
-	public static byte[] getBlob(String columnName, Cursor cursor) {
-		int columnIndex = cursor.getColumnIndex(columnName);
-		if (columnIndex == -1) {
-			return null;
-		}
-		return cursor.getBlob(columnIndex);
-	}
+    public static String getString(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getString(columnIndex);
+    }
 
-	public static boolean isEmpty(Cursor cursor) {
-		return cursor == null || cursor.getCount() == 0;
-	}
+    public static Integer getInt(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getInt(columnIndex);
+    }
 
-	public static void close(Cursor cursor) {
-		if (cursor != null && !cursor.isClosed()) {
-			cursor.close();
-		}
-	}
+    public static byte getByte(String columnName, Cursor cursor) {
+        return getInt(columnName, cursor).byteValue();
+    }
+
+    public static Double getDouble(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getDouble(columnIndex);
+    }
+
+    public static Float getFloat(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getFloat(columnIndex);
+    }
+
+    public static Long getLong(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getLong(columnIndex);
+    }
+
+    public static Short getShort(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getShort(columnIndex);
+    }
+
+    public static byte[] getBlob(String columnName, Cursor cursor) {
+        int columnIndex = cursor.getColumnIndex(columnName);
+        if (columnIndex == -1) {
+            return null;
+        }
+        return cursor.getBlob(columnIndex);
+    }
+
+    public static boolean isEmpty(Cursor cursor) {
+        return cursor == null || cursor.getCount() == 0;
+    }
+
+    public static void close(Cursor cursor) {
+        if (cursor != null && !cursor.isClosed()) {
+            cursor.close();
+        }
+    }
 
     public static boolean isClosed(Cursor cursor) {
         return cursor == null || cursor.isClosed();

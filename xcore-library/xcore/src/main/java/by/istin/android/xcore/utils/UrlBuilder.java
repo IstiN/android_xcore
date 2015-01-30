@@ -67,9 +67,8 @@ public class UrlBuilder {
     }
 
 
-
     public UrlBuilder path(String path) {
-        mPath+=path;
+        mPath += path;
         synchronized (mLock) {
             mUrlStringBuilder.append(path);
         }
@@ -90,7 +89,7 @@ public class UrlBuilder {
         return param(param, value, true);
     }
 
-    private String format(String ... params){
+    private String format(String... params) {
         String result = mUrlStringBuilder.toString();
         try {
             if (params == null) {
@@ -123,7 +122,7 @@ public class UrlBuilder {
         return argsAll;
     }
 
-    public String build(String ... args) {
+    public String build(String... args) {
         synchronized (mLock) {
             String[] resultArgs = null;
             if (!mListParams.isEmpty() || !mListParamsUnknown.isEmpty()) {

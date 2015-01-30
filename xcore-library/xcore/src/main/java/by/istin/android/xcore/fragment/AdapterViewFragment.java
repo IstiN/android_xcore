@@ -1,18 +1,18 @@
-    /*
- * Copyright (C) 2011 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+/*
+* Copyright (C) 2011 The Android Open Source Project
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 package by.istin.android.xcore.fragment;
 
@@ -32,6 +32,7 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+
 import by.istin.android.xcore.utils.ResponderUtils;
 
 /**
@@ -45,7 +46,7 @@ public class AdapterViewFragment extends Fragment {
     static final int INTERNAL_EMPTY_ID = 0x00ff0001;
     static final int INTERNAL_PROGRESS_CONTAINER_ID = 0x00ff0002;
     static final int INTERNAL_LIST_CONTAINER_ID = 0x00ff0003;
-    
+
     final private Handler mHandler = new Handler();
 
     final private Runnable mRequestFocus = new Runnable() {
@@ -53,7 +54,7 @@ public class AdapterViewFragment extends Fragment {
             mAdapterView.focusableViewAvailable(mAdapterView);
         }
     };
-    
+
     final private AdapterView.OnItemClickListener mOnClickListener
             = new AdapterView.OnItemClickListener() {
         public void onItemClick(AdapterView<?> parent, View v, int position, long id) {
@@ -80,7 +81,7 @@ public class AdapterViewFragment extends Fragment {
      * is {@link android.R.id#list android.R.id.list} and can optionally
      * have a sibling view id {@link android.R.id#empty android.R.id.empty}
      * that is to be shown when the list is empty.
-     * 
+     * <p/>
      * <p>If you are overriding this method with your own custom content,
      * consider including the standard layout {@link android.R.layout#list_content}
      * in your layout file, so that you continue to retain all of the standard
@@ -89,7 +90,7 @@ public class AdapterViewFragment extends Fragment {
      */
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
-            Bundle savedInstanceState) {
+                             Bundle savedInstanceState) {
         final Context context = getActivity();
 
         FrameLayout root = new FrameLayout(context);
@@ -114,7 +115,7 @@ public class AdapterViewFragment extends Fragment {
 
         FrameLayout lframe = new FrameLayout(context);
         lframe.setId(INTERNAL_LIST_CONTAINER_ID);
-        
+
         TextView tv = new TextView(getActivity());
         tv.setId(INTERNAL_EMPTY_ID);
         tv.setGravity(Gravity.CENTER);
@@ -132,12 +133,12 @@ public class AdapterViewFragment extends Fragment {
 
         root.addView(lframe, new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
         // ------------------------------------------------------------------
 
         root.setLayoutParams(new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        
+
         return root;
     }
 
@@ -177,10 +178,10 @@ public class AdapterViewFragment extends Fragment {
      * getListView().getItemAtPosition(position) if they need to access the
      * data associated with the selected item.
      *
-     * @param l The ListView where the click happened
-     * @param v The view that was clicked within the ListView
+     * @param l        The ListView where the click happened
+     * @param v        The view that was clicked within the ListView
      * @param position The position of the view in the list
-     * @param id The row id of the item that was clicked
+     * @param id       The row id of the item that was clicked
      */
     public void onAdapterViewItemClick(AdapterView<?> l, View v, int position, long id) {
     }
@@ -252,29 +253,29 @@ public class AdapterViewFragment extends Fragment {
         }
         mStandardEmptyView.setText(text);
         //if (mEmptyText == null) {
-            //TODO mAdapterView.setEmptyView(mStandardEmptyView);
+        //TODO mAdapterView.setEmptyView(mStandardEmptyView);
         //}
         mEmptyText = text;
     }
-    
+
     /**
      * Control whether the list is being displayed.  You can make it not
      * displayed if you are waiting for the initial data to show in it.  During
      * this time an indeterminant progress indicator will be shown instead.
-     * 
+     * <p/>
      * <p>Applications do not normally need to use this themselves.  The default
      * behavior of ListFragment is to start with the list not being shown, only
      * showing it once an adapter is given with {@link #setListAdapter(android.widget.ListAdapter)}.
      * If the list at that point had not been shown, when it does get shown
      * it will be do without the user ever seeing the hidden state.
-     * 
+     *
      * @param shown If true, the list view is shown; if false, the progress
-     * indicator.  The initial value is true.
+     *              indicator.  The initial value is true.
      */
     public void setListShown(boolean shown) {
         setListShown(shown, true);
     }
-    
+
     /**
      * Like {@link #setListShown(boolean)}, but no animation is used when
      * transitioning from the previous state.
@@ -282,16 +283,16 @@ public class AdapterViewFragment extends Fragment {
     public void setListShownNoAnimation(boolean shown) {
         setListShown(shown, false);
     }
-    
+
     /**
      * Control whether the list is being displayed.  You can make it not
      * displayed if you are waiting for the initial data to show in it.  During
      * this time an indeterminant progress indicator will be shown instead.
-     * 
-     * @param shown If true, the list view is shown; if false, the progress
-     * indicator.  The initial value is true.
+     *
+     * @param shown   If true, the list view is shown; if false, the progress
+     *                indicator.  The initial value is true.
      * @param animate If true, an animation will be used to transition to the
-     * new state.
+     *                new state.
      */
     private void setListShown(boolean shown, boolean animate) {
         ensureList();
@@ -328,7 +329,7 @@ public class AdapterViewFragment extends Fragment {
             mAdapterViewContainer.setVisibility(View.GONE);
         }
     }
-    
+
     /**
      * Get the ListAdapter associated with this activity's ListView.
      */
@@ -347,7 +348,7 @@ public class AdapterViewFragment extends Fragment {
         if (root instanceof AdapterView) {
             mAdapterView = (AdapterView) root;
         } else {
-            mStandardEmptyView = (TextView)root.findViewById(INTERNAL_EMPTY_ID);
+            mStandardEmptyView = (TextView) root.findViewById(INTERNAL_EMPTY_ID);
             if (mStandardEmptyView == null) {
                 mEmptyView = root.findViewById(android.R.id.empty);
             } else {
@@ -360,16 +361,17 @@ public class AdapterViewFragment extends Fragment {
                 if (rawListView == null) {
                     throw new RuntimeException(
                             "Your content must have a ListView whose id attribute is " +
-                            "'android.R.id.list'");
+                                    "'android.R.id.list'");
                 }
                 throw new RuntimeException(
                         "Content has view with id attribute 'android.R.id.list' "
-                        + "that is not a ListView class");
+                                + "that is not a ListView class");
             }
-            mAdapterView = (AdapterView)rawListView;
+            mAdapterView = (AdapterView) rawListView;
             /*if (mEmptyView != null) {
                 //TODO mAdapterView.setEmptyView(mEmptyView);
-            } else */if (mEmptyText != null) {
+            } else */
+            if (mEmptyText != null) {
                 mStandardEmptyView.setText(mEmptyText);
                 //TODO mAdapterView.setEmptyView(mStandardEmptyView);
             }

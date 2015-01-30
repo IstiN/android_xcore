@@ -22,17 +22,17 @@ import by.istin.android.xcore.utils.Holder;
 
 public class TestGsonProcessor extends ApplicationTestCase<Application> {
 
-	public TestGsonProcessor() {
-		super(Application.class);
-	}
+    public TestGsonProcessor() {
+        super(Application.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		createApplication();
-	}
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        createApplication();
+    }
 
-	public void testObjectLoad() throws Exception {
+    public void testObjectLoad() throws Exception {
         ContextHolder.set(getApplication());
         IDBContentProviderSupport defaultDBContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), BigTestEntity.class, BigTestSubEntity.class);
         Uri testEntityUri = ModelContract.getUri(BigTestEntity.class);
@@ -40,23 +40,23 @@ public class TestGsonProcessor extends ApplicationTestCase<Application> {
         Uri testSubEntity = ModelContract.getUri(BigTestSubEntity.class);
         defaultDBContentProvider.delete(testSubEntity, null, null);
 
-		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
-		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_object.json");
-		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
-		inputStream.close();
-	}
-	
-	public void testArrayLoadAndInsert() throws Exception {
+        HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
+        DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_object.json");
+        InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
+        inputStream.close();
+    }
+
+    public void testArrayLoadAndInsert() throws Exception {
         ContextHolder.set(getApplication());
-		HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
-		DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_array_big.json");
-		InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
+        HttpAndroidDataSource httpAndroidDataSource = new HttpAndroidDataSource();
+        DataSourceRequest dataSourceRequest = new DataSourceRequest("https://dl.dropboxusercontent.com/u/16403954/xcore/json_array_big.json");
+        InputStream inputStream = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>(false));
         IDBContentProviderSupport defaultDBContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(getApplication(), BigTestEntity.class, BigTestSubEntity.class);
         Uri testEntityUri = ModelContract.getUri(BigTestEntity.class);
         defaultDBContentProvider.delete(testEntityUri, null, null);
         Uri testSubEntity = ModelContract.getUri(BigTestSubEntity.class);
         defaultDBContentProvider.delete(testSubEntity, null, null);
-        ContentValues[] contentValues = new AbstractGsonBatchProcessor<ContentValues[]>(BigTestEntity.class, ContentValues[].class, defaultDBContentProvider){
+        ContentValues[] contentValues = new AbstractGsonBatchProcessor<ContentValues[]>(BigTestEntity.class, ContentValues[].class, defaultDBContentProvider) {
 
             @Override
             public String getAppServiceKey() {

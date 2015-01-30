@@ -14,12 +14,12 @@ public interface IBeforeArrayUpdate {
     /**
      * Call for every item before insert or update in database
      *
-     * @param dbHelper instance of DBHelper
-     * @param db current WritableTransaction
+     * @param dbHelper          instance of DBHelper
+     * @param db                current WritableTransaction
      * @param dataSourceRequest current dataSourceRequest
-     * @param position current Item position inside array
-     * @param contentValues current ContentValues that will be inserting to the DataBase
+     * @param position          current Item position inside array
+     * @param contentValues     current ContentValues that will be inserting to the DataBase
      */
-	void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
-	
+    void onBeforeListUpdate(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, int position, ContentValues contentValues);
+
 }

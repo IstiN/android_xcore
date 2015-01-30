@@ -13,23 +13,23 @@ import java.net.URLEncoder;
 
 import by.istin.android.xcore.CoreApplication;
 
-public class TestEncodeUtils extends ApplicationTestCase<CoreApplication>{
+public class TestEncodeUtils extends ApplicationTestCase<CoreApplication> {
 
     public static final int COUNT = 2000;
 
     public TestEncodeUtils() {
-		super(CoreApplication.class);
-	}
+        super(CoreApplication.class);
+    }
 
     private static final String TEST = "По сообщению «Вымпелком», любые звонки в Крыму и Севастополе с 20 июня обойдутся всего в 9,95 рублей за минуту (ранее 34 руб./мин), SMS — в 3,95 рубля за сообщение (ранее 9,5 руб.), мобильный интернет — в 9,95 рубля за мегабайт. При этом с 20 июня в сети «Киевстар» для россиян прекращают действовать услуги «Моя страна», «Моя планета», «Планета интернета» и «Планета Ноль». Как отмечается в пресс-релизе, «новые расценки на роуминг стирают границы между городами».";
 
-	@Override
-	protected void setUp() throws Exception {
-		createApplication();
-		super.setUp();
-	}
-	
-	public void testDefaultEncoding() throws Exception {
+    @Override
+    protected void setUp() throws Exception {
+        createApplication();
+        super.setUp();
+    }
+
+    public void testDefaultEncoding() throws Exception {
         for (int i = 0; i < COUNT; i++) {
             String encode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
             String decode = URLDecoder.decode(encode, "utf-8");
@@ -37,7 +37,7 @@ public class TestEncodeUtils extends ApplicationTestCase<CoreApplication>{
         }
     }
 
-	public void testDefaultFastEncoding() throws Exception {
+    public void testDefaultFastEncoding() throws Exception {
         String sampleEncode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
         URLCodec urlCodec = new URLCodec("utf-8");
         for (int i = 0; i < COUNT; i++) {
@@ -48,7 +48,7 @@ public class TestEncodeUtils extends ApplicationTestCase<CoreApplication>{
         }
     }
 
-	public void testDefaultFast2Encoding() throws Exception {
+    public void testDefaultFast2Encoding() throws Exception {
         String sampleEncode = URLEncoder.encode(TEST, "utf-8").replaceAll("\\+", "%20");
         PercentEscaper percentEscaper = new PercentEscaper("-_.*", false);
         URLCodec urlCodec = new URLCodec("utf-8");

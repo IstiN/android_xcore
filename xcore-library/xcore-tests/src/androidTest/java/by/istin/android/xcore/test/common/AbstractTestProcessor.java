@@ -34,13 +34,13 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
         testDataSource = new TestDataSource();
     }
 
-    public void clear(Class<?> ... entities) {
+    public void clear(Class<?>... entities) {
         for (Class<?> entity : entities) {
             getApplication().getContentResolver().delete(ModelContract.getUri(entity), null, null);
         }
     }
 
-    protected void checkRequiredFields(Class<?> classEntity, String ... fields) {
+    protected void checkRequiredFields(Class<?> classEntity, String... fields) {
         Uri uri = ModelContract.getUri(classEntity);
         String[] projection = null;
         String selection = null;
@@ -49,7 +49,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
         checkRequiredFields(uri, projection, selection, selectionArgs, sortOrder, fields);
     }
 
-    protected void checkRequiredFields(Class<?> classEntity, int countRequiredValues, String ... fields) {
+    protected void checkRequiredFields(Class<?> classEntity, int countRequiredValues, String... fields) {
         Uri uri = ModelContract.getUri(classEntity);
         String[] projection = null;
         String selection = null;
@@ -66,8 +66,8 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
             for (int j = 0; j < fields.length; j++) {
                 String field = fields[j];
                 String value = entity.getString(field);
-                assertNotNull(field+ " is required",value);
-                assertFalse(field+ " is required", StringUtil.isEmpty(value));
+                assertNotNull(field + " is required", value);
+                assertFalse(field + " is required", StringUtil.isEmpty(value));
             }
         }
         CursorUtils.close(cursor);
@@ -86,7 +86,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
                 String field = fields[j];
                 String value = entity.getString(field);
                 if (value != null) {
-                    fieldsCount.put(field, fieldsCount.get(field)-1);
+                    fieldsCount.put(field, fieldsCount.get(field) - 1);
                 }
             }
         }
@@ -94,7 +94,7 @@ public abstract class AbstractTestProcessor<A extends Application> extends Appli
 
         for (int i = 0; i < fields.length; i++) {
             int value = fieldsCount.get(fields[i]);
-            assertEquals(fields[i]+ " is required, " + value +" null values found", 0, value);
+            assertEquals(fields[i] + " is required, " + value + " null values found", 0, value);
         }
     }
 

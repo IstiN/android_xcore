@@ -14,6 +14,7 @@ public @interface db {
 
     /**
      * Config for parsing.
+     *
      * @return your implementation of config, for more details see @db* annotations.
      */
     Config value();

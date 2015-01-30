@@ -42,7 +42,7 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
-    rename ('classes.jar', '../../../../download/picasso-xcore-plugin.jar')
+    rename('classes.jar', '../../../../download/picasso-xcore-plugin.jar')
 }
 
 makeJar.dependsOn(clearJar, build)

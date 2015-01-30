@@ -52,7 +52,7 @@ public class CacheRequestHelper {
         long currentTimeMillis = System.currentTimeMillis();
         ContentResolver contentResolver = context.getContentResolver();
         Uri uri = ModelContract.getUri(DataSourceRequestEntity.class);
-        Log.xd(context, "request cache " + currentTimeMillis+ " " + requestId);
+        Log.xd(context, "request cache " + currentTimeMillis + " " + requestId);
         Log.xd(context, "request cache cacheIfNotCached requestId " + requestId);
         Log.xd(context, "request cache getCacheExpiration " + dataSourceRequest.getCacheExpiration() + " " + requestId);
         Uri requestUri = ModelContract.getUri(DataSourceRequestEntity.class, requestId);

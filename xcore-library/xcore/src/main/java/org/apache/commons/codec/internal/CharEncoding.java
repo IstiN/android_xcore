@@ -19,7 +19,7 @@ package org.apache.commons.codec.internal;
 
 /**
  * Character encoding names required of every implementation of the Java platform.
- *
+ * <p/>
  * From the Java documentation <a
  * href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>:
  * <p>
@@ -27,7 +27,7 @@ package org.apache.commons.codec.internal;
  * release documentation for your implementation to see if any other encodings are supported. Consult the release
  * documentation for your implementation to see if any other encodings are supported.</cite>
  * </p>
- *
+ * <p/>
  * <ul>
  * <li><code>US-ASCII</code><br/>
  * Seven-bit ASCII, a.k.a. ISO646-US, a.k.a. the Basic Latin block of the Unicode character set.</li>
@@ -43,22 +43,22 @@ package org.apache.commons.codec.internal;
  * Sixteen-bit Unicode Transformation Format, byte order specified by a mandatory initial byte-order mark (either order
  * accepted on input, big-endian used on output.)</li>
  * </ul>
- *
+ * <p/>
  * This perhaps would best belong in the [lang] project. Even if a similar interface is defined in [lang], it is not
  * foreseen that [codec] would be made to depend on [lang].
- *
+ * <p/>
  * <p>
  * This class is immutable and thread-safe.
  * </p>
  *
+ * @version $Id: CharEncoding.java 1379049 2012-08-30 18:35:22Z tn $
  * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
  * @since 1.4
- * @version $Id: CharEncoding.java 1379049 2012-08-30 18:35:22Z tn $
  */
 public class CharEncoding {
     /**
      * CharEncodingISO Latin Alphabet No. 1, a.k.a. ISO-LATIN-1.
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
@@ -67,7 +67,7 @@ public class CharEncoding {
 
     /**
      * Seven-bit ASCII, also known as ISO646-US, also known as the Basic Latin block of the Unicode character set.
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
@@ -77,7 +77,7 @@ public class CharEncoding {
     /**
      * Sixteen-bit Unicode Transformation Format, The byte order specified by a mandatory initial byte-order mark
      * (either order accepted on input, big-endian used on output)
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
@@ -86,7 +86,7 @@ public class CharEncoding {
 
     /**
      * Sixteen-bit Unicode Transformation Format, big-endian byte order.
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
@@ -95,7 +95,7 @@ public class CharEncoding {
 
     /**
      * Sixteen-bit Unicode Transformation Format, little-endian byte order.
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>
@@ -104,7 +104,7 @@ public class CharEncoding {
 
     /**
      * Eight-bit Unicode Transformation Format.
-     * <p>
+     * <p/>
      * Every implementation of the Java platform is required to support this character encoding.
      *
      * @see <a href="http://download.oracle.com/javase/6/docs/api/java/nio/charset/Charset.html">Standard charsets</a>

@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Build;
+
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.UiUtil;

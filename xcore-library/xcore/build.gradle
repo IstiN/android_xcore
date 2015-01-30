@@ -13,7 +13,7 @@ android {
         minSdkVersion 10
         targetSdkVersion 21
         //versionName project.VERSION_NAME
-       // versionCode Integer.parseInt(project.VERSION_CODE)
+        // versionCode Integer.parseInt(project.VERSION_CODE)
     }
     buildTypes {
         release {
@@ -41,7 +41,7 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
-    rename ('classes.jar', '../../../../download/xcore.jar')
+    rename('classes.jar', '../../../../download/xcore.jar')
 }
 
 makeJar.dependsOn(clearJar, build)

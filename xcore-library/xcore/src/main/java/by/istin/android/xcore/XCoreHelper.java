@@ -19,7 +19,8 @@ public class XCoreHelper {
 
     public static final String SYSTEM_SERVICE_KEY = "core:xcorehelper";
 
-    private XCoreHelper() {}
+    private XCoreHelper() {
+    }
 
     private static class XCoreHelperHolder {
         private static final XCoreHelper INSTANCE = new XCoreHelper();
@@ -33,11 +34,11 @@ public class XCoreHelper {
         return (XCoreHelper) AppUtils.get(context, SYSTEM_SERVICE_KEY);
     }
 
-	public static interface IAppServiceKey {
-		
-		String getAppServiceKey();
+    public static interface IAppServiceKey {
 
-	}
+        String getAppServiceKey();
+
+    }
 
 
     public static interface Module {
@@ -46,7 +47,7 @@ public class XCoreHelper {
 
     }
 
-	private final Map<String, IAppServiceKey> mAppServices = new HashMap<>();
+    private final Map<String, IAppServiceKey> mAppServices = new HashMap<>();
 
     private List<IFragmentPlugin> mListFragmentPlugins;
 
@@ -66,6 +67,7 @@ public class XCoreHelper {
 
     /**
      * Uses only in ContextHolder
+     *
      * @return Context of current application
      */
     protected Context getContext() {
@@ -99,13 +101,13 @@ public class XCoreHelper {
         registerAppService(new EmptyProcessor());
         registerAppService(new EmptyDataSource());
         mModules = modules;
-	}
-	
-	public void registerAppService(IAppServiceKey appService) {
-		mAppServices.put(appService.getAppServiceKey(), appService);
-	}
-	
-	public Object getSystemService(String name) {
+    }
+
+    public void registerAppService(IAppServiceKey appService) {
+        mAppServices.put(appService.getAppServiceKey(), appService);
+    }
+
+    public Object getSystemService(String name) {
         if (!isModulesCreated) {
             synchronized (mLock) {
                 if (!isModulesCreated) {
@@ -123,9 +125,9 @@ public class XCoreHelper {
         if (name.equals(SYSTEM_SERVICE_KEY)) {
             return this;
         }
-		if (mAppServices.containsKey(name)) {
-			return mAppServices.get(name);
-		}
-		return null;
-	}
+        if (mAppServices.containsKey(name)) {
+            return mAppServices.get(name);
+        }
+        return null;
+    }
 }

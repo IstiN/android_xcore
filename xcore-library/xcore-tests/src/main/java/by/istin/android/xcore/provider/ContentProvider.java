@@ -1,5 +1,9 @@
 package by.istin.android.xcore.provider;
 
+import java.util.List;
+
+import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.issues.issue12.model.DayEntity;
 import by.istin.android.xcore.model.BigTestEntity;
 import by.istin.android.xcore.model.BigTestSubEntity;
@@ -40,6 +44,11 @@ public class ContentProvider extends DBContentProvider {
             //issue12
             DayEntity.class
     };
+
+    @Override
+    protected List<Class<? extends XCoreHelper.Module>> getModules() {
+        return Application.APP_MODULES;
+    }
 
     @Override
     public Class<?>[] getEntities() {

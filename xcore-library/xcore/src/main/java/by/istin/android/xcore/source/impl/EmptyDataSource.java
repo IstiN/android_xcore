@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.source.impl;
 
@@ -11,22 +11,20 @@ import by.istin.android.xcore.utils.Holder;
 
 
 /**
- *
  * @author Uladzimir_Klyshevich
- * 
  */
 public class EmptyDataSource implements IDataSource<Object> {
 
-	public static final String APP_SERVICE_KEY = "xcore:emptydatasource";
+    public static final String APP_SERVICE_KEY = "xcore:emptydatasource";
 
-	@Override
-	public Object getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
-		return null;
-	}
+    @Override
+    public Object getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
+        return null;
+    }
 
-	@Override
-	public String getAppServiceKey() {
-		return APP_SERVICE_KEY;
-	}
-	
+    @Override
+    public String getAppServiceKey() {
+        return APP_SERVICE_KEY;
+    }
+
 }

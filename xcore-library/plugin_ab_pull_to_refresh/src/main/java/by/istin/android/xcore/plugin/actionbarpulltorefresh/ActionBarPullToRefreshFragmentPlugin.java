@@ -55,11 +55,12 @@ public class ActionBarPullToRefreshFragmentPlugin implements IFragmentPlugin {
                     @Override
                     public void onRefreshStarted(View view) {
                         if (fragment != null && fragment instanceof IRefresh) {
-                            ((IRefresh)fragment).refresh();
-                        };
+                            ((IRefresh) fragment).refresh();
+                        }
+                        ;
                     }
                 })
-        .setup(pullToRefresh);
+                .setup(pullToRefresh);
     }
 
     @Override

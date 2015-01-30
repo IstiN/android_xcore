@@ -46,11 +46,12 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Default constructor.
-         * @param abstractValuesAdapter current contentValuesAdapter
-         * @param jsonElement current jsonElement
-         * @param type current reflection type
+         *
+         * @param abstractValuesAdapter      current contentValuesAdapter
+         * @param jsonElement                current jsonElement
+         * @param type                       current reflection type
          * @param jsonDeserializationContext current gson context
-         * @param field current field wrapper
+         * @param field                      current field wrapper
          */
         public Meta(
                 AbstractValuesAdapter abstractValuesAdapter,
@@ -68,6 +69,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Returns JsonElement.
+         *
          * @return jsonElement
          */
         public JsonElement getJsonElement() {
@@ -76,6 +78,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Return reflection type of field.
+         *
          * @return reflection type
          */
         public Type getType() {
@@ -84,6 +87,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Return gson context.
+         *
          * @return gson context
          */
         public JsonDeserializationContext getJsonDeserializationContext() {
@@ -92,6 +96,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Return current contentValues adapter.
+         *
          * @return contentValuesAdapter
          */
         public AbstractValuesAdapter getAbstractValuesAdapter() {
@@ -100,6 +105,7 @@ public abstract class GsonConverter implements IConverter<GsonConverter.Meta> {
 
         /**
          * Return current field wrapper.
+         *
          * @return field
          */
         public ReflectUtils.XField getField() {

@@ -25,7 +25,9 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
 
     private static final int DATABASE_VERSION = 1;
 
-    /** The Constant CREATE_TABLE_SQL. */
+    /**
+     * The Constant CREATE_TABLE_SQL.
+     */
     public static final String CREATE_TABLE_SQL = "CREATE TABLE IF NOT EXISTS  %1$s  ("
             + BaseColumns._ID + " INTEGER PRIMARY KEY ASC)";
 
@@ -57,7 +59,7 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
         if (writableDatabase != null) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
-                    writableDatabase.setLockingEnabled(false);
+                writableDatabase.setLockingEnabled(false);
             }
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
                 writableDatabase.enableWriteAheadLogging();

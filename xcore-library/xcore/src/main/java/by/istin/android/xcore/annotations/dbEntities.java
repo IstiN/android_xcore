@@ -14,8 +14,8 @@ public @interface dbEntities {
 
     Config value() default @Config(dbType = Config.DBType.ENTITIES);
 
-	Class<?> clazz();
+    Class<?> clazz();
 
-	boolean ignorePrimitive() default false;
+    boolean ignorePrimitive() default false;
 
 }

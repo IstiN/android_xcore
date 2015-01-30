@@ -29,10 +29,10 @@ public class Intents {
      * Open phone.
      *
      * @param context the context
-     * @param phone     the phone
+     * @param phone   the phone
      */
     public static void openPhone(Context context, String phone) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:"+phone));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("tel:" + phone));
         try {
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {
@@ -44,10 +44,10 @@ public class Intents {
      * Open email.
      *
      * @param context the context
-     * @param email     the email
+     * @param email   the email
      */
     public static void openEmail(Context context, String email) {
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:"+email));
+        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("mailto:" + email));
         try {
             context.startActivity(intent);
         } catch (ActivityNotFoundException e) {

@@ -1,6 +1,7 @@
 package by.istin.android.xcore.db.entity;
 
 import android.content.ContentValues;
+
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
@@ -12,12 +13,13 @@ public interface IGenerateID {
 
     /**
      * Return unique ID for the entity
-     * @param dbHelper current DbHelper
-     * @param db current WritableConnection
+     *
+     * @param dbHelper          current DbHelper
+     * @param db                current WritableConnection
      * @param dataSourceRequest current DataSourceRequest
-     * @param contentValues current ContentValues
+     * @param contentValues     current ContentValues
      * @return long - unique id for the entity
      */
-	long generateId(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues contentValues);
-	
+    long generateId(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, ContentValues contentValues);
+
 }

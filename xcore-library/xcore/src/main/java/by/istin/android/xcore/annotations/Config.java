@@ -30,12 +30,14 @@ public @interface Config {
 
     /**
      * Returns dbType.
+     *
      * @return dbType of data element that will be insert to DB.
      */
     DBType dbType();
 
     /**
      * Data element key.
+     *
      * @return name of data element key.
      */
     String key() default StringUtil.EMPTY;
@@ -43,6 +45,7 @@ public @interface Config {
     /**
      * Transformer used for extends parsing logic. Like join sub elements to one entity or add some magic
      * to the parsing.
+     *
      * @return DefaultTransformer by default. If you need some special implements Transformer interface
      */
     Class<? extends Transformer> transformer() default DefaultTransformer.class;
@@ -55,17 +58,18 @@ public @interface Config {
         /**
          * Returns element separator for parsing data like
          * <code>
-         *     {
-         *          "entity":
-         *          {
-         *              "subEntity" :
-         *                  {
-         *                      "key" : "value"
-         *                  }
-         *          }
-         *     }
+         * {
+         * "entity":
+         * {
+         * "subEntity" :
+         * {
+         * "key" : "value"
+         * }
+         * }
+         * }
          * </code>.
-         * @return  String value in DefaultTransformer this is ":"
+         *
+         * @return String value in DefaultTransformer this is ":"
          */
         String subElementSeparator();
 
@@ -73,6 +77,7 @@ public @interface Config {
         /**
          * If your dataArray contains only one element you can set this flag to "true" and
          * use @dbEntity annotation to parse this element.
+         *
          * @return true or false, in the DefaultTransformer true
          */
         boolean isFirstObjectForArray();
@@ -80,6 +85,7 @@ public @interface Config {
         /**
          * You can specify parsing by your needs. Default implementation of converter
          * you can see in the db* annotations.
+         *
          * @return IConverter implementation that convert data element to the DBType
          */
         IConverter<Meta> converter();
@@ -93,6 +99,7 @@ public @interface Config {
         }
 
     }
+
     /**
      * Default transformer uses in most cases to transform data elements to the DB ContentValues.
      * IConverter will be specified in future implementation
@@ -106,6 +113,7 @@ public @interface Config {
 
         /**
          * Returns sub element separator.
+         *
          * @return default ":"
          */
         @Override
@@ -115,6 +123,7 @@ public @interface Config {
 
         /**
          * By default if we will use @dbEntity annotation and will have dataArray it will be parsed like @dbEntity.
+         *
          * @return true
          */
         @Override

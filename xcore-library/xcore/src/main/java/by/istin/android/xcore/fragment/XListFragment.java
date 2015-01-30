@@ -55,11 +55,11 @@ import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.UiUtil;
 import by.istin.android.xcore.widget.ISetViewBinder;
 
-public abstract class XListFragment <T extends CursorModel> extends AdapterViewFragment
+public abstract class XListFragment<T extends CursorModel> extends AdapterViewFragment
         implements IRefresh,
-            ICursorLoaderFragmentHelper<T>,
-            IDataSourceHelper,
-            DataSourceExecuteHelper.IDataSourceListener {
+        ICursorLoaderFragmentHelper<T>,
+        IDataSourceHelper,
+        DataSourceExecuteHelper.IDataSourceListener {
 
     public static final boolean IS_CHECK_STATUS_LOG_ENABLED = true;
 
@@ -87,19 +87,19 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
 
         @Override
         public void onScroll(AbsListView view, int firstVisibleItem,
-                int visibleItemCount, int totalItemCount) {
+                             int visibleItemCount, int totalItemCount) {
             ListAdapter adapter = view.getAdapter();
             int count = getRealAdapterCount(adapter);
             if (count == 0) {
                 return;
             }
             if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
+                Log.d("fragment_status", "paging " + firstVisibleItem + " " + visibleItemCount + " " + totalItemCount + " " + count);
             if (previousTotal != totalItemCount && !pagingLoading && (totalItemCount - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = totalItemCount;
-            	pagingLoading = true;
+                pagingLoading = true;
                 currentPage++;
-            	onPageLoad(currentPage, totalItemCount);
+                onPageLoad(currentPage, totalItemCount);
             }
         }
 
@@ -178,10 +178,10 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         return getLoaderManager();
     }
 
-	@Override
-	public int getLoaderId() {
-		return (int)HashUtils.generateId(((Object) this).getClass(), getArguments());
-	}
+    @Override
+    public int getLoaderId() {
+        return (int) HashUtils.generateId(((Object) this).getClass(), getArguments());
+    }
 
     private final List<OnScrollListener> onScrollListenerList = new ArrayList<OnScrollListener>();
 
@@ -189,23 +189,23 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         onScrollListenerList.add(scrollListViewListener);
     }
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
         onViewCreated(view);
 
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(view.getContext()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onCreateView(this, view, inflater, container, savedInstanceState);
             }
         }
 
-		if (isPagingSupport()) {
-			mEndlessScrollListener = new EndlessScrollListener();
+        if (isPagingSupport()) {
+            mEndlessScrollListener = new EndlessScrollListener();
             setOnScrollListViewListener(mEndlessScrollListener);
-			((AbsListView)view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
+            ((AbsListView) view.findViewById(android.R.id.list)).setOnScrollListener(new OnScrollListener() {
                 @Override
                 public void onScrollStateChanged(AbsListView absListView, int i) {
                     for (OnScrollListener onScrollListener : onScrollListenerList) {
@@ -220,125 +220,125 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
                     }
                 }
             });
-		}
-		Integer searchEditTextId = getSearchEditTextId();
-		if (searchEditTextId == null) {
-			return view;
-		}
-		final EditText searchEditText = (EditText) view.findViewById(getSearchEditTextId());
-		Integer searchHintText = getSearchHintText();
-		if (searchHintText != null) {
-			searchEditText.setHint(searchHintText);
-		}
-		final Integer searchEditTextClearId = getSearchEditTextClearId();
-		if (searchEditTextClearId != null) {
-			View searchClear = view.findViewById(searchEditTextClearId);
-			if (searchClear != null) {
-				searchClear.setOnClickListener(new OnClickListener() {
-					
-					@Override
-					public void onClick(View paramView) {
-						searchEditText.setText(StringUtil.EMPTY);
-					}
-					
-				});
-			}
-		}
+        }
+        Integer searchEditTextId = getSearchEditTextId();
+        if (searchEditTextId == null) {
+            return view;
+        }
+        final EditText searchEditText = (EditText) view.findViewById(getSearchEditTextId());
+        Integer searchHintText = getSearchHintText();
+        if (searchHintText != null) {
+            searchEditText.setHint(searchHintText);
+        }
+        final Integer searchEditTextClearId = getSearchEditTextClearId();
+        if (searchEditTextClearId != null) {
+            View searchClear = view.findViewById(searchEditTextClearId);
+            if (searchClear != null) {
+                searchClear.setOnClickListener(new OnClickListener() {
+
+                    @Override
+                    public void onClick(View paramView) {
+                        searchEditText.setText(StringUtil.EMPTY);
+                    }
+
+                });
+            }
+        }
         searchEditText.addTextChangedListener(mWatcher);
-		return view;
-	}
+        return view;
+    }
 
-	protected void onPageLoad(int newPage, int totalItemCount) {
-		
-	}
+    protected void onPageLoad(int newPage, int totalItemCount) {
 
-	protected boolean isPagingSupport() {
-		return false;
-	}
-	
-	protected Integer getSearchHintText() {
-		return null;
-	}
+    }
 
-	public void onViewCreated(View view) {
-		
-	}
+    protected boolean isPagingSupport() {
+        return false;
+    }
 
-	@Override
+    protected Integer getSearchHintText() {
+        return null;
+    }
+
+    public void onViewCreated(View view) {
+
+    }
+
+    @Override
     public void onAdapterViewItemClick(AdapterView<?> l, View v, int position, long id) {
-		super.onAdapterViewItemClick(l, v, position, id);
-		Cursor cursor = (Cursor) l.getAdapter().getItem(position);
-		onListItemClick(cursor, v, position, id);
-	}
+        super.onAdapterViewItemClick(l, v, position, id);
+        Cursor cursor = (Cursor) l.getAdapter().getItem(position);
+        onListItemClick(cursor, v, position, id);
+    }
 
-	public abstract void onListItemClick(Cursor cursor, View v, int position, long id);
+    public abstract void onListItemClick(Cursor cursor, View v, int position, long id);
 
-	public abstract int getViewLayout();
-	
-	public Integer getSearchEditTextId() {
-		return null;
-	}
-	
-	public Integer getSearchEditTextClearId() {
-		return null;
-	}
-	
-	public String getSearchField() {
-		return null;
-	}
-	
-	public String getSelection() {
-		return null;
-	}
-	
-	public String getOrder() {
-		return null;
-	}
-	
-	public String[] getSelectionArgs() {
-		return null;
-	}
-	
-	public String[] getProjection() {
-		return null;
-	}
-	
-	public abstract Uri getUri();
-	
-	public abstract String getUrl();
-	
-	public abstract String getProcessorKey();
-	
-	@Override
-	public Loader<T> onCreateLoader(int id, Bundle args) {
+    public abstract int getViewLayout();
+
+    public Integer getSearchEditTextId() {
+        return null;
+    }
+
+    public Integer getSearchEditTextClearId() {
+        return null;
+    }
+
+    public String getSearchField() {
+        return null;
+    }
+
+    public String getSelection() {
+        return null;
+    }
+
+    public String getOrder() {
+        return null;
+    }
+
+    public String[] getSelectionArgs() {
+        return null;
+    }
+
+    public String[] getProjection() {
+        return null;
+    }
+
+    public abstract Uri getUri();
+
+    public abstract String getUrl();
+
+    public abstract String getProcessorKey();
+
+    @Override
+    public Loader<T> onCreateLoader(int id, Bundle args) {
         setLoaderWork(true, LOADER_PRIORITY_HIGH);
         Loader<T> cursorLoader = CursorLoaderFragmentHelper.createLoader(this, id);
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
         checkStatus("createLoader");
         return cursorLoader;
-	}
-	
-	@Override
-	public void onLoadFinished(Loader<T> loader, T cursor) {
+    }
+
+    @Override
+    public void onLoadFinished(Loader<T> loader, T cursor) {
         ListAdapter adapter = getListAdapter();
-		FragmentActivity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-		if (adapter == null || !(adapter instanceof CursorAdapter)) {
-			BaseAdapter baseAdapter = createAdapter(activity, cursor);
-			ViewBinder adapterViewBinder = getAdapterViewBinder();
-			if (adapterViewBinder != null && baseAdapter instanceof ISetViewBinder) {
-                ((ISetViewBinder)baseAdapter).setViewBinder(adapterViewBinder);
-			}
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        if (adapter == null || !(adapter instanceof CursorAdapter)) {
+            BaseAdapter baseAdapter = createAdapter(activity, cursor);
+            ViewBinder adapterViewBinder = getAdapterViewBinder();
+            if (adapterViewBinder != null && baseAdapter instanceof ISetViewBinder) {
+                ((ISetViewBinder) baseAdapter).setViewBinder(adapterViewBinder);
+            }
             if (baseAdapter instanceof CursorAdapter) {
-                ((CursorAdapter)baseAdapter).setFilterQueryProvider(new FilterQueryProvider() {
+                ((CursorAdapter) baseAdapter).setFilterQueryProvider(new FilterQueryProvider() {
 
                     @Override
                     public Cursor runQuery(CharSequence constraint) {
@@ -347,21 +347,21 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
 
                 });
             }
-			adapter = baseAdapter;
-			setListAdapter(adapter);
-		} else {
-			((CursorAdapter) adapter).swapCursor(cursor);
-		}
+            adapter = baseAdapter;
+            setListAdapter(adapter);
+        } else {
+            ((CursorAdapter) adapter).swapCursor(cursor);
+        }
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onLoadFinished(this, loader, cursor);
             }
         }
         setLoaderWork(false, LOADER_PRIORITY_HIGH);
         checkStatus("onLoadFinished");
-	}
+    }
 
     public Cursor runSearchQuery(Context context, CharSequence constraint) {
         Uri uri = getUri();
@@ -398,12 +398,12 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.createAdapter(this, baseAdapter, activity, cursor);
             }
         }
         return baseAdapter;
-	}
+    }
 
     public BaseAdapter createAdapter(final FragmentActivity activity, final Cursor cursor, final int adapterLayout, final String[] adapterColumns, final int[] adapterControlIds) {
         return new DefaultAdapter(activity, adapterLayout, cursor, adapterColumns, adapterControlIds);
@@ -424,7 +424,7 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
 
     public abstract int getAdapterLayout();
 
-	protected boolean setAdapterViewImage(ImageView v, String value) {
+    protected boolean setAdapterViewImage(ImageView v, String value) {
         //plugins
         FragmentActivity activity = getActivity();
         if (activity == null) {
@@ -432,18 +432,18 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         }
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 if (plugin.setAdapterViewImage(this, v, value)) {
                     return true;
                 }
             }
         }
-		return false;
-	}
-	
-	protected boolean setAdapterViewText(TextView v, String value) {
-		return false;
-	}
+        return false;
+    }
+
+    protected boolean setAdapterViewText(TextView v, String value) {
+        return false;
+    }
 
     @Override
     public void setServiceWork(boolean isWork) {
@@ -478,10 +478,10 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
     }
 
     protected ViewBinder getAdapterViewBinder() {
-		return null;
-	}
-	
-	private boolean isServiceWork = false;
+        return null;
+    }
+
+    private boolean isServiceWork = false;
 
     private int loaderPriority = 0;
 
@@ -507,39 +507,39 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         return isLoaderWork;
     }
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         FragmentActivity activity = getActivity();
         if (activity == null) {
             return;
         }
-		if (CursorLoaderFragmentHelper.restartLoader(this)) {
+        if (CursorLoaderFragmentHelper.restartLoader(this)) {
             setLoaderWork(true, LOADER_PRIORITY_HIGH);
         }
-		String url = getUrl();
+        String url = getUrl();
         loadData(activity, url, isForceUpdateData(), null);
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onActivityCreated(this, savedInstanceState);
             }
         }
         if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " restartLoader ");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " restartLoader ");
         checkStatus("restartLoader");
-	}
+    }
 
     public void refresh() {
         if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " refresh ");
         refresh(getActivity());
     }
 
     public void refresh(Activity activity) {
         if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
         if (isPagingSupport()) {
             mEndlessScrollListener.currentPage = 0;
@@ -551,13 +551,13 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         loadData(activity, url, isForceUpdateData(), parentRequestUri);
     }
 
-	public void loadData(Activity activity, String url, Boolean isForceUpdate, String parentRequestUri) {
+    public void loadData(Activity activity, String url, Boolean isForceUpdate, String parentRequestUri) {
         if (StringUtil.isEmpty(url)) {
             return;
         }
         final DataSourceRequest dataSourceRequest = createDataSourceRequest(url, isForceUpdate, parentRequestUri);
-		dataSourceExecute(activity, dataSourceRequest);
-	}
+        dataSourceExecute(activity, dataSourceRequest);
+    }
 
     public DataSourceRequest createDataSourceRequest(String url, Boolean isForceUpdate, String parentRequestUri) {
         final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
@@ -572,7 +572,7 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
         setServiceWork(true);
         if (IS_CHECK_STATUS_LOG_ENABLED)
-        Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler()) {
 
             @Override
@@ -662,15 +662,15 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
     }
 
     public boolean isForceUpdateData() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void onLoaderReset(Loader<T> loader) {
+    @Override
+    public void onLoaderReset(Loader<T> loader) {
         //isLoaderWork = false;
-		if (getView() != null) {
+        if (getView() != null) {
             if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
+                Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
             Adapter adapter = getListView().getAdapter();
             if (adapter != null) {
                 if (adapter instanceof HeaderViewListAdapter) {
@@ -680,21 +680,21 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
                     ((CursorAdapter) adapter).swapCursor(null);
                 }
             }
-		}
+        }
         checkStatus("onLoaderReset");
-	}
-	
-	public String getDataSourceKey() {
-		return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
-	}
+    }
 
-	public long getCacheExpiration() {
-		return DateUtils.DAY_IN_MILLIS;
-	}
+    public String getDataSourceKey() {
+        return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
+    }
 
-	public boolean isCacheable() {
-		return true;
-	}
+    public long getCacheExpiration() {
+        return DateUtils.DAY_IN_MILLIS;
+    }
+
+    public boolean isCacheable() {
+        return true;
+    }
 
     @Override
     public CursorModel.CursorModelCreator<T> getCursorModelCreator() {
@@ -730,7 +730,7 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         final View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
             if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", "call progressView.setVisibility(View.GONE)");
+                Log.d("fragment_status", "call progressView.setVisibility(View.GONE)");
             if (UiUtil.hasL()) {
                 progressView.postDelayed(new Runnable() {
                     @Override
@@ -767,7 +767,7 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
         View progressView = view.findViewById(getProgressViewId());
         if (progressView != null) {
             if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", "call progressView.setVisibility(View.VISIBLE)");
+                Log.d("fragment_status", "call progressView.setVisibility(View.VISIBLE)");
             progressView.setVisibility(View.VISIBLE);
         }
     }
@@ -871,7 +871,7 @@ public abstract class XListFragment <T extends CursorModel> extends AdapterViewF
             }
             if (currentStatusView != newViewStatus) {
                 if (IS_CHECK_STATUS_LOG_ENABLED)
-                    Log.d("fragment_status", "status changed from " + currentStatusView  + " to " + newViewStatus);
+                    Log.d("fragment_status", "status changed from " + currentStatusView + " to " + newViewStatus);
                 currentStatusView = newViewStatus;
                 switch (currentStatusView) {
                     case STATUS_CONTENT_VISIBLE:

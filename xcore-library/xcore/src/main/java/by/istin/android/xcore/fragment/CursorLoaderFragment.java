@@ -27,34 +27,34 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
 
     protected abstract int getViewLayout();
 
-	public void restart(Bundle savedInstanceState) {
-		CursorLoaderFragmentHelper.restartLoader(this);
-	}
-	
-	@Override
-	public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-		return CursorLoaderFragmentHelper.createLoader(this, id);
-	}
+    public void restart(Bundle savedInstanceState) {
+        CursorLoaderFragmentHelper.restartLoader(this);
+    }
 
-	@Override
-	public String[] getProjection() {
-		return null;
-	}
+    @Override
+    public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+        return CursorLoaderFragmentHelper.createLoader(this, id);
+    }
 
-	@Override
-	public String[] getSelectionArgs() {
-		return null;
-	}
+    @Override
+    public String[] getProjection() {
+        return null;
+    }
 
-	@Override
-	public String getOrder() {
-		return null;
-	}
+    @Override
+    public String[] getSelectionArgs() {
+        return null;
+    }
 
-	@Override
-	public String getSelection() {
-		return null;
-	}
+    @Override
+    public String getOrder() {
+        return null;
+    }
+
+    @Override
+    public String getSelection() {
+        return null;
+    }
 
     @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {

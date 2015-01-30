@@ -192,7 +192,7 @@ public class AdvancedActivity extends AbstractActivity {
         protected View onAdapterGetView(SimpleCursorAdapter simpleCursorAdapter, int position, View view) {
             View root = super.onAdapterGetView(simpleCursorAdapter, position, view);
             StreamCursorModel cursorModel = (StreamCursorModel) simpleCursorAdapter.getItem(position);
-            ((TextView)root.findViewById(R.id.about)).setText(cursorModel.getContentText(), TextView.BufferType.SPANNABLE);
+            ((TextView) root.findViewById(R.id.about)).setText(cursorModel.getContentText(), TextView.BufferType.SPANNABLE);
             return root;
         }
     }

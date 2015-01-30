@@ -34,7 +34,7 @@ public class RequestExecutor {
             private Bundle mBundle;
         }
 
-		private final String mKey;
+        private final String mKey;
 
         private final List<ResultReceiver> mResultReceivers = new CopyOnWriteArrayList<ResultReceiver>();
 
@@ -44,24 +44,24 @@ public class RequestExecutor {
 
         private final Object mPrevStatusLock = new Object();
 
-		public ExecuteRunnable(ResultReceiver resultReceiver) {
-			super();
-			mKey = createKey();
+        public ExecuteRunnable(ResultReceiver resultReceiver) {
+            super();
+            mKey = createKey();
             if (resultReceiver != null) {
                 synchronized (mPrevStatusLock) {
                     mResultReceivers.add(resultReceiver);
                 }
             }
-		}
+        }
 
-		public abstract String createKey();
-		
-		private String getKey() {
-			return mKey;
-		}
+        public abstract String createKey();
 
-		@Override
-		public boolean equals(Object o) {
+        private String getKey() {
+            return mKey;
+        }
+
+        @Override
+        public boolean equals(Object o) {
             if (o == null) {
                 return false;
             }
@@ -70,12 +70,12 @@ public class RequestExecutor {
             }
             ExecuteRunnable executeRunnable = (ExecuteRunnable) o;
             return getKey().equals(executeRunnable.getKey());
-		}
+        }
 
-		@Override
-		public int hashCode() {
-			return getKey().hashCode();
-		}
+        @Override
+        public int hashCode() {
+            return getKey().hashCode();
+        }
 
         public List<ResultReceiver> getResultReceivers() {
             return mResultReceivers;
@@ -124,7 +124,7 @@ public class RequestExecutor {
 
     private final BlockingQueue<Runnable> mWorkQueue;
 
-	public RequestExecutor(int threadPoolSize, BlockingQueue<Runnable> workQueue) {
+    public RequestExecutor(int threadPoolSize, BlockingQueue<Runnable> workQueue) {
         mThreadPoolSize = threadPoolSize;
         mWorkQueue = workQueue;
         recreateExecutor();
@@ -139,20 +139,20 @@ public class RequestExecutor {
             if (!queue.contains(executeRunnable)) {
                 queue.add(executeRunnable);
                 if (IS_LOG_ENABLED)
-                Log.xd(this, "queue: add new " + executeRunnable.getKey());
+                    Log.xd(this, "queue: add new " + executeRunnable.getKey());
             } else {
                 int index = queue.indexOf(executeRunnable);
                 ExecuteRunnable oldRunnable = queue.get(index);
                 oldRunnable.addResultReceiver(executeRunnable.getResultReceivers());
                 executeRunnable = oldRunnable;
                 if (IS_LOG_ENABLED)
-                Log.xd(this, "queue: up to top old " + executeRunnable.getKey());
+                    Log.xd(this, "queue: up to top old " + executeRunnable.getKey());
             }
             if (IS_LOG_ENABLED)
-            Log.xd(this, "queue size: " + queue.size() + " " + executeRunnable.getKey());
+                Log.xd(this, "queue size: " + queue.size() + " " + executeRunnable.getKey());
             if (executeRunnable.isRunning) {
                 if (IS_LOG_ENABLED)
-                Log.xd(this, "queue: already running connect " + executeRunnable.getKey());
+                    Log.xd(this, "queue: already running connect " + executeRunnable.getKey());
                 return;
             }
             final ExecuteRunnable finalRunnable = executeRunnable;
@@ -161,7 +161,7 @@ public class RequestExecutor {
                 public void run() {
                     finalRunnable.isRunning = true;
                     if (IS_LOG_ENABLED)
-                    Log.xd(RequestExecutor.this, "queue: start run " + finalRunnable.getKey());
+                        Log.xd(RequestExecutor.this, "queue: start run " + finalRunnable.getKey());
                     finalRunnable.run();
                     synchronized (mLock) {
                         queue.remove(finalRunnable);
@@ -173,7 +173,7 @@ public class RequestExecutor {
             });
         }
 
-	}
+    }
 
     public boolean isEmpty() {
         synchronized (mLock) {
@@ -186,22 +186,22 @@ public class RequestExecutor {
             mExecutor.shutdownNow();
         } catch (RuntimeException e) {
             if (IS_LOG_ENABLED)
-            Log.xd(this, "stop error during shutdown");
+                Log.xd(this, "stop error during shutdown");
             e.printStackTrace();
         } catch (Exception e) {
             if (IS_LOG_ENABLED)
-            Log.xd(this, "stop error during shutdown");
+                Log.xd(this, "stop error during shutdown");
             e.printStackTrace();
         }
         if (IS_LOG_ENABLED)
-        Log.xd(this, "stop send info to receiver");
+            Log.xd(this, "stop send info to receiver");
         if (resultReceiver != null) {
             resultReceiver.send(0, null);
         }
         if (IS_LOG_ENABLED)
-        Log.xd(this, "stop start recreation");
+            Log.xd(this, "stop start recreation");
         recreateExecutor();
         if (IS_LOG_ENABLED)
-        Log.xd(this, "stop done");
+            Log.xd(this, "stop done");
     }
 }

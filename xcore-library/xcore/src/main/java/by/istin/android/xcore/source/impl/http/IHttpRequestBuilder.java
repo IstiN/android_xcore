@@ -8,6 +8,6 @@ import by.istin.android.xcore.source.DataSourceRequest;
 
 public interface IHttpRequestBuilder {
 
-	HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException;
-	
+    HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException;
+
 }

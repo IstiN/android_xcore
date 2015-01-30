@@ -166,20 +166,20 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         Long id = getParentId(contentValues);
         IGsonEntitiesConverter gsonEntityConverter = GsonEntitiesConverter.INSTANCE;
         gsonEntityConverter.convert(new IGsonEntitiesConverter.Params(
-                beforeListUpdate,
-                type,
-                jsonDeserializationContext,
-                contentValues,
-                clazz,
-                field,
-                dataSourceRequest,
-                dbConnection,
-                dbHelper,
-                fieldValue,
-                jsonArray,
-                foreignKey,
-                id,
-                count)
+                        beforeListUpdate,
+                        type,
+                        jsonDeserializationContext,
+                        contentValues,
+                        clazz,
+                        field,
+                        dataSourceRequest,
+                        dbConnection,
+                        dbHelper,
+                        fieldValue,
+                        jsonArray,
+                        foreignKey,
+                        id,
+                        count)
         );
     }
 
@@ -199,7 +199,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         Long id = contentValues.getAsLong(BaseColumns._ID);
         if (id == null) {
             if (generateID == null) {
-                throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID for "+ getContentValuesEntityClazz());
+                throw new IllegalStateException("can not put sub entity without parent id, use IGenerateID.class for generate ID for " + getContentValuesEntityClazz());
             }
             id = generateID.generateId(dbHelper, dbConnection, dataSourceRequest, contentValues);
             contentValues.put(BaseColumns._ID, id);

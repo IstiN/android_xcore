@@ -23,11 +23,11 @@ import android.os.Bundle;
 public class AuthenticatorActivity extends AccountAuthenticatorActivity {
 
 
-	@Override
-	public void onCreate(Bundle icicle) {
+    @Override
+    public void onCreate(Bundle icicle) {
         //TODO login activity
-		super.onCreate(icicle);
-		finish();
-	}
+        super.onCreate(icicle);
+        finish();
+    }
 
 }

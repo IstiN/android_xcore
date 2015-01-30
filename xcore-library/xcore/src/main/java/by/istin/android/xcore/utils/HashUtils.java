@@ -19,7 +19,7 @@ public class HashUtils {
         }
     }
 
-    public static long generateId(ContentValues contentValues, String ... keys) {
+    public static long generateId(ContentValues contentValues, String... keys) {
         Object[] values = new Object[keys.length];
         int i = 0;
         for (String k : keys) {
@@ -29,11 +29,11 @@ public class HashUtils {
         return generateId(values);
     }
 
-	public static long generateId(Object... value) {
+    public static long generateId(Object... value) {
         if (md == null) {
             return 0L;
         }
-		//String value to be converted
+        //String value to be converted
         StringBuilder builder = new StringBuilder();
         for (Object s : value) {
             builder.append(String.valueOf(s));
@@ -52,10 +52,10 @@ public class HashUtils {
         long hashValLong = 0;
 
         //create a long value from the byte array
-        for( int i = 0; i < 8; i++ ) {
-            hashValLong |= ((long)(hashValBytes[i]) & 0x0FF)<<(8*i);
+        for (int i = 0; i < 8; i++) {
+            hashValLong |= ((long) (hashValBytes[i]) & 0x0FF) << (8 * i);
         }
         return hashValLong;
-	}
-	
+    }
+
 }

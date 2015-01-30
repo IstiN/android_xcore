@@ -115,13 +115,13 @@ public class WearableService extends WearableListenerService {
                     if (result == null) {
                         dataMapResult.putInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_UNKNOWN);
                     } else if (result instanceof ContentValues) {
-                        dataMapResult.putByteArray(WearableContract.PARAM_RESULT, BytesUtils.toByteArray((ContentValues)result));
+                        dataMapResult.putByteArray(WearableContract.PARAM_RESULT, BytesUtils.toByteArray((ContentValues) result));
                         dataMapResult.putInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_CONTENT_VALUES);
                     } else if (result instanceof ContentValues[]) {
                         dataMapResult.putByteArray(WearableContract.PARAM_RESULT, BytesUtils.arrayToByteArray((ContentValues[]) result));
                         dataMapResult.putInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_CONTENT_VALUES_ARRAY);
                     } else if (result instanceof Bitmap) {
-                        dataMapResult.putAsset(WearableContract.PARAM_RESULT, toAsset((Bitmap)result));
+                        dataMapResult.putAsset(WearableContract.PARAM_RESULT, toAsset((Bitmap) result));
                         dataMapResult.putInt(WearableContract.PARAM_RESULT_TYPE, WearableContract.TYPE_ASSET);
                     } else if (result instanceof Serializable) {
                         dataMapResult.putByteArray(WearableContract.PARAM_RESULT, BytesUtils.toByteArray((Serializable) result));

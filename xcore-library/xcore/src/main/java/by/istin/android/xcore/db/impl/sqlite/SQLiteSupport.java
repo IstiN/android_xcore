@@ -1,6 +1,7 @@
 package by.istin.android.xcore.db.impl.sqlite;
 
 import android.content.Context;
+
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.impl.AbstractDBSupport;
 

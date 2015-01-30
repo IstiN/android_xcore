@@ -70,7 +70,9 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
 
     protected OAuth2Helper getOAuth2Helper() {
         return OAuth2Helper.Impl.getInstance(mConfiguration);
-    };
+    }
+
+    ;
 
     protected abstract Configuration getConfiguration();
 
@@ -86,7 +88,6 @@ public abstract class BaseAuth2Activity extends FragmentActivity {
             Log.xd(BaseAuth2Activity.this, "page started " + url);
             showProgress();
         }
-
 
 
         /* (non-Javadoc)

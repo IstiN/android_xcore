@@ -9,7 +9,7 @@ import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
 
-public class EmptyProcessor implements IProcessor<Void,InputStream> {
+public class EmptyProcessor implements IProcessor<Void, InputStream> {
 
     public static final String APP_SERVICE_KEY = "xcore:core:emptyprocessor";
 

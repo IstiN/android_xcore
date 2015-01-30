@@ -6,19 +6,22 @@
     tools:context=".StartActivity"
     tools:ignore="MergeRootFrame"
     android:orientation="vertical">
+
     <Button
         android:layout_width="match_parent"
         android:text="Simple"
         android:layout_height="wrap_content"
-        android:onClick="onSimpleClick"/>
+        android:onClick="onSimpleClick" />
+
     <Button
         android:layout_width="match_parent"
         android:text="Advanced"
         android:layout_height="wrap_content"
-        android:onClick="onAdvancedClick"/>
+        android:onClick="onAdvancedClick" />
+
     <Button
         android:layout_width="match_parent"
         android:text="Loader Test"
         android:layout_height="wrap_content"
-        android:onClick="onLoaderTestClick"/>
+        android:onClick="onLoaderTestClick" />
 </LinearLayout>

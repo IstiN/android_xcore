@@ -145,7 +145,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onCreateLoader(this, cursorLoader, id, args);
             }
         }
@@ -154,8 +154,11 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     }
 
     public abstract CollectionViewAdapter createAdapter(FragmentActivity fragmentActivity, Model cursor);
+
     public abstract void setAdapter(CollectionView collectionView, CollectionViewAdapter collectionViewAdapter);
+
     public abstract void swap(CollectionViewAdapter collectionViewAdapter, Model cursor);
+
     protected abstract int getAdapterCount(CollectionViewAdapter listAdapter);
 
     @Override
@@ -175,7 +178,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(getActivity()).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onLoadFinished(this, loader, cursor);
             }
         }
@@ -261,7 +264,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         //plugins
         List<IFragmentPlugin> listFragmentPlugins = XCoreHelper.get(activity).getListFragmentPlugins();
         if (listFragmentPlugins != null) {
-            for(IFragmentPlugin plugin : listFragmentPlugins) {
+            for (IFragmentPlugin plugin : listFragmentPlugins) {
                 plugin.onActivityCreated(this, savedInstanceState);
             }
         }
@@ -272,13 +275,13 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
     public void refresh() {
         if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " refresh ");
         refresh(getActivity());
     }
 
     public void refresh(Activity activity) {
         if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " refresh ");
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " refresh ");
         loadData(activity, getUrl(), true, null);
     }
 
@@ -307,7 +310,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     public void dataSourceExecute(final Context context, final DataSourceRequest dataSourceRequest) {
         setServiceWork(true);
         if (IS_CHECK_STATUS_LOG_ENABLED)
-            Log.d("fragment_status", ((Object)this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
+            Log.d("fragment_status", ((Object) this).getClass().getSimpleName() + " dataSourceExecute: " + dataSourceRequest.getUri());
         DataSourceService.execute(context, dataSourceRequest, getProcessorKey(), getDataSourceKey(), new StatusResultReceiver(new Handler()) {
 
             @Override
@@ -426,7 +429,6 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     public long getCacheExpiration() {
         return DateUtils.DAY_IN_MILLIS;
     }
-
 
 
     @Override
@@ -573,7 +575,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             }
             if (currentStatusView != newViewStatus) {
                 if (IS_CHECK_STATUS_LOG_ENABLED)
-                    Log.d("fragment_status", "status changed from " + currentStatusView  + " to " + newViewStatus);
+                    Log.d("fragment_status", "status changed from " + currentStatusView + " to " + newViewStatus);
                 currentStatusView = newViewStatus;
                 switch (currentStatusView) {
                     case STATUS_CONTENT_VISIBLE:
@@ -621,6 +623,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         }
         hideSecondaryProgress(view);
     }
+
     protected void hideSecondaryProgress(View view) {
         View progressView = view.findViewById(getSecondaryProgressViewId());
         if (progressView != null) {

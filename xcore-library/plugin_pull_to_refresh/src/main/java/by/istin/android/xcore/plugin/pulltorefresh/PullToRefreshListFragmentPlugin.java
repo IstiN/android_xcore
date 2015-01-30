@@ -40,7 +40,7 @@ public class PullToRefreshListFragmentPlugin implements IFragmentPlugin {
             @Override
             public void onRefresh(PullToRefreshBase refreshView) {
                 if (fragment != null && fragment instanceof IRefresh) {
-                    ((IRefresh)fragment).refresh();
+                    ((IRefresh) fragment).refresh();
                 }
             }
 

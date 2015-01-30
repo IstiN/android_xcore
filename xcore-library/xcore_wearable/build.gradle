@@ -41,7 +41,7 @@ task makeJar(type: Copy) {
     from('build/intermediates/bundles/release/')
     into('build/libs/')
     include('classes.jar')
-    rename ('classes.jar', '../../../../download/xcore-wearable.jar')
+    rename('classes.jar', '../../../../download/xcore-wearable.jar')
 }
 
 makeJar.dependsOn(clearJar, build)

@@ -35,13 +35,13 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     private DBContentProviderSupport dbContentProviderSupport;
 
     public TestSQLiteSupport() {
-		super(Application.class);
-	}
+        super(Application.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
-		createApplication();
+    @Override
+    protected void setUp() throws Exception {
+        super.setUp();
+        createApplication();
         mSQLiteSupport = new SQLiteSupport();
         mSQLiteSupport.create(getApplication(), new Class[]{BigTestEntity.class, BigTestSubEntity.class});
         TEST_ENTITY_CLASS = BigTestEntity.class.getCanonicalName();
@@ -49,7 +49,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
         dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{BigTestEntity.class, BigTestSubEntity.class});
         ContextHolder.set(getApplication());
-	}
+    }
 
     public void testInsert() throws Exception {
         createAndClearTables();
@@ -123,7 +123,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
 
         deleteWithCondition();
 
-        checkResults(MockStorage.SIZE-1);
+        checkResults(MockStorage.SIZE - 1);
     }
 
     private void deleteWithCondition() {
@@ -135,7 +135,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         createAndClearTables();
         bulkInsertTestEntity();
         checkResults(MockStorage.SIZE);
-	}
+    }
 
     private void bulkInsertTestEntity() {
         ContentValues[] contentValues = MockStorage.generateArray();
@@ -162,7 +162,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     }
 
     public void testThreadSafe() throws Exception {
-        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT*8);
+        final CountDownLatch latch = new CountDownLatch(THREAD_COUNT * 8);
         //8 operations
         List<Runnable> operations = new ArrayList<Runnable>();
         operations.add(new Runnable() {
@@ -247,10 +247,10 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         });
 
         int size = operations.size();
-        for (int i = 0; i < THREAD_COUNT*size; i++) {
+        for (int i = 0; i < THREAD_COUNT * size; i++) {
             final int threadNumber = i;
             Runnable runner = operations.get(i % size);
-            new Thread(runner, "TestThread"+i).start();
+            new Thread(runner, "TestThread" + i).start();
         }
         /* all threads are waiting on the latch. */
         latch.await(); // release the latch

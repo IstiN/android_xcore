@@ -13,38 +13,38 @@ import java.io.OutputStream;
 
 public class IOUtils {
 
-	public static void close(Closeable closeable) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			} catch (IOException e) {
-				//can be ignored
-                Log.e("IOUtils", e);
-			}
-		}
-	}
-
-	public static void close(ObjectOutput closeable) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			} catch (Exception e) {
+    public static void close(Closeable closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (IOException e) {
                 //can be ignored
                 Log.e("IOUtils", e);
             }
         }
-	}
+    }
 
-	public static void close(ObjectInput closeable) {
-		if (closeable != null) {
-			try {
-				closeable.close();
-			} catch (Exception e) {
+    public static void close(ObjectOutput closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
                 //can be ignored
                 Log.e("IOUtils", e);
             }
         }
-	}
+    }
+
+    public static void close(ObjectInput closeable) {
+        if (closeable != null) {
+            try {
+                closeable.close();
+            } catch (Exception e) {
+                //can be ignored
+                Log.e("IOUtils", e);
+            }
+        }
+    }
 
     private static final int DEFAULT_BUFFER_SIZE = 1024 * 4;
 

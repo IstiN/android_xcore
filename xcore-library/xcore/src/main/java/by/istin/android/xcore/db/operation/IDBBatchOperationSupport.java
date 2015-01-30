@@ -7,8 +7,8 @@ package by.istin.android.xcore.db.operation;
  */
 public interface IDBBatchOperationSupport
         extends
-            IDBTransactionSupport,
-            IDBInsertOrUpdateOperationSupport,
-            IDBDeleteOperationSupport {
+        IDBTransactionSupport,
+        IDBInsertOrUpdateOperationSupport,
+        IDBDeleteOperationSupport {
 
 }

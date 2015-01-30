@@ -31,55 +31,54 @@ import by.istin.android.xcore.ContextHolder;
 
 /**
  * Class for converting px to the dp values, ellipsize text and else.
- * 
- * @author Uladzimir_Klyshevich
  *
+ * @author Uladzimir_Klyshevich
  */
 public class UiUtil {
 
-	static int sDisplayWidth = -1;
-	static int sDisplayHeight = -1;
+    static int sDisplayWidth = -1;
+    static int sDisplayHeight = -1;
 
     public static void clearCachedDisplayDimensions() {
         int sDisplayWidth = -1;
         int sDisplayHeight = -1;
     }
 
-	public static int getDisplayHeight() {
-		if (sDisplayHeight == -1) {
-			initDisplayDimensions();
-		}
-		return sDisplayHeight;
-	}
+    public static int getDisplayHeight() {
+        if (sDisplayHeight == -1) {
+            initDisplayDimensions();
+        }
+        return sDisplayHeight;
+    }
 
-	public static int getDisplayWidth() {
-		if (sDisplayWidth == -1) {
-			initDisplayDimensions();
-		}
-		return sDisplayWidth;
-	}
+    public static int getDisplayWidth() {
+        if (sDisplayWidth == -1) {
+            initDisplayDimensions();
+        }
+        return sDisplayWidth;
+    }
 
     public static boolean isWiFi(Context context) {
         ConnectivityManager connManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo mWifi = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        return  mWifi.isConnected();
+        return mWifi.isConnected();
     }
 
     @TargetApi(value = Build.VERSION_CODES.HONEYCOMB_MR2)
-	private static void initDisplayDimensions() {
-		Context ctx = ContextHolder.get();
-		WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
-		Display display = wm.getDefaultDisplay();
-		if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-			Point size = new Point();
-			display.getSize(size);
-			sDisplayWidth = size.x;
-			sDisplayHeight = size.y;
-		} else {
-			sDisplayWidth = display.getWidth();
-			sDisplayHeight = display.getHeight();
-		}
-	}
+    private static void initDisplayDimensions() {
+        Context ctx = ContextHolder.get();
+        WindowManager wm = (WindowManager) ctx.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        if (VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+            Point size = new Point();
+            display.getSize(size);
+            sDisplayWidth = size.x;
+            sDisplayHeight = size.y;
+        } else {
+            sDisplayWidth = display.getWidth();
+            sDisplayHeight = display.getHeight();
+        }
+    }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static boolean setTranslucentBars(Activity activity) {
@@ -103,17 +102,17 @@ public class UiUtil {
         }
         boolean hasMenuKey = ViewConfiguration.get(activity).hasPermanentMenuKey();
         boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
-        if(!hasMenuKey && !hasBackKey) {
+        if (!hasMenuKey && !hasBackKey) {
             Window win = activity.getWindow();
             WindowManager.LayoutParams winParams = win.getAttributes();
             int bits = 0;
             if (isNavigation) {
                 bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-                winParams.flags |=  bits;
+                winParams.flags |= bits;
             }
             if (isStatus) {
                 bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-                winParams.flags |=  bits;
+                winParams.flags |= bits;
             }
             win.setAttributes(winParams);
             return true;
@@ -131,8 +130,9 @@ public class UiUtil {
 
     /**
      * Convert px to dp.
+     *
      * @param context context
-     * @param px value in px
+     * @param px      value in px
      * @return dp value
      */
     public static Float getDp(final Context context, final Float px) {
@@ -142,8 +142,9 @@ public class UiUtil {
 
     /**
      * Convert px to dp.
+     *
      * @param context context
-     * @param px value in px
+     * @param px      value in px
      * @return dp value
      */
     public static int getDp(final Context context, final int px) {
@@ -153,8 +154,9 @@ public class UiUtil {
 
     /**
      * Gets fonts value for different resolutions.
+     *
      * @param context context
-     * @param px value in px
+     * @param px      value in px
      * @return sp value
      */
     public static int getFontSize(final Context context, final int px) {
@@ -168,8 +170,9 @@ public class UiUtil {
 
     /**
      * Convert dp value to the px value.
+     *
      * @param context context
-     * @param dp value in dp
+     * @param dp      value in dp
      * @return px value
      */
     public static Float getPx(final Context context, final Float dp) {
@@ -179,6 +182,7 @@ public class UiUtil {
 
     /**
      * Check device orientation.
+     *
      * @param context context
      * @return ture if prortrait else false
      */
@@ -186,53 +190,55 @@ public class UiUtil {
         Configuration config = context.getResources().getConfiguration();
         return config.orientation == Configuration.ORIENTATION_PORTRAIT;
     }
-    
+
     /**
      * Constant contain small characters.
      */
     private final static String NON_THIN = "[^iIl1\\.,']";
-    
+
     /**
      * Gets text width.
+     *
      * @param str string
      * @return value in px
      */
     private static int textWidth(String str) {
-	    return str.length() - str.replaceAll(NON_THIN, "").length() / 2;
-	}
+        return str.length() - str.replaceAll(NON_THIN, "").length() / 2;
+    }
 
-	/**
-	 * Ellipsize text for lines.
-	 * @param text text
-	 * @param max max lines
-	 * @return new text
-	 */
-	public static String ellipsize(String text, int max) {
-		if (textWidth(text) <= max)
-	        return text;
+    /**
+     * Ellipsize text for lines.
+     *
+     * @param text text
+     * @param max  max lines
+     * @return new text
+     */
+    public static String ellipsize(String text, int max) {
+        if (textWidth(text) <= max)
+            return text;
 
-	    // Start by chopping off at the word before max
-	    // This is an over-approximation due to thin-characters...
-	    int end = text.lastIndexOf(' ', max - 3);
+        // Start by chopping off at the word before max
+        // This is an over-approximation due to thin-characters...
+        int end = text.lastIndexOf(' ', max - 3);
 
-	    // Just one long word. Chop it off.
-	    if (end == -1)
-	        return text.substring(0, max-3) + "...";
+        // Just one long word. Chop it off.
+        if (end == -1)
+            return text.substring(0, max - 3) + "...";
 
-	    // Step forward as long as textWidth allows.
-	    int newEnd = end;
-	    do {
-	        end = newEnd;
-	        newEnd = text.indexOf(' ', end + 1);
+        // Step forward as long as textWidth allows.
+        int newEnd = end;
+        do {
+            end = newEnd;
+            newEnd = text.indexOf(' ', end + 1);
 
-	        // No more spaces.
-	        if (newEnd == -1)
-	            newEnd = text.length();
+            // No more spaces.
+            if (newEnd == -1)
+                newEnd = text.length();
 
-	    } while (textWidth(text.substring(0, newEnd) + "...") < max);
+        } while (textWidth(text.substring(0, newEnd) + "...") < max);
 
-	    return text.substring(0, end) + "...";
-	}
+        return text.substring(0, end) + "...";
+    }
 
     public static boolean hasHoneycomb() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB;
@@ -268,10 +274,11 @@ public class UiUtil {
 
     /**
      * Hide keyboard
+     *
      * @param view view, prefer set EditText
      */
     public static void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager)view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
         Activity activity = (Activity) view.getContext();
         if (activity == null) {
             return;
@@ -279,7 +286,7 @@ public class UiUtil {
         if (android.os.Build.VERSION.SDK_INT < 11) {
             Window window = activity.getWindow();
             if (window != null && window.getCurrentFocus() != null && window.getCurrentFocus().getWindowToken() != null) {
-                imm.hideSoftInputFromWindow(window.getCurrentFocus().getWindowToken(),0);
+                imm.hideSoftInputFromWindow(window.getCurrentFocus().getWindowToken(), 0);
             }
         } else {
             View currentFocus = activity.getCurrentFocus();
@@ -291,6 +298,7 @@ public class UiUtil {
 
     /**
      * Show keyboard
+     *
      * @param view view, prefer set EditText
      */
     public static void showKeyboard(View view) {
@@ -320,7 +328,7 @@ public class UiUtil {
         }
     }
 
-    private static final int[] RES_IDS_ACTION_BAR_SIZE = { android.R.attr.actionBarSize };
+    private static final int[] RES_IDS_ACTION_BAR_SIZE = {android.R.attr.actionBarSize};
 
     public static int getActionBarSize(Activity context) {
         if (context == null) {

@@ -22,17 +22,17 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
 import by.istin.android.xcore.utils.ReflectUtils;
 
-public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
+public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream> {
 
     public static final String DEFAULT_ENCODING = "UTF-8";
 
-	private final Class<?> clazz;
-	
-	private final Class<? extends Result> resultClassName;
-	
-	private final Gson gson;
-	
-	private AbstractValuesAdapter contentValuesAdapter;
+    private final Class<?> clazz;
+
+    private final Class<? extends Result> resultClassName;
+
+    private final Gson gson;
+
+    private AbstractValuesAdapter contentValuesAdapter;
 
     public AbstractGsonProcessor(Class<? extends Result> resultClassName) {
         this(null, resultClassName, null);
@@ -58,58 +58,60 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
         });
     }
 
-	public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName, AbstractValuesAdapter contentValuesAdapter) {
-		super();
-		this.clazz = clazz;
-		this.resultClassName = resultClassName;
+    public AbstractGsonProcessor(Class<?> clazz, Class<? extends Result> resultClassName, AbstractValuesAdapter contentValuesAdapter) {
+        super();
+        this.clazz = clazz;
+        this.resultClassName = resultClassName;
         if (clazz == null || contentValuesAdapter == null) {
             gson = new GsonBuilder().create();
         } else {
-		    this.contentValuesAdapter = contentValuesAdapter;
-		    gson = createGsonWithContentValuesAdapter(getListBufferSize(), contentValuesAdapter);
+            this.contentValuesAdapter = contentValuesAdapter;
+            gson = createGsonWithContentValuesAdapter(getListBufferSize(), contentValuesAdapter);
         }
-	}
+    }
 
 
-	@Override
-	public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
-		InputStreamReader inputStreamReader = new InputStreamReader(inputStream, getEncoding());
-		BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
-		try {
-			return process(dataSourceRequest, getGson(), bufferedReader);
-		} catch (JsonIOException exception){
+    @Override
+    public Result execute(DataSourceRequest dataSourceRequest, IDataSource<InputStream> dataSource, InputStream inputStream) throws Exception {
+        InputStreamReader inputStreamReader = new InputStreamReader(inputStream, getEncoding());
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
+        try {
+            return process(dataSourceRequest, getGson(), bufferedReader);
+        } catch (JsonIOException exception) {
             throw new IOException(exception);
         } finally {
-			IOUtils.close(inputStream);
-			IOUtils.close(inputStreamReader);
-			IOUtils.close(bufferedReader);
-		}
-	}
+            IOUtils.close(inputStream);
+            IOUtils.close(inputStreamReader);
+            IOUtils.close(bufferedReader);
+        }
+    }
 
     protected String getEncoding() {
         return DEFAULT_ENCODING;
-    };
+    }
 
-    protected Result process(DataSourceRequest dataSourceRequest,Gson gson, BufferedReader bufferedReader) {
-		return getGson().fromJson(bufferedReader, resultClassName);
-	}
-	
+    ;
 
-	public AbstractValuesAdapter getContentValuesAdapter() {
-		return contentValuesAdapter;
-	}
+    protected Result process(DataSourceRequest dataSourceRequest, Gson gson, BufferedReader bufferedReader) {
+        return getGson().fromJson(bufferedReader, resultClassName);
+    }
 
-	public void setContentValuesAdapter(AbstractValuesAdapter contentValuesAdaper) {
-		this.contentValuesAdapter = contentValuesAdaper;
-	}
-	
-	public Class<?> getClazz() {
-		return clazz;
-	}
 
-	public Gson getGson() {
-		return gson;
-	}
+    public AbstractValuesAdapter getContentValuesAdapter() {
+        return contentValuesAdapter;
+    }
+
+    public void setContentValuesAdapter(AbstractValuesAdapter contentValuesAdaper) {
+        this.contentValuesAdapter = contentValuesAdaper;
+    }
+
+    public Class<?> getClazz() {
+        return clazz;
+    }
+
+    public Gson getGson() {
+        return gson;
+    }
 
     protected int getListBufferSize() {
         return -1;

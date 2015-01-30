@@ -10,14 +10,14 @@ import by.istin.android.xcore.db.impl.DBHelper;
 
 public class BigTestSubEntity implements BaseColumns {
 
-	@dbLong
+    @dbLong
     @SerializedName(value = "id")
-	public static String ID = _ID;
+    public static String ID = _ID;
 
-	@dbLong
-	public static String TEST_ENTITY_ID = DBHelper.getForeignKey(BigTestEntity.class);
+    @dbLong
+    public static String TEST_ENTITY_ID = DBHelper.getForeignKey(BigTestEntity.class);
 
-	@dbString
-	public static String STRING_VALUE = "STRING_VALUE";
+    @dbString
+    public static String STRING_VALUE = "STRING_VALUE";
 
 }

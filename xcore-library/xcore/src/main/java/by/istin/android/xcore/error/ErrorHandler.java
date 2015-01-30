@@ -49,7 +49,7 @@ public class ErrorHandler implements IErrorHandler {
 
         @Override
         public int hashCode() {
-            return mDataSourceHelper.hashCode()+ mDataSourceRequest.hashCode()+ mFragmentActivity.hashCode();
+            return mDataSourceHelper.hashCode() + mDataSourceRequest.hashCode() + mFragmentActivity.hashCode();
         }
 
         @Override
@@ -255,8 +255,7 @@ public class ErrorHandler implements IErrorHandler {
             writer = new StringWriter();
             joinStackTrace(e, writer);
             return writer.toString();
-        }
-        finally {
+        } finally {
             IOUtils.close(writer);
         }
     }
@@ -276,8 +275,7 @@ public class ErrorHandler implements IErrorHandler {
                 if (e != null)
                     printer.println("Caused by:\r\n");
             }
-        }
-        finally {
+        } finally {
             if (printer != null)
                 printer.close();
         }
@@ -293,7 +291,7 @@ public class ErrorHandler implements IErrorHandler {
         }
         intent.setData(Uri.parse("mailto:" + mailTo));
         if (!StringUtil.isEmpty(mailCC)) {
-            intent.putExtra(Intent.EXTRA_CC, new String[] { mailCC });
+            intent.putExtra(Intent.EXTRA_CC, new String[]{mailCC});
         }
         if (!StringUtil.isEmpty(subject)) {
             intent.putExtra(Intent.EXTRA_SUBJECT, subject);

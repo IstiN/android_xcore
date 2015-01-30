@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.source.impl;
 
@@ -14,23 +14,22 @@ import by.istin.android.xcore.utils.Holder;
 
 /**
  * Class for load data from file.
- * 
+ *
  * @author Uladzimir_Klyshevich
- * 
  */
 public class FileDataSource implements IDataSource<InputStream> {
 
-	public static final String SYSTEM_SERVICE_KEY = "xcore:filedatasource";
+    public static final String SYSTEM_SERVICE_KEY = "xcore:filedatasource";
 
-	
-	@Override
-	public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
-		return new FileInputStream(dataSourceRequest.getUri());
-	}
 
-	@Override
-	public String getAppServiceKey() {
-		return SYSTEM_SERVICE_KEY;
-	}
-	
+    @Override
+    public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
+        return new FileInputStream(dataSourceRequest.getUri());
+    }
+
+    @Override
+    public String getAppServiceKey() {
+        return SYSTEM_SERVICE_KEY;
+    }
+
 }

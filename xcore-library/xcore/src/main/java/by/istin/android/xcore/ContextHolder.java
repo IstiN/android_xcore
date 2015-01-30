@@ -8,15 +8,16 @@ import android.content.Context;
  */
 public final class ContextHolder {
 
-	/**
-	 * Instantiates a new context holder.
-	 */
-	private ContextHolder() {
+    /**
+     * Instantiates a new context holder.
+     */
+    private ContextHolder() {
 
-	}
+    }
 
     /**
      * Gets Application context from XCoreHelper
+     *
      * @return context of application
      */
     public static Context get() {

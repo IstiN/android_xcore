@@ -16,7 +16,8 @@ import by.istin.android.xcore.provider.IDBContentProviderSupport;
  */
 public class DBContentProviderFactory {
 
-    private DBContentProviderFactory() {}
+    private DBContentProviderFactory() {
+    }
 
     private static class DBContentProviderFactoryHolder {
         private static final DBContentProviderFactory INSTANCE = new DBContentProviderFactory();
@@ -26,7 +27,7 @@ public class DBContentProviderFactory {
         return DBContentProviderFactoryHolder.INSTANCE;
     }
 
-    public static IDBContentProviderSupport getDefaultDBContentProvider(Context context, Class<?> ... entities) {
+    public static IDBContentProviderSupport getDefaultDBContentProvider(Context context, Class<?>... entities) {
         DBContentProviderFactory dbContentProviderFactory = getInstance();
         String name = context.getPackageName();
         return dbContentProviderFactory.getDbContentProvider(context, name, new SQLiteSupport(name), entities);
@@ -36,7 +37,7 @@ public class DBContentProviderFactory {
 
     private final Map<String, IDBContentProviderSupport> mProviders = new HashMap<>();
 
-    public IDBContentProviderSupport getDbContentProvider(Context context, String name, IDBSupport dbSupport, Class<?> ... entities) {
+    public IDBContentProviderSupport getDbContentProvider(Context context, String name, IDBSupport dbSupport, Class<?>... entities) {
         IDBContentProviderSupport dbContentProviderSupport = mProviders.get(name);
         if (dbContentProviderSupport == null) {
             synchronized (mLock) {

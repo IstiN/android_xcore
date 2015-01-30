@@ -34,5 +34,4 @@ public class SimpleEntityWithPrimitiveEntity implements BaseColumns {
     public static final String TAGS = "tags";
 
 
-
 }

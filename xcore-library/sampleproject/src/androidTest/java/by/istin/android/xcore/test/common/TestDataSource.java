@@ -16,7 +16,7 @@ public class TestDataSource implements IDataSource<InputStream> {
     @Override
     public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
         String path = dataSourceRequest.getUri().split("\\?")[0];
-        return getInputStream("assets/feeds/"+ path);
+        return getInputStream("assets/feeds/" + path);
     }
 
     private InputStream getInputStream(String uri) throws IOException {

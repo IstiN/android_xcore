@@ -76,7 +76,9 @@ public class WearableActivity extends Activity implements DataApi.DataListener,
 
     private static final String TAG = "MainActivity";
 
-    /** Request code for launching the Intent to resolve Google Play services errors. */
+    /**
+     * Request code for launching the Intent to resolve Google Play services errors.
+     */
     private static final int REQUEST_RESOLVE_ERROR = 1000;
 
 
@@ -115,7 +117,6 @@ public class WearableActivity extends Activity implements DataApi.DataListener,
             mGoogleApiClient.connect();
         }
     }
-
 
 
     @Override

@@ -7,7 +7,7 @@ import by.istin.android.xcore.utils.Holder;
 
 public interface IDataSource<T> extends IAppServiceKey {
 
-	T getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException;
+    T getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException;
 
     public static interface ICacheValidationSupport {
 

@@ -18,15 +18,15 @@ public interface IOnProceedEntity {
     /**
      * Call for every item before insert in database. Return true if you make custom insert item to database and don't need todo it automatically
      *
-     * @param dbHelper instance of DBHelper
-     * @param db current WritableTransaction
+     * @param dbHelper          instance of DBHelper
+     * @param db                current WritableTransaction
      * @param dataSourceRequest current dataSourceRequest
-     * @param parent parent for current entity
-     * @param contentValues current ContentValues that will be inserting to the DataBase
-     * @param position current position if it's jsonarray, position = -1 if it's single entity
-     * @param jsonElement current jsonObject
+     * @param parent            parent for current entity
+     * @param contentValues     current ContentValues that will be inserting to the DataBase
+     * @param position          current position if it's jsonarray, position = -1 if it's single entity
+     * @param jsonElement       current jsonObject
      * @return false if you want to insert or update item automatically, true if you do this by yourself
      */
-	boolean onProceedEntity(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, @Nullable ContentValues parent, ContentValues contentValues, int position, JsonElement jsonElement);
-	
+    boolean onProceedEntity(DBHelper dbHelper, IDBConnection db, DataSourceRequest dataSourceRequest, @Nullable ContentValues parent, ContentValues contentValues, int position, JsonElement jsonElement);
+
 }

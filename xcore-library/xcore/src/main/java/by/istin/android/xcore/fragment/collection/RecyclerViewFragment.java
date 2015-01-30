@@ -44,8 +44,8 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
             if (count == 0) {
                 return;
             }
-            int firstVisibleItem = ((LinearLayoutManager)mLayoutManager).findFirstVisibleItemPosition();
-            int visibleItemCount = ((LinearLayoutManager)mLayoutManager).findLastVisibleItemPosition() - firstVisibleItem;
+            int firstVisibleItem = ((LinearLayoutManager) mLayoutManager).findFirstVisibleItemPosition();
+            int visibleItemCount = ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition() - firstVisibleItem;
             if (previousTotal != count && !pagingLoading && (count - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = count;
                 pagingLoading = true;

@@ -9,9 +9,10 @@ public interface IDBUpdateOperationSupport {
 
     /**
      * Insert content values to the specified table
-     * @param tableName name of table
+     *
+     * @param tableName     name of table
      * @param contentValues content values with new values
-     * @param selection selection condition for update
+     * @param selection     selection condition for update
      * @param selectionArgs arguments for the selection condition
      * @return row count that was updated
      */

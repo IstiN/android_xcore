@@ -1,37 +1,25 @@
 package by.istin.android.xcore.app;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import by.istin.android.xcore.CoreApplication;
-import by.istin.android.xcore.issues.issue12.processor.DaysBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveConverterBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithPrimitiveEntityBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithSubEntitiesBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithSubEntityBatchProcessor;
-import by.istin.android.xcore.processor.SimpleEntityWithSubJsonBatchProcessor;
-import by.istin.android.xcore.processor.SuperBigEntityBatchProcessor;
-import by.istin.android.xcore.provider.ContentProvider;
-import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.XCoreHelper;
 
 /**
  * Created by Uladzimir_Klyshevich on 12/6/13.
  */
 public class Application extends CoreApplication {
 
+    public static final List<Class<? extends XCoreHelper.Module>> APP_MODULES;
+
+    static {
+        APP_MODULES = new ArrayList<>();
+        APP_MODULES.add(AppModule.class);
+    }
+
     @Override
-    public void onCreate() {
-        super.onCreate();
-
-        IDBContentProviderSupport defaultDBContentProvider = getDefaultDBContentProvider(ContentProvider.ENTITIES);
-
-        registerAppService(new SimpleEntityBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SimpleEntityWithSubEntityBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SimpleEntityWithSubJsonBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SimpleEntityWithPrimitiveEntityBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SimpleEntityWithPrimitiveConverterBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SimpleEntityWithSubEntitiesBatchProcessor(defaultDBContentProvider));
-        registerAppService(new SuperBigEntityBatchProcessor(defaultDBContentProvider));
-
-        //issue 12
-        registerAppService(new DaysBatchProcessor(defaultDBContentProvider));
+    public List<Class<? extends XCoreHelper.Module>> getModules() {
+        return APP_MODULES;
     }
 }

@@ -69,6 +69,7 @@ public abstract class LazyLoader<View, Params, Result> {
 
     public static interface Listener<View, Params, Result> {
         void success(View v, Params params, Result t);
+
         void fail(View v, Params params, Throwable t);
     }
 

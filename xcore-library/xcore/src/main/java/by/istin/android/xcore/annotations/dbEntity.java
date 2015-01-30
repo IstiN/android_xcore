@@ -16,6 +16,6 @@ public @interface dbEntity {
 
     Config value() default @Config(dbType = Config.DBType.ENTITY);
 
-	Class<?> clazz();
+    Class<?> clazz();
 
 }

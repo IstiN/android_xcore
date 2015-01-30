@@ -11,20 +11,20 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public class ModelContract {
 
-	private static final String PARAM_NOT_NOTIFY_CHANGES = "notNotifyChanges";
+    private static final String PARAM_NOT_NOTIFY_CHANGES = "notNotifyChanges";
 
-	private static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
+    private static final String DATA_SOURCE_REQUEST_PARAM = "___dsr";
 
-	private static final String AUTHORITY_TEMPLATE = "%s.ModelContentProvider";
+    private static final String AUTHORITY_TEMPLATE = "%s.ModelContentProvider";
 
-	private static final String CONTENT_ID_TEMPLATE = "content://"
-			+ "%s" + "/%s/%d";
+    private static final String CONTENT_ID_TEMPLATE = "content://"
+            + "%s" + "/%s/%d";
 
-	private static final String CONTENT_ALL_TEMPLATE = "content://"
-			+ "%s" + "/%s";
-	
-	
-	private static final String CONTENT_TYPE_TEMPLATE = "vnd.android.cursor.dir/%s";
+    private static final String CONTENT_ALL_TEMPLATE = "content://"
+            + "%s" + "/%s";
+
+
+    private static final String CONTENT_TYPE_TEMPLATE = "vnd.android.cursor.dir/%s";
 
     private static final String SEGMENT_RAW_QUERY = "___srq";
 
@@ -32,10 +32,10 @@ public class ModelContract {
 
     private static final String OBSERVER_URI_PARAM = "___ouri";
 
-    private static final String SQL_QUERY_TEMPLATE = SEGMENT_RAW_QUERY+ "?"+SQL_PARAM + "=%s&"+OBSERVER_URI_PARAM + "=%s";
-	
-	private ModelContract() {
-	}
+    private static final String SQL_QUERY_TEMPLATE = SEGMENT_RAW_QUERY + "?" + SQL_PARAM + "=%s&" + OBSERVER_URI_PARAM + "=%s";
+
+    private ModelContract() {
+    }
 
     public static String getSqlParam(Uri uri) {
         return uri.getQueryParameter(ModelContract.SQL_PARAM);
@@ -98,33 +98,33 @@ public class ModelContract {
     }
 
     public static String getAuthority(Context ctx) {
-		return StringUtil.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
-	}
-	
-	public static Uri getUri(Class<?> clazz) {
-		return getUri(clazz.getCanonicalName());
-	}
+        return StringUtil.format(AUTHORITY_TEMPLATE, ctx.getPackageName());
+    }
 
-	public static Uri getUri(String modelName) {
-		return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.get()), modelName));
-	}
-	
-	public static Uri getUri(Class<?> clazz, Long id) {
-		return Uri.parse(StringUtil.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.get()), clazz.getCanonicalName(), id));
-	}
-	
-	public static String getContentType(Class<?> clazz) {
-		return StringUtil.format(CONTENT_TYPE_TEMPLATE, clazz.getCanonicalName());
-	}
-	
-	public static String getContentType(String modelName) {
-		return StringUtil.format(CONTENT_TYPE_TEMPLATE, modelName);
-	}
+    public static Uri getUri(Class<?> clazz) {
+        return getUri(clazz.getCanonicalName());
+    }
 
-	public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
-		Uri uri = getUri(clazz);
+    public static Uri getUri(String modelName) {
+        return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, getAuthority(ContextHolder.get()), modelName));
+    }
+
+    public static Uri getUri(Class<?> clazz, Long id) {
+        return Uri.parse(StringUtil.format(CONTENT_ID_TEMPLATE, getAuthority(ContextHolder.get()), clazz.getCanonicalName(), id));
+    }
+
+    public static String getContentType(Class<?> clazz) {
+        return StringUtil.format(CONTENT_TYPE_TEMPLATE, clazz.getCanonicalName());
+    }
+
+    public static String getContentType(String modelName) {
+        return StringUtil.format(CONTENT_TYPE_TEMPLATE, modelName);
+    }
+
+    public static Uri getUri(DataSourceRequest dataSourceRequest, Class<?> clazz) {
+        Uri uri = getUri(clazz);
         return getUri(dataSourceRequest, uri);
-	}
+    }
 
     public static Uri getUri(DataSourceRequest dataSourceRequest, Uri uri) {
         String uriParams = dataSourceRequest.toUriParams();
@@ -134,7 +134,7 @@ public class ModelContract {
         } else {
             uriAsString = uriAsString + "?";
         }
-        return Uri.parse(uriAsString + DATA_SOURCE_REQUEST_PARAM + "="+ StringUtil.encode(uriParams));
+        return Uri.parse(uriAsString + DATA_SOURCE_REQUEST_PARAM + "=" + StringUtil.encode(uriParams));
     }
 
     public static Uri getSQLQueryUri(String sql, Uri refreshUri) {
@@ -142,11 +142,11 @@ public class ModelContract {
         String refreshUriAsString = StringUtil.encode(refreshUri == null ? StringUtil.EMPTY : refreshUri.toString(), StringUtil.EMPTY);
         String sqlParameter = StringUtil.format(SQL_QUERY_TEMPLATE, StringUtil.encode(sql), refreshUriAsString);
         return Uri.parse(StringUtil.format(CONTENT_ALL_TEMPLATE, authority, sqlParameter));
-	}
+    }
 
-	public static class UriBuilder {
-		
-		private final StringBuilder builder;
+    public static class UriBuilder {
+
+        private final StringBuilder builder;
 
         private boolean isParamAdded = false;
 
@@ -154,18 +154,18 @@ public class ModelContract {
             super();
             String uriAsString = uri.toString();
             this.isParamAdded = uriAsString.contains("?");
-			this.builder = new StringBuilder(uriAsString);
+            this.builder = new StringBuilder(uriAsString);
         }
 
-		public UriBuilder(Class<?> clazz) {
-			this(getUri(clazz));
-		}
+        public UriBuilder(Class<?> clazz) {
+            this(getUri(clazz));
+        }
 
-		public UriBuilder notNotifyChanges() {
+        public UriBuilder notNotifyChanges() {
             checkParams();
-            this.builder.append(PARAM_NOT_NOTIFY_CHANGES+"=true");
-			return this;
-		}
+            this.builder.append(PARAM_NOT_NOTIFY_CHANGES + "=true");
+            return this;
+        }
 
         private void checkParams() {
             if (isParamAdded) {
@@ -175,13 +175,13 @@ public class ModelContract {
             }
         }
 
-		public Uri build() {
-			return Uri.parse(builder.toString());
-		}
-	}
+        public Uri build() {
+            return Uri.parse(builder.toString());
+        }
+    }
 
     public static boolean isNotify(Uri uri) {
         String queryParameter = uri.getQueryParameter(ModelContract.PARAM_NOT_NOTIFY_CHANGES);
-		return StringUtil.isEmpty(queryParameter);
+        return StringUtil.isEmpty(queryParameter);
     }
 }

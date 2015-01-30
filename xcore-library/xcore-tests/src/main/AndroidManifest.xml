@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="by.istin.android.xcore.testapp"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="1.0">
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
@@ -11,7 +11,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:name="by.istin.android.xcore.app.Application"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
 
         <activity android:name="by.istin.android.xcore.app.MainActivity">
             <intent-filter>
@@ -28,7 +28,7 @@
         <activity
             android:name="by.istin.android.xcore.app.WearableActivity"
             android:label="@string/app_name"
-            android:launchMode="singleTask" >
+            android:launchMode="singleTask">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -44,7 +44,8 @@
             android:authorities="by.istin.android.xcore.testapp.ModelContentProvider"
             android:exported="false" />
 
-        <service android:name="by.istin.android.xcore.wearable.WearableService"
+        <service
+            android:name="by.istin.android.xcore.wearable.WearableService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.google.android.gms.wearable.BIND_LISTENER" />

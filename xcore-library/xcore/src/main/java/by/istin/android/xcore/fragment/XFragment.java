@@ -30,21 +30,21 @@ import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class XFragment<T extends CursorModel> extends Fragment implements IRefresh, ICursorLoaderFragmentHelper<T>,IDataSourceHelper,
+public abstract class XFragment<T extends CursorModel> extends Fragment implements IRefresh, ICursorLoaderFragmentHelper<T>, IDataSourceHelper,
         DataSourceExecuteHelper.IDataSourceListener {
 
-	@Override
-	public int getLoaderId() {
-		return getUri().hashCode();
-	}
+    @Override
+    public int getLoaderId() {
+        return getUri().hashCode();
+    }
 
 
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-		final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        final View view = getActivity().getLayoutInflater().inflate(getViewLayout(), container, false);
         onViewCreated(view);
-		return view;
-	}
+        return view;
+    }
 
     @Override
     public void setServiceWork(boolean isWork) {
@@ -71,35 +71,34 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
         return this;
     }
 
-	public void onViewCreated(View view) {
-		
-	}
+    public void onViewCreated(View view) {
 
-	public abstract int getViewLayout();
-	
+    }
+
+    public abstract int getViewLayout();
 
 
-	public String getSelection() {
-		return null;
-	}
-	
-	public String getOrder() {
-		return null;
-	}
-	
-	public String[] getSelectionArgs() {
-		return null;
-	}
-	
-	public String[] getProjection() {
-		return null;
-	}
-	
-	public abstract Uri getUri();
-	
-	public abstract String getUrl();
-	
-	public abstract String getProcessorKey();
+    public String getSelection() {
+        return null;
+    }
+
+    public String getOrder() {
+        return null;
+    }
+
+    public String[] getSelectionArgs() {
+        return null;
+    }
+
+    public String[] getProjection() {
+        return null;
+    }
+
+    public abstract Uri getUri();
+
+    public abstract String getUrl();
+
+    public abstract String getProcessorKey();
 
     @Override
     public LoaderManager getSupportLoaderManager() {
@@ -107,9 +106,9 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
     }
 
     @Override
-	public Loader<T> onCreateLoader(int id, Bundle args) {
+    public Loader<T> onCreateLoader(int id, Bundle args) {
         return CursorLoaderFragmentHelper.createLoader(this, id);
-	}
+    }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
@@ -121,19 +120,19 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
     }
 
     @Override
-	public void onLoadFinished(Loader<T> loader, T cursor) {
-		FragmentActivity activity = getActivity();
-		if (activity == null) {
-			return;
-		}
-		onLoadFinished(cursor);
+    public void onLoadFinished(Loader<T> loader, T cursor) {
+        FragmentActivity activity = getActivity();
+        if (activity == null) {
+            return;
+        }
+        onLoadFinished(cursor);
         View view = getView();
         if (view == null) {
             return;
         }
         if (isServiceWork) {
-			hideEmptyView(view);
-		}
+            hideEmptyView(view);
+        }
         if (CursorUtils.isEmpty(cursor)) {
             return;
         }
@@ -158,7 +157,7 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
                             " view that can be bounds by this SimpleCursorAdapter");
                 }
             }
-       }
+        }
     }
 
     protected void setViewImage(ImageView v, String text) {
@@ -177,19 +176,19 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
 
     protected abstract String[] getAdapterColumns();
 
-	protected abstract int[] getAdapterControlIds();
+    protected abstract int[] getAdapterControlIds();
 
-	private boolean isServiceWork = false;
+    private boolean isServiceWork = false;
 
-	@Override
-	public void onActivityCreated(Bundle savedInstanceState) {
-		super.onActivityCreated(savedInstanceState);
-		CursorLoaderFragmentHelper.restartLoader(this);
-		String url = getUrl();
-		if (!StringUtil.isEmpty(url)) {
-			loadData(getActivity(), url, isForceUpdateData());
-		}
-	}
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        CursorLoaderFragmentHelper.restartLoader(this);
+        String url = getUrl();
+        if (!StringUtil.isEmpty(url)) {
+            loadData(getActivity(), url, isForceUpdateData());
+        }
+    }
 
     public void refresh() {
         loadData(getActivity(), getUrl(), true);
@@ -250,9 +249,9 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
     }
 
     protected void loadData(Activity activity, String url, Boolean isForceUpdate) {
-		final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
+        final DataSourceRequest dataSourceRequest = new DataSourceRequest(url);
         loadData(activity, isForceUpdate, dataSourceRequest);
-	}
+    }
 
     protected void loadData(Activity activity, Boolean isForceUpdate, DataSourceRequest dataSourceRequest) {
         dataSourceRequest.setCacheable(isCacheable());
@@ -262,63 +261,63 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
     }
 
     protected boolean isForceUpdateData() {
-		return false;
-	}
+        return false;
+    }
 
-	@Override
-	public void onLoaderReset(Loader<T> loader) {
-		if (getView() != null) {
-			onLoaderReset();
-			hideProgress();
-		}
-	}
+    @Override
+    public void onLoaderReset(Loader<T> loader) {
+        if (getView() != null) {
+            onLoaderReset();
+            hideProgress();
+        }
+    }
 
     protected abstract void onLoaderReset();
 
     public String getDataSourceKey() {
-		return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
-	}
+        return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
+    }
 
-	public long getCacheExpiration() {
-		return DateUtils.HOUR_IN_MILLIS;
-	}
+    public long getCacheExpiration() {
+        return DateUtils.HOUR_IN_MILLIS;
+    }
 
-	public boolean isCacheable() {
-		return true;
-	}
-
-    @Override
-	public void hideProgress() {
-		View view = getView();
-		if (view == null) {
-			return;
-		}
-		View progressView = view.findViewById(android.R.id.progress);
-		if (progressView != null) {
-			progressView.setVisibility(View.GONE);
-		}
-	}
+    public boolean isCacheable() {
+        return true;
+    }
 
     @Override
-	public void showProgress() {
-		View view = getView();
-		if (view == null) {
-			return;
-		}
-		View progressView = view.findViewById(android.R.id.progress);
-		if (progressView != null) {
-			progressView.setVisibility(View.VISIBLE);
-		}
-		hideEmptyView(view);
-	}
+    public void hideProgress() {
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.progress);
+        if (progressView != null) {
+            progressView.setVisibility(View.GONE);
+        }
+    }
 
-	public void hideEmptyView(View view) {
-		if (view == null) return;
-		View emptyView = view.findViewById(android.R.id.empty);
-		if (emptyView != null) {
-			emptyView.setVisibility(View.GONE);
-		}
-	}
+    @Override
+    public void showProgress() {
+        View view = getView();
+        if (view == null) {
+            return;
+        }
+        View progressView = view.findViewById(android.R.id.progress);
+        if (progressView != null) {
+            progressView.setVisibility(View.VISIBLE);
+        }
+        hideEmptyView(view);
+    }
+
+    public void hideEmptyView(View view) {
+        if (view == null) return;
+        View emptyView = view.findViewById(android.R.id.empty);
+        if (emptyView != null) {
+            emptyView.setVisibility(View.GONE);
+        }
+    }
 
     @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {

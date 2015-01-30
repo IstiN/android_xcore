@@ -12,19 +12,19 @@ import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.HashUtils;
 
-public class TestHashUtils extends ApplicationTestCase<CoreApplication>{
+public class TestHashUtils extends ApplicationTestCase<CoreApplication> {
 
-	public TestHashUtils() {
-		super(CoreApplication.class);
-	}
-	
-	@Override
-	protected void setUp() throws Exception {
-		createApplication();
-		super.setUp();
-	}
-	
-	public void testOutOfMemory(){
+    public TestHashUtils() {
+        super(CoreApplication.class);
+    }
+
+    @Override
+    protected void setUp() throws Exception {
+        createApplication();
+        super.setUp();
+    }
+
+    public void testOutOfMemory() {
         int maxValue = 1000;
         int prevValue = 0;
         for (int i = 0; i < maxValue; i++) {
@@ -35,7 +35,7 @@ public class TestHashUtils extends ApplicationTestCase<CoreApplication>{
             }
             HashUtils.generateId(UUID.randomUUID().toString(), i);
         }
-	}
-	
+    }
+
 
 }

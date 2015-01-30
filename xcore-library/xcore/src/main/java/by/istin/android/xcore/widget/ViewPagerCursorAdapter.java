@@ -16,17 +16,17 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
 
     private int mCount;
 
-	private final Context mContext;
-	
-	private final int mResource;
+    private final Context mContext;
+
+    private final int mResource;
 
     private boolean mDataValid = false;
 
     public ViewPagerCursorAdapter(Context ctx, Cursor cursor, int resource) {
-		super();
-		this.mCursor = cursor;
-		this.mContext = ctx;
-		this.mResource = resource;
+        super();
+        this.mCursor = cursor;
+        this.mContext = ctx;
+        this.mResource = resource;
         if (cursor != null) {
             mDataValid = true;
             mCount = cursor.getCount();
@@ -34,12 +34,12 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
             mCount = 0;
         }
 
-	}
+    }
 
-	@Override
-	public int getCount() {
+    @Override
+    public int getCount() {
         return mCount;
-	}
+    }
 
 
     @Override
@@ -62,15 +62,15 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
         if (!mDataValid || CursorUtils.isClosed(mCursor)) {
             return null;
         }
-		mCursor.moveToPosition(position);
-		return mCursor;
-	}
+        mCursor.moveToPosition(position);
+        return mCursor;
+    }
 
-	public int getResource(int position) {
-	      return mResource;
-	}
-	   
-	public abstract void init(View container, Cursor cursor);
+    public int getResource(int position) {
+        return mResource;
+    }
+
+    public abstract void init(View container, Cursor cursor);
 
 
     @Override
@@ -79,21 +79,21 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
     }
 
     @Override
-	public boolean isViewFromObject(View view, Object object) {
-		return view == (object);
-	}
+    public boolean isViewFromObject(View view, Object object) {
+        return view == (object);
+    }
 
 
-	@Override
-	public void restoreState(Parcelable arg0, ClassLoader arg1) {
-	}
+    @Override
+    public void restoreState(Parcelable arg0, ClassLoader arg1) {
+    }
 
-	@Override
-	public Parcelable saveState() {
-		return null;
-	}
+    @Override
+    public Parcelable saveState() {
+        return null;
+    }
 
-	public Cursor swapCursor(Cursor newCursor) {
+    public Cursor swapCursor(Cursor newCursor) {
         if (newCursor == mCursor) {
             if (newCursor == null) {
                 mCount = 0;
@@ -116,6 +116,6 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
             notifyDataSetChanged();
         }
         return oldCursor;
-	}
+    }
 
 }

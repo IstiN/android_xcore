@@ -92,6 +92,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
         public ExecuteOperationBuilder() {
 
         }
+
         public ExecuteOperationBuilder(IExecuteOperation executeOperation) {
             mDataSourceRequest = executeOperation.getDataSourceRequest();
             mProcessorKey = executeOperation.getProcessorKey();
@@ -106,13 +107,14 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         public ExecuteOperationBuilder(FragmentActivity activity, XListFragment fragment) {
             setDataSourceKey(fragment.getDataSourceKey())
-            .setProcessorKey(fragment.getProcessorKey())
-            .setActivity(activity)
-            .setCursorModelCreator(fragment.getCursorModelCreator())
-            .setResultQueryUri(fragment.getUri())
-            .setSelectionArgs(fragment.getSelectionArgs())
-            .setDataSourceRequest(fragment.createDataSourceRequest(fragment.getUrl(), fragment.isForceUpdateData(), null));
+                    .setProcessorKey(fragment.getProcessorKey())
+                    .setActivity(activity)
+                    .setCursorModelCreator(fragment.getCursorModelCreator())
+                    .setResultQueryUri(fragment.getUri())
+                    .setSelectionArgs(fragment.getSelectionArgs())
+                    .setDataSourceRequest(fragment.createDataSourceRequest(fragment.getUrl(), fragment.isForceUpdateData(), null));
         }
+
         public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
             return this;

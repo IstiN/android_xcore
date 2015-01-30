@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.source.impl;
 
@@ -15,9 +15,8 @@ import by.istin.android.xcore.utils.Holder;
 
 /**
  * Class for load data from file.
- * 
+ *
  * @author Uladzimir_Klyshevich
- * 
  */
 public class RawDataSource implements IDataSource<InputStream> {
 
@@ -38,5 +37,5 @@ public class RawDataSource implements IDataSource<InputStream> {
     public String getAppServiceKey() {
         return SYSTEM_SERVICE_KEY;
     }
-	
+
 }

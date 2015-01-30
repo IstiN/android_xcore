@@ -482,7 +482,7 @@ public class CursorModel implements Cursor, List<Cursor> {
 
         @Override
         public int nextIndex() {
-            return currentPostion+1;
+            return currentPostion + 1;
         }
 
         @Override
@@ -494,7 +494,7 @@ public class CursorModel implements Cursor, List<Cursor> {
 
         @Override
         public int previousIndex() {
-            return currentPostion -1;
+            return currentPostion - 1;
         }
 
         @Override

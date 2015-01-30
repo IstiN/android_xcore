@@ -3,6 +3,7 @@ package by.istin.android.xcore.processor;
 import android.content.ContentValues;
 import android.content.Context;
 import android.net.Uri;
+
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 
@@ -33,6 +34,7 @@ public abstract class AbstractDBProcessor<Result, DataSourceResult> implements I
     public static void bulkInsert(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz, ContentValues[] result) {
         bulkInsert(context, dataSourceRequest, clazz, result, true);
     }
+
     public static void bulkInsert(Context context, DataSourceRequest dataSourceRequest, Class<?> clazz, ContentValues[] result, boolean withNotify) {
         Uri uri = null;
         if (withNotify) {

@@ -26,7 +26,7 @@ public class ArrayAdapterFactory implements TypeAdapterFactory {
         this.listBufferSize = listBufferSize;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
+    @SuppressWarnings({"unchecked", "rawtypes"})
     @Override
     public <T> TypeAdapter<T> create(final Gson gson, final TypeToken<T> type) {
 

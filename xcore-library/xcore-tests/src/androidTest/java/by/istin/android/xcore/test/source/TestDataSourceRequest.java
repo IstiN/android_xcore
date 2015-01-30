@@ -22,14 +22,14 @@ public class TestDataSourceRequest extends ApplicationTestCase<CoreApplication> 
     private static final String SOURCE_4 = "source4";
 
     public TestDataSourceRequest() {
-		super(CoreApplication.class);
-	}
+        super(CoreApplication.class);
+    }
 
-	@Override
-	protected void setUp() throws Exception {
-		createApplication();
-		super.setUp();
-	}
+    @Override
+    protected void setUp() throws Exception {
+        createApplication();
+        super.setUp();
+    }
 
     public void testJoinedRequestBuilder() throws Exception {
         DataSourceRequest dataSourceRequest = new DataSourceRequest(URI_1);
@@ -40,14 +40,14 @@ public class TestDataSourceRequest extends ApplicationTestCase<CoreApplication> 
         DataSourceRequest dataSourceRequest6 = new DataSourceRequest(URI_6);
         DataSourceRequest result =
                 new DataSourceRequest.JoinedRequestBuilder(dataSourceRequest)
-                .add(dataSourceRequest2, PROCESSOR_2, SOURCE_2)
-                .add(dataSourceRequest3, PROCESSOR_3, SOURCE_3)
-                .add(dataSourceRequest4, PROCESSOR_4, SOURCE_4)
-                .setDataSource(SOURCE_2)
-                .add(dataSourceRequest5, PROCESSOR_5)
-                .setProcessor(PROCESSOR_2)
-                .add(dataSourceRequest6)
-                .build();
+                        .add(dataSourceRequest2, PROCESSOR_2, SOURCE_2)
+                        .add(dataSourceRequest3, PROCESSOR_3, SOURCE_3)
+                        .add(dataSourceRequest4, PROCESSOR_4, SOURCE_4)
+                        .setDataSource(SOURCE_2)
+                        .add(dataSourceRequest5, PROCESSOR_5)
+                        .setProcessor(PROCESSOR_2)
+                        .add(dataSourceRequest6)
+                        .build();
 
         check(result);
     }

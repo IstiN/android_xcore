@@ -2,18 +2,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    >
+    android:orientation="vertical">
 
     <Button
         android:text="Notify"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:onClick="onNotifyClick"/>
+        android:onClick="onNotifyClick" />
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
+
         <TextView
             android:id="@+id/log"
             android:layout_width="match_parent"

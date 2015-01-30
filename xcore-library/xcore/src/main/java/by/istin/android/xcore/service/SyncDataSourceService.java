@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.service;
 
@@ -23,7 +23,6 @@ import by.istin.android.xcore.utils.Log;
 
 /**
  * @author IstiN
- *
  */
 public class SyncDataSourceService extends DataSourceService {
 

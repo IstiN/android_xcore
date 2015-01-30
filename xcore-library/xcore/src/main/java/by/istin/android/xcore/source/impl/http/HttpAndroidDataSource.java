@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.source.impl.http;
 
@@ -47,94 +47,93 @@ import by.istin.android.xcore.utils.UriUtils;
 
 /**
  * Class for load data from web.
- * 
+ *
  * @author Uladzimir_Klyshevich
- * 
  */
 public class HttpAndroidDataSource implements IDataSource<InputStream> {
 
-	public static final String SYSTEM_SERVICE_KEY = "xcore:httpdatasource";
+    public static final String SYSTEM_SERVICE_KEY = "xcore:httpdatasource";
 
-	private static final String ACCEPT_DEFAULT_VALUE = "*/*";
+    private static final String ACCEPT_DEFAULT_VALUE = "*/*";
 
-	private static final String USER_AGENT_KEY = "User-Agent";
+    private static final String USER_AGENT_KEY = "User-Agent";
 
-	private static final String ACCEPT_KEY = "Accept";
+    private static final String ACCEPT_KEY = "Accept";
 
-	private static final String USER_AGENT_END = ") AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
+    private static final String USER_AGENT_END = ") AppleWebKit/533.1 (KHTML, like Gecko) Version/4.0 Mobile Safari/533.1";
 
-	private static final String USER_AGENT_BUILD = " Build/";
+    private static final String USER_AGENT_BUILD = " Build/";
 
-	private static final String SHTRICH = "-";
+    private static final String SHTRICH = "-";
 
-	private static final String USER_AGENT_DIVIDER = "; ";
+    private static final String USER_AGENT_DIVIDER = "; ";
 
-	private static final String USER_AGENT_START = "Mozilla/5.0 (Linux; U; Android ";
+    private static final String USER_AGENT_START = "Mozilla/5.0 (Linux; U; Android ";
 
-	public static final int SO_TIMEOUT = 20000;
+    public static final int SO_TIMEOUT = 20000;
 
-	/* Constant encoding for http client. */
-	public static final String UTF_8 = "UTF-8";
+    /* Constant encoding for http client. */
+    public static final String UTF_8 = "UTF-8";
 
-	/* Constant Tag for logging. */
-	private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
+    /* Constant Tag for logging. */
+    private static final String TAG = HttpAndroidDataSource.class.getSimpleName();
 
-	protected static final String sUserAgent;
+    protected static final String sUserAgent;
 
-	public static class DefaultHttpRequestBuilder implements IHttpRequestBuilder {
+    public static class DefaultHttpRequestBuilder implements IHttpRequestBuilder {
 
-		public static final String TYPE = "_httptype";
+        public static final String TYPE = "_httptype";
 
-		protected static final String Q = "\\?";
+        protected static final String Q = "\\?";
 
-		private static final String SPACE = " ";
+        private static final String SPACE = " ";
 
-		private static final String PLUS = "+";
+        private static final String PLUS = "+";
 
-		public static final String POST = "post";
+        public static final String POST = "post";
 
-		public static enum Type {
-			GET, PUT, POST, DELETE
-		}
+        public static enum Type {
+            GET, PUT, POST, DELETE
+        }
 
-		public static String getUrl(String url, Type type) {
-			if (url.indexOf("?") > 0) {
-				return url + "&" + TYPE + "=" + type.name();
-			} else {
-				return url + "?" + TYPE + "=" + type.name();
-			}
-		}
+        public static String getUrl(String url, Type type) {
+            if (url.indexOf("?") > 0) {
+                return url + "&" + TYPE + "=" + type.name();
+            } else {
+                return url + "?" + TYPE + "=" + type.name();
+            }
+        }
 
-		@Override
-		public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
+        @Override
+        public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
             String url = dataSourceRequest.getUri();
             url = prepare(url, dataSourceRequest);
-			HttpRequestBase request = null;
-			Uri uri = Uri.parse(url);
-			String typeParam = uri.getQueryParameter(TYPE);
-			Type type = Type.GET;
-			if (!TextUtils.isEmpty(typeParam)) {
-				type = Type.valueOf(typeParam.toUpperCase());
-			}
-			switch (type) {
-			case GET:
-                request = creteGetRequest(dataSourceRequest, url, uri);
-				break;
-			case POST:
-                request = createPostRequest(dataSourceRequest, url, uri);
-				break;
-			case PUT:
-                request = createPutRequest(dataSourceRequest, url, uri);
-				break;
-			case DELETE:
-                request = createDeleteRequest(dataSourceRequest, url, uri);
-				break;
+            HttpRequestBase request = null;
+            Uri uri = Uri.parse(url);
+            String typeParam = uri.getQueryParameter(TYPE);
+            Type type = Type.GET;
+            if (!TextUtils.isEmpty(typeParam)) {
+                type = Type.valueOf(typeParam.toUpperCase());
+            }
+            switch (type) {
+                case GET:
+                    request = creteGetRequest(dataSourceRequest, url, uri);
+                    break;
+                case POST:
+                    request = createPostRequest(dataSourceRequest, url, uri);
+                    break;
+                case PUT:
+                    request = createPutRequest(dataSourceRequest, url, uri);
+                    break;
+                case DELETE:
+                    request = createDeleteRequest(dataSourceRequest, url, uri);
+                    break;
 
-			default:
-				break;
-			}
-			return request;
-		}
+                default:
+                    break;
+            }
+            return request;
+        }
 
         protected String prepare(String url, DataSourceRequest dataSourceRequest) {
             return url;
@@ -161,8 +160,8 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         }
 
         private void initEntity(Uri uri, HttpEntityEnclosingRequestBase postRequest) {
-			Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
+            Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
+            List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(queryParameterNames.size());
             for (String paramName : queryParameterNames) {
                 if (paramName.equals(TYPE))
                     continue;
@@ -172,85 +171,86 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
                 }
                 nameValuePairs.add(new BasicNameValuePair(paramName, queryParameter));
             }
-			try {
-				postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, UTF_8));
-			} catch (UnsupportedEncodingException e) {
-				// can be ignored
+            try {
+                postRequest.setEntity(new UrlEncodedFormEntity(nameValuePairs, UTF_8));
+            } catch (UnsupportedEncodingException e) {
+                // can be ignored
                 Log.e("HttpAndroidDataSource", e);
-			}
-		}
+            }
+        }
 
-	}
+    }
 
-	public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
+    public static class DefaultResponseStatusHandler implements IResponseStatusHandler {
 
-		@Override
-		public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, Holder<Boolean> isCached) throws ParseException,
-				IOException {
-			int statusCode = response.getStatusLine().getStatusCode();
-			HttpEntity httpEntity = response.getEntity();
-			if (statusCode != HttpStatus.SC_OK) {
-				String entityValue = EntityUtils.toString(httpEntity);
-				Log.e(TAG, response.getStatusLine().getReasonPhrase() + " " + entityValue);
-				Log.xd(this, request);
-				throw new IOStatusException(response.getStatusLine().getReasonPhrase(), statusCode, entityValue);
-			}
-		}
+        @Override
+        public void statusHandle(HttpAndroidDataSource dataSource, DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, Holder<Boolean> isCached) throws ParseException,
+                IOException {
+            int statusCode = response.getStatusLine().getStatusCode();
+            HttpEntity httpEntity = response.getEntity();
+            if (statusCode != HttpStatus.SC_OK) {
+                String entityValue = EntityUtils.toString(httpEntity);
+                Log.e(TAG, response.getStatusLine().getReasonPhrase() + " " + entityValue);
+                Log.xd(this, request);
+                throw new IOStatusException(response.getStatusLine().getReasonPhrase(), statusCode, entityValue);
+            }
+        }
 
-	}
+    }
 
-	static {
-		sUserAgent = USER_AGENT_START + android.os.Build.VERSION.RELEASE + USER_AGENT_DIVIDER + Locale.getDefault().getLanguage() + SHTRICH
-				+ Locale.getDefault().getCountry() + USER_AGENT_DIVIDER + android.os.Build.DEVICE + USER_AGENT_BUILD + android.os.Build.ID + USER_AGENT_END;
-	}
+    static {
+        sUserAgent = USER_AGENT_START + android.os.Build.VERSION.RELEASE + USER_AGENT_DIVIDER + Locale.getDefault().getLanguage() + SHTRICH
+                + Locale.getDefault().getCountry() + USER_AGENT_DIVIDER + android.os.Build.DEVICE + USER_AGENT_BUILD + android.os.Build.ID + USER_AGENT_END;
+    }
 
 
-	private final IHttpRequestBuilder mRequestBuilder;
+    private final IHttpRequestBuilder mRequestBuilder;
 
-	private final IResponseStatusHandler mResponseStatusHandler;
+    private final IResponseStatusHandler mResponseStatusHandler;
 
     private final InputStreamHttpClientHelper mInputStreamHelper;
 
-	public HttpAndroidDataSource() {
-		this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());
-	}
+    public HttpAndroidDataSource() {
+        this(new DefaultHttpRequestBuilder(), new DefaultResponseStatusHandler());
+    }
 
-	/* Default constructor. */
-	public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
-		mRequestBuilder = requestBuilder;
-		mResponseStatusHandler = statusHandler;
+    /* Default constructor. */
+    public HttpAndroidDataSource(IHttpRequestBuilder requestBuilder, IResponseStatusHandler statusHandler) {
+        mRequestBuilder = requestBuilder;
+        mResponseStatusHandler = statusHandler;
         mInputStreamHelper = createInputStreamHttpClientHelper();
-	}
+    }
 
     protected InputStreamHttpClientHelper createInputStreamHttpClientHelper() {
         return new InputStreamHttpClientHelper(sUserAgent);
     }
 
-    public IHttpRequestBuilder getRequestBuilder(){
+    public IHttpRequestBuilder getRequestBuilder() {
         return mRequestBuilder;
     }
-	/**
-	 * Gets instance {@link HttpAndroidDataSource}.
-	 * 
-	 * @return http client
-	 */
-	public static HttpAndroidDataSource get(Context ctx) {
-		return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_KEY);
-	}
 
-	protected HttpRequestBase createRequest(DataSourceRequest request) throws IOException {
-		return mRequestBuilder.build(request);
-	}
+    /**
+     * Gets instance {@link HttpAndroidDataSource}.
+     *
+     * @return http client
+     */
+    public static HttpAndroidDataSource get(Context ctx) {
+        return (HttpAndroidDataSource) AppUtils.get(ctx, SYSTEM_SERVICE_KEY);
+    }
+
+    protected HttpRequestBase createRequest(DataSourceRequest request) throws IOException {
+        return mRequestBuilder.build(request);
+    }
 
     public IResponseStatusHandler getResponseStatusHandler() {
         return mResponseStatusHandler;
     }
 
     public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpUriRequest request, Holder<Boolean> isCached) throws IllegalStateException, IOException {
-		request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
-		request.setHeader(USER_AGENT_KEY, sUserAgent);
-		AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-		Log.xd(this, request);
+        request.setHeader(ACCEPT_KEY, ACCEPT_DEFAULT_VALUE);
+        request.setHeader(USER_AGENT_KEY, sUserAgent);
+        AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
+        Log.xd(this, request);
         HttpClient client = null;
         try {
             client = mInputStreamHelper.getClient();
@@ -278,7 +278,7 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
         } finally {
             mInputStreamHelper.releaseClient(client);
         }
-	}
+    }
 
     protected InputStream createRedirectRequest(DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, String value, Holder<Boolean> isCached) throws IOException {
         Log.xd(this, "redirect " + value);
@@ -297,13 +297,13 @@ public class HttpAndroidDataSource implements IDataSource<InputStream> {
     }
 
     @Override
-	public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
-		return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest), isCached);
-	}
+    public InputStream getSource(DataSourceRequest dataSourceRequest, Holder<Boolean> isCached) throws IOException {
+        return getInputSteam(dataSourceRequest, createRequest(dataSourceRequest), isCached);
+    }
 
-	@Override
-	public String getAppServiceKey() {
-		return SYSTEM_SERVICE_KEY;
-	}
+    @Override
+    public String getAppServiceKey() {
+        return SYSTEM_SERVICE_KEY;
+    }
 
 }

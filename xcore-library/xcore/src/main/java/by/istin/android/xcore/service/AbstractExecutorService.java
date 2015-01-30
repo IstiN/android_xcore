@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.service;
 
@@ -18,12 +18,11 @@ import by.istin.android.xcore.utils.Log;
 
 /**
  * @author IstiN
- *
  */
 public abstract class AbstractExecutorService extends Service {
 
     private static final String ACTION_STOP = "stop";
-	protected static final String DATA_SOURCE_KEY = "dataSourceKey";
+    protected static final String DATA_SOURCE_KEY = "dataSourceKey";
     protected static final String PROCESSOR_KEY = "processorKey";
     protected static final String RESULT_RECEIVER = "resultReceiver";
 
@@ -76,22 +75,22 @@ public abstract class AbstractExecutorService extends Service {
     }
 
     /* (non-Javadoc)
-	 * @see android.app.Service#onBind(android.content.Intent)
+     * @see android.app.Service#onBind(android.content.Intent)
 	 */
-	@Override
-	public IBinder onBind(Intent intent) {
-		return new ServiceBinder<AbstractExecutorService>(this);
-	}
-	
-	@Override
-	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (intent != null) {
-			onHandleIntent(intent);
-		}
-		return super.onStartCommand(intent, flags, startId);
-	}
-	
-	protected void onHandleIntent(final Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
+        return new ServiceBinder<AbstractExecutorService>(this);
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null) {
+            onHandleIntent(intent);
+        }
+        return super.onStartCommand(intent, flags, startId);
+    }
+
+    protected void onHandleIntent(final Intent intent) {
         IRequestManager requestManager = IRequestManager.Impl.get(this.getClass(), this);
         final ResultReceiver resultReceiver = intent.getParcelableExtra(RESULT_RECEIVER);
         boolean isStopAction = intent.getBooleanExtra(ACTION_STOP, false);
@@ -101,9 +100,9 @@ public abstract class AbstractExecutorService extends Service {
             Log.xd(this, "action stop executor recreated");
             return;
         }
-		final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
+        final DataSourceRequest dataSourceRequest = DataSourceRequest.fromIntent(intent);
         requestManager.onHandleRequest(this, dataSourceRequest, intent.getStringExtra(PROCESSOR_KEY), intent.getStringExtra(DATA_SOURCE_KEY), resultReceiver);
-	}
+    }
 
     @SuppressWarnings("unchecked")
     public static Object execute(Context context, String processorKey, String dataSourceKey, DataSourceRequest dataSourceRequest, Bundle bundle) throws Exception {

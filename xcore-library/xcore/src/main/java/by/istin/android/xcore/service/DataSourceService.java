@@ -1,5 +1,5 @@
 /**
- * 
+ *
  */
 package by.istin.android.xcore.service;
 
@@ -10,7 +10,6 @@ import by.istin.android.xcore.source.DataSourceRequest;
 
 /**
  * @author IstiN
- *
  */
 public class DataSourceService extends AbstractExecutorService {
 
