@@ -15,14 +15,39 @@
 #-keepclassmembers class fqcn.of.javascript.interface.for.webview {
 #   public *;
 #}
+#-optimizationpasses 5
+#-dontusemixedcaseclassnames
+#-dontskipnonpubliclibraryclasses
+#-dontskipnonpubliclibraryclassmembers
+#-dontpreverify
+#-verbose
+#-optimizations !code/simplification/arithmetic,!field/*,!class/merging/*
+
+#-allowaccessmodification
+#-renamesourcefileattribute SourceFile
+#-keepattributes SourceFile,LineNumberTable
+#-repackageclasses ''
+
+-dump class_files.txt
+-printseeds seeds.txt
+-printusage unused.txt
+-printmapping mapping.txt
 
 -dontwarn com.squareup.picasso.**
--keep class **.BuildConfig { *; }
--keep class * implements android.provider.BaseColumns
 
--keepclassmembers class * extends by.istin.android.xcore.model.ParcelableModel {
-    *;
+# xcore
+# Annotated interfaces (including methods which are also kept in implementing classes)
+-keep class **.BuildConfig { *; }
+-keep public class by.istin.android.xcore.annotations.** {
+  public protected *;
 }
+-keep public class by.istin.android.xcore.db.** {
+  public protected *;
+}
+-keep public class by.istin.android.xcore.sample.core.model.** {
+  public protected *;
+}
+
 
 # Explicitly preserve all serialization members. The Serializable interface
 # is only a marker interface, so it wouldn't save them.
@@ -34,7 +59,6 @@
     java.lang.Object writeReplace();
     java.lang.Object readResolve();
 }
-
 
 # Preserve all native method names and the names of their classes.
 -keepclasseswithmembernames class * {
@@ -51,7 +75,7 @@
 }
 
 -keepclasseswithmembernames class * {
-    public <init>(android.content.Context, android.util.AttributeSet, int);
+    public <init>(android.content.Context, android.util.AttributeSet, int, int);
 }
 
 
@@ -67,10 +91,6 @@
     public static ** valueOf(java.lang.String);
 }
 
--keep public class * {
-    public protected *;
-}
-
 -keep class * implements android.os.Parcelable {
   public static final android.os.Parcelable$Creator *;
 }
@@ -79,3 +99,10 @@
 # Gson uses generic type information stored in a class file when working with fields. Proguard
 # removes such information by default, so configure it to keep all of it.
 -keepattributes Signature
+
+# For using GSON @Expose annotation
+-keepattributes *Annotation*
+
+# Gson specific classes
+-keep class sun.misc.Unsafe { *; }
+#-keep class com.google.gson.stream.** { *; }
