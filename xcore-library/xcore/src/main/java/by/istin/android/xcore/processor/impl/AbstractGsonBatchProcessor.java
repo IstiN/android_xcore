@@ -22,20 +22,20 @@ import by.istin.android.xcore.source.IDataSource;
 import by.istin.android.xcore.utils.IOUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
-public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream>{
+public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBProcessor<Result, InputStream> {
 
     private final Class<?> clazz;
 
-	private final Class<? extends Result> resultClassName;
+    private final Class<? extends Result> resultClassName;
 
     private final IDBContentProviderSupport dbContentProviderSupport;
 
     public AbstractGsonBatchProcessor(Class<?> clazz, Class<? extends Result> resultClassName, IDBContentProviderSupport contentProviderSupport) {
-		super();
-		this.clazz = clazz;
-		this.resultClassName = resultClassName;
+        super();
+        this.clazz = clazz;
+        this.resultClassName = resultClassName;
         this.dbContentProviderSupport = contentProviderSupport;
-	}
+    }
 
 
     @Override
@@ -102,11 +102,11 @@ public abstract class AbstractGsonBatchProcessor<Result> extends AbstractGsonDBP
 
     protected Result process(Gson gson, BufferedReader bufferedReader) {
         return gson.fromJson(bufferedReader, resultClassName);
-	}
+    }
 
-	public Class<?> getClazz() {
-		return clazz;
-	}
+    public Class<?> getClazz() {
+        return clazz;
+    }
 
     @Override
     public final void cache(Context context, DataSourceRequest dataSourceRequest, Result result) throws Exception {

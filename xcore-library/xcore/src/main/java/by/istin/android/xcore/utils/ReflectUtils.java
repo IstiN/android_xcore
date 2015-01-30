@@ -10,10 +10,11 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.annotations.Config;
-import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
+import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
 import by.istin.android.xcore.annotations.dbFormattedDate;
@@ -147,12 +148,12 @@ public class ReflectUtils {
 
     public static class XField {
 
-        public static final String DB_ANNOTATION_PREFIX = "by.istin.android.xcore.annotations.db";
+        public static final String DB_ANNOTATION_PREFIX = db.class.getPackage().getName();
         private final Field mField;
 
         private final String mNameOfField;
 
-        private final HashSet<Class<? extends Annotation>> mAnnotations;
+        private final Set<Class<? extends Annotation>> mAnnotations;
 
         private final Map<Class<? extends Annotation>, Annotation> mClassAnnotationHashMap;
 
@@ -184,7 +185,7 @@ public class ReflectUtils {
             //init name of field
             mField.setAccessible(true);
             try {
-                mNameOfField = (String)mField.get(null);
+                mNameOfField = (String) mField.get(null);
             } catch (IllegalAccessException e) {
                 throw new IllegalArgumentException(e);
             }
@@ -193,8 +194,8 @@ public class ReflectUtils {
             //init annotations
             Annotation[] annotations = mField.getAnnotations();
             if (annotations != null) {
-                mAnnotations = new HashSet<Class<? extends Annotation>>(annotations.length);
-                mClassAnnotationHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>(annotations.length);
+                mAnnotations = new HashSet<>(annotations.length);
+                mClassAnnotationHashMap = new ConcurrentHashMap<>(annotations.length);
                 for (Annotation annotation : annotations) {
                     Class<? extends Annotation> annotationType = annotation.annotationType();
                     mAnnotations.add(annotationType);
@@ -203,10 +204,24 @@ public class ReflectUtils {
                         continue;
                     }
                     String name = annotationType.getName();
+
                     if (name.startsWith(DB_ANNOTATION_PREFIX)) {
                         try {
-                            Method method = annotation.getClass().getMethod("value");
-                            mConfig = new ConfigWrapper((Config) method.invoke(annotation));
+                            Class<? extends Annotation> annotationClass = annotation.getClass();
+                            Method[] methods = annotationClass.getMethods();
+                            Method method = null;
+                            for (Method m : methods) {
+                                if (m.getReturnType().equals(Config.class)) {
+                                    method = m;
+                                    break;
+                                }
+                            }
+                            if (method == null) {
+                                continue;
+                            }
+                            //Method method = annotationClass.getMethod("value");
+                            Config value = (Config) method.invoke(annotation);
+                            mConfig = new ConfigWrapper(value);
                         } catch (Exception e) {
                             Log.e("ReflectUtils", mField.toString() + " " + annotation.toString());
                             throw new IllegalArgumentException(e);
@@ -214,8 +229,8 @@ public class ReflectUtils {
                     }
                 }
             } else {
-                mAnnotations = new HashSet<Class<? extends Annotation>>(0);
-                mClassAnnotationHashMap = new ConcurrentHashMap<Class<? extends Annotation>, Annotation>(0);
+                mAnnotations = new HashSet<>(0);
+                mClassAnnotationHashMap = new ConcurrentHashMap<>(0);
             }
 
         }
@@ -230,6 +245,10 @@ public class ReflectUtils {
 
         public ConfigWrapper getConfig() {
             return mConfig;
+        }
+
+        public Set<Class<? extends Annotation>> getAnnotations() {
+            return mAnnotations;
         }
 
         public boolean isAnnotationPresent(Class<? extends Annotation> annotationClass) {
@@ -365,9 +384,9 @@ public class ReflectUtils {
         return field.isAnnotationPresent(annotationClass);
     }
 
-	public static String getStaticStringValue(XField field) {
+    public static String getStaticStringValue(XField field) {
         return field.getNameOfField();
-	}
+    }
 
     public static Class<?> classForName(String className) {
         try {
@@ -378,10 +397,10 @@ public class ReflectUtils {
     }
 
     //TODO move common logic to XClass
-	public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
+    public static <T> T getInstanceInterface(Class<?> clazz, Class<T> interfaceTargetClazz) {
         XClass xClass = getXClass(clazz);
         return xClass.getInstanceInterface(interfaceTargetClazz);
-	}
+    }
 
     public static <T> T newInstance(Class<T> clazz) {
         try {

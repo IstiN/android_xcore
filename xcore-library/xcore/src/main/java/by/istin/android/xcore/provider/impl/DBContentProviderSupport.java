@@ -45,7 +45,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
 
     private final IDBSupport mDbSupport;
 
-    public DBContentProviderSupport(Context context, IDBSupport dbSupport, Class<?> ... entities) {
+    public DBContentProviderSupport(Context context, IDBSupport dbSupport, Class<?>... entities) {
         mContext = context;
         mDbSupport = dbSupport;
         mDbSupport.create(context, entities);
@@ -83,17 +83,17 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         String className;
         switch (sUriMatcher.match(uri)) {
             case MODELS:
-                className = pathSegments.get(pathSegments.size()-1);
+                className = pathSegments.get(pathSegments.size() - 1);
                 break;
             case MODELS_ID:
-                className = pathSegments.get(pathSegments.size()-2);
+                className = pathSegments.get(pathSegments.size() - 2);
                 if (where == null) {
                     where = StringUtil.EMPTY;
                 }
                 where = where + BaseColumns._ID + " = " + uri.getLastPathSegment();
                 break;
             case MODELS_ID_NEGOTIVE:
-                className = pathSegments.get(pathSegments.size()-2);
+                className = pathSegments.get(pathSegments.size() - 2);
                 if (where == null) {
                     where = StringUtil.EMPTY;
                 }
@@ -153,7 +153,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
                 break;
             case MODELS_ID:
                 pathSegments = uri.getPathSegments();
-                className = pathSegments.get(pathSegments.size()-2);
+                className = pathSegments.get(pathSegments.size() - 2);
                 if (StringUtil.isEmpty(selection)) {
                     selection = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 } else {
@@ -162,7 +162,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
                 break;
             case MODELS_ID_NEGOTIVE:
                 pathSegments = uri.getPathSegments();
-                className = pathSegments.get(pathSegments.size()-2);
+                className = pathSegments.get(pathSegments.size() - 2);
                 if (StringUtil.isEmpty(selection)) {
                     selection = BaseColumns._ID + " = " + uri.getLastPathSegment();
                 } else {
@@ -202,7 +202,7 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
         IDBBatchOperationSupport batchOperationConnection = mDbSupport.getConnectionForBatchOperation();
         try {
             batchOperationConnection.beginTransaction();
-            for(int i = 0; i < operations.size(); i++) {
+            for (int i = 0; i < operations.size(); i++) {
                 ContentProviderOperation contentProviderOperation = operations.get(i);
                 Uri uri = contentProviderOperation.getUri();
                 if (ModelContract.isNotify(uri)) {
@@ -259,10 +259,11 @@ public class DBContentProviderSupport implements IDBContentProviderSupport {
                 withSelection("?", selection == null ? null : new String[]{selection}).
                 build();
     }
+
     public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, ContentValues[] array) {
         List<ContentValues> list = new ArrayList<ContentValues>();
         Collections.addAll(list, array);
-        return  getContentProviderOperations(dataSourceRequest, clazz, list);
+        return getContentProviderOperations(dataSourceRequest, clazz, list);
     }
 
     public static ArrayList<ContentProviderOperation> getContentProviderOperations(DataSourceRequest dataSourceRequest, Class<?> clazz, List<ContentValues> array) {

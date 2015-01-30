@@ -3,11 +3,9 @@ package by.istin.android.xcore.sample.core.processor;
 import android.content.ContentValues;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
-import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
+import com.google.gson.annotations.SerializedName;
+
 import java.util.List;
 
 import by.istin.android.xcore.ContextHolder;
@@ -24,6 +22,8 @@ import by.istin.android.xcore.source.DataSourceRequest;
  * Created by IstiN on 13.11.13.
  */
 public class ContentEntityProcessor extends AbstractGsonBatchProcessor<ContentEntityProcessor.Response> {
+
+    public static final String APP_SERVICE_KEY = "core:advancedentity:processor";
 
     public static class Response extends ParcelableModel {
 
@@ -55,14 +55,22 @@ public class ContentEntityProcessor extends AbstractGsonBatchProcessor<ContentEn
         }
 
         public static class Data {
+
+            @SerializedName("updates")
             private List<ContentValues> updates;
+
+            public List<ContentValues> getUpdates() {
+                return updates;
+            }
         }
 
+        @SerializedName("data")
         private Data data = new Data();
 
+        public Data getData() {
+            return data;
+        }
     }
-
-    public static final String APP_SERVICE_KEY = "core:advancedentity:processor";
 
     public ContentEntityProcessor(IDBContentProviderSupport contentProviderSupport) {
         super(Content.class, ContentEntityProcessor.Response.class, contentProviderSupport);
@@ -80,13 +88,9 @@ public class ContentEntityProcessor extends AbstractGsonBatchProcessor<ContentEn
     }
 
     @Override
-    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, Response response) throws Exception {
+    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, ContentEntityProcessor.Response response) throws Exception {
         super.onProcessingFinish(dataSourceRequest, response);
         notifyChange(ContextHolder.get(), Content.class);
-        Field[] fields = response.getClass().getFields();
-        for (Field field : fields) {
-            Log.d("response", String.valueOf(field));
-        }
     }
 
     @Override
