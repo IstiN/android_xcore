@@ -57,6 +57,11 @@ public abstract class CursorLoaderFragment extends Fragment implements ICursorLo
     }
 
     @Override
+    public String getContentProviderName() {
+        return getActivity().getPackageName();
+    }
+
+    @Override
     public CursorModel.CursorModelCreator getCursorModelCreator() {
         return CursorModel.CursorModelCreator.DEFAULT;
     }

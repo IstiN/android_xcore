@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 
 import by.istin.android.xcore.db.IDBConnection;
+import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
@@ -21,11 +22,13 @@ import by.istin.android.xcore.utils.ReflectUtils;
 public abstract class AbstractDBSupport implements IDBSupport {
 
     //we need only one instance of helper
-    private volatile static DBHelper sDbHelper;
+    private DBHelper mDbHelper;
 
-    private static final Object sLock = new Object();
+    private IDBConnector mConnector;
 
-    private static volatile boolean isInit = false;
+    private final Object mLock = new Object();
+
+    private volatile boolean isInit = false;
 
     private Class<?>[] mEntities;
 
@@ -36,53 +39,40 @@ public abstract class AbstractDBSupport implements IDBSupport {
     }
 
     @Override
+    public DBHelper getDBHelper() {
+        return mDbHelper;
+    }
+
+    @Override
     public String getName() {
         return mName;
     }
 
     private void initTables() {
-        sDbHelper.createTablesForModels(DataSourceRequestEntity.class);
-        sDbHelper.createTablesForModels(SyncDataSourceRequestEntity.class);
-        sDbHelper.createTablesForModels(mEntities);
+        mDbHelper.createTablesForModels(mEntities);
         isInit = true;
     }
 
     @Override
     public void create(Context context, Class<?>[] entities) {
-        getOrCreateDBHelper(context);
-        if (entities != null) {
-            mEntities = entities.clone();
-        } else {
-            mEntities = null;
-        }
+        mConnector = createConnector(mName, context);
+        mDbHelper = new DBHelper(mConnector);
+        mEntities = entities;
     }
 
-    public DBHelper getOrCreateDBHelper(Context context) {
-        DBHelper result = sDbHelper;
-        if (result == null) {
-            synchronized (sLock) {
-                result = sDbHelper;
-                if (result == null) {
-                    sDbHelper = result = new DBHelper(createConnector(context));
-                }
-            }
-        }
-        return result;
+    public IDBConnector getConnector() {
+        return mConnector;
     }
 
     @Override
     public IDBBatchOperationSupport getConnectionForBatchOperation() {
-        synchronized (sLock) {
-            if (!isInit) {
-                initTables();
-            }
-        }
-        final IDBConnection writableDatabase = sDbHelper.getWritableDbConnection();
+        checkTables();
+        final IDBConnection writableDatabase = mDbHelper.getWritableDbConnection();
         return new IDBBatchOperationSupport() {
 
             @Override
             public int delete(String className, String where, String[] whereArgs) {
-                return sDbHelper.delete(writableDatabase, ReflectUtils.classForName(className), where, whereArgs);
+                return mDbHelper.delete(writableDatabase, ReflectUtils.classForName(className), where, whereArgs);
             }
 
             @Override
@@ -90,81 +80,72 @@ public abstract class AbstractDBSupport implements IDBSupport {
                 Class<?> classOfModel = ReflectUtils.classForName(className);
                 IBeforeArrayUpdate beforeArrayUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeArrayUpdate.class);
                 if (beforeArrayUpdate != null) {
-                    beforeArrayUpdate.onBeforeListUpdate(sDbHelper, writableDatabase, dataSourceRequest, 0, initialValues);
+                    beforeArrayUpdate.onBeforeListUpdate(mDbHelper, writableDatabase, dataSourceRequest, 0, initialValues);
                 }
-                return sDbHelper.updateOrInsert(dataSourceRequest, writableDatabase, classOfModel, initialValues);
+                return mDbHelper.updateOrInsert(dataSourceRequest, writableDatabase, classOfModel, initialValues);
             }
 
             @Override
             public void beginTransaction() {
-                sDbHelper.beginTransaction(writableDatabase);
+                mDbHelper.beginTransaction(writableDatabase);
             }
 
             @Override
             public void setTransactionSuccessful() {
-                sDbHelper.setTransactionSuccessful(writableDatabase);
+                mDbHelper.setTransactionSuccessful(writableDatabase);
             }
 
             @Override
             public void endTransaction() {
-                sDbHelper.endTransaction(writableDatabase);
+                mDbHelper.endTransaction(writableDatabase);
             }
         };
     }
 
     @Override
     public int delete(String className, String where, String[] whereArgs) {
-        synchronized (sLock) {
-            if (!isInit) {
-                initTables();
-            }
-        }
+        checkTables();
         Class<?> clazz = ReflectUtils.classForName(className);
-        return sDbHelper.delete(clazz, where, whereArgs);
+        return mDbHelper.delete(clazz, where, whereArgs);
     }
 
 
     @Override
     public long updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues initialValues) {
-        synchronized (sLock) {
-            if (!isInit) {
-                initTables();
-            }
-        }
+        checkTables();
         Class<?> clazz = ReflectUtils.classForName(className);
-        return sDbHelper.updateOrInsert(dataSourceRequest, clazz, initialValues);
+        return mDbHelper.updateOrInsert(dataSourceRequest, clazz, initialValues);
     }
 
     @Override
     public int updateOrInsert(DataSourceRequest dataSourceRequest, String className, ContentValues[] values) {
-        synchronized (sLock) {
-            if (!isInit) {
-                initTables();
-            }
-        }
+        checkTables();
         Class<?> clazz = ReflectUtils.classForName(className);
-        return sDbHelper.updateOrInsert(dataSourceRequest, clazz, values);
+        return mDbHelper.updateOrInsert(dataSourceRequest, clazz, values);
     }
 
     @Override
     public Cursor rawQuery(String sql, String[] args) {
-        synchronized (sLock) {
-            if (!isInit) {
-                initTables();
-            }
-        }
-        return sDbHelper.rawQuery(sql, args);
+        checkTables();
+        return mDbHelper.rawQuery(sql, args);
     }
 
     @Override
     public Cursor query(String className, String[] projection, String selection, String[] selectionArgs, String groupBy, String having, String sortOrder, String limitParam) {
-        synchronized (sLock) {
+        checkTables();
+        Class<?> clazz = ReflectUtils.classForName(className);
+        return mDbHelper.query(clazz, projection, selection, selectionArgs, groupBy, having, sortOrder, limitParam);
+    }
+
+    public void checkTables() {
+        if (isInit) {
+            return;
+        }
+        synchronized (mLock) {
             if (!isInit) {
                 initTables();
             }
         }
-        Class<?> clazz = ReflectUtils.classForName(className);
-        return sDbHelper.query(clazz, projection, selection, selectionArgs, groupBy, having, sortOrder, limitParam);
     }
 
 }

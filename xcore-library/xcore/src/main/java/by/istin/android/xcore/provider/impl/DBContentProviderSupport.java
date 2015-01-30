@@ -17,6 +17,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
 import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
@@ -31,7 +32,7 @@ import by.istin.android.xcore.utils.StringUtil;
  * User: Uladzimir_Klyshevich
  * Date: 10/15/13
  */
-public class DBContentProviderSupport implements IDBContentProviderSupport {
+public abstract class DBContentProviderSupport implements IDBContentProviderSupport, XCoreHelper.IAppServiceKey {
 
     private static UriMatcher sUriMatcher;
 

@@ -1,7 +1,6 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.provider.BaseColumns;
 
@@ -12,7 +11,6 @@ import com.google.gson.JsonObject;
 
 import java.lang.reflect.Type;
 
-import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
@@ -128,12 +126,11 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
 
     public DBContentValuesAdapter(Class<?> contentValuesClass, DataSourceRequest dataSourceRequest, IDBContentProviderSupport dbContentProvider, ITransactionCreationController contentValuesAdapterTransactionListener) {
         super(contentValuesClass);
-        Context context = ContextHolder.get();
-        IDBConnector connector = dbContentProvider.getDbSupport().createConnector(context);
+        IDBConnector connector = dbContentProvider.getDbSupport().getConnector();
         IDBConnection writableConnection = connector.getWritableConnection();
         this.transactionCreationController = contentValuesAdapterTransactionListener;
         this.dbConnection = new WritableConnectionWrapper(connector, writableConnection);
-        this.dbHelper = dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
+        this.dbHelper = dbContentProvider.getDbSupport().getDBHelper();
         this.dataSourceRequest = dataSourceRequest;
         this.beforeListUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeArrayUpdate.class);
         this.beforeUpdate = ReflectUtils.getInstanceInterface(contentValuesClass, IBeforeUpdate.class);

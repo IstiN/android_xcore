@@ -5,6 +5,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
+import by.istin.android.xcore.XCoreHelper;
+
 /**
  * Created by IstiN on 24.01.2015.
  */
@@ -12,6 +14,7 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
 
     private final ForceLoadContentObserver mObserver;
 
+    private String mContentProviderName;
     private Uri mUri;
     private String[] mProjection;
     private String mSelection;
@@ -23,7 +26,7 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
     /* Runs on a worker thread */
     @Override
     public T loadInBackground() {
-        Cursor cursor = getContext().getContentResolver().query(mUri, mProjection, mSelection,
+        Cursor cursor = XCoreHelper.get().getContentProvider(mContentProviderName).query(mUri, mProjection, mSelection,
                 mSelectionArgs, mSortOrder);
         if (cursor != null) {
             // Ensure the cursor window is filled
@@ -76,9 +79,10 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
      * ContentResolver.query()} for documentation on the meaning of the
      * parameters.  These will be passed as-is to that call.
      */
-    public XCursorModelLoader(Context context, CursorModel.CursorModelCreator<T> cursorModelCreator, Uri uri, String[] projection, String selection,
+    public XCursorModelLoader(Context context, CursorModel.CursorModelCreator<T> cursorModelCreator, String contentProviderName, Uri uri, String[] projection, String selection,
                               String[] selectionArgs, String sortOrder) {
         this(context);
+        mContentProviderName = contentProviderName;
         mUri = uri;
         mProjection = projection;
         mSelection = selection;

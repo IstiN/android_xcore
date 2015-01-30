@@ -10,15 +10,21 @@ import com.squareup.picasso.RequestCreator;
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.error.ErrorHandler;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.sample.core.model.Content;
+import by.istin.android.xcore.sample.core.model.SampleEntity;
 import by.istin.android.xcore.sample.core.processor.ContentEntityProcessor;
 import by.istin.android.xcore.sample.core.processor.SampleEntityProcessor;
-import by.istin.android.xcore.sample.core.provider.ContentProvider;
 import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
 
 /**
  * Created by Uladzimir_Klyshevich on 1/28/2015.
  */
-public class SimpleAppModule implements XCoreHelper.Module {
+public class SimpleAppModule extends XCoreHelper.BaseModule {
+
+    private static final Class<?>[] ENTITIES = new Class<?>[]{
+            SampleEntity.class,
+            Content.class
+    };
 
     public static DisplayImageOptions BITMAP_DISPLAYER_OPTIONS = new DisplayImageOptions.Builder()
             .resetViewBeforeLoading(true)
@@ -29,15 +35,15 @@ public class SimpleAppModule implements XCoreHelper.Module {
             .build();
 
     @Override
-    public void onCreate(Context context, XCoreHelper coreHelper) {
-        IDBContentProviderSupport dbContentProviderSupport = ContentProvider.getDBContentProviderSupport(context);
-        coreHelper.registerAppService(new SampleEntityProcessor(dbContentProviderSupport));
-        coreHelper.registerAppService(new HttpAndroidDataSource(
+    protected void onCreate(Context context) {
+        IDBContentProviderSupport dbContentProviderSupport = registerContentProvider(ENTITIES);
+        registerAppService(new SampleEntityProcessor(dbContentProviderSupport));
+        registerAppService(new HttpAndroidDataSource(
                         new HttpAndroidDataSource.DefaultHttpRequestBuilder(),
                         new HttpAndroidDataSource.DefaultResponseStatusHandler())
         );
-        coreHelper.registerAppService(new ContentEntityProcessor(dbContentProviderSupport));
-        coreHelper.registerAppService(new ErrorHandler(
+        registerAppService(new ContentEntityProcessor(dbContentProviderSupport));
+        registerAppService(new ErrorHandler(
                 "Error",
                 "Check your internet connection",
                 "Server error",
@@ -47,7 +53,7 @@ public class SimpleAppModule implements XCoreHelper.Module {
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(context)
                 .defaultDisplayImageOptions(BITMAP_DISPLAYER_OPTIONS).build();
         //addPlugin(new ImageLoaderPlugin(config));
-        coreHelper.addPlugin(new by.istin.android.xcore.plugin.picasso.ImageLoaderPlugin(context) {
+        addPlugin(new by.istin.android.xcore.plugin.picasso.ImageLoaderPlugin(context) {
 
             @Override
             public void onRequestCreated(RequestCreator requestCreator) {
@@ -56,4 +62,5 @@ public class SimpleAppModule implements XCoreHelper.Module {
 
         });
     }
+
 }

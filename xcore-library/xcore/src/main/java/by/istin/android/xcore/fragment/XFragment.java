@@ -75,6 +75,11 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
 
     }
 
+    @Override
+    public String getContentProviderName() {
+        return getActivity().getPackageName();
+    }
+
     public abstract int getViewLayout();
 
 

@@ -109,6 +109,11 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
     }
 
     @Override
+    public String getContentProviderName() {
+        return getActivity().getPackageName();
+    }
+
+    @Override
     public LoaderManager getSupportLoaderManager() {
         return getLoaderManager();
     }

@@ -33,6 +33,8 @@ public class CursorLoaderFragmentHelper {
 
         void hideProgress();
 
+        String getContentProviderName();
+
         CursorModel.CursorModelCreator<T> getCursorModelCreator();
 
         LoaderManager getSupportLoaderManager();
@@ -44,6 +46,7 @@ public class CursorLoaderFragmentHelper {
             loader = new XCursorModelLoader<>(
                     cursorLoaderFragment.getActivity(),
                     cursorLoaderFragment.getCursorModelCreator(),
+                    cursorLoaderFragment.getContentProviderName(),
                     cursorLoaderFragment.getUri(),
                     cursorLoaderFragment.getProjection(),
                     cursorLoaderFragment.getSelection(),

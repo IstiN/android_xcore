@@ -110,6 +110,11 @@ public abstract class XListFragment<T extends CursorModel> extends AdapterViewFr
 
     }
 
+    @Override
+    public String getContentProviderName() {
+        return getActivity().getPackageName();
+    }
+
     public static int getRealAdapterCount(ListAdapter adapter) {
         if (adapter == null) {
             return 0;

@@ -7,6 +7,8 @@ import android.os.ResultReceiver;
 
 import java.io.Serializable;
 
+import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.processor.IProcessor;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.CacheRequestHelper;
@@ -134,11 +136,13 @@ public abstract class AbstractRequestManager implements IRequestManager {
                     cacheRequestResult.getListRunnable().add(new Runnable() {
                         @Override
                         public void run() {
-                            context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                            //TODO remove uri usage
+                            XCoreHelper.get().getRequestsContentProvider().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
                         }
                     });
                 } else {
-                    context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
+                    //TODO remove uri usage
+                    XCoreHelper.get().getRequestsContentProvider().delete(ModelContract.getUri(DataSourceRequestEntity.class), DataSourceRequestEntity.PARENT_URI + "=?", new String[]{dataSourceRequest.getUri()});
                 }
             }
         }

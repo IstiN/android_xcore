@@ -8,6 +8,8 @@ import android.net.Uri;
 import java.util.ArrayList;
 import java.util.List;
 
+import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.provider.IDBContentProviderSupport;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
@@ -50,18 +52,19 @@ public class CacheRequestHelper {
 
     public static CacheRequestResult cacheIfNotCached(Context context, DataSourceRequest dataSourceRequest, long requestId, String processorKey, String dataSourceKey) {
         long currentTimeMillis = System.currentTimeMillis();
-        ContentResolver contentResolver = context.getContentResolver();
+        IDBContentProviderSupport contentProvider = XCoreHelper.get().getRequestsContentProvider();
+        //TODO delete uri usage
         Uri uri = ModelContract.getUri(DataSourceRequestEntity.class);
         Log.xd(context, "request cache " + currentTimeMillis + " " + requestId);
         Log.xd(context, "request cache cacheIfNotCached requestId " + requestId);
         Log.xd(context, "request cache getCacheExpiration " + dataSourceRequest.getCacheExpiration() + " " + requestId);
         Uri requestUri = ModelContract.getUri(DataSourceRequestEntity.class, requestId);
-        Cursor cursor = contentResolver.query(requestUri, new String[]{DataSourceRequestEntity.LAST_UPDATE}, null, null, null);
+        Cursor cursor = contentProvider.query(requestUri, new String[]{DataSourceRequestEntity.LAST_UPDATE}, null, null, null);
         CacheRequestResult cacheRequestResult = new CacheRequestResult();
         try {
             if (CursorUtils.isEmpty(cursor)) {
                 cacheRequestResult.isAlreadyCached = false;
-                contentResolver.insert(uri, DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
+                contentProvider.insertOrUpdate(uri, DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
             } else {
                 cursor.moveToFirst();
                 Long lastUpdate = CursorUtils.getLong(DataSourceRequestEntity.LAST_UPDATE, cursor);
@@ -69,7 +72,7 @@ public class CacheRequestHelper {
                     cacheRequestResult.isAlreadyCached = true;
                 } else {
                     cacheRequestResult.isAlreadyCached = false;
-                    contentResolver.insert(uri, DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
+                    contentProvider.insertOrUpdate(uri, DataSourceRequestEntity.prepare(dataSourceRequest, processorKey, dataSourceKey));
                 }
             }
         } finally {

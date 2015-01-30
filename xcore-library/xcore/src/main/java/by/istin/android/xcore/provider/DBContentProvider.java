@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,53 +16,52 @@ import java.util.List;
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
-import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
+import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.Log;
 
 public abstract class DBContentProvider extends ContentProvider {
 
-    private IDBContentProviderSupport dbContentProviderSupport;
+    private XCoreHelper xCoreHelper;
 
     @Override
     public boolean onCreate() {
         Context context = getContext();
-        XCoreHelper xCoreHelper = XCoreHelper.get();
+        xCoreHelper = XCoreHelper.get();
         Log.xd(this, "xCoreHelper onCreate");
         xCoreHelper.onCreate(context, getModules());
-        dbContentProviderSupport = getContentProviderSupport(context);
         return true;
     }
 
     protected abstract List<Class<? extends XCoreHelper.Module>> getModules();
 
-    protected IDBContentProviderSupport getContentProviderSupport(Context context) {
-        return DBContentProviderFactory.getDefaultDBContentProvider(context, getEntities());
+    protected String getName() {
+        return getContext().getPackageName();
     }
 
     @Override
     public final String getType(Uri uri) {
-        return dbContentProviderSupport.getType(uri);
+        return xCoreHelper.getContentProvider(getName()).getType(uri);
     }
 
     @Override
     public final int delete(Uri uri, String where, String[] whereArgs) {
-        return dbContentProviderSupport.delete(uri, where, whereArgs);
+        return xCoreHelper.getContentProvider(getName()).delete(uri, where, whereArgs);
     }
 
     @Override
     public final Uri insert(Uri uri, ContentValues initialValues) {
-        return dbContentProviderSupport.insertOrUpdate(uri, initialValues);
+        return xCoreHelper.getContentProvider(getName()).insertOrUpdate(uri, initialValues);
     }
 
     @Override
-    public final int bulkInsert(Uri uri, ContentValues[] values) {
-        return dbContentProviderSupport.bulkInsertOrUpdate(uri, values);
+    public final int bulkInsert(Uri uri, @NonNull ContentValues[] values) {
+        return xCoreHelper.getContentProvider(getName()).bulkInsertOrUpdate(uri, values);
     }
 
     @Override
     public final Cursor query(Uri uri, String[] projection, String selection,
                               String[] selectionArgs, String sortOrder) {
-        return dbContentProviderSupport.query(uri, projection, selection, selectionArgs, sortOrder);
+        return xCoreHelper.getContentProvider(getName()).query(uri, projection, selection, selectionArgs, sortOrder);
     }
 
     @Override
@@ -71,25 +71,23 @@ public abstract class DBContentProvider extends ContentProvider {
     }
 
     @Override
-    public final ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
-        return dbContentProviderSupport.applyBatch(operations);
+    public final ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+        return xCoreHelper.getContentProvider(getName()).applyBatch(operations);
     }
 
-    public abstract Class<?>[] getEntities();
-
-    public static IDBConnection getWritableConnection(Context context, Class<?>[] entities) {
-        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        return dbContentProvider.getDbSupport().createConnector(context).getWritableConnection();
+    public static IDBConnection getWritableConnection(Context context) {
+        IDBContentProviderSupport dbContentProvider = AppUtils.get(context, XCoreHelper.getContentProviderKey(context.getPackageName()));
+        return dbContentProvider.getDbSupport().getConnector().getWritableConnection();
     }
 
-    public static IDBConnection getReadableConnection(Context context, Class<?>[] entities) {
-        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        return dbContentProvider.getDbSupport().createConnector(context).getReadableConnection();
+    public static IDBConnection getReadableConnection(Context context) {
+        IDBContentProviderSupport dbContentProvider = AppUtils.get(context, XCoreHelper.getContentProviderKey(context.getPackageName()));
+        return dbContentProvider.getDbSupport().getConnector().getReadableConnection();
     }
 
-    public static DBHelper getDBHelper(Context context, Class<?>[] entities) {
-        IDBContentProviderSupport dbContentProvider = DBContentProviderFactory.getDefaultDBContentProvider(context, entities);
-        return dbContentProvider.getDbSupport().getOrCreateDBHelper(context);
+    public static DBHelper getDBHelper(Context context) {
+        IDBContentProviderSupport dbContentProvider = AppUtils.get(context, XCoreHelper.getContentProviderKey(context.getPackageName()));
+        return dbContentProvider.getDbSupport().getDBHelper();
     }
 
 }

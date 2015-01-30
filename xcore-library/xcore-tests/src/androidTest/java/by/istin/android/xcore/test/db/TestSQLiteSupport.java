@@ -47,7 +47,12 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         TEST_ENTITY_CLASS = BigTestEntity.class.getCanonicalName();
         SUB_ENTITY_CLASS = BigTestSubEntity.class.getCanonicalName();
         DATA_SOURCE_REQUEST = new DataSourceRequest("http://anyurl.com/api");
-        dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{BigTestEntity.class, BigTestSubEntity.class});
+        dbContentProviderSupport = new DBContentProviderSupport(getApplication(), mSQLiteSupport, new Class<?>[]{BigTestEntity.class, BigTestSubEntity.class}) {
+            @Override
+            public String getAppServiceKey() {
+                return null;
+            }
+        };
         ContextHolder.set(getApplication());
     }
 
@@ -69,7 +74,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
         ArrayList<ContentProviderOperation> deleteAllBatchOperation = applyDeleteBatch();
         checkResults(0);
 
-        ArrayList<ContentProviderOperation> all = new ArrayList<ContentProviderOperation>();
+        ArrayList<ContentProviderOperation> all = new ArrayList<>();
         all.addAll(batchInsert);
         all.addAll(deleteAllBatchOperation);
         dbContentProviderSupport.applyBatch(all);

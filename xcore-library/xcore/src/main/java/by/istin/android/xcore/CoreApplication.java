@@ -6,8 +6,6 @@ import java.util.List;
 
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
 import by.istin.android.xcore.plugin.IFragmentPlugin;
-import by.istin.android.xcore.provider.IDBContentProviderSupport;
-import by.istin.android.xcore.provider.impl.DBContentProviderFactory;
 import by.istin.android.xcore.utils.Log;
 
 
@@ -37,9 +35,6 @@ public abstract class CoreApplication extends Application {
         mXCoreHelper.addPlugin(listFragmentPlugin);
     }
 
-    public IDBContentProviderSupport getDefaultDBContentProvider(Class<?>[] entities) {
-        return DBContentProviderFactory.getDefaultDBContentProvider(this, entities);
-    }
 
     @Override
     public Object getSystemService(String name) {

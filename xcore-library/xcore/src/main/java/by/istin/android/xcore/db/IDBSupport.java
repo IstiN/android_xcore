@@ -27,9 +27,11 @@ public interface IDBSupport extends IDBInsertOrUpdateOperationSupport, IDBDelete
 
     IDBBatchOperationSupport getConnectionForBatchOperation();
 
-    IDBConnector createConnector(Context context);
-
-    DBHelper getOrCreateDBHelper(Context context);
+    IDBConnector createConnector(String name, Context context);
 
     String getName();
+
+    DBHelper getDBHelper();
+
+    IDBConnector getConnector();
 }

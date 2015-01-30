@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.ResultReceiver;
 
+import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.RequestExecutor;
@@ -37,7 +38,8 @@ public class DefaultRequestManager extends AbstractRequestManager {
             });
             if (isExecuteJoinedRequestsSuccessful(context, executeRunnable, dataSourceRequest, dataSourceRequestBundle)) {
                 executeRunnable.sendStatus(StatusResultReceiver.Status.DONE, dataSourceRequestBundle);
-                int deleteRowCount = context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class),
+                //TODO remove uri usage
+                int deleteRowCount = XCoreHelper.get().getRequestsContentProvider().delete(ModelContract.getUri(DataSourceRequestEntity.class),
                         DataSourceRequestEntity.DATA_SOURCE_KEY + " IS NULL OR "
                                 + DataSourceRequestEntity.PROCESSOR_KEY + " IS NULL OR ("
                                 + "? - " + DataSourceRequestEntity.LAST_UPDATE + ") > " + DataSourceRequestEntity.EXPIRATION, new String[]{
