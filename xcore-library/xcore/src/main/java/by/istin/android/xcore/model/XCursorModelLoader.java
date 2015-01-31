@@ -5,7 +5,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.support.v4.content.AsyncTaskLoader;
 
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.utils.Log;
 
 /**
  * Created by IstiN on 24.01.2015.
@@ -26,8 +28,15 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
     /* Runs on a worker thread */
     @Override
     public T loadInBackground() {
-        Cursor cursor = XCoreHelper.get().getContentProvider(mContentProviderName).query(mUri, mProjection, mSelection,
-                mSelectionArgs, mSortOrder);
+        String authority = mUri.getAuthority();
+        Cursor cursor = null;
+        if (authority.startsWith("com.android")) {
+            cursor = ContextHolder.get().getContentResolver().query(mUri, mProjection, mSelection,
+                    mSelectionArgs, mSortOrder);
+        } else {
+            cursor = XCoreHelper.get().getContentProvider(mContentProviderName).query(mUri, mProjection, mSelection,
+                    mSelectionArgs, mSortOrder);
+        }
         if (cursor != null) {
             // Ensure the cursor window is filled
             cursor.getCount();

@@ -101,7 +101,7 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
         });
     }
 
-    protected LinearLayoutManager createLayoutManager() {
+    protected RecyclerView.LayoutManager createLayoutManager() {
         return new LinearLayoutManager(getActivity());
     }
 
