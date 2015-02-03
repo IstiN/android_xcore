@@ -3,6 +3,8 @@ package by.istin.android.xcore.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.CallLog;
+import android.provider.ContactsContract;
 import android.support.v4.content.AsyncTaskLoader;
 
 import by.istin.android.xcore.ContextHolder;
@@ -28,9 +30,8 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
     /* Runs on a worker thread */
     @Override
     public T loadInBackground() {
-        String authority = mUri.getAuthority();
         Cursor cursor = null;
-        if (authority.startsWith("com.android")) {
+        if (mUri == ContactsContract.Contacts.CONTENT_URI || mUri == CallLog.Calls.CONTENT_URI) {
             cursor = ContextHolder.get().getContentResolver().query(mUri, mProjection, mSelection,
                     mSelectionArgs, mSortOrder);
         } else {
