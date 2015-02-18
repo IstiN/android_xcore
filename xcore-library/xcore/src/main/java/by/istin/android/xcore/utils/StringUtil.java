@@ -345,7 +345,7 @@ public final class StringUtil {
         final int linkCallIdentificator = context.getResources().getIdentifier(
                 key, STRING, context.getPackageName());
         if (linkCallIdentificator == 0) {
-            return null;
+            return "["+key+"]";
         }
         return context.getString(linkCallIdentificator);
     }
