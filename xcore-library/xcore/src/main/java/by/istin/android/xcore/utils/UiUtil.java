@@ -128,6 +128,16 @@ public class UiUtil {
         // nothing here
     }
 
+    public static int dpToPx(int dp) {
+        DisplayMetrics displayMetrics = ContextHolder.get().getResources().getDisplayMetrics();
+        return Math.round(dp * (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
+    public static int pxToDp(int px) {
+        DisplayMetrics displayMetrics = ContextHolder.get().getResources().getDisplayMetrics();
+        return Math.round(px / (displayMetrics.xdpi / DisplayMetrics.DENSITY_DEFAULT));
+    }
+
     /**
      * Convert px to dp.
      *

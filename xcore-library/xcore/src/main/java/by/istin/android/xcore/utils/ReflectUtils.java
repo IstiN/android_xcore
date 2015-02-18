@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -408,6 +409,20 @@ public class ReflectUtils {
         } catch (InstantiationException e) {
             throw new IllegalArgumentException(e);
         } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        }
+    }
+
+    public static <T, P> T newInstance(Class<T> clazz, Class<P> parameterClazz, P arg) {
+        try {
+            return clazz.getConstructor(parameterClazz).newInstance(arg);
+        } catch (InstantiationException e) {
+            throw new IllegalArgumentException(e);
+        } catch (IllegalAccessException e) {
+            throw new IllegalArgumentException(e);
+        } catch (NoSuchMethodException e) {
+            throw new IllegalArgumentException(e);
+        } catch (InvocationTargetException e) {
             throw new IllegalArgumentException(e);
         }
     }
