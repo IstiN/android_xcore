@@ -61,6 +61,7 @@ public abstract class AbstractDBSupport implements IDBSupport {
     }
 
     public IDBConnector getConnector() {
+        checkTables();
         return mConnector;
     }
 
