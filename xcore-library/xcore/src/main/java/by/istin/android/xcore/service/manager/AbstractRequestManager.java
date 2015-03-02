@@ -159,10 +159,11 @@ public abstract class AbstractRequestManager implements IRequestManager {
             }
             return result;
         } catch (Exception e) {
+            Log.xe(context, e);
             Log.xd(context, "processorKey " + processorKey + " dataSourceKey " + dataSourceKey + " dataSourceKey " + dataSourceRequest.getUri());
             if (!requestIdHolder.isNull()) {
                 synchronized (mDbLockFlag) {
-                    context.getContentResolver().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
+                    XCoreHelper.get().getRequestsContentProvider().delete(ModelContract.getUri(DataSourceRequestEntity.class, requestIdHolder.get()), null, null);
                 }
             }
             throw e;
