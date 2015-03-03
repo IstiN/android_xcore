@@ -205,6 +205,9 @@ public abstract class AbstractRequestManager implements IRequestManager {
     }
 
     private static void initResult(Bundle bundle, Object result) {
+        if (result == null) {
+            return;
+        }
         if (result instanceof Parcelable) {
             bundle.putParcelable(StatusResultReceiver.RESULT_KEY, (Parcelable) result);
         } else if (result instanceof Parcelable[]) {
