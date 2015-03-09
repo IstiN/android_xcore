@@ -178,7 +178,9 @@ public class DataSourceRequest {
 		StringBuilder buffer = new StringBuilder();
 		Set<String> keySet = mBundle.keySet();
         List<String> sortedKeys = new ArrayList<String>();
-        sortedKeys.addAll(keySet);
+        if (keySet != null && !keySet.isEmpty()) {
+            sortedKeys.addAll(keySet);
+        }
         Collections.sort(sortedKeys);
 		for (Iterator<String> iterator = sortedKeys.iterator(); iterator.hasNext();) {
 			String key = iterator.next();
