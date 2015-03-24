@@ -61,12 +61,12 @@ public class ModelContract {
         intent.putExtra(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
     }
 
-    public static void dataSourceRequestToBundle(Bundle bundle, Bundle mBundle) {
-        bundle.putParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM, mBundle);
+    public static void dataSourceRequestToBundle(Bundle bundle, String dataSourceRequestAsUriParam) {
+        bundle.putString(ModelContract.DATA_SOURCE_REQUEST_PARAM, dataSourceRequestAsUriParam);
     }
 
-    public static Bundle getDataSourceFromBundle(Bundle bundle) {
-        return bundle.getParcelable(ModelContract.DATA_SOURCE_REQUEST_PARAM);
+    public static DataSourceRequest getDataSourceFromBundle(Bundle bundle) {
+        return getDataSourceRequestFromUriParam(bundle.getString(ModelContract.DATA_SOURCE_REQUEST_PARAM));
     }
 
     public static Bundle getDataSourceFromIntent(Intent intent) {

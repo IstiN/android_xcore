@@ -198,7 +198,7 @@ public class DataSourceRequest {
     }
 
     public void toBundle(Bundle bundle) {
-        ModelContract.dataSourceRequestToBundle(bundle, mBundle);
+        ModelContract.dataSourceRequestToBundle(bundle, toUriParams());
     }
 
     public void joinRequest(DataSourceRequest dataSourceRequest, String processorKey, String dataSourceKey) {
@@ -233,12 +233,7 @@ public class DataSourceRequest {
     }
 
     public static DataSourceRequest fromBundle(Bundle bundle) {
-        DataSourceRequest data = new DataSourceRequest();
-        Bundle dataSourceFromBundle = ModelContract.getDataSourceFromBundle(bundle);
-        if (dataSourceFromBundle != null) {
-            data.mBundle = dataSourceFromBundle;
-        }
-        return data;
+        return ModelContract.getDataSourceFromBundle(bundle);
     }
 
     public static DataSourceRequest fromIntent(Intent intent) {
