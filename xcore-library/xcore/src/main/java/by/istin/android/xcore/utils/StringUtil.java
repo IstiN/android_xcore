@@ -407,7 +407,24 @@ public final class StringUtil {
     }
 
     public static String joinAll(CharSequence delimiter, Object... values) {
-        return TextUtils.join(delimiter, values);
+        StringBuilder sb = new StringBuilder();
+        boolean firstTime = true;
+        for (Object token : values) {
+            if (firstTime) {
+                firstTime = false;
+            } else {
+                sb.append(delimiter);
+            }
+            if (token instanceof Object[]) {
+                Object[] array = (Object[]) token;
+                sb.append("[");
+                sb.append(joinAll(",", array));
+                sb.append("]");
+            } else {
+                sb.append(token);
+            }
+        }
+        return sb.toString();
     }
 
     public static String joinAll(CharSequence delimiter, List<ContentValues> values, String column) {
