@@ -34,7 +34,7 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
 
     private int mCurrentPosition = 0;
 
-    private Map<String, Pair<String[], ReflectUtils.XField>> mKeyFieldsMap;
+    private Map<String, Set<Pair<String[], ReflectUtils.XField>>> mKeyFieldsMap;
 
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
@@ -79,15 +79,17 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
             List<Runnable> subEntitiesOperations = new ArrayList<>();
             for (Map.Entry<String, JsonElement> pair : pairs) {
                 String key = pair.getKey();
-                Pair<String[], ReflectUtils.XField> fieldPair = mKeyFieldsMap.get(key);
-                if (fieldPair == null) {
+                Set<Pair<String[], ReflectUtils.XField>> fieldPairs = mKeyFieldsMap.get(key);
+                if (fieldPairs == null) {
                     continue;
                 }
-                ReflectUtils.XField field = fieldPair.second;
-                ReflectUtils.ConfigWrapper config = field.getConfig();
-                boolean isFirstObjectForJsonArray = config.isFirstObjectForArray();
-                JsonElement jsonValue = getTargetElement(jsonObject, isFirstObjectForJsonArray, fieldPair.first);
-                setValueToContentValues(parent, type, jsonDeserializationContext, contentValues, field, config, jsonValue, subEntitiesOperations);
+                for (Pair<String[], ReflectUtils.XField> fieldPair : fieldPairs) {
+                    ReflectUtils.XField field = fieldPair.second;
+                    ReflectUtils.ConfigWrapper config = field.getConfig();
+                    boolean isFirstObjectForJsonArray = config.isFirstObjectForArray();
+                    JsonElement jsonValue = getTargetElement(jsonObject, isFirstObjectForJsonArray, fieldPair.first);
+                    setValueToContentValues(parent, type, jsonDeserializationContext, contentValues, field, config, jsonValue, subEntitiesOperations);
+                }
             }
             for (Runnable runnable : subEntitiesOperations) {
                 runnable.run();

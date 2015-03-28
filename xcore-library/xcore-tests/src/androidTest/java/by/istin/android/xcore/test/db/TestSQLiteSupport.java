@@ -42,7 +42,7 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
         createApplication();
-        mSQLiteSupport = new SQLiteSupport();
+        mSQLiteSupport = new SQLiteSupport(getContext().getPackageName());
         mSQLiteSupport.create(getApplication(), new Class[]{BigTestEntity.class, BigTestSubEntity.class});
         TEST_ENTITY_CLASS = BigTestEntity.class.getCanonicalName();
         SUB_ENTITY_CLASS = BigTestSubEntity.class.getCanonicalName();
@@ -53,7 +53,6 @@ public class TestSQLiteSupport extends ApplicationTestCase<Application> {
                 return null;
             }
         };
-        ContextHolder.set(getApplication());
     }
 
     public void testInsert() throws Exception {

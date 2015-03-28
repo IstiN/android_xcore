@@ -6,12 +6,13 @@ import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.CoreApplication;
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.utils.AppUtils;
 
-public class TestAppUtils extends ApplicationTestCase<CoreApplication> {
+public class TestAppUtils extends ApplicationTestCase<Application> {
 
     public TestAppUtils() {
-        super(CoreApplication.class);
+        super(Application.class);
     }
 
     @Override

@@ -75,7 +75,7 @@ public class ReflectUtils {
 
         private ConfigWrapper config;
 
-        private Map<String, Pair<String[], XField>> keyFieldsMap = new ConcurrentHashMap<>();
+        private Map<String, Set<Pair<String[], XField>>> keyFieldsMap = new ConcurrentHashMap<>();
 
         private XClass(Class<?> clazz) {
             this.clazz = clazz;
@@ -85,7 +85,16 @@ public class ReflectUtils {
             }
             List<XField> fields = getFields();
             for (ReflectUtils.XField field : fields) {
-                keyFieldsMap.put(field.getSerializedNameValue(), new Pair<>(field.getSplittedSerializedName(), field));
+                String[] splittedSerializedName = field.getSplittedSerializedName();
+                String key = splittedSerializedName[0];
+                Set<Pair<String[], XField>> pairs = keyFieldsMap.get(key);
+                if (pairs != null) {
+                    pairs.add(new Pair<>(splittedSerializedName, field));
+                } else {
+                    pairs = new HashSet<>();
+                    pairs.add(new Pair<>(splittedSerializedName, field));
+                    keyFieldsMap.put(key, pairs);
+                }
             }
         }
 
@@ -99,7 +108,7 @@ public class ReflectUtils {
 
         private final Map<XClass, Holder> instancesOfInterface = new ConcurrentHashMap<XClass, Holder>();
 
-        public Map<String, Pair<String[],XField>> getKeyFieldsMap() {
+        public Map<String, Set<Pair<String[],XField>>> getKeyFieldsMap() {
             return keyFieldsMap;
         }
 
@@ -404,7 +413,7 @@ public class ReflectUtils {
         return getXClass(clazz).getFields();
     }
 
-    public static Map<String, Pair<String[], XField>> getKeyFieldsMap(Class<?> clazz) {
+    public static Map<String, Set<Pair<String[], XField>>> getKeyFieldsMap(Class<?> clazz) {
         return getXClass(clazz).getKeyFieldsMap();
     }
 

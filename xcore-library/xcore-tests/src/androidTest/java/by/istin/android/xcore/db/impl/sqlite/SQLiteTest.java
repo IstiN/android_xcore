@@ -17,7 +17,7 @@ public class SQLiteTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
         createApplication();
-        mDBConnector = new SQLiteConnector(getApplication());
+        mDBConnector = new SQLiteConnector(getApplication(), getContext().getPackageName());
     }
 
     //TODO

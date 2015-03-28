@@ -27,7 +27,7 @@ public class DbHelperTest extends ApplicationTestCase<Application> {
     protected void setUp() throws Exception {
         super.setUp();
         createApplication();
-        IDBConnector connector = new SQLiteSupport().createConnector(getApplication());
+        IDBConnector connector = new SQLiteSupport(getContext().getPackageName()).createConnector(getContext().getPackageName(), getApplication());
         dbHelper = new DBHelper(connector);
     }
 

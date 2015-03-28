@@ -12,13 +12,14 @@ import java.net.URLDecoder;
 import java.net.URLEncoder;
 
 import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.app.Application;
 
-public class TestEncodeUtils extends ApplicationTestCase<CoreApplication> {
+public class TestEncodeUtils extends ApplicationTestCase<Application> {
 
     public static final int COUNT = 2000;
 
     public TestEncodeUtils() {
-        super(CoreApplication.class);
+        super(Application.class);
     }
 
     private static final String TEST = "По сообщению «Вымпелком», любые звонки в Крыму и Севастополе с 20 июня обойдутся всего в 9,95 рублей за минуту (ранее 34 руб./мин), SMS — в 3,95 рубля за сообщение (ранее 9,5 руб.), мобильный интернет — в 9,95 рубля за мегабайт. При этом с 20 июня в сети «Киевстар» для россиян прекращают действовать услуги «Моя страна», «Моя планета», «Планета интернета» и «Планета Ноль». Как отмечается в пресс-релизе, «новые расценки на роуминг стирают границы между городами».";

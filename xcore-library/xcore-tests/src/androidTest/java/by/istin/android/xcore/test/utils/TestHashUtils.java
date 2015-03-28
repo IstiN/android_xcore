@@ -5,17 +5,13 @@ import android.util.Log;
 
 import java.util.UUID;
 
-import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.CoreApplication;
-import by.istin.android.xcore.XCoreHelper;
-import by.istin.android.xcore.XCoreHelper.IAppServiceKey;
-import by.istin.android.xcore.utils.AppUtils;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.utils.HashUtils;
 
-public class TestHashUtils extends ApplicationTestCase<CoreApplication> {
+public class TestHashUtils extends ApplicationTestCase<Application> {
 
     public TestHashUtils() {
-        super(CoreApplication.class);
+        super(Application.class);
     }
 
     @Override

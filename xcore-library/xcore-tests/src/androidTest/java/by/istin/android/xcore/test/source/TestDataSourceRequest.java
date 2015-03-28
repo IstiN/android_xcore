@@ -2,10 +2,10 @@ package by.istin.android.xcore.test.source;
 
 import android.test.ApplicationTestCase;
 
-import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.source.DataSourceRequest;
 
-public class TestDataSourceRequest extends ApplicationTestCase<CoreApplication> {
+public class TestDataSourceRequest extends ApplicationTestCase<Application> {
 
     private static final String URI_1 = "uri1";
     private static final String URI_2 = "uri2";
@@ -22,13 +22,13 @@ public class TestDataSourceRequest extends ApplicationTestCase<CoreApplication> 
     private static final String SOURCE_4 = "source4";
 
     public TestDataSourceRequest() {
-        super(CoreApplication.class);
+        super(Application.class);
     }
 
     @Override
     protected void setUp() throws Exception {
-        createApplication();
         super.setUp();
+        createApplication();
     }
 
     public void testJoinedRequestBuilder() throws Exception {

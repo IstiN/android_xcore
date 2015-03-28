@@ -2,14 +2,14 @@ package by.istin.android.xcore.test.utils;
 
 import android.test.ApplicationTestCase;
 
-import by.istin.android.xcore.CoreApplication;
+import by.istin.android.xcore.app.Application;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.UiUtil;
 
-public class TestUiUtil extends ApplicationTestCase<CoreApplication> {
+public class TestUiUtil extends ApplicationTestCase<Application> {
 
     public TestUiUtil() {
-        super(CoreApplication.class);
+        super(Application.class);
     }
 
     @Override
