@@ -1,5 +1,6 @@
 package by.istin.android.xcore.db;
 
+import android.content.ContentValues;
 import android.database.Cursor;
 
 import by.istin.android.xcore.db.operation.IDBDeleteOperationSupport;
@@ -15,6 +16,8 @@ public interface IDBConnection extends
         IDBDeleteOperationSupport,
         IDBInsertOperationSupport,
         IDBUpdateOperationSupport {
+
+    long insertOrReplace(String tableName, ContentValues contentValues);
 
     /**
      * Execute custom sql

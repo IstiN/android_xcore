@@ -302,15 +302,7 @@ public class DBHelper {
             IMerge merge = ReflectUtils.getInstanceInterface(classOfModel, IMerge.class);
             long rowId = 0;
             if (merge == null) {
-                int rowCount = db.update(tableName, contentValues, BaseColumns._ID + " = ?", new String[]{String.valueOf(id)});
-                if (rowCount == 0) {
-                    rowId = internalInsert(db, contentValues, tableName);
-                    if (rowId == -1l) {
-                        throw new IllegalArgumentException("can not insert content values:" + contentValues.toString() + " to table " + classOfModel + ". Check keys in ContentValues and fields in model.");
-                    }
-                } else {
-                    rowId = id;
-                }
+                rowId = db.insertOrReplace(tableName, contentValues);
             } else {
                 Cursor cursor = null;
                 try {

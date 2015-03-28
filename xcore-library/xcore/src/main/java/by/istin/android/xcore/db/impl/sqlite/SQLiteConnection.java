@@ -32,6 +32,11 @@ class SQLiteConnection implements IDBConnection {
     }
 
     @Override
+    public long insertOrReplace(String tableName, ContentValues contentValues) {
+        return mDatabase.insertWithOnConflict(tableName, null, contentValues, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    @Override
     public void execSQL(String sql) {
         mDatabase.execSQL(sql);
     }

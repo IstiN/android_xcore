@@ -44,12 +44,14 @@ public class ArrayAdapter<T> extends TypeAdapter<List<T>> {
         } else if (!nullBuffer) {
             list = new ArrayList<T>(listBufferSize);
         }
+
         Gson gson = new GsonBuilder()
                 .registerTypeHierarchyAdapter(ContentValues.class, contentValuesAdapter)
                 .registerTypeAdapterFactory(new ArrayAdapterFactory(listBufferSize, contentValuesAdapter))
                 .create();
 
         if (reader.peek() == JsonToken.BEGIN_OBJECT) {
+            reader.beginObject();
             T inning = gson.fromJson(reader, adapterclass);
             if (!nullBuffer) {
                 list.add(inning);

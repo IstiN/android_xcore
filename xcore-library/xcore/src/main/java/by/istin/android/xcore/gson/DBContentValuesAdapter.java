@@ -56,6 +56,11 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
         }
 
         @Override
+        public long insertOrReplace(String tableName, ContentValues contentValues) {
+            return connection.insertOrReplace(tableName, contentValues);
+        }
+
+        @Override
         public void execSQL(String sql) {
             connection.execSQL(sql);
         }
@@ -157,7 +162,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
     }
 
     @Override
-    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
+    protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, JsonArray jsonArray) {
         Class<?> clazz = field.getDbEntitiesClass();
         IBeforeArrayUpdate beforeListUpdate = ReflectUtils.getInstanceInterface(clazz, IBeforeArrayUpdate.class);
         Long id = getParentId(contentValues);
@@ -172,7 +177,6 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
                         dataSourceRequest,
                         dbConnection,
                         dbHelper,
-                        fieldValue,
                         jsonArray,
                         foreignKey,
                         id,
@@ -181,7 +185,7 @@ public class DBContentValuesAdapter extends AbstractValuesAdapter {
     }
 
     @Override
-    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
+    protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, Class<?> clazz, JsonObject subEntityJsonObject) {
         DBContentValuesAdapter contentValuesAdapter = new DBContentValuesAdapter(clazz, dataSourceRequest, dbConnection, dbHelper);
         ContentValues values = contentValuesAdapter.deserializeContentValues(contentValues, UNKNOWN_POSITION, subEntityJsonObject, type, jsonDeserializationContext);
         Long id = getParentId(contentValues);

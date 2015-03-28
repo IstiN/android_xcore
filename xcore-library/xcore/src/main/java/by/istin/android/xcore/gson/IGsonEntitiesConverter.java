@@ -31,13 +31,12 @@ interface IGsonEntitiesConverter {
         private final DataSourceRequest dataSourceRequest;
         private final IDBConnection dbConnection;
         private final DBHelper dbHelper;
-        private final String fieldValue;
         private final JsonArray jsonArray;
         private final String foreignKey;
         private final Long id;
         private final int count;
 
-        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, String fieldValue, JsonArray jsonArray, String foreignKey, Long id, int count) {
+        public Params(IBeforeArrayUpdate beforeListUpdate, Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, Class<?> clazz, ReflectUtils.XField field, DataSourceRequest dataSourceRequest, IDBConnection dbConnection, DBHelper dbHelper, JsonArray jsonArray, String foreignKey, Long id, int count) {
             this.beforeListUpdate = beforeListUpdate;
             this.type = type;
             this.jsonDeserializationContext = jsonDeserializationContext;
@@ -47,7 +46,6 @@ interface IGsonEntitiesConverter {
             this.dataSourceRequest = dataSourceRequest;
             this.dbConnection = dbConnection;
             this.dbHelper = dbHelper;
-            this.fieldValue = fieldValue;
             this.jsonArray = jsonArray;
             this.foreignKey = foreignKey;
             this.id = id;
@@ -88,10 +86,6 @@ interface IGsonEntitiesConverter {
 
         public DBHelper getDbHelper() {
             return dbHelper;
-        }
-
-        public String getFieldValue() {
-            return fieldValue;
         }
 
         public JsonArray getJsonArray() {

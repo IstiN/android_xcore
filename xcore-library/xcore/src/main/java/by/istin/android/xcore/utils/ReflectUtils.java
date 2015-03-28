@@ -1,5 +1,7 @@
 package by.istin.android.xcore.utils;
 
+import android.util.Pair;
+
 import com.google.gson.annotations.SerializedName;
 
 import java.lang.annotation.Annotation;
@@ -8,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +18,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.annotations.Config;
+import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.annotations.db;
 import by.istin.android.xcore.annotations.dbEntities;
 import by.istin.android.xcore.annotations.dbEntity;
@@ -33,10 +37,17 @@ public class ReflectUtils {
 
         private Config.Transformer transformer;
 
+        private boolean isFirstObjectForArray;
+
         public ConfigWrapper(Config value) {
             key = value.key();
             dbType = value.dbType();
             transformer = ReflectUtils.newSingleInstance(value.transformer());
+            isFirstObjectForArray = transformer.isFirstObjectForArray();
+        }
+
+        public boolean isFirstObjectForArray() {
+            return isFirstObjectForArray;
         }
 
         public Config.Transformer transformer() {
@@ -64,11 +75,17 @@ public class ReflectUtils {
 
         private ConfigWrapper config;
 
+        private Map<String, Pair<String[], XField>> keyFieldsMap = new ConcurrentHashMap<>();
+
         private XClass(Class<?> clazz) {
             this.clazz = clazz;
             dbEntity annotation = this.clazz.getAnnotation(dbEntity.class);
             if (annotation != null) {
                 config = new ConfigWrapper(annotation.value());
+            }
+            List<XField> fields = getFields();
+            for (ReflectUtils.XField field : fields) {
+                keyFieldsMap.put(field.getSerializedNameValue(), new Pair<>(field.getSplittedSerializedName(), field));
             }
         }
 
@@ -82,13 +99,17 @@ public class ReflectUtils {
 
         private final Map<XClass, Holder> instancesOfInterface = new ConcurrentHashMap<XClass, Holder>();
 
+        public Map<String, Pair<String[],XField>> getKeyFieldsMap() {
+            return keyFieldsMap;
+        }
+
         public List<XField> getFields() {
             List<XField> result = listFields;
             if (result == null) {
                 synchronized (lock) {
                     result = listFields;
                     if (result == null) {
-                        listFields = result = new ArrayList<XField>();
+                        listFields = result = new ArrayList<>();
                         Field[] fields = clazz.getFields();
                         for (Field field : fields) {
                             Annotation[] annotations = field.getAnnotations();
@@ -122,14 +143,14 @@ public class ReflectUtils {
                                 for (Class<?> i : interfaces) {
                                     if (i.equals(interfaceTargetClazz)) {
                                         T object = (T) clazz.newInstance();
-                                        instancesOfInterface.put(xInterfaceClass, new Holder<T>(object));
+                                        instancesOfInterface.put(xInterfaceClass, new Holder<>(object));
                                         return object;
                                     }
                                 }
                                 cls = cls.getSuperclass();
                             }
                         }
-                        result = new Holder<T>();
+                        result = new Holder<>();
                         instancesOfInterface.put(xInterfaceClass, result);
                     }
                 }
@@ -150,6 +171,7 @@ public class ReflectUtils {
     public static class XField {
 
         public static final String DB_ANNOTATION_PREFIX = db.class.getPackage().getName();
+
         private final Field mField;
 
         private final String mNameOfField;
@@ -179,6 +201,8 @@ public class ReflectUtils {
         private boolean mDbFormatIsUnix = false;
 
         private String mDbFormatContentValuesKey;
+
+        private String[] mSlittedSerializedName;
 
         XField(Field field) {
             mField = field;
@@ -234,6 +258,15 @@ public class ReflectUtils {
                 mClassAnnotationHashMap = new ConcurrentHashMap<>(0);
             }
 
+            String serializedName = getSerializedNameValue();
+            ReflectUtils.ConfigWrapper config = getConfig();
+            Config.Transformer<GsonConverter.Meta> transformer = config.transformer();
+            String separator = transformer.subElementSeparator();
+            mSlittedSerializedName = serializedName.split(separator);
+        }
+
+        public String[] getSplittedSerializedName() {
+            return mSlittedSerializedName;
         }
 
         public Field getField() {
@@ -260,23 +293,22 @@ public class ReflectUtils {
             return (T) mClassAnnotationHashMap.get(annotationClass);
         }
 
-        public String getSerializedNameValue(String defaultValue) {
+        public String getSerializedNameValue() {
             if (isSerializedNameValueInited) {
-                if (mSerializedNameValue != null) {
-                    return mSerializedNameValue;
-                } else {
-                    return defaultValue;
-                }
+                return mSerializedNameValue;
             }
             try {
-                if (ReflectUtils.isAnnotationPresent(this, SerializedName.class)) {
+                ReflectUtils.ConfigWrapper config = getConfig();
+                String configKey = config.key();
+                if (!StringUtil.isEmpty(configKey)) {
+                    mSerializedNameValue = configKey;
+                } else if (ReflectUtils.isAnnotationPresent(this, SerializedName.class)) {
                     SerializedName serializedAnnotation = ReflectUtils.getAnnotation(this, SerializedName.class);
-                    if (serializedAnnotation != null) {
-                        mSerializedNameValue = serializedAnnotation.value();
-                        return mSerializedNameValue;
-                    }
+                    mSerializedNameValue = serializedAnnotation.value();
+                } else {
+                    mSerializedNameValue = ReflectUtils.getStaticStringValue(this);
                 }
-                return defaultValue;
+                return mSerializedNameValue;
             } finally {
                 isSerializedNameValueInited = true;
             }
@@ -370,6 +402,10 @@ public class ReflectUtils {
 
     public static List<XField> getEntityKeys(Class<?> clazz) {
         return getXClass(clazz).getFields();
+    }
+
+    public static Map<String, Pair<String[], XField>> getKeyFieldsMap(Class<?> clazz) {
+        return getXClass(clazz).getKeyFieldsMap();
     }
 
     private static XClass getXClass(Class<?> clazz) {

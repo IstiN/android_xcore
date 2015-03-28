@@ -42,12 +42,12 @@ public abstract class AbstractGsonProcessor<Result> extends AbstractGsonDBProces
         this(clazz, resultClassName, new AbstractValuesAdapter(clazz) {
 
             @Override
-            protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray) {
+            protected void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, JsonArray jsonArray) {
 
             }
 
             @Override
-            protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject) {
+            protected void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, Class<?> clazz, JsonObject subEntityJsonObject) {
 
             }
 

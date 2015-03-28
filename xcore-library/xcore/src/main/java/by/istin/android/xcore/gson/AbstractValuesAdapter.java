@@ -1,6 +1,7 @@
 package by.istin.android.xcore.gson;
 
 import android.content.ContentValues;
+import android.util.Pair;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
@@ -10,25 +11,30 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import by.istin.android.xcore.annotations.Config;
-import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.annotations.converter.IConverter;
+import by.istin.android.xcore.annotations.converter.gson.GsonConverter;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
-import by.istin.android.xcore.utils.StringUtil;
 
 public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentValues> {
 
     public static final int UNKNOWN_POSITION = -1;
 
-
     private final Class<?> mContentValuesEntityClazz;
+
+    private final ReflectUtils.ConfigWrapper mClassConfig;
 
     private List<ReflectUtils.XField> mEntityKeys;
 
     private int mCurrentPosition = 0;
+
+    private Map<String, Pair<String[], ReflectUtils.XField>> mKeyFieldsMap;
 
     public Class<?> getContentValuesEntityClazz() {
         return mContentValuesEntityClazz;
@@ -36,6 +42,9 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
 
     public AbstractValuesAdapter(Class<?> contentValuesEntityClazz) {
         this.mContentValuesEntityClazz = contentValuesEntityClazz;
+        this.mClassConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
+        this.mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
+        this.mKeyFieldsMap = ReflectUtils.getKeyFieldsMap(contentValuesEntityClazz);
     }
 
     @Override
@@ -46,9 +55,8 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
     }
 
     public ContentValues deserializeContentValues(ContentValues parent, int position, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext) {
-        ReflectUtils.ConfigWrapper classConfig = ReflectUtils.getClassConfig(mContentValuesEntityClazz);
-        if (classConfig != null) {
-            Config.Transformer<GsonConverter.Meta> transformer = classConfig.transformer();
+        if (mClassConfig != null) {
+            Config.Transformer<GsonConverter.Meta> transformer = mClassConfig.transformer();
             IConverter<GsonConverter.Meta> converter = transformer.converter();
             if (converter != null) {
                 ContentValues contentValues = new ContentValues();
@@ -56,9 +64,6 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
                 converter.convert(contentValues, null, null, meta);
                 return proceed(parent, position, contentValues, jsonElement);
             }
-        }
-        if (mEntityKeys == null) {
-            mEntityKeys = ReflectUtils.getEntityKeys(mContentValuesEntityClazz);
         }
         ContentValues contentValues = new ContentValues();
         if (mEntityKeys == null) {
@@ -68,94 +73,132 @@ public abstract class AbstractValuesAdapter implements JsonDeserializer<ContentV
             return null;
         }
         JsonObject jsonObject = (JsonObject) jsonElement;
-        for (ReflectUtils.XField field : mEntityKeys) {
-            JsonElement jsonValue = null;
-            String fieldValue = ReflectUtils.getStaticStringValue(field);
-            String serializedName = fieldValue;
-            serializedName = field.getSerializedNameValue(serializedName);
-            ReflectUtils.ConfigWrapper config = field.getConfig();
-            String configKey = config.key();
-            if (!StringUtil.isEmpty(configKey)) {
-                serializedName = configKey;
-            }
-            Config.Transformer<GsonConverter.Meta> transformer = config.transformer();
-            String separator = transformer.subElementSeparator();
-            boolean isFirstObjectForJsonArray = transformer.isFirstObjectForArray();
-            if (separator != null && serializedName.contains(separator)) {
-                String[] values = serializedName.split(separator);
-                JsonObject tempElement = jsonObject;
-                int arrayLength = values.length;
-                for (int i = 0; i < arrayLength; i++) {
-                    String value = values[i];
-                    if (i == arrayLength - 1) {
-                        jsonValue = tempElement.get(value);
-                    } else {
-                        JsonElement element = tempElement.get(value);
-                        if (element == null) {
-                            break;
-                        }
-                        if (element.isJsonObject()) {
-                            tempElement = (JsonObject) element;
-                        } else {
-                            if (isFirstObjectForJsonArray && element.isJsonArray()) {
-                                JsonArray jsonArray = (JsonArray) element;
-                                if (jsonArray.size() > 0) {
-                                    tempElement = (JsonObject) jsonArray.get(0);
-                                } else {
-                                    break;
-                                }
-                            } else {
-                                break;
-                            }
-                        }
-                    }
+        Set<Map.Entry<String, JsonElement>> pairs = jsonObject.entrySet();
+        //check optimized way
+        if (pairs.size() < mEntityKeys.size()) {
+            List<Runnable> subEntitiesOperations = new ArrayList<>();
+            for (Map.Entry<String, JsonElement> pair : pairs) {
+                String key = pair.getKey();
+                Pair<String[], ReflectUtils.XField> fieldPair = mKeyFieldsMap.get(key);
+                if (fieldPair == null) {
+                    continue;
                 }
-            } else {
-                jsonValue = jsonObject.get(serializedName);
+                ReflectUtils.XField field = fieldPair.second;
+                ReflectUtils.ConfigWrapper config = field.getConfig();
+                boolean isFirstObjectForJsonArray = config.isFirstObjectForArray();
+                JsonElement jsonValue = getTargetElement(jsonObject, isFirstObjectForJsonArray, fieldPair.first);
+                setValueToContentValues(parent, type, jsonDeserializationContext, contentValues, field, config, jsonValue, subEntitiesOperations);
             }
-            if (jsonValue == null) {
-                continue;
+            for (Runnable runnable : subEntitiesOperations) {
+                runnable.run();
             }
-            Config.DBType dbType = config.dbType();
-            if (isCustomConverter(transformer, contentValues, parent, jsonValue, type, jsonDeserializationContext, fieldValue, field)) {
-                continue;
-            }
-            if (dbType == Config.DBType.ENTITY) {
-                Class<?> clazz = field.getDbEntityClass();
-                JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
-                proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
-            } else if (dbType == Config.DBType.ENTITIES) {
-                if (jsonValue.isJsonArray()) {
-                    JsonArray jsonArray = jsonValue.getAsJsonArray();
-                    proceedSubEntities(type, jsonDeserializationContext, contentValues, field, fieldValue, jsonArray);
-                } else {
-                    Class<?> clazz = field.getDbEntitiesClass();
-                    JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
-                    proceedSubEntity(type, jsonDeserializationContext, contentValues, field, fieldValue, clazz, subEntityJsonObject);
-                }
+            subEntitiesOperations.clear();
+        } else {
+            int size = mEntityKeys.size();
+            for (int i = 0; i < size; i++) {
+                ReflectUtils.XField field = mEntityKeys.get(i);
+                ReflectUtils.ConfigWrapper config = field.getConfig();
+                boolean isFirstObjectForJsonArray = config.isFirstObjectForArray();
+                JsonElement jsonValue = getTargetElement(jsonObject, isFirstObjectForJsonArray, field.getSplittedSerializedName());
+                setValueToContentValues(parent, type, jsonDeserializationContext, contentValues, field, config, jsonValue, null);
             }
         }
         return proceed(parent, position, contentValues, jsonElement);
     }
 
-    private boolean isCustomConverter(Config.Transformer<GsonConverter.Meta> transformer, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, String fieldValue, ReflectUtils.XField field) {
-        IConverter converter = transformer.converter();
+    public void setValueToContentValues(ContentValues parent, final Type type, final JsonDeserializationContext jsonDeserializationContext, final ContentValues contentValues, final ReflectUtils.XField field, ReflectUtils.ConfigWrapper config, final JsonElement jsonValue, List<Runnable> subEntitiesOperations) {
+        if (jsonValue == null) {
+            return;
+        }
+
+        final Config.DBType dbType = config.dbType();
+        if (isCustomConverter(config, contentValues, parent, jsonValue, type, jsonDeserializationContext, field)) {
+            return;
+        }
+
+        if (subEntitiesOperations == null) {
+            checkSubEntities(type, jsonDeserializationContext, contentValues, field, jsonValue, dbType);
+        } else {
+            subEntitiesOperations.add(new Runnable() {
+                @Override
+                public void run() {
+                    checkSubEntities(type, jsonDeserializationContext, contentValues, field, jsonValue, dbType);
+                }
+            });
+        }
+    }
+
+    public void checkSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, JsonElement jsonValue, Config.DBType dbType) {
+        //need to be at the end, because parent id sometimes depends on all keys in the list
+        if (dbType == Config.DBType.ENTITY) {
+            Class<?> clazz = field.getDbEntityClass();
+            JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
+            proceedSubEntity(type, jsonDeserializationContext, contentValues, field, clazz, subEntityJsonObject);
+        } else if (dbType == Config.DBType.ENTITIES) {
+            if (jsonValue.isJsonArray()) {
+                JsonArray jsonArray = jsonValue.getAsJsonArray();
+                proceedSubEntities(type, jsonDeserializationContext, contentValues, field, jsonArray);
+            } else {
+                Class<?> clazz = field.getDbEntitiesClass();
+                JsonObject subEntityJsonObject = jsonValue.getAsJsonObject();
+                proceedSubEntity(type, jsonDeserializationContext, contentValues, field, clazz, subEntityJsonObject);
+            }
+        }
+    }
+
+    public JsonElement getTargetElement(JsonObject jsonObject, boolean isFirstObjectForJsonArray, String[] values) {
+        if (values.length == 1) {
+            return jsonObject.get(values[0]);
+        }
+        JsonElement jsonValue = null;
+        JsonObject tempElement = jsonObject;
+        int arrayLength = values.length;
+        for (int i = 0; i < arrayLength; i++) {
+            String value = values[i];
+            if (i == arrayLength - 1) {
+                jsonValue = tempElement.get(value);
+            } else {
+                JsonElement element = tempElement.get(value);
+                if (element == null) {
+                    break;
+                }
+                if (element.isJsonObject()) {
+                    tempElement = (JsonObject) element;
+                } else {
+                    if (isFirstObjectForJsonArray && element.isJsonArray()) {
+                        JsonArray jsonArray = (JsonArray) element;
+                        if (jsonArray.size() > 0) {
+                            tempElement = (JsonObject) jsonArray.get(0);
+                        } else {
+                            break;
+                        }
+                    } else {
+                        break;
+                    }
+                }
+            }
+        }
+        return jsonValue;
+    }
+
+    private boolean isCustomConverter(ReflectUtils.ConfigWrapper configWrapper, ContentValues contentValues, ContentValues parent, JsonElement jsonElement, Type type, JsonDeserializationContext jsonDeserializationContext, ReflectUtils.XField field) {
+        IConverter converter = configWrapper.transformer().converter();
         if (converter == null) {
             return false;
         }
         try {
             GsonConverter.Meta meta = new GsonConverter.Meta(this, jsonElement, type, jsonDeserializationContext, field);
-            converter.convert(contentValues, fieldValue, parent, meta);
+            converter.convert(contentValues, ReflectUtils.getStaticStringValue(field), parent, meta);
         } catch (UnsupportedOperationException e) {
-            Log.xe(this, fieldValue + ":" + jsonElement.toString());
+            Log.xe(this, field.getNameOfField() + ":" + jsonElement.toString());
             throw e;
         }
         return true;
     }
 
-    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, JsonArray jsonArray);
+    protected abstract void proceedSubEntities(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, JsonArray jsonArray);
 
-    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, String fieldValue, Class<?> clazz, JsonObject subEntityJsonObject);
+    protected abstract void proceedSubEntity(Type type, JsonDeserializationContext jsonDeserializationContext, ContentValues contentValues, ReflectUtils.XField field, Class<?> clazz, JsonObject subEntityJsonObject);
 
     protected abstract ContentValues proceed(ContentValues parent, int position, ContentValues contentValues, JsonElement jsonElement);
 
