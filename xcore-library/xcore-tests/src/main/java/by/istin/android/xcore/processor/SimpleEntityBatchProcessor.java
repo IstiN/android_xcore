@@ -2,6 +2,7 @@ package by.istin.android.xcore.processor;
 
 import android.content.ContentValues;
 
+import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.model.SimpleEntity;
@@ -34,4 +35,10 @@ public class SimpleEntityBatchProcessor extends AbstractGsonBatchProcessor<Conte
         super.onStartProcessing(dataSourceRequest, dbConnection);
     }
 
+
+    @Override
+    protected void onProcessingFinish(DataSourceRequest dataSourceRequest, ContentValues[] contentValueses) throws Exception {
+        super.onProcessingFinish(dataSourceRequest, contentValueses);
+        notifyChange(ContextHolder.get(), SimpleEntity.class);
+    }
 }

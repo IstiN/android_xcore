@@ -17,15 +17,12 @@ public class SampleEntity implements BaseColumns {
     public static final String ID = _ID;
 
     @dbString
-    @SerializedName(value = "title")
     public static final String TITLE = "title";
 
     @dbString
-    @SerializedName(value = "about")
     public static final String ABOUT = "about";
 
     @dbString
-    @SerializedName(value = "image_url")
     public static final String IMAGE_URL = "image_url";
 
 }

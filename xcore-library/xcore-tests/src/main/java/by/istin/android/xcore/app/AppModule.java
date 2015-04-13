@@ -2,7 +2,10 @@ package by.istin.android.xcore.app;
 
 import android.content.Context;
 
+import java.io.InputStream;
+
 import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.error.ErrorHandler;
 import by.istin.android.xcore.issues.issue12.model.DayEntity;
 import by.istin.android.xcore.issues.issue12.processor.DaysBatchProcessor;
 import by.istin.android.xcore.model.BigTestEntity;
@@ -26,6 +29,9 @@ import by.istin.android.xcore.processor.SimpleEntityWithSubEntityBatchProcessor;
 import by.istin.android.xcore.processor.SimpleEntityWithSubJsonBatchProcessor;
 import by.istin.android.xcore.processor.SuperBigEntityBatchProcessor;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
+import by.istin.android.xcore.source.IDataSource;
+import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.utils.AppUtils;
 
 /**
  * Created by Uladzimir_Klyshevich on 1/30/2015.
@@ -55,8 +61,10 @@ public class AppModule extends XCoreHelper.BaseModule {
 
     @Override
     protected void onCreate(Context context) {
-        IDBContentProviderSupport defaultDBContentProvider = registerContentProvider(ENTITIES);
+        registerAppService(new HttpAndroidDataSource());
+        registerAppService(new ErrorHandler("Error", "Check your internet connection", "Service unavailable", null, null));
 
+        IDBContentProviderSupport defaultDBContentProvider = registerContentProvider(ENTITIES);
         registerAppService(new SimpleEntityBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithSubEntityBatchProcessor(defaultDBContentProvider));
         registerAppService(new SimpleEntityWithSubJsonBatchProcessor(defaultDBContentProvider));

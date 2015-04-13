@@ -1,11 +1,13 @@
 package by.istin.android.xcore.processor;
 
 import android.content.ContentValues;
+import android.os.Parcel;
 
 import java.util.List;
 
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.impl.DBHelper;
+import by.istin.android.xcore.model.ParcelableModel;
 import by.istin.android.xcore.model.SuperBigTestEntity;
 import by.istin.android.xcore.processor.impl.AbstractGsonBatchProcessor;
 import by.istin.android.xcore.provider.IDBContentProviderSupport;
@@ -16,10 +18,14 @@ import by.istin.android.xcore.source.DataSourceRequest;
  */
 public class SuperBigEntityBatchProcessor extends AbstractGsonBatchProcessor<SuperBigEntityBatchProcessor.Response> {
 
-    public static class Response {
+    public static class Response extends ParcelableModel {
 
         public List<ContentValues> listings;
 
+        @Override
+        public void writeToParcel(Parcel dest, int flags) {
+            //TODO
+        }
     }
 
     public static final String APP_SERVICE_KEY = "core:superbigtestentity:processor";
