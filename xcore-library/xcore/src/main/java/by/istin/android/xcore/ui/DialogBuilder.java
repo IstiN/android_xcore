@@ -15,8 +15,6 @@ import android.view.ViewGroup.MarginLayoutParams;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 
-import java.lang.reflect.Field;
-
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;

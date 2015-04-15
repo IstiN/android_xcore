@@ -31,7 +31,8 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
     @Override
     public T loadInBackground() {
         Cursor cursor = null;
-        if (mUri == ContactsContract.Contacts.CONTENT_URI || mUri == CallLog.Calls.CONTENT_URI) {
+        String authority = mUri.getAuthority();
+        if (authority.equals("com.android.contacts") || authority.equals("call_log")) {
             cursor = ContextHolder.get().getContentResolver().query(mUri, mProjection, mSelection,
                     mSelectionArgs, mSortOrder);
         } else {

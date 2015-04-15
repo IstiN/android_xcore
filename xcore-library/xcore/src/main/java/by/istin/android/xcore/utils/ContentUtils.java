@@ -151,10 +151,15 @@ public class ContentUtils {
             }
             return new MatrixCursor(defaultColumnsIfNull);
         }
-        ContentValues contentValues = listContentValues.get(0);
-        Set<String> keys = getKeys(contentValues);
-        String[] columns = new String[keys.size()];
-        columns = keys.toArray(columns);
+        String[] columns = null;
+        if (defaultColumnsIfNull == null) {
+            ContentValues contentValues = listContentValues.get(0);
+            Set<String> keys = getKeys(contentValues);
+            columns = new String[keys.size()];
+            columns = keys.toArray(columns);
+        } else {
+            columns = defaultColumnsIfNull;
+        }
         MatrixCursor matrixCursor = new MatrixCursor(columns);
         for (ContentValues values : listContentValues) {
             Object[] objects = new Object[columns.length];
