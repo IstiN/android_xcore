@@ -28,8 +28,12 @@ public abstract class DBContentProvider extends ContentProvider {
         Context context = getContext();
         xCoreHelper = XCoreHelper.get();
         Log.xd(this, "xCoreHelper onCreate");
-        xCoreHelper.onCreate(context, getModules());
+        xCoreHelper.onCreate(context, getModules(), getBuildConfigClass());
         return true;
+    }
+
+    protected Class<?> getBuildConfigClass() {
+        return null;
     }
 
     protected abstract List<Class<? extends XCoreHelper.Module>> getModules();

@@ -22,7 +22,11 @@ public abstract class CoreApplication extends Application {
     public void onCreate() {
         super.onCreate();
         Log.xd(this, "xCoreHelper onCreate");
-        this.mXCoreHelper.onCreate(this, getModules());
+        this.mXCoreHelper.onCreate(this, getModules(), getBuildConfigClass());
+    }
+
+    protected Class<?> getBuildConfigClass() {
+        return null;
     }
 
     public abstract List<Class<? extends XCoreHelper.Module>> getModules();

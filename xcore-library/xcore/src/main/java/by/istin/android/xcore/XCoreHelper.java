@@ -123,14 +123,14 @@ public class XCoreHelper {
         return isOnCreateCalled;
     }
 
-    public void onCreate(Context ctx, List<Class<? extends XCoreHelper.Module>> modules) {
+    public void onCreate(Context ctx, List<Class<? extends XCoreHelper.Module>> modules, Class<?> clazz) {
         if (isOnCreateCalled) {
             return;
         } else {
             isOnCreateCalled = true;
         }
         mContext = ctx;
-        Log.init(ctx);
+        Log.init(ctx, clazz);
         IRequestManager.Impl.register(this);
         registerAppService(new Core(ctx));
         registerAppService(new EmptyProcessor());

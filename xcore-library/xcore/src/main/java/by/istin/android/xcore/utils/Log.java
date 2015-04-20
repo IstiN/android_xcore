@@ -37,11 +37,13 @@ public final class Log {
         return sIsDebug;
     }
 
-    public static synchronized void init(Context context) {
-        String packageName = context.getPackageName();
-        Class<?> buildConfigClass = ReflectUtils.classForName(packageName + ".BuildConfig");
+    public static synchronized void init(Context context, Class<?> clazz) {
+        if (clazz == null) {
+            String packageName = context.getPackageName();
+            clazz = ReflectUtils.classForName(packageName + ".BuildConfig");
+        }
         try {
-            Field debug = buildConfigClass.getField("DEBUG");
+            Field debug = clazz.getField("DEBUG");
             sIsDebug = (boolean) debug.get(null);
         } catch (Exception e) {
             throw new IllegalStateException(e);
