@@ -26,7 +26,7 @@ public class ManifestMetadataUtils {
     }
 
     public static String getString(Context context, String keyName) {
-        return (String) readKey(keyName, context);
+        return String.valueOf(readKey(keyName, context));
     }
 
     public static int getInt(Context context, String keyName) {
