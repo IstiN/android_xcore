@@ -14,6 +14,7 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Looper;
+import android.support.v7.internal.widget.TintContextWrapper;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.KeyCharacterMap;
@@ -28,6 +29,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.TextView;
 
 import by.istin.android.xcore.ContextHolder;
+import by.istin.android.xcore.R;
 
 /**
  * Class for converting px to the dp values, ellipsize text and else.
@@ -101,24 +103,25 @@ public class UiUtil {
             return false;
         }
         boolean hasMenuKey = ViewConfiguration.get(activity).hasPermanentMenuKey();
-        boolean hasBackKey = KeyCharacterMap.deviceHasKey(KeyEvent.KEYCODE_BACK);
-        if (!hasMenuKey && !hasBackKey) {
-            Window win = activity.getWindow();
-            WindowManager.LayoutParams winParams = win.getAttributes();
-            int bits = 0;
-            if (isNavigation) {
-                bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
-                winParams.flags |= bits;
-            }
-            if (isStatus) {
-                bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
-                winParams.flags |= bits;
-            }
+
+        Window win = activity.getWindow();
+        WindowManager.LayoutParams winParams = win.getAttributes();
+        int bits = 0;
+        if (isNavigation && !hasMenuKey) {
+            bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION;
+            winParams.flags |= bits;
+        }
+        if (isStatus) {
+            bits = WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS;
+            winParams.flags |= bits;
+        }
+        if (bits != 0) {
             win.setAttributes(winParams);
             return true;
         } else {
             return false;
         }
+
     }
 
     /**
@@ -288,10 +291,17 @@ public class UiUtil {
      * @param view view, prefer set EditText
      */
     public static void hideKeyboard(View view) {
-        InputMethodManager imm = (InputMethodManager) view.getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        Activity activity = (Activity) view.getContext();
+        Context context = view.getContext();
+        InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
+        Activity activity;
+        if (context instanceof TintContextWrapper) {
+            activity = (Activity) ((TintContextWrapper) context).getBaseContext();
+        } else {
+            activity = (Activity) context;
+        }
         if (activity == null) {
             return;
+
         }
         if (android.os.Build.VERSION.SDK_INT < 11) {
             Window window = activity.getWindow();
@@ -338,9 +348,13 @@ public class UiUtil {
         }
     }
 
-    private static final int[] RES_IDS_ACTION_BAR_SIZE = {android.R.attr.actionBarSize};
+    private static final int[] RES_IDS_ACTION_BAR_SIZE = {R.attr.actionBarSize};
 
     public static int getActionBarSize(Activity context) {
+        return getActionBarSize(context, RES_IDS_ACTION_BAR_SIZE);
+    }
+
+    public static int getActionBarSize(Activity context, int[] attrs) {
         if (context == null) {
             return 0;
         }
@@ -350,7 +364,7 @@ public class UiUtil {
             return 0;
         }
 
-        TypedArray att = curTheme.obtainStyledAttributes(RES_IDS_ACTION_BAR_SIZE);
+        TypedArray att = curTheme.obtainStyledAttributes(attrs);
         if (att == null) {
             return 0;
         }

@@ -2,14 +2,13 @@ package by.istin.android.xcore.ui;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.DialogInterface.OnMultiChoiceClickListener;
 import android.os.Build;
 import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.text.InputType;
 import android.view.ViewGroup.MarginLayoutParams;
 import android.view.inputmethod.InputMethodManager;
@@ -49,13 +48,8 @@ public class DialogBuilder {
         }
     }
 
-    @TargetApi(value = Build.VERSION_CODES.HONEYCOMB)
-    public static Builder createBuilder(final Context context) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
-            return new Builder(context);
-        } else {
-            return new Builder(context, getTheme());
-        }
+    public static AlertDialog.Builder createBuilder(final Context context) {
+        return new AlertDialog.Builder(context);
     }
 
     public static void simple(final Context context, String message, final OnClickListener listener) {
@@ -74,7 +68,7 @@ public class DialogBuilder {
      * @param listener listener
      */
     public static AlertDialog simple(final Context context, String title, String message, String btn, final OnClickListener listener) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         if (title != null) {
             builder.setTitle(title);
         }
@@ -103,7 +97,7 @@ public class DialogBuilder {
      * @param message message
      */
     public static void confirm(final Context context, String title, String message, String posBtn, String negBtn, final OnClickListener disagreeListener, final OnClickListener agreeListener) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         if (title != null) {
             builder.setTitle(title);
         }
@@ -131,15 +125,15 @@ public class DialogBuilder {
     }
 
     public static void applyBackground(AlertDialog alertDialog) {
-        if (Build.VERSION.SDK_INT > 10) {
+        /*if (Build.VERSION.SDK_INT > 10) {
             if (!UiUtil.hasL()) {
                 alertDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
             }
-        }
+        }*/
     }
 
     public static void options(final Context context, Integer titleResource, int optionsResource, final OnClickListener listener) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         if (titleResource != null) {
             builder.setTitle(titleResource);
         }
@@ -164,7 +158,7 @@ public class DialogBuilder {
     }
 
     public static void options(final Context context, int titleResource, String[] optionsResource, final OnClickListener listener) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         builder.setTitle(titleResource);
         builder.setItems(optionsResource, listener);
         builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
@@ -200,7 +194,7 @@ public class DialogBuilder {
     }
 
     public static void singleChooseOption(Context context, String titleResource, String[] stringArray, int defaultOption, String closeButton, OnClickListener listener) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         if (!StringUtil.isEmpty(titleResource)) {
             builder.setTitle(titleResource);
         }
@@ -232,7 +226,7 @@ public class DialogBuilder {
     }
 
     public static void multiChooseOption(Context context, int titleResource, String[] stringArray, final boolean[] defaultOption, final ISuccess<boolean[]> success) {
-        Builder builder = createBuilder(context);
+        AlertDialog.Builder builder = createBuilder(context);
         builder.setTitle(titleResource);
         builder.setMultiChoiceItems(stringArray, defaultOption, new OnMultiChoiceClickListener() {
 
@@ -282,7 +276,7 @@ public class DialogBuilder {
         marginLayoutParams.rightMargin = UiUtil.getDp(activity, 8);
         input.setLayoutParams(marginLayoutParams);
         input.setHint(hint);
-        Builder builder = createBuilder(activity);
+        AlertDialog.Builder builder = createBuilder(activity);
         builder.setPositiveButton(positiveButton, new OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
                 // deal with the editable
