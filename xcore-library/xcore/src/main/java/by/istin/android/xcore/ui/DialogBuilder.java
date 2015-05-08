@@ -25,10 +25,6 @@ import by.istin.android.xcore.utils.UiUtil;
  */
 public class DialogBuilder {
 
-    private static final String OK = "Ok";
-
-    private static final String CANCEL = "cancel";
-
     private static final String TAG = DialogBuilder.class.getSimpleName();
 
     @TargetApi(value = Build.VERSION_CODES.LOLLIPOP)
@@ -73,7 +69,7 @@ public class DialogBuilder {
             builder.setTitle(title);
         }
         builder.setMessage(message);
-        builder.setPositiveButton(btn == null ? OK : btn, listener);
+        builder.setPositiveButton(btn == null ? context.getString(android.R.string.ok) : btn, listener);
         AlertDialog alertDialog = builder.create();
         applyBackground(alertDialog);
         alertDialog.setCancelable(false);
@@ -102,8 +98,8 @@ public class DialogBuilder {
             builder.setTitle(title);
         }
         builder.setMessage(message);
-        builder.setPositiveButton(posBtn == null ? OK : posBtn, agreeListener);
-        builder.setNegativeButton(negBtn == null ? StringUtil.getStringResource(CANCEL, context) : negBtn, disagreeListener == null ? new OnClickListener() {
+        builder.setPositiveButton(posBtn == null ? context.getString(android.R.string.ok) : posBtn, agreeListener);
+        builder.setNegativeButton(negBtn == null ? context.getString(android.R.string.cancel) : negBtn, disagreeListener == null ? new OnClickListener() {
 
             public void onClick(DialogInterface dialog, int which) {
                 try {
@@ -139,7 +135,7 @@ public class DialogBuilder {
         }
         builder.setItems(optionsResource, listener);
 
-        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+        builder.setNegativeButton(context.getString(android.R.string.cancel), new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -161,7 +157,7 @@ public class DialogBuilder {
         AlertDialog.Builder builder = createBuilder(context);
         builder.setTitle(titleResource);
         builder.setItems(optionsResource, listener);
-        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+        builder.setNegativeButton(context.getString(android.R.string.cancel), new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -200,7 +196,7 @@ public class DialogBuilder {
         }
         builder.setSingleChoiceItems(stringArray, defaultOption, listener);
         if (StringUtil.isEmpty(closeButton)) {
-            closeButton = StringUtil.getStringResource("cancel", context);
+            closeButton = context.getString(android.R.string.cancel);
         }
         builder.setNegativeButton(closeButton, new OnClickListener() {
 
@@ -235,7 +231,7 @@ public class DialogBuilder {
                 defaultOption[which] = isChecked;
             }
         });
-        builder.setNegativeButton(StringUtil.getStringResource("cancel", context), new OnClickListener() {
+        builder.setNegativeButton(context.getString(android.R.string.cancel), new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -243,7 +239,7 @@ public class DialogBuilder {
             }
 
         });
-        builder.setPositiveButton(OK, new OnClickListener() {
+        builder.setPositiveButton(context.getString(android.R.string.ok), new OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -296,7 +292,7 @@ public class DialogBuilder {
                 }
             }
         })
-                .setNegativeButton(StringUtil.getStringResource("cancel", activity), new OnClickListener() {
+                .setNegativeButton(activity.getString(android.R.string.cancel), new OnClickListener() {
 
                     public void onClick(DialogInterface dialog, int whichButton) {
                         try {
