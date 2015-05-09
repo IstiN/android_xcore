@@ -129,11 +129,15 @@ public class DialogBuilder {
     }
 
     public static void options(final Context context, Integer titleResource, int optionsResource, final OnClickListener listener) {
+        options(context, titleResource, context.getResources().getStringArray(optionsResource), listener);
+    }
+
+    public static void options(final Context context, Integer titleResource, String[] options, final OnClickListener listener) {
         AlertDialog.Builder builder = createBuilder(context);
         if (titleResource != null) {
             builder.setTitle(titleResource);
         }
-        builder.setItems(optionsResource, listener);
+        builder.setItems(options, listener);
 
         builder.setNegativeButton(context.getString(android.R.string.cancel), new OnClickListener() {
 
