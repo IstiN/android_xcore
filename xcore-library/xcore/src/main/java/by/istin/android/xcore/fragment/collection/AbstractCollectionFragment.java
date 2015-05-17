@@ -421,7 +421,10 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             if (IS_CHECK_STATUS_LOG_ENABLED)
                 Log.d("empty_view", loader.isAbandoned() + " " + loader.isReset() + " " + loader.isStarted());
         }
-        swap(mAdapter, null);
+        CollectionViewAdapter adapter = this.mAdapter;
+        if (adapter != null) {
+            swap(adapter, null);
+        }
         checkStatus("onLoaderReset");
     }
 
