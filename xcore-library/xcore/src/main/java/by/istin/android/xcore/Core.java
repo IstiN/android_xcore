@@ -89,6 +89,13 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         private Core.SimpleDataSourceServiceListener mDataSourceServiceListener;
 
+        private Core mCore;
+
+        public ExecuteOperationBuilder(Core core) {
+            super();
+            mCore = core;
+        }
+
         public ExecuteOperationBuilder() {
 
         }
@@ -224,6 +231,14 @@ public class Core implements XCoreHelper.IAppServiceKey {
             this.mDataSourceServiceListener = dataSourceServiceListener;
             return this;
         }
+
+        public void execute() {
+            mCore.execute(build());
+        }
+
+        public void executeSync() throws Exception {
+            mCore.executeSync(build());
+        }
     }
 
     private final Context mContext;
@@ -242,6 +257,15 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
     public static Core get(Context context) {
         return (Core) AppUtils.get(context, APP_SERVICE_KEY);
+    }
+
+    public static <Result> ExecuteOperationBuilder<Result> with(Context context) {
+        Core core = get(context);
+        ExecuteOperationBuilder<Result> operationBuilder = new ExecuteOperationBuilder<>(core);
+        if (context instanceof Activity) {
+            operationBuilder.setActivity((Activity) context);
+        }
+        return operationBuilder;
     }
 
     public Object executeSync(final IExecuteOperation<?> executeOperation) throws Exception {
