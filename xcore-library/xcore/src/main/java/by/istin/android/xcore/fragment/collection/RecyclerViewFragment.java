@@ -82,7 +82,7 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
         collectionView.setLayoutManager(mLayoutManager);
         mItemAnimator = createItemAnimator();
         collectionView.setItemAnimator(mItemAnimator);
-        getCollectionView().setOnScrollListener(new RecyclerView.OnScrollListener() {
+        getCollectionView().addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
                 super.onScrollStateChanged(recyclerView, newState);
