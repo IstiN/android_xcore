@@ -115,6 +115,11 @@ public final class CursorUtils {
         }
     }
 
+    public static ContentValues cursorRowToContentValues(Cursor cursor) {
+        ContentValues contentValues = new ContentValues();
+        cursorRowToContentValues(cursor, contentValues);
+        return contentValues;
+    }
     /**
      * Read the entire contents of a cursor row and store them in a ContentValues.
      *

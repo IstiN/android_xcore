@@ -48,7 +48,7 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
         onViewItemCreated(containerItem);
         Cursor cursor = getItemAtPosition(position);
         if (cursor != null) {
-            init(containerItem, cursor);
+            init(containerItem, position, cursor);
         }
         container.addView(containerItem, 0);
         return containerItem;
@@ -70,7 +70,7 @@ public abstract class ViewPagerCursorAdapter extends PagerAdapter {
         return mResource;
     }
 
-    public abstract void init(View container, Cursor cursor);
+    public abstract void init(View container, int position, Cursor cursor);
 
 
     @Override
