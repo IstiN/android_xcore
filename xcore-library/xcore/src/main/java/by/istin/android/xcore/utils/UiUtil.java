@@ -21,6 +21,7 @@ import android.view.KeyCharacterMap;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowInsets;
 import android.view.WindowManager;
@@ -30,6 +31,7 @@ import android.widget.TextView;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.R;
+import by.istin.android.xcore.callable.ISuccess;
 
 /**
  * Class for converting px to the dp values, ellipsize text and else.
@@ -374,13 +376,16 @@ public class UiUtil {
         return (int) size;
     }
 
+    private static int sStatusBarHeight = 0;
+
     public static int getStatusBarHeight(Context context) {
-        int result = 0;
-        int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = context.getResources().getDimensionPixelSize(resourceId);
+        if (sStatusBarHeight == 0) {
+            int resourceId = context.getResources().getIdentifier("status_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                sStatusBarHeight = context.getResources().getDimensionPixelSize(resourceId);
+            }
         }
-        return result;
+        return sStatusBarHeight;
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -431,5 +436,23 @@ public class UiUtil {
         if (isMain) {
             throw new IllegalStateException("This is main UI thread, what are you doing there?");
         }
+    }
+
+    public static void waitViewHeight(final View view, final ISuccess<View> iSuccess) {
+        ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+        viewTreeObserver.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                ViewTreeObserver viewTreeObserver = view.getViewTreeObserver();
+                if (viewTreeObserver.isAlive()) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        viewTreeObserver.removeOnGlobalLayoutListener(this);
+                    } else {
+                        viewTreeObserver.removeGlobalOnLayoutListener(this);
+                    }
+                }
+                iSuccess.success(view);
+            }
+        });
     }
 }

@@ -129,6 +129,13 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
     }
 
     @Override
+    public void checkIfAdapterValid(RecyclerView recyclerView, CollectionAdapter collectionAdapter) {
+        if (recyclerView.getAdapter() == null || recyclerView.getAdapter() != collectionAdapter) {
+            recyclerView.setAdapter(collectionAdapter);
+        }
+    }
+
+    @Override
     protected int getAdapterCount(CollectionAdapter listAdapter) {
         if (listAdapter == null) {
             return 0;

@@ -162,6 +162,8 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
 
     public abstract void setAdapter(CollectionView collectionView, CollectionViewAdapter collectionViewAdapter);
 
+    public abstract void checkIfAdapterValid(CollectionView collectionView, CollectionViewAdapter collectionViewAdapter);
+
     public abstract void swap(CollectionViewAdapter collectionViewAdapter, Model cursor);
 
     protected abstract int getAdapterCount(CollectionViewAdapter listAdapter);
@@ -178,6 +180,7 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
             adapter = mAdapter;
             setAdapter(mCollectionView, adapter);
         } else {
+            checkIfAdapterValid(mCollectionView, adapter);
             swap(adapter, cursor);
         }
         //plugins

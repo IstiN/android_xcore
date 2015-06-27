@@ -1,5 +1,6 @@
 package by.istin.android.xcore.fragment.collection;
 
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;
@@ -96,6 +97,13 @@ public abstract class ListViewFragment<CollectionAdapter extends ListAdapter, Mo
     @Override
     public void setAdapter(ListView listView, CollectionAdapter collectionAdapter) {
         listView.setAdapter(collectionAdapter);
+    }
+
+    @Override
+    public void checkIfAdapterValid(ListView listView, CollectionAdapter collectionAdapter) {
+        if (listView.getAdapter() == null || listView.getAdapter() != collectionAdapter) {
+            listView.setAdapter(collectionAdapter);
+        }
     }
 
     @Override
