@@ -6,6 +6,7 @@ import java.io.IOException;
 
 import by.istin.android.xcore.source.DataSourceRequest;
 
+@Deprecated
 public interface IHttpRequestBuilder {
 
     HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException;

@@ -50,6 +50,7 @@ import by.istin.android.xcore.utils.UriUtils;
  *
  * @author Uladzimir_Klyshevich
  */
+@Deprecated
 public class HttpAndroidDataSource implements IDataSource<InputStream> {
 
     public static final String SYSTEM_SERVICE_KEY = "xcore:httpdatasource";

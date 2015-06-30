@@ -17,6 +17,7 @@ import by.istin.android.xcore.utils.Log;
 /**
  * Created by Uladzimir_Klyshevich on 6/2/2014.
  */
+@Deprecated
 public class InputStreamHttpClientHelper {
 
     private String mUserAgent;
