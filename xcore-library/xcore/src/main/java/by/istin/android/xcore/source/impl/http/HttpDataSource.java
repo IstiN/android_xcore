@@ -217,18 +217,19 @@ public class HttpDataSource implements IDataSource<InputStream> {
     }
 
     public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) throws IllegalStateException, IOException {
-        request.accept(ACCEPT_DEFAULT_VALUE);
-        request.header(USER_AGENT_KEY, sUserAgent);
-        request.acceptGzipEncoding();
-        request.followRedirects(true);
-        request.ignoreCloseExceptions();
-        request.uncompress(true);
-        //AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-        Log.xd(this, request);
-        mRequestBuilder.postCreate(dataSourceRequest, request, isCached);
-        //HttpClient client = null;
-        //try {
-           // client = mInputStreamHelper.getClient();
+        try {
+            request.accept(ACCEPT_DEFAULT_VALUE);
+            request.header(USER_AGENT_KEY, sUserAgent);
+            request.acceptGzipEncoding();
+            request.followRedirects(true);
+            request.ignoreCloseExceptions();
+            request.uncompress(true);
+            //AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
+            Log.xd(this, request);
+            mRequestBuilder.postCreate(dataSourceRequest, request, isCached);
+            //HttpClient client = null;
+            //try {
+            // client = mInputStreamHelper.getClient();
             //HttpResponse response = client.execute(request);
             //int statusCode = response.getStatusLine().getStatusCode();
             /*boolean isRedirect = isRedirect(statusCode);
@@ -251,9 +252,12 @@ public class HttpDataSource implements IDataSource<InputStream> {
             //InputStream ungzippedContent = AndroidHttpClient.getUngzippedContent(httpEntity);
 
             return request.stream();
-        //} finally {
-          //  mInputStreamHelper.releaseClient(client);
-        //}
+            //} finally {
+            //  mInputStreamHelper.releaseClient(client);
+            //}
+        } catch (HttpRequest.HttpRequestException ex) {
+            throw ex.getCause();
+        }
     }
 
    /* protected InputStream createRedirectRequest(DataSourceRequest dataSourceRequest, HttpUriRequest request, HttpResponse response, String value, Holder<Boolean> isCached) throws IOException {
