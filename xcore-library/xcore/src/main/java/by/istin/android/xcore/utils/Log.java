@@ -165,8 +165,9 @@ public final class Log {
     public static long endAction(String actionName, boolean isCheckLevel) {
         long resultTime = 0l;
         if (sIsDebug || isCheckLevel) {
-            if (sActionStorage.get(actionName) != null) {
-                resultTime = System.currentTimeMillis() - sActionStorage.get(actionName);
+            Long startTime = sActionStorage.get(actionName);
+            if (startTime != null) {
+                resultTime = System.currentTimeMillis() - startTime;
                 d(TIME_ACTION, actionName + ":" + resultTime);
             }
             sActionStorage.remove(actionName);
