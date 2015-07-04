@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.app.LoaderManager.LoaderCallbacks;
+import android.support.v4.content.Loader;
 
 import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.model.XCursorModelLoader;
@@ -56,8 +57,8 @@ public class CursorLoaderFragmentHelper {
         return loader;
     }
 
-    public static boolean restartLoader(ICursorLoaderFragmentHelper cursorLoaderFragment) {
-        if (cursorLoaderFragment.getUri() != null) {
+    public static boolean restartLoader(final ICursorLoaderFragmentHelper cursorLoaderFragment) {
+        if (cursorLoaderFragment.getUri() != null && cursorLoaderFragment.getActivity() != null) {
             LoaderManager lm = cursorLoaderFragment.getSupportLoaderManager();
             Log.xd(cursorLoaderFragment, lm);
             if (lm == null) {
