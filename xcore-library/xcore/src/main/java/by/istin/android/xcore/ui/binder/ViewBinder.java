@@ -1,14 +1,12 @@
-package by.istin.android.xcore.ui;
+package by.istin.android.xcore.ui.binder;
 
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.support.annotation.NonNull;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import by.istin.android.xcore.image.ImageService;
-import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.StringUtil;
 
 /**
@@ -18,59 +16,43 @@ public class ViewBinder {
 
     private View mRoot;
 
-    private IData mData;
+    private Binder.IData mData;
 
     private final ImageService mImageService;
 
-    public interface IData {
-        String getValue(String key);
-    }
-
-    public ViewBinder(View root) {
+    ViewBinder(View root) {
         mRoot = root;
         mImageService = ImageService.get(mRoot.getContext());
     }
 
-    public ViewBinder(View root, IData data) {
+    ViewBinder(View root, Binder.IData data) {
         this(root);
         mData = data;
     }
 
-    public ViewBinder(View root, final Cursor cursor) {
-        this(root, getData(cursor));
+    ViewBinder(View root, final Cursor cursor) {
+        this(root, Binder.getData(cursor));
     }
 
-    public ViewBinder(View root, final ContentValues contentValues) {
-        this(root, getData(contentValues));
+    ViewBinder(View root, final ContentValues contentValues) {
+        this(root, Binder.getData(contentValues));
     }
 
-    @NonNull
-    public static IData getData(final Cursor cursor) {
-        return new IData() {
-            @Override
-            public String getValue(String key) {
-                return CursorUtils.getString(key, cursor);
-            }
-        };
-    }
-
-    @NonNull
-    public static IData getData(final ContentValues contentValues) {
-        return new IData() {
-            @Override
-            public String getValue(String key) {
-                return contentValues.getAsString(key);
-            }
-        };
-    }
-
-    public ViewBinder setData(Cursor cursor) {
-        mData = getData(cursor);
+    public ViewBinder view(View root) {
+        mRoot = root;
         return this;
     }
 
-    public ViewBinder setData(ContentValues contentValues) {
-        mData = getData(contentValues);
+    public ViewBinder data(Cursor cursor) {
+        return data(Binder.getData(cursor));
+    }
+
+    public ViewBinder data(ContentValues contentValues) {
+        return data(Binder.getData(contentValues));
+    }
+
+    public ViewBinder data(Binder.IData data) {
+        mData = data;
         return this;
     }
 
