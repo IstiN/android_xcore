@@ -21,6 +21,7 @@ import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.Holder;
 
 /**
  * Created by IstiN on 14.8.13.
@@ -28,6 +29,12 @@ import by.istin.android.xcore.utils.CursorUtils;
 public class Core implements XCoreHelper.IAppServiceKey {
 
     public static final String APP_SERVICE_KEY = "xcore:common:core";
+
+    public static interface ICursorConverter<Result> {
+
+        Result convert(Cursor source, IExecuteOperation executeOperation);
+
+    }
 
     public static abstract class SimpleDataSourceServiceListener {
 
@@ -57,6 +64,12 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         Uri getResultQueryUri();
 
+        String getSelection();
+
+        String getOrder();
+
+        String[] getProjection();
+
         String[] getSelectionArgs();
 
         Activity getActivity();
@@ -67,6 +80,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
         SimpleDataSourceServiceListener getDataSourceListener();
 
+        ICursorConverter<Result> getCursorConverter();
     }
 
     public static class ExecuteOperationBuilder<Result> {
@@ -84,6 +98,14 @@ public class Core implements XCoreHelper.IAppServiceKey {
         private ISuccess<Result> mSuccess;
 
         private String[] mSelectionArgs;
+
+        private String mSelection;
+
+        private String mOrder;
+
+        private String[] mProjection;
+
+        private ICursorConverter<Result> mCursorConverter;
 
         private CursorModel.CursorModelCreator mCursorModelCreator;
 
@@ -110,6 +132,10 @@ public class Core implements XCoreHelper.IAppServiceKey {
             mSelectionArgs = executeOperation.getSelectionArgs();
             mCursorModelCreator = executeOperation.getCursorModelCreator();
             mDataSourceServiceListener = executeOperation.getDataSourceListener();
+            mProjection = executeOperation.getProjection();
+            mSelection = executeOperation.getSelection();
+            mOrder = executeOperation.getOrder();
+            mCursorConverter = executeOperation.getCursorConverter();
         }
 
         public ExecuteOperationBuilder(FragmentActivity activity, XListFragment fragment) {
@@ -122,37 +148,37 @@ public class Core implements XCoreHelper.IAppServiceKey {
                     .setDataSourceRequest(fragment.createDataSourceRequest(fragment.getUrl(), fragment.isForceUpdateData(), null));
         }
 
-        public ExecuteOperationBuilder setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
+        public ExecuteOperationBuilder<Result> setDataSourceRequest(DataSourceRequest pDataSourceRequest) {
             this.mDataSourceRequest = pDataSourceRequest;
             return this;
         }
 
-        public ExecuteOperationBuilder setProcessorKey(String pProcessorKey) {
+        public ExecuteOperationBuilder<Result> setProcessorKey(String pProcessorKey) {
             this.mProcessorKey = pProcessorKey;
             return this;
         }
 
-        public ExecuteOperationBuilder setDataSourceKey(String pDataSourceKey) {
+        public ExecuteOperationBuilder<Result> setDataSourceKey(String pDataSourceKey) {
             this.mDataSourceKey = pDataSourceKey;
             return this;
         }
 
-        public ExecuteOperationBuilder setResultQueryUri(Uri pResultQueryUri) {
+        public ExecuteOperationBuilder<Result> setResultQueryUri(Uri pResultQueryUri) {
             this.mResultQueryUri = pResultQueryUri;
             return this;
         }
 
-        public ExecuteOperationBuilder setActivity(Activity pActivity) {
+        public ExecuteOperationBuilder<Result> setActivity(Activity pActivity) {
             this.mActivity = pActivity;
             return this;
         }
 
-        public ExecuteOperationBuilder setSuccess(ISuccess<Result> pSuccess) {
+        public ExecuteOperationBuilder<Result> setSuccess(ISuccess<Result> pSuccess) {
             this.mSuccess = pSuccess;
             return this;
         }
 
-        public ExecuteOperationBuilder setSelectionArgs(String[] selectionArgs) {
+        public ExecuteOperationBuilder<Result> setSelectionArgs(String[] selectionArgs) {
             if (selectionArgs != null) {
                 this.mSelectionArgs = selectionArgs.clone();
             } else {
@@ -161,8 +187,31 @@ public class Core implements XCoreHelper.IAppServiceKey {
             return this;
         }
 
-        public IExecuteOperation<Result> build() {
+        public ExecuteOperationBuilder<Result> setSelection(String selection) {
+            this.mSelection = selection;
+            return this;
+        }
 
+        public ExecuteOperationBuilder<Result> setOrder(String order) {
+            this.mOrder = order;
+            return this;
+        }
+
+        public ExecuteOperationBuilder<Result> setCursorConverter(ICursorConverter<Result> cursorConverter) {
+            this.mCursorConverter = cursorConverter;
+            return this;
+        }
+
+        public ExecuteOperationBuilder<Result> setProjection(String[] projection) {
+            if (projection != null) {
+                this.mProjection = projection.clone();
+            } else {
+                this.mProjection = null;
+            }
+            return this;
+        }
+
+        public IExecuteOperation<Result> build() {
             return new IExecuteOperation<Result>() {
                 @Override
                 public DataSourceRequest getDataSourceRequest() {
@@ -182,6 +231,21 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 @Override
                 public Uri getResultQueryUri() {
                     return mResultQueryUri;
+                }
+
+                @Override
+                public String getSelection() {
+                    return mSelection;
+                }
+
+                @Override
+                public String getOrder() {
+                    return mOrder;
+                }
+
+                @Override
+                public String[] getProjection() {
+                    return mProjection;
                 }
 
                 @Override
@@ -208,26 +272,31 @@ public class Core implements XCoreHelper.IAppServiceKey {
                 public SimpleDataSourceServiceListener getDataSourceListener() {
                     return mDataSourceServiceListener;
                 }
+
+                @Override
+                public ICursorConverter<Result> getCursorConverter() {
+                    return mCursorConverter;
+                }
             };
         }
 
-        public ExecuteOperationBuilder setResultSqlQuery(String resultSqlQuery) {
+        public ExecuteOperationBuilder<Result> setResultSqlQuery(String resultSqlQuery) {
             setResultQueryUri(ModelContract.getSQLQueryUri(resultSqlQuery, null));
             return this;
         }
 
-        public ExecuteOperationBuilder setResultSqlQuery(String resultSqlQuery, String[] args) {
+        public ExecuteOperationBuilder<Result> setResultSqlQuery(String resultSqlQuery, String[] args) {
             setResultSqlQuery(resultSqlQuery);
             setSelectionArgs(args);
             return this;
         }
 
-        public ExecuteOperationBuilder setCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
+        public ExecuteOperationBuilder<Result> setCursorModelCreator(CursorModel.CursorModelCreator cursorModelCreator) {
             this.mCursorModelCreator = cursorModelCreator;
             return this;
         }
 
-        public ExecuteOperationBuilder setDataSourceServiceListener(SimpleDataSourceServiceListener dataSourceServiceListener) {
+        public ExecuteOperationBuilder<Result> setDataSourceServiceListener(SimpleDataSourceServiceListener dataSourceServiceListener) {
             this.mDataSourceServiceListener = dataSourceServiceListener;
             return this;
         }
@@ -280,14 +349,14 @@ public class Core implements XCoreHelper.IAppServiceKey {
             }
             final Uri uri = executeOperation.getResultQueryUri();
             if (uri == null) {
-                sendResult(bundle, result, executeOperation, false);
+                sendResult(bundle, result, executeOperation, false, false);
                 return result;
             }
             final Cursor cursor = mContext.getContentResolver().query(uri, null, null, executeOperation.getSelectionArgs(), null);
             if (cursor != null) {
                 cursor.getCount();
             }
-            if (!sendResult(bundle, cursor, executeOperation, false)) {
+            if (!sendResult(bundle, cursor, executeOperation, false, false)) {
                 CursorUtils.close(cursor);
             }
             return result;
@@ -310,23 +379,39 @@ public class Core implements XCoreHelper.IAppServiceKey {
 
             @Override
             public void onDone(final Bundle resultData) {
+                proceed(resultData, executeOperation, false);
+            }
+
+            private void proceed(final Bundle resultData, final IExecuteOperation executeOperation, final boolean isCached) {
                 final Uri uri = executeOperation.getResultQueryUri();
                 if (uri == null) {
-                    if (dataSourceListener != null) {
-                        dataSourceListener.onDone(resultData);
+                    if (!sendResult(resultData, resultData.get(StatusResultReceiver.RESULT_KEY), executeOperation, true, isCached)) {
+                        if (dataSourceListener != null) {
+                            if (isCached) {
+                                dataSourceListener.onCached(resultData);
+                            } else {
+                                dataSourceListener.onDone(resultData);
+                            }
+                        }
                     }
-                    sendResult(resultData, resultData.get(StatusResultReceiver.RESULT_KEY), executeOperation, true);
                     return;
                 }
                 mExecutor.execute(new Runnable() {
                     @Override
                     public void run() {
-                        final Cursor cursor = mContext.getContentResolver().query(uri, null, null, executeOperation.getSelectionArgs(), null);
+                        final Cursor cursor = mContext.getContentResolver().query(uri, executeOperation.getProjection(), executeOperation.getSelection(), executeOperation.getSelectionArgs(), executeOperation.getOrder());
                         if (cursor != null) {
                             cursor.getCount();
                         }
-                        if (!sendResult(resultData, cursor, executeOperation, true)) {
+                        if (!sendResult(resultData, cursor, executeOperation, true, isCached)) {
                             CursorUtils.close(cursor);
+                            if (dataSourceListener != null) {
+                                if (isCached) {
+                                    dataSourceListener.onCached(resultData);
+                                } else {
+                                    dataSourceListener.onDone(resultData);
+                                }
+                            }
                         }
                     }
                 });
@@ -335,10 +420,7 @@ public class Core implements XCoreHelper.IAppServiceKey {
             @Override
             protected void onCached(Bundle resultData) {
                 super.onCached(resultData);
-                if (dataSourceListener != null) {
-                    dataSourceListener.onCached(resultData);
-                }
-                //onDone(resultData);
+                proceed(resultData, executeOperation, true);
             }
 
             @Override
@@ -361,19 +443,37 @@ public class Core implements XCoreHelper.IAppServiceKey {
         }
     }
 
-    private boolean sendResult(final Bundle resultData, final Object result, final IExecuteOperation<?> executeOperation, boolean inHandler) {
+    private boolean sendResult(final Bundle resultData, Object result, final IExecuteOperation<?> executeOperation, boolean inHandler, final boolean isCached) {
+        final Holder<Object> resultHolder = new Holder<>(result);
+        if (result instanceof Cursor) {
+            CursorModel.CursorModelCreator cursorModelCreator = executeOperation.getCursorModelCreator();
+            ICursorConverter cursorConverter = executeOperation.getCursorConverter();
+            if (cursorModelCreator != null) {
+                CursorModel cursorModel = cursorModelCreator.create((Cursor) result);
+                cursorModel.doInBackground(ContextHolder.get());
+                if (cursorConverter != null) {
+                    resultHolder.set(cursorConverter.convert(cursorModel, executeOperation));
+                    CursorUtils.close(cursorModel);
+                } else {
+                    resultHolder.set(cursorModel);
+                }
+            } else if (cursorConverter != null) {
+                resultHolder.set(cursorConverter.convert((Cursor) result, executeOperation));
+                CursorUtils.close((Cursor) result);
+            }
+        }
         final ISuccess success = executeOperation.getSuccess();
         if (success != null) {
             Runnable runnable = new Runnable() {
                 @Override
                 public void run() {
-                    Core.this.sendResult(executeOperation, result, success, resultData);
+                    Core.this.sendResult(executeOperation, resultHolder.get(), success, resultData, isCached);
                 }
             };
             if (inHandler) {
                 mHandler.post(runnable);
             } else {
-                Core.this.sendResult(executeOperation, result, success, resultData);
+                Core.this.sendResult(executeOperation, resultHolder.get(), success, resultData, isCached);
             }
             return true;
         } else {
@@ -381,18 +481,15 @@ public class Core implements XCoreHelper.IAppServiceKey {
         }
     }
 
-    private void sendResult(IExecuteOperation<?> executeOperation, Object result, ISuccess success, Bundle resultData) {
-        CursorModel.CursorModelCreator cursorModelCreator = executeOperation.getCursorModelCreator();
-        if (cursorModelCreator != null && result instanceof Cursor) {
-            CursorModel cursorModel = cursorModelCreator.create((Cursor) result);
-            cursorModel.doInBackground(ContextHolder.get());
-            success.success(cursorModel);
-        } else {
-            success.success(result);
-        }
+    private void sendResult(IExecuteOperation<?> executeOperation, Object result, ISuccess success, Bundle resultData, boolean isCached) {
+        success.success(result);
         SimpleDataSourceServiceListener dataSourceListener = executeOperation.getDataSourceListener();
         if (dataSourceListener != null) {
-            dataSourceListener.onDone(resultData);
+            if (isCached) {
+                dataSourceListener.onCached(resultData);
+            } else {
+                dataSourceListener.onDone(resultData);
+            }
         }
     }
 
