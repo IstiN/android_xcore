@@ -58,10 +58,8 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
         if (writableDatabase != null) {
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1 && !UiUtil.hasJellyBean()) {
                 writableDatabase.setLockingEnabled(false);
-            }
-            if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
                 writableDatabase.enableWriteAheadLogging();
             }
         }
@@ -71,12 +69,9 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     @Override
     public SQLiteDatabase getReadableDatabase() {
         SQLiteDatabase readableDatabase = super.getReadableDatabase();
-        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.ECLAIR_MR1 && Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN) {
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1 && !UiUtil.hasJellyBean()) {
             readableDatabase.setLockingEnabled(false);
         }
-        /*if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1) {
-            readableDatabase.enableWriteAheadLogging();
-        }*/
         return readableDatabase;
     }
 
