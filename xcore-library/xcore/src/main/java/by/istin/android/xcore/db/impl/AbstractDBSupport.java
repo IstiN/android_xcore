@@ -9,9 +9,11 @@ import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.db.IDBSupport;
 import by.istin.android.xcore.db.entity.IBeforeArrayUpdate;
 import by.istin.android.xcore.db.operation.IDBBatchOperationSupport;
+import by.istin.android.xcore.preference.PreferenceHelper;
 import by.istin.android.xcore.source.DataSourceRequest;
 import by.istin.android.xcore.source.DataSourceRequestEntity;
 import by.istin.android.xcore.source.SyncDataSourceRequestEntity;
+import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.ReflectUtils;
 
 /**
@@ -21,6 +23,8 @@ import by.istin.android.xcore.utils.ReflectUtils;
  */
 public abstract class AbstractDBSupport implements IDBSupport {
 
+    public static final String PREF_KEY_DB_VERSION_CODE = "db_vc";
+    public static final String PREF_KEY_DB_VERSION_NAME = "db_vn";
     //we need only one instance of helper
     private DBHelper mDbHelper;
 
@@ -49,8 +53,34 @@ public abstract class AbstractDBSupport implements IDBSupport {
     }
 
     private void initTables() {
-        mDbHelper.createTablesForModels(mEntities);
+        if (Log.isDebug() || isVersionChanged()) {
+            mDbHelper.createTablesForModels(mEntities);
+            updateDbVersion(Log.getVersionCode(), Log.getVersionName());
+            Log.d("DBSupport", "db upgraded");
+        }
         isInit = true;
+    }
+
+    private boolean isVersionChanged() {
+        int versionCode = Log.getVersionCode();
+        String versionName = Log.getVersionName();
+        int dbVc = PreferenceHelper.getInt(PREF_KEY_DB_VERSION_CODE+mName, -1);
+        if (dbVc == -1 || dbVc != versionCode) {
+            updateDbVersion(versionCode, versionName);
+            return true;
+        }
+        String dbVersionName = PreferenceHelper.getString(PREF_KEY_DB_VERSION_NAME+mName, null);
+        if (dbVersionName == null || !dbVersionName.equals(versionName)) {
+            updateDbVersion(versionCode, versionName);
+            return true;
+        }
+        Log.d("DBSupport", "version is not changed " + dbVc + " " + versionCode + " " + dbVersionName + " " + versionName);
+        return false;
+    }
+
+    private void updateDbVersion(int pVersionCode, String pVersionName) {
+        PreferenceHelper.set(PREF_KEY_DB_VERSION_CODE+mName, pVersionCode);
+        PreferenceHelper.set(PREF_KEY_DB_VERSION_NAME+mName, pVersionName);
     }
 
     @Override

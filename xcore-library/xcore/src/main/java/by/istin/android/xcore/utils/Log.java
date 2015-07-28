@@ -24,6 +24,10 @@ public final class Log {
 
     private static boolean sIsDebug = false;
 
+    private static int sVersionCode;
+
+    private static String sVersionName;
+
     /**
      * Map for store action and start time of these actions.
      */
@@ -37,6 +41,14 @@ public final class Log {
         return sIsDebug;
     }
 
+    public static int getVersionCode() {
+        return sVersionCode;
+    }
+
+    public static String getVersionName() {
+        return sVersionName;
+    }
+
     public static synchronized void init(Context context, Class<?> clazz) {
         if (clazz == null) {
             String packageName = context.getPackageName();
@@ -45,6 +57,8 @@ public final class Log {
         try {
             Field debug = clazz.getField("DEBUG");
             sIsDebug = (boolean) debug.get(null);
+            sVersionCode = (int) clazz.getField("VERSION_CODE").get(null);
+            sVersionName = (String) clazz.getField("VERSION_NAME").get(null);
         } catch (Exception e) {
             throw new IllegalStateException(e);
         }
