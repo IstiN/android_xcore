@@ -57,6 +57,7 @@ public class SQLiteConnector extends SQLiteOpenHelper implements IDBConnector {
     @Override
     public SQLiteDatabase getWritableDatabase() {
         SQLiteDatabase writableDatabase = super.getWritableDatabase();
+
         if (writableDatabase != null) {
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.GINGERBREAD_MR1 && !UiUtil.hasJellyBean()) {
                 writableDatabase.setLockingEnabled(false);
