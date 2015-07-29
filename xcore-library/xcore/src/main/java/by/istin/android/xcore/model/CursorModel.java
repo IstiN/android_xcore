@@ -155,16 +155,6 @@ public class CursorModel implements Cursor, List<Cursor> {
     }
 
     @Override
-    public byte[] getBlob(int i) {
-        return mCursor.getBlob(i);
-    }
-
-    @Override
-    public String getString(int i) {
-        return mCursor.getString(i);
-    }
-
-    @Override
     public void copyStringToBuffer(int i, CharArrayBuffer charArrayBuffer) {
         mCursor.copyStringToBuffer(i, charArrayBuffer);
     }
@@ -187,6 +177,16 @@ public class CursorModel implements Cursor, List<Cursor> {
                 mCursors.add(oldCursor);
             }
         }
+    }
+
+    @Override
+    public byte[] getBlob(int i) {
+        return mCursor.getBlob(i);
+    }
+
+    @Override
+    public String getString(int i) {
+        return mCursor.getString(i);
     }
 
     @Override
@@ -339,6 +339,39 @@ public class CursorModel implements Cursor, List<Cursor> {
     public String getString(String key) {
         return CursorUtils.getString(key, mCursor);
     }
+
+    public Long getAsLong(String key) {
+        return CursorUtils.getLong(key, mCursor);
+    }
+
+    public byte[] getAsBlob(String key) {
+        return CursorUtils.getBlob(key, mCursor);
+    }
+
+    public Integer getAsInt(String key) {
+        return CursorUtils.getInt(key, mCursor);
+    }
+
+    public Byte getAsByte(String key) {
+        return CursorUtils.getByte(key, mCursor);
+    }
+
+    public Double getAsDouble(String key) {
+        return CursorUtils.getDouble(key, mCursor);
+    }
+
+    public Float getAsFloat(String key) {
+        return CursorUtils.getFloat(key, mCursor);
+    }
+
+    public Short getAsShort(String key) {
+        return CursorUtils.getShort(key, mCursor);
+    }
+
+    public String getAsString(String key) {
+        return CursorUtils.getString(key, mCursor);
+    }
+
 
     @Override
     public boolean add(Cursor object) {
