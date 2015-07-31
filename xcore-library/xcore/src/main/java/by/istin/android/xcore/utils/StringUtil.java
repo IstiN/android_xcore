@@ -6,7 +6,6 @@ import android.text.Html;
 import android.text.Spanned;
 import android.text.TextUtils;
 
-
 import com.google.common.internal.net.PercentEscaper;
 
 import org.apache.commons.codec.internal.DecoderException;
@@ -14,12 +13,11 @@ import org.apache.commons.codec.internal.net.URLCodec;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import by.istin.android.xcore.ContextHolder;
 
@@ -64,7 +62,7 @@ public final class StringUtil {
      */
     private static final HashMap<String, String> htmlEntities;
 
-    private static final HashMap<String, String> russianAlternative;
+    private static final ConcurrentHashMap<Character, String> russianAlternative;
 
     static {
         htmlEntities = new HashMap<String, String>();
@@ -112,71 +110,71 @@ public final class StringUtil {
         htmlEntities.put("&reg;", "\u00ae");
         htmlEntities.put("&euro;", "\u20a0");
 
-        russianAlternative = new HashMap<String, String>();
-        russianAlternative.put("а", "a");
-        russianAlternative.put("б", "b");
-        russianAlternative.put("в", "v");
-        russianAlternative.put("г", "g");
-        russianAlternative.put("д", "d");
-        russianAlternative.put("е", "e");
-        russianAlternative.put("ж", "zh");
-        russianAlternative.put("з", "z");
-        russianAlternative.put("и", "i");
-        russianAlternative.put("й", "y");
-        russianAlternative.put("к", "k");
-        russianAlternative.put("л", "l");
-        russianAlternative.put("м", "m");
-        russianAlternative.put("н", "n");
-        russianAlternative.put("о", "o");
-        russianAlternative.put("п", "p");
-        russianAlternative.put("р", "r");
-        russianAlternative.put("с", "s");
-        russianAlternative.put("т", "t");
-        russianAlternative.put("у", "u");
-        russianAlternative.put("ф", "f");
-        russianAlternative.put("х", "h");
-        russianAlternative.put("ц", "ts");
-        russianAlternative.put("ч", "ch");
-        russianAlternative.put("ш", "sh");
-        russianAlternative.put("щ", "sht");
-        russianAlternative.put("ы", "y");
-        russianAlternative.put("ь", "y");
-        russianAlternative.put("ъ", "a");
-        russianAlternative.put("э", "e");
-        russianAlternative.put("ю", "yu");
-        russianAlternative.put("я", "ya");
-        russianAlternative.put("А", "A");
-        russianAlternative.put("Б", "B");
-        russianAlternative.put("В", "V");
-        russianAlternative.put("Г", "G");
-        russianAlternative.put("Д", "D");
-        russianAlternative.put("Е", "E");
-        russianAlternative.put("Ж", "Zh");
-        russianAlternative.put("З", "Z");
-        russianAlternative.put("И", "I");
-        russianAlternative.put("Й", "Y");
-        russianAlternative.put("К", "K");
-        russianAlternative.put("Л", "L");
-        russianAlternative.put("М", "M");
-        russianAlternative.put("Н", "N");
-        russianAlternative.put("О", "O");
-        russianAlternative.put("П", "P");
-        russianAlternative.put("Р", "R");
-        russianAlternative.put("С", "S");
-        russianAlternative.put("Т", "T");
-        russianAlternative.put("У", "U");
-        russianAlternative.put("Ф", "F");
-        russianAlternative.put("Х", "H");
-        russianAlternative.put("Ц", "Ts");
-        russianAlternative.put("Ч", "Ch");
-        russianAlternative.put("Ш", "Sh");
-        russianAlternative.put("Щ", "Sht");
-        russianAlternative.put("Ы", "Y");
-        russianAlternative.put("Ь", "Y");
-        russianAlternative.put("Ъ", "A");
-        russianAlternative.put("Э", "E");
-        russianAlternative.put("Ю", "Yu");
-        russianAlternative.put("Я", "Ya");
+        russianAlternative = new ConcurrentHashMap<>();
+        russianAlternative.put('а', "a");
+        russianAlternative.put('б', "b");
+        russianAlternative.put('в', "v");
+        russianAlternative.put('г', "g");
+        russianAlternative.put('д', "d");
+        russianAlternative.put('е', "e");
+        russianAlternative.put('ж', "zh");
+        russianAlternative.put('з', "z");
+        russianAlternative.put('и', "i");
+        russianAlternative.put('й', "y");
+        russianAlternative.put('к', "k");
+        russianAlternative.put('л', "l");
+        russianAlternative.put('м', "m");
+        russianAlternative.put('н', "n");
+        russianAlternative.put('о', "o");
+        russianAlternative.put('п', "p");
+        russianAlternative.put('р', "r");
+        russianAlternative.put('с', "s");
+        russianAlternative.put('т', "t");
+        russianAlternative.put('у', "u");
+        russianAlternative.put('ф', "f");
+        russianAlternative.put('х', "h");
+        russianAlternative.put('ц', "ts");
+        russianAlternative.put('ч', "ch");
+        russianAlternative.put('ш', "sh");
+        russianAlternative.put('щ', "sht");
+        russianAlternative.put('ы', "y");
+        russianAlternative.put('ь', "y");
+        russianAlternative.put('ъ', "a");
+        russianAlternative.put('э', "e");
+        russianAlternative.put('ю', "yu");
+        russianAlternative.put('я', "ya");
+        russianAlternative.put('А', "A");
+        russianAlternative.put('Б', "B");
+        russianAlternative.put('В', "V");
+        russianAlternative.put('Г', "G");
+        russianAlternative.put('Д', "D");
+        russianAlternative.put('Е', "E");
+        russianAlternative.put('Ж', "Zh");
+        russianAlternative.put('З', "Z");
+        russianAlternative.put('И', "I");
+        russianAlternative.put('Й', "Y");
+        russianAlternative.put('К', "K");
+        russianAlternative.put('Л', "L");
+        russianAlternative.put('М', "M");
+        russianAlternative.put('Н', "N");
+        russianAlternative.put('О', "O");
+        russianAlternative.put('П', "P");
+        russianAlternative.put('Р', "R");
+        russianAlternative.put('С', "S");
+        russianAlternative.put('Т', "T");
+        russianAlternative.put('У', "U");
+        russianAlternative.put('Ф', "F");
+        russianAlternative.put('Х', "H");
+        russianAlternative.put('Ц', "Ts");
+        russianAlternative.put('Ч', "Ch");
+        russianAlternative.put('Ш', "Sh");
+        russianAlternative.put('Щ', "Sht");
+        russianAlternative.put('Ы', "Y");
+        russianAlternative.put('Ь', "Y");
+        russianAlternative.put('Ъ', "A");
+        russianAlternative.put('Э', "E");
+        russianAlternative.put('Ю', "Yu");
+        russianAlternative.put('Я', "Ya");
     }
 
     /**
@@ -218,11 +216,25 @@ public final class StringUtil {
      * @return translited value
      */
     public static String translit(String source) {
-        Set<String> keySet = russianAlternative.keySet();
-        for (String key : keySet) {
-            source = source.replaceAll(key, russianAlternative.get(key));
+        if (isEmpty(source)) {
+            return source;
         }
-        return source;
+        int length = source.length();
+        StringBuilder stringBuilder = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            char c = source.charAt(i);
+            if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z')) {
+                stringBuilder.append(c);
+            } else {
+                String s = russianAlternative.get(c);
+                if (s != null) {
+                    stringBuilder.append(s);
+                } else {
+                    stringBuilder.append(c);
+                }
+            }
+        }
+        return stringBuilder.toString();
     }
 
     /**

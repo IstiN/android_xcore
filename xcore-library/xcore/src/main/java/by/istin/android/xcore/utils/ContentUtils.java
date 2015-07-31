@@ -1,6 +1,7 @@
 package by.istin.android.xcore.utils;
 
 import android.annotation.TargetApi;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -35,7 +36,7 @@ public class ContentUtils {
         Cursor entityCursor = null;
         ContentValues values = null;
         try {
-            entityCursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, null);
+            entityCursor = getContentResolver(context).query(uri, projection, selection, selectionArgs, null);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 values = new ContentValues();
                 DatabaseUtils.cursorRowToContentValues(entityCursor, values);
@@ -48,7 +49,7 @@ public class ContentUtils {
 
     public static void putEntity(Context context, Class<?> entityClass, ContentValues entity) {
         UiUtil.checkMain();
-        context.getContentResolver().insert(ModelContract.getUri(entityClass), entity);
+        getContentResolver(context).insert(ModelContract.getUri(entityClass), entity);
     }
 
     public static void putEntities(Context context, Class<?> entityClass, List<ContentValues> entities) {
@@ -58,7 +59,11 @@ public class ContentUtils {
 
     public static void putEntities(Context context, Class<?> entityClass, ContentValues... entity) {
         UiUtil.checkMain();
-        context.getContentResolver().bulkInsert(ModelContract.getUri(entityClass), entity);
+        getContentResolver(context).bulkInsert(ModelContract.getUri(entityClass), entity);
+    }
+
+    private static ContentResolver getContentResolver(Context context) {
+        return context.getContentResolver();
     }
 
     public static void removeEntity(Context context, Class<?> entityClass, long id) {
@@ -73,7 +78,7 @@ public class ContentUtils {
 
     public static void removeEntities(Context context, Uri uri, String where, String[] selectionArgs) {
         UiUtil.checkMain();
-        context.getContentResolver().delete(uri, where, selectionArgs);
+        getContentResolver(context).delete(uri, where, selectionArgs);
     }
 
     public static ContentValues getEntity(Context context, Class<?> entityClass, String selection, String... selectionArgs) {
@@ -107,7 +112,7 @@ public class ContentUtils {
         Cursor entityCursor = null;
         List<ContentValues> result = null;
         try {
-            entityCursor = context.getContentResolver().query(uri, projection, selection, selectionArgs, sortOrder);
+            entityCursor = getContentResolver(context).query(uri, projection, selection, selectionArgs, sortOrder);
             if (!CursorUtils.isEmpty(entityCursor) && entityCursor.moveToFirst()) {
                 result = new ArrayList<>();
                 CursorUtils.convertToContentValuesAndClose(entityCursor, result);
