@@ -117,6 +117,7 @@ public final class StringUtil {
         russianAlternative.put('г', "g");
         russianAlternative.put('д', "d");
         russianAlternative.put('е', "e");
+        russianAlternative.put('ё', "e");
         russianAlternative.put('ж', "zh");
         russianAlternative.put('з', "z");
         russianAlternative.put('и', "i");
@@ -149,6 +150,7 @@ public final class StringUtil {
         russianAlternative.put('Г', "G");
         russianAlternative.put('Д', "D");
         russianAlternative.put('Е', "E");
+        russianAlternative.put('Ё', "E");
         russianAlternative.put('Ж', "Zh");
         russianAlternative.put('З', "Z");
         russianAlternative.put('И', "I");
