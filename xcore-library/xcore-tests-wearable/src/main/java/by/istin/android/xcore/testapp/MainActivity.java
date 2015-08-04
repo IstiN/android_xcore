@@ -49,7 +49,7 @@ public class MainActivity extends Activity {
         setContentView(R.layout.main_activity);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mCoreWearable = CoreWearable.get(this);
-        updateExecuteOpration();
+        updateExecuteOperation();
         findViewById(R.id.intro).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,7 +58,7 @@ public class MainActivity extends Activity {
         });
     }
 
-    private void updateExecuteOpration() {
+    private void updateExecuteOperation() {
         Core.ExecuteOperationBuilder executeOperationBuilder = new Core.ExecuteOperationBuilder();
         DataSourceRequest pDataSourceRequest = new DataSourceRequest("http://android.com");
         pDataSourceRequest.setCacheExpiration(DateUtils.DAY_IN_MILLIS);

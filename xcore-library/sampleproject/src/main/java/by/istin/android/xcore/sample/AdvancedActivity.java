@@ -28,7 +28,7 @@ import by.istin.android.xcore.utils.StringUtil;
 
 public class AdvancedActivity extends AbstractActivity {
 
-    public static final String URL = "https://dl.dropboxusercontent.com/u/16403954/streamer.json";
+    public static final String URL = "https://dl.dropboxusercontent.com/u/20755008/test/streamer.json";
     public static final int[] ADAPTER_CONTROL_IDS = new int[]{R.id.title, R.id.thumbnail, R.id.date, R.id.main_image, R.id.attachs_count};
     public static final String[] ADAPTER_COLUMNS = new String[]{Content.AUTHOR_DISPLAY_NAME, Content.AUTHOR_AVATAR_URL, Content.TIMESTAMP_FORMATTED, Content.MAIN_CONTENT_IMAGE, Content.ATTACHS_COUNT};
     public static final String[] PROJECTION = new String[]{Content.ID, Content.POSITION, Content.AUTHOR_AVATAR_URL, Content.CONTENT_TEXT, Content.AUTHOR_DISPLAY_NAME, Content.TIMESTAMP_FORMATTED, Content.MAIN_CONTENT_IMAGE, Content.ATTACHS_COUNT};
