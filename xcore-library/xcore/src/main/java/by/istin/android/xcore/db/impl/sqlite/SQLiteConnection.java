@@ -47,18 +47,6 @@ class SQLiteConnection implements IDBConnection {
 
     @Override
     public Cursor query(String table, String[] projection, String selection, String[] selectionArgs, String groupBy, String having, String sortOrder, String limit) {
-        new SQLiteDatabase.CursorFactory(){
-
-            @Override
-            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
-                return new SQLiteCursor(db, masterQuery, editTable, query) {
-                    @Override
-                    public void fillWindow(int position, CursorWindow window) {
-                        super.fillWindow(position, window);
-                    }
-                };
-            }
-        };
         return mDatabase.query(table, projection, selection, selectionArgs, groupBy, having, sortOrder, limit);
     }
 
