@@ -20,9 +20,9 @@ public class SimpleActivity extends AbstractActivity {
 
     public static class SampleListFragment extends XListFragment<CursorModel> {
 
-        private static final String PAGE1 = "https://dl.dropboxusercontent.com/u/16403954/xcore/sample_page_1.json?page=1";
+        private static final String PAGE1 = "https://dl.dropboxusercontent.com/u/20755008/test/sample_page_1.json?page=1";
 
-        private static final String PAGE2 = "https://dl.dropboxusercontent.com/u/16403954/xcore/sample_page_2.json?page=2";
+        private static final String PAGE2 = "https://dl.dropboxusercontent.com/u/20755008/test/sample_page_2.json?page=2";
 
         @Override
         public void onListItemClick(Cursor cursor, View view, int i, long l) {
