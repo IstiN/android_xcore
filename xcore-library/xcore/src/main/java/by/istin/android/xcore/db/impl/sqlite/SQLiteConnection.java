@@ -3,8 +3,12 @@ package by.istin.android.xcore.db.impl.sqlite;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.database.CursorWindow;
 import android.database.DatabaseUtils;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteCursorDriver;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteQuery;
 import android.os.Build;
 
 import by.istin.android.xcore.db.IDBConnection;
@@ -43,6 +47,18 @@ class SQLiteConnection implements IDBConnection {
 
     @Override
     public Cursor query(String table, String[] projection, String selection, String[] selectionArgs, String groupBy, String having, String sortOrder, String limit) {
+        new SQLiteDatabase.CursorFactory(){
+
+            @Override
+            public Cursor newCursor(SQLiteDatabase db, SQLiteCursorDriver masterQuery, String editTable, SQLiteQuery query) {
+                return new SQLiteCursor(db, masterQuery, editTable, query) {
+                    @Override
+                    public void fillWindow(int position, CursorWindow window) {
+                        super.fillWindow(position, window);
+                    }
+                };
+            }
+        };
         return mDatabase.query(table, projection, selection, selectionArgs, groupBy, having, sortOrder, limit);
     }
 
