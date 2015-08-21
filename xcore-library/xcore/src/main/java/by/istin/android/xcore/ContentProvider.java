@@ -1,9 +1,16 @@
 package by.istin.android.xcore;
 
 import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Handler;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+
+import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
 import by.istin.android.xcore.model.CursorModel;
@@ -115,6 +122,22 @@ public class ContentProvider {
             return null;
         }
 
+        public void cursor(final ISuccess<CursorModel> pCursorModelSuccess) {
+            final Handler handler = new Handler();
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final CursorModel cursor = cursor();
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            pCursorModelSuccess.success(cursor);
+                        }
+                    });
+                }
+            });
+        }
+
         public int count() {
             CursorModel cursor = cursor();
             try {
@@ -129,6 +152,41 @@ public class ContentProvider {
 
         public int delete() {
             return mContentProviderAdapter.delete(this);
+        }
+
+        public List<ContentValues> values(CursorUtils.Converter pConverter) {
+            CursorModel cursor = cursor();
+            if (cursor != null) {
+                List<ContentValues> contentValues = new ArrayList<>();
+                CursorUtils.convertToContentValuesAndClose(cursor, contentValues, pConverter);
+                return contentValues;
+            } else {
+                return null;
+            }
+        }
+
+        public List<ContentValues> values() {
+            return values(CursorUtils.Converter.get());
+        }
+
+        public void values(final ISuccess<List<ContentValues>> pISuccess) {
+            values(CursorUtils.Converter.get(), pISuccess);
+        }
+
+        public void values(final CursorUtils.Converter pConverter, final ISuccess<List<ContentValues>> pISuccess) {
+            final Handler handler = new Handler();
+            Executors.newSingleThreadExecutor().execute(new Runnable() {
+                @Override
+                public void run() {
+                    final List<ContentValues> result = values(pConverter);
+                    handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            pISuccess.success(result);
+                        }
+                    });
+                }
+            });
         }
     }
 

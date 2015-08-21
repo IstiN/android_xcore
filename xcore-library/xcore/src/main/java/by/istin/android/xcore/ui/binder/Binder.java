@@ -1,8 +1,11 @@
 package by.istin.android.xcore.ui.binder;
 
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.database.Cursor;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.View;
@@ -10,9 +13,6 @@ import android.view.ViewGroup;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
-import org.apache.commons.codec.internal.StringDecoder;
-
-import java.net.DatagramSocket;
 import java.util.List;
 
 import by.istin.android.xcore.utils.CursorUtils;
@@ -38,12 +38,22 @@ public class Binder {
         return new ViewBinder(view, data);
     }
 
-    public static CollectionViewBinder<RecyclerView, RecyclerView.Adapter> collection(final RecyclerView recyclerView) {
-        return new CollectionViewBinder<RecyclerView, RecyclerView.Adapter>(recyclerView) {
+    public static CollectionViewBinder<ICollectionView<RecyclerView>, RecyclerView.Adapter> collection(final RecyclerView recyclerView) {
+        return new CollectionViewBinder<ICollectionView<RecyclerView>, RecyclerView.Adapter>(new ICollectionView<RecyclerView>() {
+            @Override
+            public Context getContext() {
+                return recyclerView.getContext();
+            }
 
             @Override
-            protected void setAdapter(RecyclerView mCollectionView, RecyclerView.Adapter mAdapter) {
-                mCollectionView.setAdapter(mAdapter);
+            public RecyclerView getWrappedView() {
+                return recyclerView;
+            }
+        }) {
+
+            @Override
+            protected void setAdapter(ICollectionView<RecyclerView> mCollectionView, RecyclerView.Adapter mAdapter) {
+                mCollectionView.getWrappedView().setAdapter(mAdapter);
             }
 
             @Override
@@ -82,33 +92,74 @@ public class Binder {
         };
     }
 
-    public static CollectionViewBinder<ListView, ListAdapter> collection(final ListView listView) {
-        return new CollectionViewBinder<ListView, ListAdapter>(listView) {
+    public static CollectionViewBinder<ICollectionView<ListView>, ListAdapter> collection(final ListView listView) {
+        return new CollectionViewBinder<ICollectionView<ListView>, ListAdapter>(new ICollectionView<ListView>() {
             @Override
-            protected void setAdapter(ListView mCollectionView, ListAdapter mAdapter) {
-                mCollectionView.setAdapter(mAdapter);
+            public Context getContext() {
+                return listView.getContext();
+            }
+
+            @Override
+            public ListView getWrappedView() {
+                return listView;
+            }
+        }) {
+            @Override
+            protected void setAdapter(ICollectionView<ListView> mCollectionView, ListAdapter mAdapter) {
+                mCollectionView.getWrappedView().setAdapter(mAdapter);
             }
 
             @Override
             protected ListAdapter createAdapter(List<IData> mCollection, final List<Pair<String, Integer>> mBindingRules, int layout) {
-                return new XArrayAdapter<IData>(listView.getContext(), layout, mCollection) {
-                    private ViewBinder mBinder;
-
-                    @Override
-                    protected void bindView(int position, IData item, View view, ViewGroup parent) {
-                        if (mBinder == null) {
-                            mBinder = view(view);
-                        } else {
-                            mBinder.view(view);
-                        }
-                        mBinder.data(item);
-                        for (Pair<String, Integer> pair : mBindingRules) {
-                            mBinder.bind(pair.first, pair.second);
-                        }
-                    }
-                };
+                return createXArrayAdapter(listView.getContext(), mCollection, mBindingRules, layout);
             }
 
+        };
+    }
+
+    public static CollectionViewBinder<ICollectionView<AlertDialog.Builder>, ListAdapter> collection(final AlertDialog.Builder alertDialogBuilder, final DialogInterface.OnClickListener onClickListener) {
+        return new CollectionViewBinder<ICollectionView<AlertDialog.Builder>, ListAdapter>(new ICollectionView<AlertDialog.Builder>() {
+            @Override
+            public Context getContext() {
+                return alertDialogBuilder.getContext();
+            }
+
+            @Override
+            public AlertDialog.Builder getWrappedView() {
+                return alertDialogBuilder;
+            }
+        }) {
+
+            @Override
+            protected void setAdapter(ICollectionView<AlertDialog.Builder> mCollectionView, ListAdapter mAdapter) {
+                mCollectionView.getWrappedView().setAdapter(mAdapter, onClickListener);
+            }
+
+            @Override
+            protected ListAdapter createAdapter(List<IData> mCollection, final List<Pair<String, Integer>> mBindingRules, int layout) {
+                return createXArrayAdapter(alertDialogBuilder.getContext(), mCollection, mBindingRules, layout);
+            }
+
+        };
+    }
+
+    @NonNull
+    private static XArrayAdapter<IData> createXArrayAdapter(Context pContext, final List<IData> mCollection, final List<Pair<String, Integer>> mBindingRules, final int layout) {
+        return new XArrayAdapter<IData>(pContext, layout, mCollection) {
+            private ViewBinder mBinder;
+
+            @Override
+            protected void bindView(int position, IData item, View view, ViewGroup parent) {
+                if (mBinder == null) {
+                    mBinder = view(view);
+                } else {
+                    mBinder.view(view);
+                }
+                mBinder.data(item);
+                for (Pair<String, Integer> pair : mBindingRules) {
+                    mBinder.bind(pair.first, pair.second);
+                }
+            }
         };
     }
 

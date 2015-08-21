@@ -4,11 +4,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.util.Pair;
-import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,12 +14,11 @@ import java.util.List;
 import by.istin.android.xcore.image.ImageService;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.ContentUtils;
-import by.istin.android.xcore.utils.CursorUtils;
 
 /**
  * Created by uladzimir_klyshevich on 6/25/15.
  */
-public abstract class CollectionViewBinder<CollectionView extends View, Adapter> {
+public abstract class CollectionViewBinder<CollectionView extends ICollectionView, Adapter> {
 
     private CollectionView mCollectionView;
 
@@ -107,16 +104,6 @@ public abstract class CollectionViewBinder<CollectionView extends View, Adapter>
         for (int i = 0; i < keys.length; i++) {
             mBindingRules.add(new Pair<>(keys[i], ids[i]));
         }
-        return this;
-    }
-
-    public CollectionViewBinder click(int id, View.OnClickListener clickListener) {
-        final View viewById = mCollectionView.findViewById(id);
-        return click(viewById, clickListener);
-    }
-
-    public CollectionViewBinder click(View viewById, View.OnClickListener clickListener) {
-        viewById.setOnClickListener(clickListener);
         return this;
     }
 
