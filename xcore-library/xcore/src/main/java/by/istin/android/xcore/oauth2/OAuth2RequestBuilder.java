@@ -1,13 +1,14 @@
 package by.istin.android.xcore.oauth2;
 
-import org.apache.http.client.methods.HttpRequestBase;
 
 import java.io.IOException;
 
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.source.impl.http.HttpDataSource;
+import by.istin.android.xcore.source.impl.http.HttpRequest;
+import by.istin.android.xcore.utils.Holder;
 
-public class OAuth2RequestBuilder extends HttpAndroidDataSource.DefaultHttpRequestBuilder {
+public class OAuth2RequestBuilder extends HttpDataSource.DefaultHttpRequestBuilder {
 
     private OAuth2Helper mOAuth2Helper;
 
@@ -24,13 +25,13 @@ public class OAuth2RequestBuilder extends HttpAndroidDataSource.DefaultHttpReque
     }
 
     @Override
-    public HttpRequestBase build(DataSourceRequest dataSourceRequest) throws IOException {
-        HttpRequestBase httpRequestBase = super.build(dataSourceRequest);
+    public void postCreate(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) throws IOException {
+        super.postCreate(dataSourceRequest, request, isCached);
         try {
-            mOAuth2Helper.sign(new OAuth2Request<HttpRequestBase>(httpRequestBase) {
+            mOAuth2Helper.sign(new OAuth2Request<HttpRequest>(request) {
                 @Override
-                public void sign(HttpRequestBase requestBase, String header, String value) {
-                    requestBase.addHeader(header, value);
+                public void sign(HttpRequest requestBase, String header, String value) {
+                    requestBase.header(header, value);
                 }
             });
         } catch (AuthorizationRequiredException e) {
@@ -38,6 +39,5 @@ public class OAuth2RequestBuilder extends HttpAndroidDataSource.DefaultHttpReque
         } catch (Exception e) {
             throw new IOException(e);
         }
-        return httpRequestBase;
     }
 }

@@ -11,7 +11,7 @@ import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.preference.PreferenceHelper;
 import by.istin.android.xcore.processor.impl.AbstractStringProcessor;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.source.impl.http.HttpDataSource;
 import by.istin.android.xcore.utils.Holder;
 import by.istin.android.xcore.utils.Log;
 import by.istin.android.xcore.utils.StringUtil;
@@ -54,11 +54,11 @@ public class DefaultOAuth2Helper implements OAuth2Helper {
     }
 
     public Credentials getCredentials(String tokenUrl, String refreshToken, String code) throws Exception {
-        String typeUrl = HttpAndroidDataSource.DefaultHttpRequestBuilder.getUrl(tokenUrl, mConfiguration.getTokenRequestType());
+        String typeUrl = HttpDataSource.DefaultHttpRequestBuilder.getUrl(tokenUrl, mConfiguration.getTokenRequestType());
         DataSourceRequest dataSourceRequest = new DataSourceRequest(typeUrl);
         dataSourceRequest.setCacheable(false);
         dataSourceRequest.setForceUpdateData(true);
-        HttpAndroidDataSource httpAndroidDataSource = HttpAndroidDataSource.get(ContextHolder.get());
+        HttpDataSource httpAndroidDataSource = HttpDataSource.get(ContextHolder.get());
         InputStream source = httpAndroidDataSource.getSource(dataSourceRequest, new Holder<Boolean>());
         Credentials credentials = new AbstractStringProcessor<Credentials>() {
 

@@ -299,6 +299,13 @@ public class CursorModel implements Cursor, List<Cursor> {
     }
 
     @Override
+    public void setExtras(Bundle extras) {
+        if (mCursor != null) {
+            mCursor.setExtras(extras);
+        }
+    }
+
+    @Override
     public Bundle getExtras() {
         return mCursor.getExtras();
     }

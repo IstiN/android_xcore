@@ -2,18 +2,15 @@ package by.istin.android.xcore.utils;
 
 import android.content.Context;
 
-import org.apache.http.Header;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.methods.HttpEntityEnclosingRequestBase;
-import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import by.istin.android.xcore.source.impl.http.HttpRequest;
 
 /**
  * Log wrapper class, that enable Log if build variant is DEBUG.
@@ -89,40 +86,18 @@ public final class Log {
 
     public static void xd(Object tag, Object message) {
         if (sIsDebug) {
-            if (message instanceof HttpUriRequest) {
+            if (message instanceof HttpRequest) {
                 android.util.Log.d(tag.getClass().getSimpleName(), "==============================");
-                if (message instanceof HttpEntityEnclosingRequestBase) {
-                    HttpEntityEnclosingRequestBase request = (HttpEntityEnclosingRequestBase) message;
-                    android.util.Log.d(tag.getClass().getSimpleName(), "-" + request.getMethod() + ":" + request.getURI());
-                    android.util.Log.d(tag.getClass().getSimpleName(), "-HEADERS:");
-                    Header[] allHeaders = request.getAllHeaders();
-                    for (Header header : allHeaders) {
-                        android.util.Log.d(tag.getClass().getSimpleName(), header.getName() + ":" + header.getValue());
+                HttpRequest httpRequest = (HttpRequest) message;
+                android.util.Log.d(tag.getClass().getSimpleName(), "-" + httpRequest.toString());
+                android.util.Log.d(tag.getClass().getSimpleName(), "-HEADERS:");
+
+                Map<String, List<String>> headers = httpRequest.headers();
+                if (headers != null && !headers.isEmpty()) {
+                    Set<String> strings = headers.keySet();
+                    for (String key : strings) {
+                        android.util.Log.d(tag.getClass().getSimpleName(), key + ":" + StringUtil.joinAll(",", headers.get(key)));
                     }
-                    HttpEntity entity = request.getEntity();
-                    try {
-                        if (entity == null) {
-                            android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY:");
-                        } else {
-                            android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY:" + EntityUtils.toString(entity));
-                        }
-                    } catch (ParseException e) {
-                        android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY: parse exception " + e.getMessage());
-                    } catch (IOException e) {
-                        android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY: io exception " + e.getMessage());
-                    } catch (UnsupportedOperationException e) {
-                        android.util.Log.d(tag.getClass().getSimpleName(), "-HTTP_ENTITY: unsupported exception " + e.getMessage());
-                    }
-                } else if (message instanceof HttpRequestBase) {
-                    HttpRequestBase httpRequestBase = (HttpRequestBase) message;
-                    android.util.Log.d(tag.getClass().getSimpleName(), "-" + httpRequestBase.getMethod() + ":" + httpRequestBase.getURI());
-                    android.util.Log.d(tag.getClass().getSimpleName(), "-HEADERS:");
-                    Header[] allHeaders = httpRequestBase.getAllHeaders();
-                    for (Header header : allHeaders) {
-                        android.util.Log.d(tag.getClass().getSimpleName(), header.getName() + ":" + header.getValue());
-                    }
-                } else {
-                    android.util.Log.d(tag.getClass().getSimpleName(), String.valueOf(message));
                 }
                 android.util.Log.d(tag.getClass().getSimpleName(), "==============================");
             } else {

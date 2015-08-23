@@ -112,7 +112,7 @@ public class HttpDataSource implements IDataSource<InputStream> {
         }
 
         @Override
-        public void postCreate(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) {
+        public void postCreate(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) throws IOException {
 
         }
 
