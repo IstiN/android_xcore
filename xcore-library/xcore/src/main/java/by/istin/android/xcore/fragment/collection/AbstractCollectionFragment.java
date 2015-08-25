@@ -458,6 +458,12 @@ public abstract class AbstractCollectionFragment<CollectionView, CollectionViewA
         setServiceWork(false);
         checkStatus("onDestroy");
         super.onDestroy();
+        mCollectionView = null;
+        mAdapter = null;
+        mEmptyView = null;
+        mProgressView = null;
+        mSecondaryProgressView = null;
+        mSwipeRefreshView = null;
     }
 
     @Override

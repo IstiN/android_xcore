@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import java.lang.ref.WeakReference;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,55 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
 
     private volatile boolean pagingLoading = false;
 
-    private class EndlessScrollListener extends RecyclerView.OnScrollListener {
+    private final Set<RecyclerView.OnScrollListener> onScrollListenerSet = new HashSet<>();
+
+    private RecyclerView.LayoutManager mLayoutManager;
+
+    public RecyclerView.ItemAnimator getItemAnimator() {
+        return mItemAnimator;
+    }
+
+    private RecyclerView.ItemAnimator mItemAnimator;
+
+    private static class GroupScrollListener extends RecyclerView.OnScrollListener {
+
+        private WeakReference<RecyclerViewFragment> mRecyclerViewFragmentWeakReference;
+
+        public GroupScrollListener(RecyclerViewFragment pRecyclerViewFragment) {
+            mRecyclerViewFragmentWeakReference = new WeakReference<>(pRecyclerViewFragment);
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            RecyclerViewFragment recyclerViewFragment = mRecyclerViewFragmentWeakReference.get();
+            if (recyclerViewFragment == null) {
+                recyclerView.removeOnScrollListener(this);
+                return;
+            }
+            Set<RecyclerView.OnScrollListener> onScrollListenerSet = recyclerViewFragment.onScrollListenerSet;
+            for (RecyclerView.OnScrollListener onScrollListener : onScrollListenerSet) {
+                onScrollListener.onScrollStateChanged(recyclerView, newState);
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            RecyclerViewFragment recyclerViewFragment = mRecyclerViewFragmentWeakReference.get();
+            if (recyclerViewFragment == null) {
+                recyclerView.removeOnScrollListener(this);
+                return;
+            }
+            Set<RecyclerView.OnScrollListener> onScrollListenerSet = recyclerViewFragment.onScrollListenerSet;
+            for (RecyclerView.OnScrollListener onScrollListener : onScrollListenerSet) {
+                onScrollListener.onScrolled(recyclerView, dx, dy);
+            }
+        }
+
+    }
+
+    private static class EndlessScrollListener extends RecyclerView.OnScrollListener {
 
         private int visibleThreshold = 5;
 
@@ -27,8 +76,13 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
 
         private int previousTotal = 0;
 
-        public EndlessScrollListener() {
+        private WeakReference<RecyclerView.LayoutManager> mLayoutManagerWeakReference;
 
+        private WeakReference<RecyclerViewFragment> mRecyclerViewFragmentWeakReference;
+
+        public EndlessScrollListener(RecyclerView.LayoutManager layoutManager, RecyclerViewFragment pRecyclerViewFragment) {
+            mLayoutManagerWeakReference = new WeakReference<>(layoutManager);
+            mRecyclerViewFragmentWeakReference = new WeakReference<>(pRecyclerViewFragment);
         }
 
         @Override
@@ -44,13 +98,22 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
             if (count == 0) {
                 return;
             }
-            int firstVisibleItem = ((LinearLayoutManager) mLayoutManager).findFirstVisibleItemPosition();
-            int visibleItemCount = ((LinearLayoutManager) mLayoutManager).findLastVisibleItemPosition() - firstVisibleItem;
-            if (previousTotal != count && !pagingLoading && (count - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
+            RecyclerView.LayoutManager layoutManager = mLayoutManagerWeakReference.get();
+            if (layoutManager == null) {
+                recyclerView.removeOnScrollListener(this);
+                return;
+            }
+            RecyclerViewFragment recyclerViewFragment = mRecyclerViewFragmentWeakReference.get();
+            if (recyclerViewFragment == null) {
+                recyclerView.removeOnScrollListener(this);
+            }
+            int firstVisibleItem = ((LinearLayoutManager) layoutManager).findFirstVisibleItemPosition();
+            int visibleItemCount = ((LinearLayoutManager) layoutManager).findLastVisibleItemPosition() - firstVisibleItem;
+            if (previousTotal != count && !recyclerViewFragment.pagingLoading && (count - visibleItemCount) <= (firstVisibleItem + visibleThreshold)) {
                 previousTotal = count;
-                pagingLoading = true;
+                recyclerViewFragment.pagingLoading = true;
                 currentPage++;
-                onPageLoad(currentPage, count);
+                recyclerViewFragment.onPageLoad(currentPage, count);
             }
         }
 
@@ -64,15 +127,6 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
         }
     }
 
-    private final Set<RecyclerView.OnScrollListener> onScrollListenerSet = new HashSet<>();
-
-    private RecyclerView.LayoutManager mLayoutManager;
-
-    public RecyclerView.ItemAnimator getItemAnimator() {
-        return mItemAnimator;
-    }
-
-    private RecyclerView.ItemAnimator mItemAnimator;
 
     @Override
     public void onViewCreated(View view) {
@@ -82,23 +136,7 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
         collectionView.setLayoutManager(mLayoutManager);
         mItemAnimator = createItemAnimator();
         collectionView.setItemAnimator(mItemAnimator);
-        getCollectionView().addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-                for (RecyclerView.OnScrollListener onScrollListener : onScrollListenerSet) {
-                    onScrollListener.onScrollStateChanged(recyclerView, newState);
-                }
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                for (RecyclerView.OnScrollListener onScrollListener : onScrollListenerSet) {
-                    onScrollListener.onScrolled(recyclerView, dx, dy);
-                }
-            }
-        });
+        getCollectionView().addOnScrollListener(new GroupScrollListener(this));
     }
 
     protected RecyclerView.LayoutManager createLayoutManager() {
@@ -111,7 +149,7 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
 
     @Override
     protected void addPagingSupport(View view) {
-        EndlessScrollListener mEndlessScrollListener = new EndlessScrollListener();
+        EndlessScrollListener mEndlessScrollListener = new EndlessScrollListener(mLayoutManager, this);
         setOnScrollListViewListener(mEndlessScrollListener);
     }
 
@@ -121,6 +159,15 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
 
     public void removeOnScrollListViewListener(RecyclerView.OnScrollListener scrollListener) {
         onScrollListenerSet.remove(scrollListener);
+    }
+
+    @Override
+    public void onDestroy() {
+        getCollectionView().clearOnScrollListeners();
+        super.onDestroy();
+        onScrollListenerSet.clear();
+        mLayoutManager = null;
+        mItemAnimator = null;
     }
 
     @Override
