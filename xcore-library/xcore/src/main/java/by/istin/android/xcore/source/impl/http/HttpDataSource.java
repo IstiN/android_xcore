@@ -225,8 +225,9 @@ public class HttpDataSource implements IDataSource<InputStream> {
             request.ignoreCloseExceptions();
             request.uncompress(true);
             //AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
-            Log.xd(this, request);
             mRequestBuilder.postCreate(dataSourceRequest, request, isCached);
+            Log.xd(this, request);
+
             //HttpClient client = null;
             //try {
             // client = mInputStreamHelper.getClient();
