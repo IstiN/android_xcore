@@ -15,6 +15,7 @@ import android.widget.ListView;
 
 import java.util.List;
 
+import by.istin.android.xcore.utils.ContentUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.widget.XArrayAdapter;
 
@@ -28,6 +29,8 @@ public class Binder {
         void setData(Data data);
 
         String getValue(String key);
+
+        ContentValues toContentValues();
     }
 
     public static ViewBinder view(View view) {
@@ -39,7 +42,7 @@ public class Binder {
     }
 
     public static CollectionViewBinder<ICollectionView<RecyclerView>, RecyclerView.Adapter> collection(final RecyclerView recyclerView) {
-        return new CollectionViewBinder<ICollectionView<RecyclerView>, RecyclerView.Adapter>(new ICollectionView<RecyclerView>() {
+        ICollectionView<RecyclerView> collectionView = new ICollectionView<RecyclerView>() {
             @Override
             public Context getContext() {
                 return recyclerView.getContext();
@@ -49,7 +52,8 @@ public class Binder {
             public RecyclerView getWrappedView() {
                 return recyclerView;
             }
-        }) {
+        };
+        return new CollectionViewBinder<ICollectionView<RecyclerView>, RecyclerView.Adapter>(collectionView) {
 
             @Override
             protected void setAdapter(ICollectionView<RecyclerView> mCollectionView, RecyclerView.Adapter mAdapter) {
@@ -58,13 +62,20 @@ public class Binder {
 
             @Override
             protected RecyclerView.Adapter createAdapter(final List<IData> mCollection, final List<Pair<String, Integer>> mBindingRules, final int layout) {
+                final IOnBindViewListener onBindViewListener = getOnBindViewListener();
                 return new RecyclerView.Adapter() {
 
                     private ViewBinder mBinder;
 
                     @Override
                     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-                        return new RecyclerView.ViewHolder(View.inflate(recyclerView.getContext(), layout, null)){};
+                        View createdView = View.inflate(recyclerView.getContext(), layout, null);
+                        RecyclerView.ViewHolder viewHolder = new RecyclerView.ViewHolder(createdView) {
+                        };
+                        if (onBindViewListener != null) {
+                            onBindViewListener.onCreateView(this, viewHolder);
+                        }
+                        return viewHolder;
                     }
 
                     @Override
@@ -75,10 +86,15 @@ public class Binder {
                         } else {
                             mBinder.view(view);
                         }
-                        mBinder.data(mCollection.get(position));
+                        IData data = mCollection.get(position);
+                        mBinder.data(data);
                         for (Pair<String, Integer> pair : mBindingRules) {
                             mBinder.bind(pair.first, pair.second);
                         }
+                        if (onBindViewListener != null) {
+                            onBindViewListener.onBindView(this, holder, position, data);
+                        }
+
                     }
 
                     @Override
@@ -178,6 +194,11 @@ public class Binder {
             public String getValue(String key) {
                 return CursorUtils.getString(key, mCursor);
             }
+
+            @Override
+            public ContentValues toContentValues() {
+                return CursorUtils.cursorRowToContentValues(mCursor);
+            }
         };
         data.setData(cursor);
         return data;
@@ -197,6 +218,11 @@ public class Binder {
             @Override
             public String getValue(String key) {
                 return mContentValues.getAsString(key);
+            }
+
+            @Override
+            public ContentValues toContentValues() {
+                return mContentValues;
             }
         };
         data.setData(contentValues);

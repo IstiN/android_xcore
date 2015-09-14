@@ -6,7 +6,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +22,16 @@ import by.istin.android.xcore.utils.ContentUtils;
  */
 public abstract class CollectionViewBinder<CollectionView extends ICollectionView, Adapter> {
 
+    public static interface IOnBindViewListener {
+        void onBindView(RecyclerView.Adapter pAdapter, RecyclerView.ViewHolder pViewHolder, int pPosition, Binder.IData pData);
+        void onCreateView(RecyclerView.Adapter pAdapter, RecyclerView.ViewHolder pViewHolder);
+    }
+
     private CollectionView mCollectionView;
 
     private Adapter mAdapter;
+
+    private IOnBindViewListener mOnBindViewListener;
 
     private final ImageService mImageService;
 
@@ -35,6 +44,15 @@ public abstract class CollectionViewBinder<CollectionView extends ICollectionVie
     protected CollectionViewBinder(CollectionView collectionView) {
         mCollectionView = collectionView;
         mImageService = ImageService.get(mCollectionView.getContext());
+    }
+
+    public CollectionViewBinder bindViewListener(IOnBindViewListener pOnBindViewListener) {
+        mOnBindViewListener = pOnBindViewListener;
+        return this;
+    };
+
+    protected IOnBindViewListener getOnBindViewListener() {
+        return mOnBindViewListener;
     }
 
     public CollectionViewBinder data(Cursor cursor) {
@@ -107,4 +125,7 @@ public abstract class CollectionViewBinder<CollectionView extends ICollectionVie
         return this;
     }
 
+    public List<Binder.IData> getCollection() {
+        return mCollection;
+    }
 }
