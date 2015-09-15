@@ -1,6 +1,7 @@
 package by.istin.android.xcore.oauth2;
 
-import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+
+import by.istin.android.xcore.source.impl.http.HttpDataSource;
 
 public class Configuration {
 
@@ -26,7 +27,7 @@ public class Configuration {
         return grandType;
     }
 
-    private HttpAndroidDataSource.DefaultHttpRequestBuilder.Type tokenRequestType = HttpAndroidDataSource.DefaultHttpRequestBuilder.Type.POST;
+    private HttpDataSource.DefaultHttpRequestBuilder.Type tokenRequestType = HttpDataSource.DefaultHttpRequestBuilder.Type.POST;
 
     private String grandTypeRefreshToken = "refresh_token";
 
@@ -71,7 +72,7 @@ public class Configuration {
         return grandType;
     }
 
-    public HttpAndroidDataSource.DefaultHttpRequestBuilder.Type getTokenRequestType() {
+    public HttpDataSource.DefaultHttpRequestBuilder.Type getTokenRequestType() {
         return tokenRequestType;
     }
 

@@ -4,9 +4,9 @@ import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.ContentValues;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
 import android.view.View;
 
@@ -16,16 +16,22 @@ import java.util.List;
 import by.istin.android.xcore.image.ImageService;
 import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.ContentUtils;
-import by.istin.android.xcore.utils.CursorUtils;
 
 /**
  * Created by uladzimir_klyshevich on 6/25/15.
  */
-public abstract class CollectionViewBinder<CollectionView extends View, Adapter> {
+public abstract class CollectionViewBinder<CollectionView extends ICollectionView, Adapter> {
+
+    public static interface IOnBindViewListener {
+        void onBindView(RecyclerView.Adapter pAdapter, RecyclerView.ViewHolder pViewHolder, int pPosition, Binder.IData pData);
+        void onCreateView(RecyclerView.Adapter pAdapter, RecyclerView.ViewHolder pViewHolder);
+    }
 
     private CollectionView mCollectionView;
 
     private Adapter mAdapter;
+
+    private IOnBindViewListener mOnBindViewListener;
 
     private final ImageService mImageService;
 
@@ -38,6 +44,15 @@ public abstract class CollectionViewBinder<CollectionView extends View, Adapter>
     protected CollectionViewBinder(CollectionView collectionView) {
         mCollectionView = collectionView;
         mImageService = ImageService.get(mCollectionView.getContext());
+    }
+
+    public CollectionViewBinder bindViewListener(IOnBindViewListener pOnBindViewListener) {
+        mOnBindViewListener = pOnBindViewListener;
+        return this;
+    };
+
+    protected IOnBindViewListener getOnBindViewListener() {
+        return mOnBindViewListener;
     }
 
     public CollectionViewBinder data(Cursor cursor) {
@@ -110,14 +125,7 @@ public abstract class CollectionViewBinder<CollectionView extends View, Adapter>
         return this;
     }
 
-    public CollectionViewBinder click(int id, View.OnClickListener clickListener) {
-        final View viewById = mCollectionView.findViewById(id);
-        return click(viewById, clickListener);
+    public List<Binder.IData> getCollection() {
+        return mCollection;
     }
-
-    public CollectionViewBinder click(View viewById, View.OnClickListener clickListener) {
-        viewById.setOnClickListener(clickListener);
-        return this;
-    }
-
 }

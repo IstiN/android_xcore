@@ -24,7 +24,7 @@ import by.istin.android.xcore.model.CursorModel;
 import by.istin.android.xcore.service.DataSourceService;
 import by.istin.android.xcore.service.StatusResultReceiver;
 import by.istin.android.xcore.source.DataSourceRequest;
-import by.istin.android.xcore.source.impl.http.HttpAndroidDataSource;
+import by.istin.android.xcore.source.impl.http.HttpDataSource;
 import by.istin.android.xcore.utils.AppUtils;
 import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.ResponderUtils;
@@ -280,7 +280,7 @@ public abstract class XFragment<T extends CursorModel> extends Fragment implemen
     protected abstract void onLoaderReset();
 
     public String getDataSourceKey() {
-        return HttpAndroidDataSource.SYSTEM_SERVICE_KEY;
+        return HttpDataSource.APP_SERVICE_KEY;
     }
 
     public long getCacheExpiration() {

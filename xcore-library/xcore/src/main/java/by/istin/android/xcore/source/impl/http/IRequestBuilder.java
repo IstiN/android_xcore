@@ -10,5 +10,5 @@ public interface IRequestBuilder {
 
     HttpRequest build(DataSourceRequest dataSourceRequest) throws IOException;
 
-    void postCreate(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached);
+    void postCreate(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) throws IOException;
 }

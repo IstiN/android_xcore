@@ -67,9 +67,10 @@ public class DataSourceRequest {
         setUri(requestDataUri);
     }
 
-    public void setUri(String uri) {
+    public DataSourceRequest setUri(String uri) {
         mCacheUri = null;
         mBundle.putString(REQUEST_URI, uri);
+        return this;
     }
 
     public String getUri() {
@@ -83,8 +84,9 @@ public class DataSourceRequest {
         return mCacheUri;
     }
 
-    public void setCacheable(boolean isCacheable) {
+    public DataSourceRequest setCacheable(boolean isCacheable) {
         mBundle.putString(REQUEST_CACHEABLE, String.valueOf(isCacheable));
+        return this;
     }
 
     public boolean isCacheable() {
@@ -92,32 +94,36 @@ public class DataSourceRequest {
         return Boolean.valueOf(value);
     }
 
-    public void setProcessorKey(String processorKey) {
+    public DataSourceRequest setProcessorKey(String processorKey) {
         mBundle.putString(REQUEST_PROCESSOR_KEY, processorKey);
+        return this;
     }
 
     public String getProcessorKey() {
         return mBundle.getString(REQUEST_PROCESSOR_KEY);
     }
 
-    public void setDataSourceKey(String dataSourceKey) {
+    public DataSourceRequest setDataSourceKey(String dataSourceKey) {
         mBundle.putString(REQUEST_DATA_SOURCE_KEY, dataSourceKey);
+        return this;
     }
 
     public String getDataSourceKey() {
         return mBundle.getString(REQUEST_DATA_SOURCE_KEY);
     }
 
-    public void setParentUri(String parentUri) {
+    public DataSourceRequest setParentUri(String parentUri) {
         mBundle.putString(REQUEST_PARENT_URI, parentUri);
+        return this;
     }
 
     public String getRequestParentUri() {
         return mBundle.getString(REQUEST_PARENT_URI);
     }
 
-    public void setForceUpdateData(boolean isForceFreshData) {
+    public DataSourceRequest setForceUpdateData(boolean isForceFreshData) {
         mBundle.putString(REQUEST_FORCE_UPDATE_DATA, String.valueOf(isForceFreshData));
+        return this;
     }
 
     public boolean isForceUpdateData() {
@@ -125,8 +131,9 @@ public class DataSourceRequest {
         return Boolean.valueOf(value);
     }
 
-    public void setCacheExpiration(long cacheExpirationInMillis) {
+    public DataSourceRequest setCacheExpiration(long cacheExpirationInMillis) {
         mBundle.putString(REQUEST_CACHE_EXPIRATION, String.valueOf(cacheExpirationInMillis));
+        return this;
     }
 
     public long getCacheExpiration() {
@@ -138,17 +145,19 @@ public class DataSourceRequest {
         }
     }
 
-    public void putParam(String key, String value) {
+    public DataSourceRequest putParam(String key, String value) {
         checkIfParamIsNotRestricted(key);
         mBundle.putString(key, value);
+        return this;
     }
 
-    public void putStringParams(Bundle bundle) {
+    public DataSourceRequest putStringParams(Bundle bundle) {
         Set<String> params = bundle.keySet();
         for (String key : params) {
             checkIfParamIsNotRestricted(key);
         }
         mBundle.putAll(bundle);
+        return this;
     }
 
     private void checkIfParamIsNotRestricted(String key) {
