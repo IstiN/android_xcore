@@ -436,6 +436,12 @@ public class UiUtil {
         }
     }
 
+    public static void setVisibility(View view, int visibility) {
+        if (view.getVisibility() != visibility) {
+            view.setVisibility(visibility);
+        }
+    }
+
     public static void checkMain() {
         if (!Log.isDebug()) {
             return;
