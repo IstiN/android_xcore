@@ -271,11 +271,9 @@ public class DBHelper {
             beginTransaction(db);
 		}
 		try {
-            if (isNewDbConnection) {
-                IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
-                if (beforeUpdate != null) {
-                    beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
-                }
+            IBeforeUpdate beforeUpdate = ReflectUtils.getInstanceInterface(classOfModel, IBeforeUpdate.class);
+            if (beforeUpdate != null) {
+                beforeUpdate.onBeforeUpdate(this, db, dataSourceRequest, contentValues);
             }
 			String idAsString = contentValues.getAsString(BaseColumns._ID);
             Long id = null;
