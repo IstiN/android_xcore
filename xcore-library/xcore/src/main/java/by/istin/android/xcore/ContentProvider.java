@@ -192,7 +192,7 @@ public class ContentProvider {
 
     private static String getSortOrder(QueryBuilder pQueryBuilder) {
         return !StringUtil.isEmpty(pQueryBuilder.mLimit) ?
-                pQueryBuilder.mOrder + " " + pQueryBuilder.mLimit :
+                pQueryBuilder.mOrder + " limit " + pQueryBuilder.mLimit :
                 pQueryBuilder.mOrder;
     }
 

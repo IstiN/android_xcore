@@ -263,6 +263,10 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
     }
 
+    public static boolean hasLMr1() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1;
+    }
+
     public static boolean hasM() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
@@ -429,6 +433,9 @@ public class UiUtil {
 
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     public static void setBackground(View view, Drawable drawable) {
+        if (view.getBackground() == drawable) {
+            return;
+        }
         if (hasJellyBean()) {
             view.setBackground(drawable);
         } else {

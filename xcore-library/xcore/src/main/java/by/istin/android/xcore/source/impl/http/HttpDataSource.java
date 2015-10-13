@@ -121,25 +121,39 @@ public class HttpDataSource implements IDataSource<InputStream> {
         }
 
         protected HttpRequest createDeleteRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            return HttpRequest.delete(url);
+            final HttpRequest delete = HttpRequest.delete(url);
+            headers(delete);
+            return delete;
         }
 
         protected HttpRequest createPutRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
             HttpRequest putRequest = HttpRequest.put(url.split(Q)[0]);
+            headers(putRequest);
             initEntity(uri, putRequest);
             return putRequest;
         }
 
         protected HttpRequest createPostRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
             HttpRequest postRequest = HttpRequest.post(url.split(Q)[0]);
+            headers(postRequest);
             initEntity(uri, postRequest);
             return postRequest;
         }
 
         protected HttpRequest createGetRequest(DataSourceRequest dataSourceRequest, String url, Uri uri) {
-            return HttpRequest.get(url);
+            final HttpRequest httpRequest = HttpRequest.get(url);
+            headers(httpRequest);
+            return httpRequest;
         }
 
+        protected void headers(HttpRequest request) {
+            request.accept(ACCEPT_DEFAULT_VALUE);
+            request.header(USER_AGENT_KEY, sUserAgent);
+            request.acceptGzipEncoding();
+            request.followRedirects(true);
+            request.ignoreCloseExceptions();
+            request.uncompress(true);
+        }
         private void initEntity(Uri uri, HttpRequest postRequest) {
             Set<String> queryParameterNames = UriUtils.getQueryParameters(uri);
             for (String paramName : queryParameterNames) {
@@ -218,12 +232,6 @@ public class HttpDataSource implements IDataSource<InputStream> {
 
     public InputStream getInputSteam(DataSourceRequest dataSourceRequest, HttpRequest request, Holder<Boolean> isCached) throws IllegalStateException, IOException {
         try {
-            request.accept(ACCEPT_DEFAULT_VALUE);
-            request.header(USER_AGENT_KEY, sUserAgent);
-            request.acceptGzipEncoding();
-            request.followRedirects(true);
-            request.ignoreCloseExceptions();
-            request.uncompress(true);
             //AndroidHttpClient.modifyRequestToAcceptGzipResponse(request);
             mRequestBuilder.postCreate(dataSourceRequest, request, isCached);
             Log.xd(this, request);
