@@ -3,22 +3,19 @@ package by.istin.android.xcore.utils;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.StateListDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Looper;
-import android.support.v7.internal.widget.TintContextWrapper;
 import android.util.DisplayMetrics;
 import android.view.Display;
-import android.view.KeyCharacterMap;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver;
@@ -27,7 +24,6 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.TextView;
 
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.R;
@@ -307,15 +303,19 @@ public class UiUtil {
     public static void hideKeyboard(View view) {
         Context context = view.getContext();
         InputMethodManager imm = (InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE);
-        Activity activity;
-        if (context instanceof TintContextWrapper) {
-            activity = (Activity) ((TintContextWrapper) context).getBaseContext();
-        } else {
+        Activity activity = null;
+        if (context instanceof Activity) {
             activity = (Activity) context;
+        } else {
+            if (context instanceof ContextWrapper) {
+                Context baseContext = ((ContextWrapper) context).getBaseContext();
+                if (baseContext instanceof Activity) {
+                    activity = (Activity) baseContext;
+                }
+            }
         }
         if (activity == null) {
             return;
-
         }
         if (android.os.Build.VERSION.SDK_INT < 11) {
             Window window = activity.getWindow();
