@@ -133,9 +133,17 @@ public class DialogBuilder {
     }
 
     public static void options(final Context context, Integer titleResource, String[] options, final OnClickListener listener) {
+        options(context, context.getResources().getString(titleResource), options, listener);
+    }
+
+    public static void options(final Context context, String title, int optionsResource, final OnClickListener listener) {
+        options(context, title, context.getResources().getStringArray(optionsResource), listener);
+    }
+
+    public static void options(final Context context, String title, String[] options, final OnClickListener listener) {
         AlertDialog.Builder builder = createBuilder(context);
-        if (titleResource != null) {
-            builder.setTitle(titleResource);
+        if (title != null) {
+            builder.setTitle(title);
         }
         builder.setItems(options, listener);
 
