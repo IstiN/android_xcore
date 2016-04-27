@@ -163,7 +163,10 @@ public abstract class RecyclerViewFragment<VH extends RecyclerView.ViewHolder, C
 
     @Override
     public void onDestroy() {
-        getCollectionView().clearOnScrollListeners();
+        final RecyclerView collectionView = getCollectionView();
+        if (collectionView != null) {
+            collectionView.clearOnScrollListeners();
+        }
         super.onDestroy();
         onScrollListenerSet.clear();
         mLayoutManager = null;
