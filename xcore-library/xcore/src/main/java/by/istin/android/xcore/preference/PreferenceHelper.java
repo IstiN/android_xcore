@@ -1,6 +1,7 @@
 package by.istin.android.xcore.preference;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -16,7 +17,13 @@ public class PreferenceHelper {
     private static Preferences sPreferences;
 
     static {
-        sPreferences = Preferences.Impl.newInstance(ContextHolder.get().getSharedPreferences(SETTINGS, Context.MODE_PRIVATE));
+        sPreferences = Preferences.Impl.newInstance(new Preferences.IGetSharedPreferences() {
+
+            @Override
+            public SharedPreferences get() {
+                return ContextHolder.get().getSharedPreferences(SETTINGS, Context.MODE_PRIVATE);
+            }
+        });
         sPreferences.initAsync();
     }
 
