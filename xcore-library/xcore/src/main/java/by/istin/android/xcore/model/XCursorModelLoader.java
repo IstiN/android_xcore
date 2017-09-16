@@ -7,6 +7,7 @@ import android.provider.CallLog;
 import android.provider.ContactsContract;
 import android.support.v4.content.AsyncTaskLoader;
 
+import by.istin.android.xcore.ContentProvider;
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.utils.Log;
@@ -31,13 +32,13 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
     @Override
     public T loadInBackground() {
         Cursor cursor = null;
-        String authority = mUri.getAuthority();
+        final String authority = mUri.getAuthority();
         if (authority.equals("com.android.contacts") || authority.equals("call_log")) {
             cursor = ContextHolder.get().getContentResolver().query(mUri, mProjection, mSelection,
                     mSelectionArgs, mSortOrder);
         } else {
-            cursor = XCoreHelper.get().getContentProvider(mContentProviderName).query(mUri, mProjection, mSelection,
-                    mSelectionArgs, mSortOrder);
+
+            cursor = ContentProvider.core(mContentProviderName).uri(mUri).projection(mProjection).where(mSelection).whereArgs(mSelectionArgs).order(mSortOrder).cursor();
         }
         if (cursor != null) {
             // Ensure the cursor window is filled

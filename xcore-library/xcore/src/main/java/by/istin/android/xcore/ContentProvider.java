@@ -13,8 +13,11 @@ import java.util.concurrent.Executors;
 import by.istin.android.xcore.callable.ISuccess;
 import by.istin.android.xcore.db.IDBConnection;
 import by.istin.android.xcore.db.IDBConnector;
+import by.istin.android.xcore.db.impl.DBHelper;
 import by.istin.android.xcore.model.CursorModel;
+import by.istin.android.xcore.provider.ModelContract;
 import by.istin.android.xcore.utils.CursorUtils;
+import by.istin.android.xcore.utils.ReflectUtils;
 import by.istin.android.xcore.utils.StringUtil;
 import by.istin.android.xcore.utils.XRecycler;
 
@@ -256,17 +259,35 @@ public class ContentProvider {
             @Override
             public Cursor getCursor(QueryBuilder pQueryBuilder) {
                 try {
-                    String table = getTable(pQueryBuilder);
-                    return mConnector.getReadableConnection().query(
-                            table,
-                            pQueryBuilder.mColumns,
-                            pQueryBuilder.mWhere,
-                            pQueryBuilder.mWhereArgs,
-                            null,
-                            null,
-                            pQueryBuilder.mOrder,
-                            pQueryBuilder.mLimit
-                    );
+                    if (StringUtil.isEmpty(pQueryBuilder.mUri)) {
+                        return mConnector.getReadableConnection().query(
+                                pQueryBuilder.mTable,
+                                pQueryBuilder.mColumns,
+                                pQueryBuilder.mWhere,
+                                pQueryBuilder.mWhereArgs,
+                                null,
+                                null,
+                                pQueryBuilder.mOrder,
+                                pQueryBuilder.mLimit
+                        );
+                    } else {
+                        final String className = pQueryBuilder.mUri.getLastPathSegment();
+                        if (ModelContract.isSqlUri(className)) {
+                            return mConnector.getReadableConnection().rawQuery(ModelContract.getSqlParam(pQueryBuilder.mUri), pQueryBuilder.mWhereArgs);
+                        } else {
+                            final String limitParam = ModelContract.getLimitParam(pQueryBuilder.mUri);
+                            final Class<?> clazz = ReflectUtils.classForName(className);
+                            final String tableName = DBHelper.getTableName(clazz);
+                            return mConnector.getReadableConnection().query(
+                                    tableName, pQueryBuilder.mColumns,
+                                    pQueryBuilder.mWhere,
+                                    pQueryBuilder.mWhereArgs,
+                                    null,
+                                    null,
+                                    pQueryBuilder.mOrder,
+                                    limitParam);
+                        }
+                    }
                 } finally {
                     mConnector = null;
                     sCoreConnectorAdapterXRecycler.recycled(this);

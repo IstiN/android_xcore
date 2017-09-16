@@ -6,12 +6,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '25.0.2'
+    compileSdkVersion 26
+    buildToolsVersion '26.0.1'
 
     defaultConfig {
-        minSdkVersion 10
-        targetSdkVersion 25
+        minSdkVersion 14
+        targetSdkVersion 26
         //versionName project.VERSION_NAME
         // versionCode Integer.parseInt(project.VERSION_CODE)
     }
@@ -28,10 +28,11 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:25.3.0'
-    compile 'com.android.support:appcompat-v7:25.3.0'
-    compile 'com.android.support:recyclerview-v7:25.3.0'
-    compile 'com.google.code.gson:gson:2.4'
+    compile 'com.android.support:support-core-utils:26.0.0'
+    compile 'com.android.support:support-v4:26.0.0'
+    compile 'com.android.support:appcompat-v7:26.0.0'
+    compile 'com.android.support:recyclerview-v7:26.0.0'
+    compile 'com.google.code.gson:gson:2.7'
 }
 
 task clearJar(type: Delete) {
