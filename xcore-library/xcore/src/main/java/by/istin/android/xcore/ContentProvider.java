@@ -121,10 +121,10 @@ public class ContentProvider {
                     throw new IllegalArgumentException("you need to set uri or table before query");
                 }
                 Cursor cursor = mContentProviderAdapter.getCursor(this);
-                if (!CursorUtils.isEmpty(cursor) && cursor.moveToFirst()) {
-                    return new CursorModel(cursor);
+                if (!CursorUtils.isEmpty(cursor)) {
+                    cursor.moveToFirst();
                 }
-                return null;
+                return new CursorModel(cursor);
             } finally {
                 reset();
             }
@@ -161,9 +161,6 @@ public class ContentProvider {
         public int count() {
             CursorModel cursor = cursor();
             try {
-                if (cursor == null) {
-                    return 0;
-                }
                 return cursor.size();
             } finally {
                 CursorUtils.close(cursor);
@@ -180,7 +177,7 @@ public class ContentProvider {
 
         public List<ContentValues> values(CursorUtils.Converter pConverter) {
             CursorModel cursor = cursor();
-            if (cursor != null) {
+            if (!CursorUtils.isEmpty(cursor)) {
                 List<ContentValues> contentValues = new ArrayList<>();
                 CursorUtils.convertToContentValuesAndClose(cursor, contentValues, pConverter);
                 return contentValues;
@@ -278,7 +275,7 @@ public class ContentProvider {
                             final String limitParam = ModelContract.getLimitParam(pQueryBuilder.mUri);
                             final Class<?> clazz = ReflectUtils.classForName(className);
                             final String tableName = DBHelper.getTableName(clazz);
-                            return mConnector.getReadableConnection().query(
+                            Cursor cursorResult = mConnector.getReadableConnection().query(
                                     tableName, pQueryBuilder.mColumns,
                                     pQueryBuilder.mWhere,
                                     pQueryBuilder.mWhereArgs,
@@ -286,6 +283,7 @@ public class ContentProvider {
                                     null,
                                     pQueryBuilder.mOrder,
                                     limitParam);
+                            return cursorResult;
                         }
                     }
                 } finally {

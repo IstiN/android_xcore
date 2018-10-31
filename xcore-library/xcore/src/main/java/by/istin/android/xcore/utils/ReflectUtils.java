@@ -308,6 +308,9 @@ public class ReflectUtils {
             }
             try {
                 ReflectUtils.ConfigWrapper config = getConfig();
+                if (config == null) {
+                    throw new IllegalStateException(mField.toString());
+                }
                 String configKey = config.key();
                 if (!StringUtil.isEmpty(configKey)) {
                     mSerializedNameValue = configKey;

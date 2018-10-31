@@ -10,6 +10,8 @@ import android.support.v4.content.AsyncTaskLoader;
 import by.istin.android.xcore.ContentProvider;
 import by.istin.android.xcore.ContextHolder;
 import by.istin.android.xcore.XCoreHelper;
+import by.istin.android.xcore.provider.ModelContract;
+import by.istin.android.xcore.utils.CursorUtils;
 import by.istin.android.xcore.utils.Log;
 
 /**
@@ -43,6 +45,12 @@ public class XCursorModelLoader<T extends CursorModel> extends AsyncTaskLoader<T
         if (cursor != null) {
             // Ensure the cursor window is filled
             cursor.getCount();
+            Uri observerUri = ModelContract.getObserverUri(mUri);
+            if (observerUri != null) {
+                cursor.setNotificationUri(getContext().getContentResolver(), observerUri);
+            } else if (mUri != null) {
+                cursor.setNotificationUri(getContext().getContentResolver(), mUri);
+            }
             cursor.registerContentObserver(mObserver);
         }
         if (cursor != null || mCursorModelCreator instanceof CursorModel.CursorModelCreator.NullSupport) {
