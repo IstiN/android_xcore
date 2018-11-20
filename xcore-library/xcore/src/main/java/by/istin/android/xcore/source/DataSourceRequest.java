@@ -69,6 +69,8 @@ public class DataSourceRequest {
 
     public DataSourceRequest setUri(String uri) {
         mCacheUri = null;
+        //try to fix http://crashes.to/s/8382accca22
+        mBundle.remove(REQUEST_URI);
         mBundle.putString(REQUEST_URI, uri);
         return this;
     }
