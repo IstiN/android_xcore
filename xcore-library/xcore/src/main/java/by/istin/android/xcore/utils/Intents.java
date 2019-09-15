@@ -1,10 +1,12 @@
 package by.istin.android.xcore.utils;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.support.v4.app.ShareCompat;
 import android.widget.Toast;
 
 
@@ -66,6 +68,16 @@ public class Intents {
         intent.setType("text/*");
         intent.putExtra(android.content.Intent.EXTRA_TEXT, text);
         context.startActivity(intent);
+    }
+
+    public static void shareFile(Activity activity, Uri fileUri) {
+        Intent intent = ShareCompat.IntentBuilder.from(activity)
+                .setStream(fileUri)
+                .getIntent()
+                .setAction(Intent.ACTION_SEND)
+                .setDataAndType(fileUri, "text/*")
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        activity.startActivity(intent);
     }
 
     /**

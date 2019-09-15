@@ -1,6 +1,8 @@
 package by.istin.android.xcore;
 
+import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 
 
 /**
@@ -23,5 +25,20 @@ public final class ContextHolder {
     public static Context get() {
         return XCoreHelper.get().getContext();
     }
+
+
+    public static Activity getActivity(Context context) {
+        if (context == null) {
+            return null;
+        } else if (context instanceof ContextWrapper) {
+            if (context instanceof Activity) {
+                return (Activity) context;
+            } else {
+                return getActivity(((ContextWrapper) context).getBaseContext());
+            }
+        }
+        return null;
+    }
+
 
 }

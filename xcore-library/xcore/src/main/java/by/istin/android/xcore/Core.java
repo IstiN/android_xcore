@@ -305,8 +305,8 @@ public class Core implements XCoreHelper.IAppServiceKey {
             mCore.execute(build());
         }
 
-        public void executeSync() throws Exception {
-            mCore.executeSync(build());
+        public Object executeSync() throws Exception {
+            return mCore.executeSync(build());
         }
     }
 

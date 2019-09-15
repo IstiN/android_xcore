@@ -9,11 +9,15 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Point;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.RippleDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Build.VERSION;
 import android.os.Looper;
+import android.support.annotation.RequiresApi;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.util.DisplayMetrics;
 import android.view.Display;
 import android.view.View;
@@ -93,6 +97,10 @@ public class UiUtil {
     @TargetApi(Build.VERSION_CODES.KITKAT)
     public static boolean setTranslucentStatus(Activity activity) {
         return setTranslucent(activity, false, true);
+    }
+
+    public static void scaleView(View v, float endScale, ViewPropertyAnimatorListener animationListener) {
+        ViewCompat.animate(v).scaleX(endScale).scaleY(endScale).setDuration(200L).withLayer().setListener(animationListener).start();
     }
 
     @TargetApi(Build.VERSION_CODES.KITKAT)
@@ -475,5 +483,31 @@ public class UiUtil {
                 iSuccess.success(view);
             }
         });
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
+    public static void setRippleSelected(boolean isSelected, View view) {
+        final Drawable background = view.getBackground();
+        if (background instanceof RippleDrawable)  {
+            if (isSelected) {
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        RippleDrawable rippleDrawable = (RippleDrawable) background;
+                        rippleDrawable.setState(new int[]{android.R.attr.state_pressed, android.R.attr.state_enabled});
+                        rippleDrawable.jumpToCurrentState();
+                    }
+                }, 120);
+            } else {
+                view.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        RippleDrawable rippleDrawable = (RippleDrawable) background;
+                        rippleDrawable.setState(new int[]{});
+                    }
+                }, 120);
+            }
+        }
+        view.setSelected(isSelected);
     }
 }
