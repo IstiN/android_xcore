@@ -122,7 +122,7 @@ public class ReflectUtils {
                         Field[] fields = clazz.getFields();
                         for (Field field : fields) {
                             Annotation[] annotations = field.getAnnotations();
-                            if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers()) && annotations != null && annotations.length != 0) {
+                            if (field.getType().equals(String.class) && Modifier.isStatic(field.getModifiers()) && annotations != null && annotations.length != 0 && checkAnnotations(annotations)) {
                                 //we need be sure that all sub entities insert after parent
                                 XField xField = new XField(field);
                                 if (ReflectUtils.isAnnotationPresent(xField, dbEntity.class) || ReflectUtils.isAnnotationPresent(xField, dbEntities.class)) {
@@ -136,6 +136,21 @@ public class ReflectUtils {
                 }
             }
             return result;
+        }
+
+        private boolean checkAnnotations(Annotation[] annotations) {
+            for (Annotation annotation : annotations) {
+                Class<? extends Annotation> annotationType = annotation.annotationType();
+                if (annotationType.equals(dbIndex.class)) {
+                    return true;
+                }
+                String name = annotationType.getName();
+
+                if (name.startsWith(XField.DB_ANNOTATION_PREFIX)) {
+                    return true;
+                }
+            }
+            return false;
         }
 
         public <T> T getInstanceInterface(Class<T> interfaceTargetClazz) {

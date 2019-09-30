@@ -275,6 +275,14 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M;
     }
 
+    public static boolean hasO() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+    }
+
+    public static boolean hasOMR1() {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1;
+    }
+
     public static boolean hasHoneycombMR1() {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR1;
     }
