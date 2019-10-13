@@ -5,12 +5,12 @@ repositories {
 }
 
 android {
-    compileSdkVersion 22
+    compileSdkVersion 28
     buildToolsVersion "22.0.1"
 
     defaultConfig {
         minSdkVersion 10
-        targetSdkVersion 22
+        targetSdkVersion 28
     }
     buildTypes {
         release {
@@ -28,9 +28,9 @@ android {
 }
 
 dependencies {
-    compile 'com.android.support:support-v4:22.2.1'
-    compile 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
-    compile project(':xcore')
+    implementation 'com.android.support:support-v4:28.0.0'
+    implementation 'com.nostra13.universalimageloader:universal-image-loader:1.9.3'
+    implementation project(':xcore')
 }
 
 task clearJar(type: Delete) {

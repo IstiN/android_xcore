@@ -2,7 +2,7 @@ package by.istin.android.xcore.sample;
 
 import android.database.Cursor;
 import android.net.Uri;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.view.View;
 
 import by.istin.android.xcore.fragment.XListFragment;

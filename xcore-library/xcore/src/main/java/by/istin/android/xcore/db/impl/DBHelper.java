@@ -53,7 +53,7 @@ public class DBHelper {
 
         @Override
         public String generateTableName(Class clazz) {
-            return clazz.getCanonicalName().replace(".", "_");
+            return clazz.getCanonicalName().replace(".", "UNDERSCORE");
         }
     }
 
@@ -68,7 +68,7 @@ public class DBHelper {
             for (int i = 0; i < length; i++) {
                 String s = split[i];
                 if (i == length - 1) {
-                    builder.append("_").append(s);
+                    builder.append("UNDERSCORE").append(s);
                 } else {
                     builder.append(s.charAt(0));
                 }

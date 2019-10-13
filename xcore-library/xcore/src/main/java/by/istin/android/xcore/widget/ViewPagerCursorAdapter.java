@@ -1,10 +1,9 @@
 package by.istin.android.xcore.widget;
 
 import android.content.Context;
-import android.database.ContentObserver;
 import android.database.Cursor;
 import android.os.Parcelable;
-import android.support.v4.view.PagerAdapter;
+import androidx.viewpager.widget.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 

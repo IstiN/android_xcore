@@ -1,6 +1,6 @@
 package by.istin.android.xcore.error;
 
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.FragmentActivity;
 
 import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.fragment.IDataSourceHelper;

@@ -3,16 +3,12 @@ package by.istin.android.xcore.model;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.CallLog;
-import android.provider.ContactsContract;
-import android.support.v4.content.AsyncTaskLoader;
+
+import androidx.loader.content.AsyncTaskLoader;
 
 import by.istin.android.xcore.ContentProvider;
 import by.istin.android.xcore.ContextHolder;
-import by.istin.android.xcore.XCoreHelper;
 import by.istin.android.xcore.provider.ModelContract;
-import by.istin.android.xcore.utils.CursorUtils;
-import by.istin.android.xcore.utils.Log;
 
 /**
  * Created by IstiN on 24.01.2015.

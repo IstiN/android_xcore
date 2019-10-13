@@ -3,7 +3,7 @@ package com.android.v4.support.internal.text;
 import android.content.Context;
 import android.graphics.Paint;
 import android.graphics.Typeface;
-import android.support.v4.util.LruCache;
+import androidx.collection.LruCache;
 import android.text.TextPaint;
 import android.text.style.MetricAffectingSpan;
 

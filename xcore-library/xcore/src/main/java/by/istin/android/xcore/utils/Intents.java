@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.support.v4.app.ShareCompat;
+import androidx.core.app.ShareCompat;
 import android.widget.Toast;
 
 

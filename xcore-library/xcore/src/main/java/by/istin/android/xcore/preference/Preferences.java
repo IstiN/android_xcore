@@ -3,7 +3,7 @@ package by.istin.android.xcore.preference;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;

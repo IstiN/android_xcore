@@ -2,7 +2,8 @@ package by.istin.android.xcore.loader;
 
 import android.os.Handler;
 import android.os.Looper;
-import android.support.v4.util.LruCache;
+
+import androidx.collection.LruCache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 
 import by.istin.android.xcore.loader.assist.LazyExecutorService;
 import by.istin.android.xcore.utils.Log;
-import by.istin.android.xcore.utils.ReflectUtils;
 
 public abstract class LazyLoader<View, Params, Result> {
 

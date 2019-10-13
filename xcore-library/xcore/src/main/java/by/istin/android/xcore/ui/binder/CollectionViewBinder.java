@@ -6,9 +6,9 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.support.v7.widget.RecyclerView;
 import android.util.Pair;
-import android.view.View;
+
+import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;

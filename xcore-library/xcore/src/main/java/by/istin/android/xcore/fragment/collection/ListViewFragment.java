@@ -1,6 +1,5 @@
 package by.istin.android.xcore.fragment.collection;
 
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.AbsListView;
 import android.widget.ListAdapter;

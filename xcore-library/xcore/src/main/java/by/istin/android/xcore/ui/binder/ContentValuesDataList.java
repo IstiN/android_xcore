@@ -1,7 +1,7 @@
 package by.istin.android.xcore.ui.binder;
 
 import android.content.ContentValues;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 
 import java.util.Collection;
 import java.util.Iterator;

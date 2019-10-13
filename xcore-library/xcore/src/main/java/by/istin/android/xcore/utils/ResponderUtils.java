@@ -1,7 +1,7 @@
 package by.istin.android.xcore.utils;
 
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentActivity;
 
 /**
  * Created by IstiN on 5.12.13.
