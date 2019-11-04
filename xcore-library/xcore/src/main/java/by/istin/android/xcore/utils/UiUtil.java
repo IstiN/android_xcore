@@ -311,6 +311,10 @@ public class UiUtil {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH;
     }
 
+    public static boolean hasQ() {
+        return Build.VERSION.SDK_INT >= 29;
+    }
+
     /**
      * Hide keyboard
      *
@@ -518,4 +522,6 @@ public class UiUtil {
         }
         view.setSelected(isSelected);
     }
+
+
 }
